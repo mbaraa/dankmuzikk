@@ -2,23 +2,15 @@ version: "3.8"
 
 services:
   website:
-    container_name: "gdsc_cptools"
+    container_name: "dankmuzikk"
     build:
       context: .
-    image: "gdsc_cptools"
+    image: "dankmuzikk"
     restart: "always"
     ports:
-      - "20248:8080"
+      - "20250:8080"
     stdin_open: true
     env_file:
       - .env.docker
     volumes:
-      - gdsc_cptools-files:/tmp
-
-volumes:
-  gdsc_cptools-files:
-    driver: local
-    driver_opts:
-      type: "none"
-      o: "bind"
-      device: .
+      - ./google-service-account.json:/app/google-service-account.json
