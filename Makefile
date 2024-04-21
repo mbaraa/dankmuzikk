@@ -10,6 +10,16 @@ build:
 	go generate && \
 	go build -ldflags="-w -s" -o ${BINARY_NAME}
 
+generate:
+	go generate && \
+    templ generate
+
+init:
+	npm i && \
+	go get && \
+	go generate && \
+	templ generate
+
 # dev runs the development server where it builds the tailwind css sheet,
 # and compiles the project whenever a file is changed.
 dev:
