@@ -4,6 +4,7 @@ BINARY_NAME=dankmuzikk
 
 # build builds the tailwind css sheet, and compiles the binary into a usable thing.
 build:
+	npm i && \
 	go mod tidy && \
 	templ generate && \
 	go generate && \
