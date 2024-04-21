@@ -1,0 +1,13 @@
+package ui
+
+import "dankmuzikk/services/youtube"
+
+type TSearchResult = youtube.SearchResult
+
+templ SearchResult(result TSearchResult) {
+	<div>
+		{ result.Title }
+		{ result.Url }
+		<img src={ result.ThumbnailUrl } alt={ result.Title + " Thumbnail" }/>
+	</div>
+}
