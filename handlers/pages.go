@@ -7,8 +7,6 @@ import (
 	"github.com/a-h/templ"
 )
 
-func HandleHomePage() http.Handler {
-	hand := http.NewServeMux()
+func HandleHomePage(hand *http.ServeMux) {
 	hand.Handle("/", templ.Handler(pages.Index()))
-	return hand
 }

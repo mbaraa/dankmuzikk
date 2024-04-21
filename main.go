@@ -5,7 +5,6 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/services/youtube"
 	"embed"
-	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -26,18 +25,8 @@ func main() {
 	}
 
 	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/", handlers.HandleHomePage())
 	applicationHandler.Handle("/static/", http.FileServer(http.FS(static)))
-
-	applicationHandler.HandleFunc("/api/search-suggession", func(w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query().Get("query")
-		suggessions, err := youtube.SearchSuggestions(q)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		_ = json.NewEncoder(w).Encode(suggessions)
-	})
+	handlers.HandleHomePage(applicationHandler)
 
 	log.Info("Starting http server at port 8080")
 	log.Fatalln(log.ErrorLevel, http.ListenAndServe(":8080", applicationHandler))
