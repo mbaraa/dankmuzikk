@@ -1,6 +1,7 @@
 package pages
 
 import "dankmuzikk/components/layouts"
+import "dankmuzikk/components/ui"
 
 templ Index() {
 	@layouts.Default(main())
@@ -8,15 +9,6 @@ templ Index() {
 
 templ main() {
 	<main class="w-full h-screen">
-		<form
-			class="form-control"
-			hx-get="/api/search-suggession"
-			hx-swap="innerHTML"
-			hx-target="#search-results"
-			hx-trigger="keyup"
-		>
-			<input class="input input-bordered" type="search" name="query"/>
-		</form>
-		<div id="search-results"></div>
+		@ui.SearchResultSugesttions()
 	</main>
 }
