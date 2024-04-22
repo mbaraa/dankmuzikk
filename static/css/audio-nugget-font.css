@@ -1,0 +1,7 @@
+@font-face {
+  font-family: "Audio Nugget";
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: local("Audio Nugget"), url("/static/fonts/audio-nugget/AudioNugget.ttf");
+}

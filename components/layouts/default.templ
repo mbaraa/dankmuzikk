@@ -13,8 +13,22 @@ templ Default(children ...templ.Component) {
 				content="dankmuzikk,dank,dank music,music,music playlist,share playlist,group playlist"
 			/>
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
+			<link
+				async
+				defer
+				rel="stylesheet"
+				type="text/css"
+				href="/static/css/myrad-pro-font.css"
+			/>
+			<link
+				async
+				defer
+				rel="stylesheet"
+				type="text/css"
+				href="/static/css/audio-nugget-font.css"
+			/>
 			<script src="/static/js/htmx.min.js"></script>
-			<script src="/static/js/json-enc.js"></script>
+			<script async defer src="/static/js/json-enc.js"></script>
 		</head>
 		<body>
 			for _, child := range children {
