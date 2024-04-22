@@ -60,7 +60,10 @@ func SearchSuggestions(query string) (sugesstions []string, err error) {
 		panic(err)
 	}
 
-	for _, res := range results[1].([]any) {
+	for i, res := range results[1].([]any) {
+		if i >= 9 { // max displayed suggestions is 10
+			break
+		}
 		sugesstions = append(sugesstions, res.(string))
 	}
 
