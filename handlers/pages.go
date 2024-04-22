@@ -5,6 +5,8 @@ import (
 	"dankmuzikk/components/pages"
 	"net/http"
 	"strings"
+
+	_ "github.com/a-h/templ"
 )
 
 func HandleHomePage(hand *http.ServeMux) {
