@@ -1,5 +1,7 @@
 package layouts
 
+import "dankmuzikk/components/ui/header"
+
 templ Default(children ...templ.Component) {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -49,6 +51,7 @@ templ Default(children ...templ.Component) {
                 min-height: 100dvh;
             '
 		>
+			@header.Header()
 			for _, child := range children {
 				@child
 			}
