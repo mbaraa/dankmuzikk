@@ -3,10 +3,10 @@ package search
 import "fmt"
 
 templ SearchSuggestions(suggestions []string, originalQuery string) {
-	<ul id="search-suggestions" class="grid grid-cols-1 w-full">
+	<ul id="search-suggestions" class={ "grid", "grid-cols-1", "w-full", "bg-[#FFFFFFBB]", "rounded-lg", "p-[10px]" }>
 		for i, suggestion := range suggestions {
-			<li class="focus-within:bg-base-300">
-				<a href="https://google.com" class="w-full" id={ fmt.Sprintf("search-suggestion-%d", i) }>
+			<li class={ "focus-within:bg-primary", "focus-within:text-white", "text-lg", "p-1", "rounded" }>
+				<a href="https://google.com" class={ "w-full" } id={ fmt.Sprintf("search-suggestion-%d", i) }>
 					if len(suggestion) <= len(originalQuery) {
 						<span><b>{ suggestion }</b></span>
 					} else {

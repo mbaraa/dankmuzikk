@@ -1,9 +1,9 @@
 package search
 
 templ Search() {
-	<div class="">
+	<div class={ "!text-accent", "!font-MyriadPro", "md:w-[300px]", "xl:w-[500px]" }>
 		<form
-			class="form-control"
+			class={ "w-full" }
 			hx-get="/api/search-suggession"
 			hx-swap="innerHTML"
 			hx-target="#search-results"
@@ -11,14 +11,15 @@ templ Search() {
 		>
 			<input
 				id="search-input"
-				class="input input-bordered"
+				class={ "w-full", "p-[10px]", "ps-[15px]", "rounded-3xl" }
 				type="search"
 				name="query"
 				autofocus
 				autocomplete="off"
+				placeholder="Search for some tunes"
 			/>
 		</form>
-		<div id="search-results"></div>
+		<div class={ "absolute", "md:top-[80px]", "z-10", "md:w-[300px]", "xl:w-[500px]" } id="search-results"></div>
 	</div>
 	//
 	<script lang="javascript">
