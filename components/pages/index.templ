@@ -2,8 +2,8 @@ package pages
 
 import "dankmuzikk/components/layouts"
 
-templ Index() {
-	@layouts.Default(main())
+templ Index(isMobile bool) {
+	@layouts.Default(isMobile, main())
 }
 
 templ main() {

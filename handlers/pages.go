@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"context"
 	"dankmuzikk/components/pages"
 	"net/http"
-
-	"github.com/a-h/templ"
+	"strings"
 )
 
 func HandleHomePage(hand *http.ServeMux) {
-	hand.Handle("/", templ.Handler(pages.Index()))
+	hand.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		isMobile := strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
+		pages.Index(isMobile).Render(context.Background(), w)
+	})
 }

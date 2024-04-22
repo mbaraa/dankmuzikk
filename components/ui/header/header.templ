@@ -3,8 +3,27 @@ package header
 import "dankmuzikk/components/ui/search"
 
 templ mobileHeader() {
-	<div class={ "md:hidden" }>
-		mobile
+	<div class={ "md:hidden", "h-[250px]", "relative" }>
+		<div class={ "font-AudioNugget", "text-white" }>
+			<a href="/" class={ "flex", "justify-center", "items-center", "flex-col", "gap-y-3", "h-min" }>
+				<img
+					src="/static/android-chrome-512x512.png"
+					alt="DankMuzikk Logo"
+					class={ "w-[55px]", "rounded-md" }
+				/>
+				<h1 class={ "text-3xl" }>DankMuzikk</h1>
+			</a>
+		</div>
+		<div class={ "absolute", "bottom-[60px]" }>
+			<p class={ "text-white", "font-MyriadPro", "text-xl" }>
+				Hey,
+				<br/>
+				Wanna play some tunes?
+			</p>
+		</div>
+		<div class={ "absolute", "bottom-[0px]" }>
+			@search.Search()
+		</div>
 	</div>
 }
 
@@ -31,9 +50,12 @@ templ desktopHeader() {
 	</div>
 }
 
-templ Header() {
+templ Header(isMobile bool) {
 	<header class={ "bg-accent", "p-[20px]" }>
-		@mobileHeader()
-		@desktopHeader()
+		if isMobile {
+			@mobileHeader()
+		} else {
+			@desktopHeader()
+		}
 	</header>
 }

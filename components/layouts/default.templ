@@ -2,7 +2,7 @@ package layouts
 
 import "dankmuzikk/components/ui/header"
 
-templ Default(children ...templ.Component) {
+templ Default(isMobile bool, children ...templ.Component) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -51,7 +51,7 @@ templ Default(children ...templ.Component) {
                 min-height: 100dvh;
             '
 		>
-			@header.Header()
+			@header.Header(isMobile)
 			for _, child := range children {
 				@child
 			}
