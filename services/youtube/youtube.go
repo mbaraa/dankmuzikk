@@ -133,21 +133,28 @@ func getTime(isoDuration string) (string, error) {
 
 	builder := strings.Builder{}
 	if days > 0 {
-		builder.WriteString(fmt.Sprintf("%d:", days))
+		builder.WriteString(formatNumber(int(days)) + ":")
 	}
 	if hours > 0 {
-		builder.WriteString(fmt.Sprintf("%d:", hours%60))
+		builder.WriteString(formatNumber(int(hours%60)) + ":")
 	}
 	if mins > 0 {
-		builder.WriteString(fmt.Sprintf("%d:", mins%60))
+		builder.WriteString(formatNumber(int(mins%60)) + ":")
 	}
 	if secs > 0 {
 		if days == 0 && hours == 0 && mins == 0 {
-			builder.WriteString(fmt.Sprintf("%ds", secs%60))
+			builder.WriteString(formatNumber(int(secs%60)) + "s")
 		} else {
-			builder.WriteString(fmt.Sprintf("%d", secs%60))
+			builder.WriteString(formatNumber(int(secs % 60)))
 		}
 	}
 
 	return builder.String(), nil
+}
+
+func formatNumber(n int) string {
+	if n < 10 {
+		return fmt.Sprintf("0%d", n)
+	}
+	return fmt.Sprint(n)
 }
