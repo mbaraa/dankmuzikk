@@ -1,8 +1,9 @@
 package handlers
 
 import (
+	"context"
+	"dankmuzikk/components/ui/search"
 	"dankmuzikk/services/youtube"
-	"encoding/json"
 	"net/http"
 )
 
@@ -14,6 +15,11 @@ func HandleSearchSugessions(hand *http.ServeMux) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		_ = json.NewEncoder(w).Encode(suggessions)
+
+		err = search.SearchSuggestions(suggessions, q).Render(context.Background(), w)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	})
 }

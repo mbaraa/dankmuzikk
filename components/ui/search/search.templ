@@ -1,0 +1,66 @@
+package search
+
+templ Search() {
+	<div class="">
+		<form
+			class="form-control"
+			hx-get="/api/search-suggession"
+			hx-swap="innerHTML"
+			hx-target="#search-results"
+			hx-trigger="keyup"
+		>
+			<input
+				id="search-input"
+				class="input input-bordered"
+				type="search"
+				name="query"
+				autofocus
+				autocomplete="off"
+			/>
+		</form>
+		<div id="search-results"></div>
+	</div>
+	//
+	<script lang="javascript">
+        const searchInputEl = document.getElementById("search-input");
+        let focusedSuggestionIndex = 0;
+
+        searchInputEl.addEventListener("keydown", (e) => {
+            if (e.key !== "ArrowDown") {
+                return;
+            }
+            moveToSuggestions()
+        });
+
+        function moveToSuggestions() {
+            let searchSuggestionsEl = document.getElementById("search-suggestion-"+focusedSuggestionIndex.toString());
+            // sometimes it needs a second to initialize.
+            if (!searchSuggestionsEl) {
+                searchSuggestionsEl = document.getElementById("search-suggestion-"+focusedSuggestionIndex.toString());
+            }
+            if (!searchSuggestionsEl) {
+                return;
+            }
+            const moveToNextSuggestion = (e) => {
+                const numSuggestions = (document.getElementById("search-suggestions").children ?? []).length
+                if (e.key === "ArrowDown") {
+                    focusedSuggestionIndex = (focusedSuggestionIndex+1) % numSuggestions;
+                    moveToSuggestions()
+                    searchSuggestionsEl.removeEventListener("keydown", moveToNextSuggestion);
+                }
+                if (e.key === "ArrowUp") {
+                    focusedSuggestionIndex--;
+                    if (focusedSuggestionIndex < 0) {
+                        focusedSuggestionIndex = 0;
+                        searchInputEl.focus();
+                        return;
+                    }
+                    moveToSuggestions()
+                    searchSuggestionsEl.removeEventListener("keydown", moveToNextSuggestion);
+                }
+            }
+            searchSuggestionsEl.focus();
+            searchSuggestionsEl.addEventListener("keydown", moveToNextSuggestion);
+        }
+    </script>
+}

@@ -1,0 +1,19 @@
+package search
+
+import "fmt"
+
+templ SearchSuggestions(suggestions []string, originalQuery string) {
+	<ul id="search-suggestions" class="grid grid-cols-1 w-full">
+		for i, suggestion := range suggestions {
+			<li class="focus-within:bg-base-300">
+				<a href="https://google.com" class="w-full" id={ fmt.Sprintf("search-suggestion-%d", i) }>
+					if len(suggestion) <= len(originalQuery) {
+						<span><b>{ suggestion }</b></span>
+					} else {
+						<span><b>{ originalQuery }</b>{ suggestion[len(originalQuery):] }</span>
+					}
+				</a>
+			</li>
+		}
+	</ul>
+}
