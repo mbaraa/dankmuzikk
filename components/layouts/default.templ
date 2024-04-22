@@ -37,7 +37,18 @@ templ Default(children ...templ.Component) {
 			<script src="/static/js/htmx.min.js"></script>
 			<script async defer src="/static/js/json-enc.js"></script>
 		</head>
-		<body class="bg-primary">
+		<body
+			style='
+                background-image: url("/static/images/dankground.jpg"), linear-gradient(to right, #4C8C36 , #9EE07E);
+                background-repeat: repeat;
+                background-size: cover;
+                padding: 0px;
+                margin: 0px;
+                background-position: center;
+                background-attachment: fixed;
+                min-height: 100dvh;
+            '
+		>
 			for _, child := range children {
 				@child
 			}
