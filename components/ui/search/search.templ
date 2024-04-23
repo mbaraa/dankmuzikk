@@ -3,6 +3,7 @@ package search
 templ Search() {
 	<div class={ "!text-accent", "!font-MyriadPro", "w-[92vw]", "md:w-[300px]", "xl:w-[500px]" }>
 		<form
+			id="search-form"
 			class={ "w-full" }
 			hx-get="/api/search-suggession"
 			hx-swap="innerHTML"
@@ -19,11 +20,13 @@ templ Search() {
 					autocomplete="off"
 					placeholder="Search for some tunes"
 				/>
-				<img
-					class={ "w-[44px]", "h-[44px]", "rounded-r-3xl", "pe-[10px]" }
-					src="/static/images/search-icon.svg"
-					alt="search"
-				/>
+				<button id="search-icon">
+					<img
+						class={ "w-[44px]", "h-[44px]", "rounded-r-3xl", "pe-[10px]" }
+						src="/static/images/search-icon.svg"
+						alt="search"
+					/>
+				</button>
 			</div>
 		</form>
 		<div
@@ -33,6 +36,17 @@ templ Search() {
 	</div>
 	//
 	<script lang="javascript">
+        const searchFormEl = document.getElementById("search-form");
+        searchFormEl.addEventListener("submit", (e)=> {
+            e.preventDefault();
+            const query = e.target.query.value;
+            window.open(`/search?query=${query}`, "_self");
+        });
+        document.getElementById("search-icon").addEventListener("click", () => {
+            const query = searchFormEl.query.value;
+            window.open(`/search?query=${query}`, "_self");
+        });
+
         const searchInputEl = document.getElementById("search-input");
         let focusedSuggestionIndex = 0;
 
