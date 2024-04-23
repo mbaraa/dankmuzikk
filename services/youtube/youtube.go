@@ -14,7 +14,7 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
-const maxSearchResults = 2
+const maxSearchResults = 10
 
 func init() {
 	if os.Getenv("GOOGLE_APPLICATION_CREDENTIALS") == "" {
@@ -103,7 +103,7 @@ func Search(query string) (results []SearchResult, err error) {
 			continue
 		}
 
-		if responseObj.Items[0].Kind != "youtube#video" {
+		if len(responseObj.Items) == 0 || responseObj.Items[0].Kind != "youtube#video" {
 			continue
 		}
 		duration, err := getTime(responseObj.Items[0].ContentDetails.Duration)
