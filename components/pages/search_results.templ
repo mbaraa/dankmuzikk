@@ -1,0 +1,21 @@
+package pages
+
+import (
+	"dankmuzikk/components/layouts"
+	"dankmuzikk/services/youtube"
+)
+
+type SearchResult = youtube.SearchResult
+
+templ searchResults(results []SearchResult) {
+	<main class={ "w-full", "h-full" }>
+		for _, res := range results {
+			{ res.Title }
+			<br/>
+		}
+	</main>
+}
+
+templ SearchResults(isMobile bool, results []SearchResult) {
+	@layouts.Default(isMobile, searchResults(results))
+}

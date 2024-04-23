@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"dankmuzikk/components/pages"
+	"dankmuzikk/services/youtube"
 	"net/http"
 	"strings"
 
@@ -11,7 +12,23 @@ import (
 
 func HandleHomePage(hand *http.ServeMux) {
 	hand.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		isMobile := strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
-		pages.Index(isMobile).Render(context.Background(), w)
+		pages.Index(isMobile(r)).Render(context.Background(), w)
 	})
+}
+
+func HandleSearchResultsPage(hand *http.ServeMux) {
+	hand.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query().Get("query")
+		results, err := youtube.Search(query)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("not found"))
+			return
+		}
+		pages.SearchResults(isMobile(r), results).Render(context.Background(), w)
+	})
+}
+
+func isMobile(r *http.Request) bool {
+	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
 }

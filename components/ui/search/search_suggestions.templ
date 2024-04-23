@@ -10,7 +10,7 @@ templ SearchSuggestions(suggestions []string, originalQuery string) {
                         "text-lg", "p-1", "first:rounded-t", "last:rounded-b",
                         "border-b", "border-b-primary", "last:border-b-0" }
 			>
-				<a href="https://google.com" class={ "w-full", "p-[10px]" } id={ fmt.Sprintf("search-suggestion-%d", i) }>
+				<a href={ templ.SafeURL(fmt.Sprintf("/search?query=%s", suggestion)) } class={ "w-full", "p-[10px]" } id={ fmt.Sprintf("search-suggestion-%d", i) }>
 					if len(suggestion) <= len(originalQuery) {
 						<span><b>{ suggestion }</b></span>
 					} else {
