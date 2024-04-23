@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"dankmuzikk/components/pages"
+	"dankmuzikk/log"
 	"dankmuzikk/services/youtube"
 	"net/http"
 	"strings"
@@ -23,6 +24,7 @@ func HandleSearchResultsPage(hand *http.ServeMux) {
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("not found"))
+			log.Errorln(err)
 			return
 		}
 		pages.SearchResults(isMobile(r), results).Render(context.Background(), w)
