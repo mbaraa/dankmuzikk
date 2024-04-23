@@ -39,11 +39,11 @@ templ Search() {
         const searchFormEl = document.getElementById("search-form");
         searchFormEl.addEventListener("submit", (e)=> {
             e.preventDefault();
-            const query = e.target.query.value;
+            const query = encodeURIComponent(e.target.query.value);
             window.open(`/search?query=${query}`, "_self");
         });
         document.getElementById("search-icon").addEventListener("click", () => {
-            const query = searchFormEl.query.value;
+            const query = encodeURIComponent(searchFormEl.query.value);
             window.open(`/search?query=${query}`, "_self");
         });
 
