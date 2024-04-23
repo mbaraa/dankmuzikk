@@ -3,7 +3,7 @@ package header
 import "dankmuzikk/components/ui/search"
 
 templ mobileHeader() {
-	<div class={ "md:hidden", "h-[250px]", "relative" }>
+	<div class={ "md:hidden", "h-[250px]", "", "flex", "flex-col", "justify-between" }>
 		<div class={ "font-AudioNugget", "text-white" }>
 			<a href="/" class={ "flex", "justify-center", "items-center", "flex-col", "gap-y-3", "h-min" }>
 				<img
@@ -14,14 +14,14 @@ templ mobileHeader() {
 				<h1 class={ "text-3xl" }>DankMuzikk</h1>
 			</a>
 		</div>
-		<div class={ "absolute", "bottom-[60px]" }>
+		<div class={  }>
 			<p class={ "text-white", "font-MyriadPro", "text-xl" }>
 				Hey,
 				<br/>
-				Wanna play some tunes?
+				Wanna play something?
 			</p>
 		</div>
-		<div class={ "absolute", "bottom-[0px]" }>
+		<div class={  }>
 			@search.Search()
 		</div>
 	</div>
