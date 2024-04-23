@@ -8,11 +8,29 @@ import (
 type SearchResult = youtube.SearchResult
 
 templ searchResults(results []SearchResult) {
-	<main class={ "w-full", "h-full" }>
-		for _, res := range results {
-			{ res.Title }
-			<br/>
-		}
+	<main class={ "w-full", "h-full", "flex", "justify-center", "font-MyriadPro" }>
+		<section
+			class={ "w-full", "md:w-2/3", "bg-accent", "overflow-y-scroll", "max-h-[50vh]", "md:max-h-[80vh]",
+                    "rounded-[10px]", "mt-[10px]", "md:m-[20px]", "p-[10px]", "md:p-[40px]", "flex", "flex-col", "gap-y-1" }
+		>
+			for _, res := range results {
+				<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+					<div class={ "w-full", "bg-secondary", "p-[12px]", "flex", "justify-between", "rounded-[10px]" }>
+						<img
+							class={ "md:w-[120px]", "md:h-[90px]" }
+							src={ res.ThumbnailUrl }
+							alt="Video Thumbnail"
+						/>
+						<div class={ "flex", "justify-center", "items-center", "flex-col" }>
+							<h3>{ res.Title }</h3>
+						</div>
+						<div class={ "flex", "justify-center", "items-center" }>
+							add
+						</div>
+					</div>
+				</a>
+			}
+		</section>
 	</main>
 }
 
