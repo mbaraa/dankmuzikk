@@ -9,15 +9,22 @@ templ Search() {
 			hx-target="#search-suggestions-container"
 			hx-trigger="keyup"
 		>
-			<input
-				id="search-input"
-				class={ "w-full", "p-[10px]", "ps-[15px]", "rounded-3xl" }
-				type="search"
-				name="query"
-				autofocus
-				autocomplete="off"
-				placeholder="Search for some tunes"
-			/>
+			<div class={ "flex", "bg-white", "rounded-3xl" }>
+				<input
+					id="search-input"
+					class={ "w-full", "p-[10px]", "ps-[15px]", "rounded-l-3xl" }
+					type="search"
+					name="query"
+					autofocus
+					autocomplete="off"
+					placeholder="Search for some tunes"
+				/>
+				<img
+					class={ "w-[44px]", "h-[44px]", "rounded-r-3xl", "pe-[10px]" }
+					src="/static/images/search-icon.svg"
+					alt="search"
+				/>
+			</div>
 		</form>
 		<div
 			class={ "absolute", "top-[275px]", "md:top-[80px]", "z-10", "w-[92vw]", "md:w-[300px]", "xl:w-[500px]" }
