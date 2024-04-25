@@ -67,18 +67,12 @@ templ searchResults(isMobile bool, results []SearchResult) {
 					<!-- actions -->
 					<div class={ "w-[30px]", "h-[30px]", "relative" }>
 						<!-- TODO: Add add to playlist action -->
-						<button onClick={ addToPlayList() }>
-							@playlist.PlaylistsPopover(addToPlayListButton(), idx)
-						</button>
+						@playlist.PlaylistsPopover(addToPlayListButton(), idx)
 					</div>
 				</div>
 			}
 		</section>
 	</main>
-}
-
-script addToPlayList() {
-    console.log("meow")
 }
 
 func trunkString(s string, maxLength int) string {
