@@ -3,6 +3,7 @@ package pages
 import (
 	"dankmuzikk/components/layouts"
 	"dankmuzikk/services/youtube"
+	"dankmuzikk/components/ui/playlist"
 )
 
 type SearchResult = youtube.SearchResult
@@ -11,14 +12,18 @@ templ SearchResults(isMobile bool, results []SearchResult) {
 	@layouts.Default(isMobile, searchResults(isMobile, results))
 }
 
+templ addToPlayListButton() {
+	<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
+}
+
 templ searchResults(isMobile bool, results []SearchResult) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
-			class={ "w-full", "md:w-auto", "overflow-y-scroll", "max-h-[50vh]", "md:max-h-[75vh]", // "bg-[#00000044]", "rounded-md",
+			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]", // "bg-[#00000044]", "rounded-md",
                     "rounded-[10px]", "mt-[10px]", "md:m-[20px]", "p-[10px]", "md:p-[20px]", "flex", "flex-col", "gap-y-3",
                     "justify-between" }
 		>
-			for _, res := range results {
+			for idx, res := range results {
 				<div class={ "!font-MyriadPro", "w-full", "bg-accent", "md:bg-[#ffffff00]", "p-[12px]", "flex", "justify-between", "rounded-[10px]", "gap-x-2", "md:gap-x-5", "xl:gap-x-10" }>
 					<!-- thumbnail and duration -->
 					<div
@@ -60,10 +65,10 @@ templ searchResults(isMobile bool, results []SearchResult) {
 						</div>
 					</div>
 					<!-- actions -->
-					<div class={ "w-[30px]", "h-[30px]" }>
+					<div class={ "w-[30px]", "h-[30px]", "relative" }>
 						<!-- TODO: Add add to playlist action -->
 						<button onClick={ addToPlayList() }>
-							<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
+							@playlist.PlaylistsPopover(addToPlayListButton(), idx)
 						</button>
 					</div>
 				</div>

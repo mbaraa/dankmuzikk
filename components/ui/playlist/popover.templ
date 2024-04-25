@@ -1,0 +1,38 @@
+package playlist
+
+import "fmt"
+
+templ PlaylistsPopover(buttonChild templ.Component, index int) {
+	<div class={ "popover-container", "relative" }>
+		<button onClick={ toggleTheThing(index) } class={ "popover-trigger" }>
+			@buttonChild
+		</button>
+		<div
+			class={
+				fmt.Sprintf("popover-%d", index), "hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
+				"bg-white", "shadow-md", "p-[10px]", "rounded-[5px]",
+				"min-w-[200px]",
+			}
+		>
+			<ul>
+				{ fmt.Sprint(index) }
+				<li>Work Muzikk</li>
+				<li>Hyper Work Muzikk</li>
+				<li>Food Muzikk</li>
+				<li>Morning Muzikk</li>
+				<li>Night Muzikk</li>
+				<li>Muzikk to watch cats to under the chemtrails over the country club</li>
+			</ul>
+		</div>
+	</div>
+}
+
+script toggleTheThing(index int) {
+    const popover = document.querySelector(`.popover-${index}`);
+
+    if (popover.style.display !== "block") {
+      popover.style.display = "block";
+    } else {
+      popover.style.display = "none";
+    }
+}
