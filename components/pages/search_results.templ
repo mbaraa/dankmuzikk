@@ -7,47 +7,79 @@ import (
 
 type SearchResult = youtube.SearchResult
 
-templ searchResults(results []SearchResult) {
+templ SearchResults(isMobile bool, results []SearchResult) {
+	@layouts.Default(isMobile, searchResults(isMobile, results))
+}
+
+templ searchResults(isMobile bool, results []SearchResult) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
-			class={ "w-full", "md:w-2/3", "bg-accent", "overflow-y-scroll", "max-h-[50vh]", "md:max-h-[80vh]",
+			class={ "w-full", "md:w-auto", "overflow-y-scroll", "max-h-[50vh]", "md:max-h-[75vh]", // "bg-[#00000044]", "rounded-md",
                     "rounded-[10px]", "mt-[10px]", "md:m-[20px]", "p-[10px]", "md:p-[20px]", "flex", "flex-col", "gap-y-3",
                     "justify-between" }
 		>
 			for _, res := range results {
-				<a
-					class={ "!font-MyriadPro", "text-accent" }
-					href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-				>
-					<div class={ "w-full", "bg-secondary", "p-[12px]", "flex", "justify-between", "rounded-[10px]" }>
-						<img
-							class={ "md:w-[120px]", "md:h-[90px]" }
-							src={ res.ThumbnailUrl }
-							alt="Video Thumbnail"
-						/>
-						<div class={ "flex", "justify-center", "items-center", "flex-col",  "!font-MyriadPro", "text-white" }>
-							<h3
-								class={ "w-[200px]", "md:min-w-[300px]", "xl:min-w-[500px]", "text-md", "md:text-xl", "font-bold" }
-								title={ res.Title }
-							>
-								if len(res.Title) > 45 {
-									{ res.Title[:45] + "..." }
-								} else {
-									{ res.Title }
-								}
-							</h3>
-							<p class={ "w-[200px]", "md:min-w-[300px]", "xl:min-w-[500px]" }>{ res.Duration }</p>
-						</div>
-						<div class={ "flex", "justify-center", "items-center" }>
-							add
+				<div class={ "!font-MyriadPro", "w-full", "bg-accent", "md:bg-[#ffffff00]", "p-[12px]", "flex", "justify-between", "rounded-[10px]", "gap-x-2", "md:gap-x-5", "xl:gap-x-10" }>
+					<!-- thumbnail and duration -->
+					<div
+						class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]" }
+					>
+						<div
+							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative" }
+						>
+							<img
+								class={ "w-full", "h-full", "rounded-lg" }
+								loading="lazy"
+								src={ res.ThumbnailUrl }
+								alt="Video Thumbnail"
+							/>
+							<div class={ "absolute", "right-0", "bottom-0", "text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-[#00000088]", "rounded-sm" }>
+								<p class={ "leading-3", "font-MyriadPro" }>
+									{ res.Duration }
+								</p>
+							</div>
 						</div>
 					</div>
-				</a>
+					<!-- title, channel title, and description -->
+					<div class={ "w-[150px]", "md:min-w-[300px]", "xl:min-w-[400px]" }>
+						<div class={ "w-full", "h-full", "flex", "justify-between", "items-center", "flex-col",  "font-MyriadPro", "text-white" }>
+							<h3
+								class={ "w-full", "text-md", "md:text-lg", "font-bold" }
+								title={ res.Title }
+							>
+								if isMobile {
+									{ trunkString(res.Title, 25) }
+								} else {
+									{ trunkString(res.Title, 45) }
+								}
+							</h3>
+							<p class={ "w-full", "text-sm", "font-normal" }>{ res.ChannelTitle }</p>
+							if !isMobile {
+								<p class={ "w-full", "hidden", "md:block", "text-sm", "font-light" }>{ trunkString(res.Description, 250) }</p>
+							}
+						</div>
+					</div>
+					<!-- actions -->
+					<div class={ "w-[30px]", "h-[30px]" }>
+						<!-- TODO: Add add to playlist action -->
+						<button onClick={ addToPlayList() }>
+							<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
+						</button>
+					</div>
+				</div>
 			}
 		</section>
 	</main>
 }
 
-templ SearchResults(isMobile bool, results []SearchResult) {
-	@layouts.Default(isMobile, searchResults(results))
+script addToPlayList() {
+    console.log("meow")
+}
+
+func trunkString(s string, maxLength int) string {
+	if len(s) > maxLength {
+		return s[:maxLength] + "..."
+	} else {
+		return s
+	}
 }
