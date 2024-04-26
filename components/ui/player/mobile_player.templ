@@ -1,5 +1,60 @@
 package player
 
 templ mobilePlayer() {
-	mobile player
+	<div
+		class={
+			"absolute", "bottom-0", "w-screen", "h-[120px]", "bg-accent", "rounded-t-3xl",
+			"font-MyriadPro", "flex", "items-center", "justify-between", "gap-x-4", "p-[10px]",
+			"text-white",
+		}
+	>
+		<div class={ "flex", "items-center", "w-[80px]" }>
+			<div
+				id="song-image"
+				class={
+					"w-[80px]", "h-[80px]", "rounded-md", "bg-accent", "bg-[url('/static/images/dankground.svg')]",
+					"bg-repeat", "bg-cover", "bg-center",
+				}
+			></div>
+		</div>
+		<div class={ "flex", "flex-col", "min-w-[300px]", "w-full" }>
+			<div class={ "flex", "flex-row" }>
+				<!-- details -->
+				<div class={ "flex", "flex-col", "justify-center", "w-[100px]" }>
+					<p class={ "font-MyriadPro", "w-full" }>
+						<span id="song-name">Song's Title</span>
+					</p>
+					<p class={ "font-MyriadPro", "w-full" }>
+						<span id="artist-name">Artist's Name</span>
+					</p>
+				</div>
+				<!-- player controls -->
+				<div class={ "float-right", "flex", "items-center", "gap-x-0", "w-[190px]" }>
+					<button id="shuffle" type="button" disabled>
+						<img src="/static/images/shuffle-icon.svg" alt="Shuffle"/>
+					</button>
+					<button id="prev" type="button" disabled>
+						<img src="/static/images/previous-icon.svg" alt="Previous"/>
+					</button>
+					<button id="play" type="button" disabled>
+						<div id="loading" class="loader !h-10 !w-10"></div>
+						<!-- <img src="/static/images/play-disabled-icon.svg" alt="Play"/> -->
+					</button>
+					<button id="next" type="button" disabled>
+						<img src="/static/images/next-icon.svg" alt="Next"/>
+					</button>
+				</div>
+			</div>
+			<!-- seeker and time -->
+			<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
+				<input
+					id="song-seek-bar"
+					type="range"
+					min="0"
+					class={ "my-2" }
+				/>
+				<span id="song-current-time">00:00</span>
+			</div>
+		</div>
+	</div>
 }
