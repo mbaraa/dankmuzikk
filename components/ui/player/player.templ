@@ -113,7 +113,7 @@ templ PlayerSticky(isMobile bool) {
         }
 
         function getTextWidth() {
-            return window.innerWidth > 768? 35: 11;
+            return window.innerWidth > 768? 35: 15;
         }
 
         function updateSongDetails() {
@@ -203,9 +203,6 @@ templ PlayerSticky(isMobile bool) {
 
         document.getElementById("play").addEventListener("click", () => {
           playPauseToggle();
-        });
-        document.getElementById("stop").addEventListener("click", () => {
-          stopVideo();
         });
         document.getElementById("next").addEventListener("click", () => {});
         document.getElementById("prev").addEventListener("click", () => {});
