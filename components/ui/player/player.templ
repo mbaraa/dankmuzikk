@@ -1,7 +1,7 @@
 package player
 
 templ PlayerSticky(isMobile bool) {
-	<div id="muzikk" class="">
+	<div id="muzikk" class="hidden">
 		//		if isMobile {
 		//			@mobilePlayer()
 		//		} else {
@@ -32,9 +32,11 @@ templ PlayerSticky(isMobile bool) {
         const songCurrentTimeEl = document.getElementById("song-current-time");
         const songImageEl = document.getElementById("song-image");
 
+        window.isPlayerReady = false;
+
         function onYouTubeIframeAPIReady() {
           window.player = new YT.Player("yt-player", {
-            videoId: "dQw4w9WgXcQ",
+            videoId: "",
             playerVars: {
               playsinline: 1,
             },
@@ -52,6 +54,7 @@ templ PlayerSticky(isMobile bool) {
             shuffleEl.disabled = null;
             nextEl.disabled = null;
             prevEl.disabled = null;
+            window.isPlayerReady = true;
             playPauseToggleEl.innerHTML = window.playPauseIcons.play;
         }
 
@@ -69,6 +72,8 @@ templ PlayerSticky(isMobile bool) {
               case YT.PlayerState.PLAYING:
                     console.log("playing")
                   updateSongDetails();
+                  document.getElementById("muzikk").style.display = "block";
+                  document.body.style.cursor = "auto";
                   playPauseToggleEl.innerHTML = window.playPauseIcons.pause;
                   break;
               case YT.PlayerState.PAUSED:
@@ -162,9 +167,8 @@ templ PlayerSticky(isMobile bool) {
 
 
         window.playYTSongById = (videoId) => {
-            document.getElementById("muzikk").style.display = "block";
-            document.getElementById("play").innerHTML = window.playPauseIcons.loading;
             window.player.loadVideoById(videoId);
+            document.getElementById("play").innerHTML = window.playPauseIcons.loading;
         }
 
         songSeekBarEl.addEventListener("change", (event) => {

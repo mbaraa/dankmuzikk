@@ -83,7 +83,13 @@ templ searchResults(isMobile bool, results []SearchResult) {
 }
 
 script playSong(videoId string) {
-    window.playYTSongById(videoId);
+    document.body.style.cursor = "progress";
+    const interval = setInterval(() => {
+        if (window.isPlayerReady) {
+            clearInterval(interval);
+            window.playYTSongById(videoId);
+        }
+    }, 100);
 }
 
 func trunkString(s string, maxLength int) string {
