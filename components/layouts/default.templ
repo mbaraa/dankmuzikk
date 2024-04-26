@@ -1,6 +1,7 @@
 package layouts
 
 import "dankmuzikk/components/ui/header"
+import "dankmuzikk/components/ui/player"
 
 templ Default(isMobile bool, children ...templ.Component) {
 	<!DOCTYPE html>
@@ -37,6 +38,7 @@ templ Default(isMobile bool, children ...templ.Component) {
 				href="/static/css/audio-nugget-font.css"
 			/>
 			<script src="/static/js/htmx.min.js"></script>
+			<script src="https://www.youtube.com/iframe_api"></script>
 			<script async defer src="/static/js/json-enc.js"></script>
 		</head>
 		<body
@@ -55,6 +57,7 @@ templ Default(isMobile bool, children ...templ.Component) {
 			for _, child := range children {
 				@child
 			}
+			@player.PlayerSticky(isMobile)
 			<script type="module">
 			    function registerServiceWorkers() {
 			    	if (!("serviceWorker" in navigator)) {

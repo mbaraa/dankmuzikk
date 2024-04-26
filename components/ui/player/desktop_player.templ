@@ -1,0 +1,52 @@
+package player
+
+templ desktopPlayer() {
+	<div
+		class={
+			"absolute", "bottom-0", "w-screen", "h-[90px]", "bg-accent", "rounded-t-3xl",
+			"font-MyriadPro", "flex", "items-center", "justify-between", "gap-x-4", "p-[10px]",
+			"text-white",
+		}
+	>
+		<div class={ "flex", "gap-x-4" }>
+			<div>
+				<img
+					class={ "w-[60px]", "h-[60px]", "rounded-md", "bg-accent" }
+					id="song-image"
+					src="/static/images/album-cover-icon.svg"
+					alt="Song's Image"
+				/>
+			</div>
+			<div class={ "flex", "flex-col", "justify-center" }>
+				<p id="song-name" class={ "font-MyriadPro" }>Song's Title</p>
+				<p id="artist-name" class={ "font-MyriadPro" }>Artist's Name</p>
+			</div>
+		</div>
+		<div>
+			<span id="song-current-time">00:00</span>
+			/
+			<span id="song-duration">00:00</span>
+			<input
+				id="song-seek-bar"
+				type="range"
+				class="pt-[35px] w-full h-[5px]"
+			/>
+		</div>
+		<!-- player controls -->
+		<div class={ "float-right", "flex", "items-center", "gap-x-1" }>
+			<button id="shuffle" type="button" disabled>
+				<img src="/static/images/shuffle-icon.svg" alt="Shuffle"/>
+			</button>
+			<button id="prev" type="button" disabled>
+				<img src="/static/images/previous-icon.svg" alt="Previous"/>
+			</button>
+			<button id="play" type="button" disabled>
+				<div id="loading" class="loader !h-10 !w-10"></div>
+				<!-- <img src="/static/images/play-disabled-icon.svg" alt="Play"/> -->
+			</button>
+			<button id="next" type="button" disabled>
+				<img src="/static/images/next-icon.svg" alt="Next"/>
+			</button>
+		</div>
+	</div>
+}

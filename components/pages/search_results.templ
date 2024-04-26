@@ -19,18 +19,24 @@ templ addToPlayListButton() {
 templ searchResults(isMobile bool, results []SearchResult) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
-			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]", // "bg-[#00000044]", "rounded-md",
+			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",  "bg-[#00000044]", "rounded-md",
                     "rounded-[10px]", "mt-[10px]", "md:m-[20px]", "p-[10px]", "md:p-[20px]", "flex", "flex-col", "gap-y-3",
                     "justify-between" }
 		>
 			for idx, res := range results {
-				<div class={ "!font-MyriadPro", "w-full", "bg-accent", "md:bg-[#ffffff00]", "p-[12px]", "flex", "justify-between", "rounded-[10px]", "gap-x-2", "md:gap-x-5", "xl:gap-x-10" }>
+				<div
+					class={
+						"!font-MyriadPro", "w-full", "bg-accent", "md:bg-[#ffffff00]", "p-[12px]", "flex", "justify-between",
+						"rounded-[10px]", "gap-x-2", "md:gap-x-5", "xl:gap-x-10",
+					}
+				>
 					<!-- thumbnail and duration -->
 					<div
 						class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]" }
 					>
 						<div
-							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative" }
+							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative", "cursor-pointer" }
+							onClick={ playSong(res.Id) }
 						>
 							<img
 								class={ "w-full", "h-full", "rounded-lg" }
@@ -49,8 +55,9 @@ templ searchResults(isMobile bool, results []SearchResult) {
 					<div class={ "w-[150px]", "md:min-w-[300px]", "xl:min-w-[400px]" }>
 						<div class={ "w-full", "h-full", "flex", "justify-between", "items-center", "flex-col",  "font-MyriadPro", "text-white" }>
 							<h3
-								class={ "w-full", "text-md", "md:text-lg", "font-bold" }
+								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer" }
 								title={ res.Title }
+								onClick={ playSong(res.Id) }
 							>
 								if isMobile {
 									{ trunkString(res.Title, 25) }
@@ -73,6 +80,10 @@ templ searchResults(isMobile bool, results []SearchResult) {
 			}
 		</section>
 	</main>
+}
+
+script playSong(videoId string) {
+    window.playYTSongById(videoId);
 }
 
 func trunkString(s string, maxLength int) string {
