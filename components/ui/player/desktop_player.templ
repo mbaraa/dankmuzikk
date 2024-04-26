@@ -4,36 +4,40 @@ templ desktopPlayer() {
 	<div
 		class={
 			"absolute", "bottom-0", "w-screen", "h-[90px]", "bg-accent", "rounded-t-3xl",
-			"font-MyriadPro", "flex", "items-center", "justify-between", "gap-x-4", "p-[10px]",
+			"font-MyriadPro", "flex", "items-center", "justify-between", "gap-x-4", "p-[20px]",
 			"text-white",
 		}
 	>
-		<div class={ "flex", "gap-x-4" }>
-			<div>
-				<img
-					class={ "w-[60px]", "h-[60px]", "rounded-md", "bg-accent" }
-					id="song-image"
-					src="/static/images/album-cover-icon.svg"
-					alt="Song's Image"
-				/>
-			</div>
-			<div class={ "flex", "flex-col", "justify-center" }>
-				<p id="song-name" class={ "font-MyriadPro" }>Song's Title</p>
-				<p id="artist-name" class={ "font-MyriadPro" }>Artist's Name</p>
+		<div class={ "flex", "gap-x-4", "w-[350px]" }>
+			<div
+				id="song-image"
+				class={
+					"w-[60px]", "h-[60px]", "rounded-md", "bg-accent", "bg-[url('/static/images/dankground.svg')]",
+					"bg-repeat", "bg-cover", "bg-center",
+				}
+			></div>
+			<div class={ "flex", "flex-col", "justify-center", "w-[275px]" }>
+				<p class={ "font-MyriadPro", "w-full" }>
+					<span id="song-name">Song's Title</span>
+				</p>
+				<p class={ "font-MyriadPro", "w-full" }>
+					<span id="artist-name">Artist's Name</span>
+				</p>
 			</div>
 		</div>
-		<div>
+		<div class={ "w-[100px]", "lg:w-[400px]", "2xl:w-[600px]" }>
 			<span id="song-current-time">00:00</span>
 			/
 			<span id="song-duration">00:00</span>
 			<input
 				id="song-seek-bar"
 				type="range"
-				class="pt-[35px] w-full h-[5px]"
+				min="0"
+				class={ "my-2" }
 			/>
 		</div>
 		<!-- player controls -->
-		<div class={ "float-right", "flex", "items-center", "gap-x-1" }>
+		<div class={ "float-right", "flex", "items-center", "gap-x-1", "w-[190px]" }>
 			<button id="shuffle" type="button" disabled>
 				<img src="/static/images/shuffle-icon.svg" alt="Shuffle"/>
 			</button>

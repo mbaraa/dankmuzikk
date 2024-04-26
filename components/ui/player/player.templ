@@ -1,7 +1,7 @@
 package player
 
 templ PlayerSticky(isMobile bool) {
-	<div id="muzikk" class="hidden">
+	<div id="muzikk" class="">
 		//		if isMobile {
 		//			@mobilePlayer()
 		//		} else {
@@ -110,14 +110,29 @@ templ PlayerSticky(isMobile bool) {
 
         function updateSongDetails() {
             const videoData = window.player.getVideoData();
-            songNameEl.innerHTML = videoData.title;
-            artistNameEl.innerHTML = videoData.author;
-
+            if (videoData.title) {
+                songNameEl.innerHTML =  videoData.title;
+                songNameEl.title = videoData.title;
+                if (videoData.title.length > 35) {
+                    songNameEl.parentElement.classList.add("marquee");
+                } else {
+                    songNameEl.parentElement.classList.remove("marquee");
+                }
+            }
+            if (videoData.author) {
+                artistNameEl.innerHTML = videoData.author;
+                artistNameEl.title = videoData.author;
+                if (videoData.author.length > 35) {
+                    artistNameEl.parentElement.classList.add("marquee");
+                } else {
+                    artistNameEl.parentElement.classList.remove("marquee");
+                }
+            }
             songSeekBarEl.max = Math.ceil(window.player.getDuration());
             songSeekBarEl.value = 0;
             songDurationEl.innerHTML = formatTime(window.player.getDuration());
 
-            songImageEl.src = `https://img.youtube.com/vi/${videoData.video_id}/0.jpg`
+            songImageEl.style.backgroundImage = `url("https://img.youtube.com/vi/${videoData.video_id}/0.jpg")`
         }
 
         function stopVideo() {

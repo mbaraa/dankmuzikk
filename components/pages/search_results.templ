@@ -20,14 +20,14 @@ templ searchResults(isMobile bool, results []SearchResult) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",  "bg-[#00000044]", "rounded-md",
-                    "rounded-[10px]", "mt-[10px]", "md:m-[20px]", "p-[10px]", "md:p-[20px]", "flex", "flex-col", "gap-y-3",
+                    "rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[5px]", "md:p-[20px]", "flex", "flex-col", "gap-y-3",
                     "justify-between" }
 		>
 			for idx, res := range results {
 				<div
 					class={
-						"!font-MyriadPro", "w-full", "bg-accent", "md:bg-[#ffffff00]", "p-[12px]", "flex", "justify-between",
-						"rounded-[10px]", "gap-x-2", "md:gap-x-5", "xl:gap-x-10",
+						"!font-MyriadPro", "w-full", "bg-[#ffffff00]", "p-[12px]", "flex", "justify-between",
+						"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10",
 					}
 				>
 					<!-- thumbnail and duration -->
