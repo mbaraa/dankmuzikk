@@ -17,10 +17,10 @@ func HandleHomePage(hand *http.ServeMux) {
 	})
 }
 
-func HandleSearchResultsPage(hand *http.ServeMux) {
+func HandleSearchResultsPage(hand *http.ServeMux, ytSearch youtube.YouTubeSearcher) {
 	hand.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query().Get("query")
-		results, err := youtube.Search(query)
+		results, err := ytSearch.Search(query)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("not found"))
