@@ -14,3 +14,17 @@ services:
       - .env.docker
     volumes:
       - ./google-service-account.json:/app/google-service-account.json
+    networks:
+      - danknetwork
+
+  yt-scraper:
+    container_name: "yt-scraper"
+    image: "baraamasri/yt-scrape"
+    restart: "always"
+    ports:
+      - "8081"
+    networks:
+      - danknetwork
+
+networks:
+  danknetwork: {}
