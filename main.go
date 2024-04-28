@@ -22,6 +22,6 @@ func main() {
 	handlers.HandleSearchResultsPage(applicationHandler, &youtube.YouTubeScraperSearch{})
 	handlers.HandleSearchSugessions(applicationHandler)
 
-	log.Info("Starting http server at port 8080")
-	log.Fatalln(log.ErrorLevel, http.ListenAndServe(":8080", applicationHandler))
+	log.Info("Starting http server at port 3000")
+	log.Fatalln(log.ErrorLevel, http.ListenAndServe(":3000", applicationHandler))
 }
