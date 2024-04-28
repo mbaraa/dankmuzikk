@@ -16,7 +16,7 @@ func SearchSuggestions(query string) (sugesstions []string, err error) {
 	var results []any
 	err = json.NewDecoder(resp.Body).Decode(&results)
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	for i, res := range results[1].([]any) {
