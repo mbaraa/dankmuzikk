@@ -68,6 +68,7 @@ templ Default(isMobile bool, children ...templ.Component) {
 				@loading.Loading()
 			</div>
 			@player.PlayerSticky(isMobile)
+			<script src="/static/js/utils.js"></script>
 			<script type="module">
 			    function registerServiceWorkers() {
 			    	if (!("serviceWorker" in navigator)) {

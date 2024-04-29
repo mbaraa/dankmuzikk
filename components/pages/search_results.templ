@@ -83,7 +83,7 @@ templ searchResults(isMobile bool, results []SearchResult) {
 }
 
 script playSong(id, thumbnailUrl, title, artist string) {
-    window.playYTSongById(id, thumbnailUrl, title, artist);
+    Player.playYTSongById(id, thumbnailUrl, title, artist);
 }
 
 func trunkString(s string, maxLength int) string {
