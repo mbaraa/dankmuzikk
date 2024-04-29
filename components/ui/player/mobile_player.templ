@@ -4,7 +4,7 @@ templ mobilePlayer() {
 	<div
 		class={
 			"absolute", "bottom-0", "w-screen", "h-[120px]", "bg-accent", "rounded-t-3xl",
-			"font-MyriadPro", "flex", "items-center", "justify-between", "gap-x-4", "p-[10px]",
+			"font-MyriadPro", "flex", "items-center", "justify-between", "gap-x-1", "p-[10px]",
 			"text-white",
 		}
 	>
@@ -17,10 +17,20 @@ templ mobilePlayer() {
 				}
 			></div>
 		</div>
-		<div class={ "flex", "flex-col", "min-w-[300px]", "w-full" }>
-			<div class={ "flex", "flex-row" }>
+		<div class={ "flex", "flex-col", "min-w-[300px]", "w-full", "p-5" }>
+			<!-- seeker and time -->
+			<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
+				<input
+					id="song-seek-bar"
+					type="range"
+					min="0"
+					class={ "my-2" }
+				/>
+				<span id="song-current-time">00:00</span>
+			</div>
+			<div class={ "flex", "flex-row", "justify-between" }>
 				<!-- details -->
-				<div class={ "flex", "flex-col", "justify-center", "w-[100px]" }>
+				<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[120px]" }>
 					<p class={ "font-MyriadPro", "w-full" }>
 						<span id="song-name">Song's Title</span>
 					</p>
@@ -29,7 +39,7 @@ templ mobilePlayer() {
 					</p>
 				</div>
 				<!-- player controls -->
-				<div class={ "float-right", "flex", "items-center", "gap-x-0", "w-[190px]" }>
+				<div class={ "flex", "items-center", "gap-x-0" }>
 					<button id="shuffle" type="button" disabled>
 						<img src="/static/images/shuffle-icon.svg" alt="Shuffle"/>
 					</button>
@@ -44,16 +54,6 @@ templ mobilePlayer() {
 						<img src="/static/images/next-icon.svg" alt="Next"/>
 					</button>
 				</div>
-			</div>
-			<!-- seeker and time -->
-			<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
-				<input
-					id="song-seek-bar"
-					type="range"
-					min="0"
-					class={ "my-2" }
-				/>
-				<span id="song-current-time">00:00</span>
 			</div>
 		</div>
 	</div>
