@@ -35,7 +35,7 @@ templ desktopHeader() {
 				alt="DankMuzikk Logo"
 				class={ "w-[55px]", "rounded-md" }
 			/>
-			<h1 class={ "text-2xl" }>DankMuzikk</h1>
+			<h1 class={ "hidden", "lg:block", "text-2xl" }>DankMuzikk</h1>
 		</a>
 		<div class={ "flex", "justify-center", "items-center" }>
 			@search.Search()
@@ -51,7 +51,7 @@ templ desktopHeader() {
 }
 
 templ Header(isMobile bool) {
-	<header class={ "bg-accent", "p-[20px]" }>
+	<header class={ "bg-accent", "p-[20px]", "md:p-[10px]" }>
 		if isMobile {
 			@mobileHeader()
 		} else {
