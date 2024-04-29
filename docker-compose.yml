@@ -14,6 +14,7 @@ services:
       - .env.docker
     volumes:
       - ./google-service-account.json:/app/google-service-account.json
+      - dankuploads-dir:/app/_serve
     networks:
       - danknetwork
 
@@ -28,3 +29,11 @@ services:
 
 networks:
   danknetwork: {}
+
+volumes:
+  dankuploads-dir:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: .
