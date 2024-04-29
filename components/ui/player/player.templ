@@ -10,10 +10,16 @@ templ PlayerSticky(isMobile bool) {
 	</div>
 	<div class="hidden">
 		<div id="yt-player"></div>
+		<audio
+			id="audio-player"
+			class="hidden"
+			controls
+			preload="none"
+		></audio>
 	</div>
 	///
 	<script lang="javascript">
-        window.playPauseIcons = {
+        const playPauseIcons = {
             playDisabled: `<img src="/static/images/play-disabled-icon.svg" alt="Play"/>`,
             play: `<img src="/static/images/play-icon.svg" alt="Play"/>`,
             pauseDisabled: `<img src="/static/images/pause-disabled-icon.svg" alt="Pause"/>`,
@@ -32,150 +38,115 @@ templ PlayerSticky(isMobile bool) {
         const songCurrentTimeEl = document.getElementById("song-current-time");
         const songImageEl = document.getElementById("song-image");
 
+        const audioPlayerEl = document.getElementById("audio-player");
+
+        let currentTime = 0,
+            duration = 0,
+            currentAudio = {},
+            paused = false;
+
+        /*
+
+	bind:this={player}
+	on:loadeddata={handleLoad}
+	on:timeupdate={handleUpdateTime}
+	on:ended={handleFinishedSong}
+	on:progress={() => {
+		console.log("downloading...");
+	}}
+        */
+
+        function setMediaSession() {
+		    if ("mediaSession" in navigator) {
+		    	navigator.mediaSession.metadata = new MediaMetadata({
+		    		//title: currentAudio.title,
+		    		//artist: currentAudio.artistName,
+		    		//album: currentAudio.albumTitle,
+		    		//artwork: [
+		    		//	{
+		    		//		src: cover,
+		    		//		sizes: "96x96",
+		    		//		type: "image/png"
+		    		//	}
+		    		//]
+		    	});
+
+		    	navigator.mediaSession.setActionHandler("play", () => {
+		    		audioPlayerEl.play();
+		    	});
+		    	navigator.mediaSession.setActionHandler("pause", () => {
+		    		audioPlayerEl.pause();
+		    	});
+		    	navigator.mediaSession.setActionHandler("stop", () => {
+		    		audioPlayerEl.pause();
+		    		audioPlayerEl.currentTime = 0;
+		    	});
+		    	navigator.mediaSession.setActionHandler("seekbackward", () => {
+		    		let seekTo = -10;
+		    		if (currentTime + seekTo < 0) {
+		    			seekTo = 0;
+		    		}
+		    		audioPlayerEl.currentTime += seekTo;
+		    	});
+		    	navigator.mediaSession.setActionHandler("seekforward", () => {
+		    		let seekTo = +10;
+		    		if (currentTime + seekTo > duration) {
+		    			seekTo = 0;
+		    		}
+		    		audioPlayerEl.currentTime += seekTo;
+		    	});
+		    	navigator.mediaSession.setActionHandler("seekto", (a) => {
+		    		const seekTime = Number(a.seekOffset);
+		    		audioPlayerEl.currentTime = seekTime;
+		    	});
+		    	navigator.mediaSession.setActionHandler("previoustrack", () => {
+		    		//previous();
+		    	});
+		    	navigator.mediaSession.setActionHandler("nexttrack", () => {
+		    		//next();
+		    	});
+		    }
+	    }
+
+
+
         window.isPlayerReady = false;
 
-        function onYouTubeIframeAPIReady() {
-          window.player = new YT.Player("yt-player", {
-            videoId: "NkE3t4ZrUGQ",
-            playerVars: {
-              playsinline: 1,
-            },
-            events: {
-              onReady: onPlayerReady,
-              onStateChange: onPlayerStateChange,
-            },
-          });
+        function playPauseToggle() {
+		    if (audioPlayerEl.paused) {
+                audioPlayerEl.play();
+                document.getElementById("play").innerHTML = playPauseIcons.pause;
+            } else {
+                audioPlayerEl.pause();
+                document.getElementById("play").innerHTML = playPauseIcons.play;
+            }
+
         }
 
         let timeUpdateInterval;
 
-        function onPlayerReady(event) {
-            playPauseToggleEl.disabled = null;
-            shuffleEl.disabled = null;
-            nextEl.disabled = null;
-            prevEl.disabled = null;
-            window.isPlayerReady = true;
-            playPauseToggleEl.innerHTML = window.playPauseIcons.play;
-        }
+        async function fetchMusic(youtubeId) {
+            document.getElementById("play").innerHTML = playPauseIcons.loading;
+            document.body.style.cursor = "progress";
 
-        function onPlayerStateChange(event) {
-            switch (event.data) {
-              case YT.PlayerState.UNSTARTED:
-                    console.log("unstated")
-                  updateSongDetails();
-                  playPauseToggleEl.innerHTML = window.playPauseIcons.loading;
-                  break;
-              case YT.PlayerState.ENDED:
-                    console.log("ended")
-                  playPauseToggleEl.innerHTML = window.playPauseIcons.play;
-                  break;
-              case YT.PlayerState.PLAYING:
-                    console.log("playing")
-                  updateSongDetails();
-                  document.getElementById("muzikk").style.display = "block";
-                  document.body.style.cursor = "auto";
-                  playPauseToggleEl.innerHTML = window.playPauseIcons.pause;
-                  break;
-              case YT.PlayerState.PAUSED:
-                    console.log("paused")
-                  playPauseToggleEl.innerHTML = window.playPauseIcons.play;
-                  break;
-              case YT.PlayerState.BUFFERING:
-                    console.log("buffering")
-                  updateSongDetails();
-                  playPauseToggleEl.innerHTML = window.playPauseIcons.loading;
-                  break;
-              case YT.PlayerState.CUED:
-                    console.log("cued")
-                  updateSongDetails();
-                  playPauseToggleEl.innerHTML = window.playPauseIcons.play;
-                  break;
-            }
-            if (event.data == YT.PlayerState.PLAYING && !timeUpdateInterval) {
-                updateTimes();
-            } else if (event.data !== YT.PlayerState.PLAYING && timeUpdateInterval) {
-                clearInterval(timeUpdateInterval);
-                timeUpdateInterval = null;
-            }
-        }
+            await fetch("/api/song/download/"+youtubeId)
+                .then(res => console.log(res))
+                .catch(err => console.error(err));
 
-        function updateTimes() {
-            timeUpdateInterval = setInterval(function() {
-                if (window.player.getPlayerState() == YT.PlayerState.PLAYING) {
-                    if (songCurrentTimeEl) {
-                        songCurrentTimeEl.innerHTML = formatTime(window.player.getCurrentTime());
-                    }
-                    if (songSeekBarEl) {
-                        songSeekBarEl.value = Math.ceil(window.player.getCurrentTime());
-                    }
-                }
-            }, 1000);
-        }
+	    	if (audioPlayerEl) {
+	    		audioPlayerEl.pause();
+	    		audioPlayerEl.currentTime = 0;
+	    		currentTime = 0;
+	    	}
+            document.getElementById("muzikk").style.display = "block";
+	    	audioPlayerEl.src = `/music/${youtubeId}.mp3`;
+	    	paused = false;
+	    	audioPlayerEl.load();
+//	    	currentAudio = music;
+//	    	pageTitle = currentAudio.title + translate(TranslationKeys.TITLE_PLAYING_SUFFIX);
+	    	setMediaSession();
+	    }
 
-        function getTextWidth() {
-            return window.innerWidth > 768? 35: 15;
-        }
-
-        function updateSongDetails() {
-            const videoData = window.player.getVideoData();
-            if (videoData.title) {
-                songNameEl.innerHTML =  videoData.title;
-                songNameEl.title = videoData.title;
-                if (videoData.title.length > getTextWidth()) {
-                    songNameEl.parentElement.classList.add("marquee");
-                } else {
-                    songNameEl.parentElement.classList.remove("marquee");
-                }
-            }
-            if (videoData.author) {
-                artistNameEl.innerHTML = videoData.author;
-                artistNameEl.title = videoData.author;
-                if (videoData.author.length > getTextWidth()) {
-                    artistNameEl.parentElement.classList.add("marquee");
-                } else {
-                    artistNameEl.parentElement.classList.remove("marquee");
-                }
-            }
-            songSeekBarEl.max = Math.ceil(window.player.getDuration());
-            songSeekBarEl.value = 0;
-            if (songDurationEl) {
-                songDurationEl.innerHTML = formatTime(window.player.getDuration());
-            }
-
-            songImageEl.style.backgroundImage = `url("https://img.youtube.com/vi/${videoData.video_id}/0.jpg")`
-        }
-
-        function stopVideo() {
-          window.player.stopVideo();
-          //
-        }
-
-        function playPauseToggle() {
-          switch (window.player.getPlayerState()) {
-            case -1: // unstarted
-              window.player.playVideo();
-              playPauseToggleEl.innerHTML = window.playPauseIcons.pause;
-              break;
-            case 0: // ended
-              window.player.playVideo();
-              playPauseToggleEl.innerHTML = window.playPauseIcons.pause;
-              break;
-            case 1: // playing
-              window.player.pauseVideo();
-              playPauseToggleEl.innerHTML = window.playPauseIcons.play;
-              break;
-            case 2: // paused
-              window.player.playVideo();
-              playPauseToggleEl.innerHTML = window.playPauseIcons.pause;
-              break;
-            case 3: // bufferring
-              break;
-            case 5: // video cued
-              window.player.playVideo();
-              playPauseToggleEl.innerHTML = window.playPauseIcons.pause;
-              break;
-          }
-        }
 
         function formatTime(timeSecs) {
             timeSecs = Math.floor(timeSecs);
@@ -190,21 +161,86 @@ templ PlayerSticky(isMobile bool) {
     		return (n >= 10 ? "" : "0") + n.toString();
 	    }
 
-
-        window.playYTSongById = (videoId) => {
-            window.player.loadVideoById(videoId);
-            document.getElementById("play").innerHTML = window.playPauseIcons.loading;
+function getTextWidth() {
+            return window.innerWidth > 768? 35: 15;
         }
 
-        songSeekBarEl.addEventListener("change", (event) => {
-            console.log("seeking to", Number(event.target.value))
-            window.player.seekTo(Number(event.target.value));
-        })
+        window.playYTSongById = async (id, thumbnailUrl, title, artist) => {
+            const videoData = {id, thumbnailUrl, title, artist}
+            // window.player.loadVideoById(videoId);
+            await fetchMusic(videoData.id);
+            if (videoData.title) {
+                songNameEl.innerHTML =  videoData.title;
+                songNameEl.title = videoData.title;
+                if (videoData.title.length > getTextWidth()) {
+                    songNameEl.parentElement.classList.add("marquee");
+                } else {
+                    songNameEl.parentElement.classList.remove("marquee");
+                }
+            }
+            if (videoData.artist) {
+                artistNameEl.innerHTML = videoData.artist;
+                artistNameEl.title = videoData.artist;
+                if (videoData.artist.length > getTextWidth()) {
+                    artistNameEl.parentElement.classList.add("marquee");
+                } else {
+                    artistNameEl.parentElement.classList.remove("marquee");
+                }
+            }
+
+	    	audioPlayerEl.play();
+
+            songImageEl.style.backgroundImage = `url("${videoData.thumbnailUrl}")`
+        }
 
         document.getElementById("play").addEventListener("click", () => {
           playPauseToggle();
         });
         document.getElementById("next").addEventListener("click", () => {});
         document.getElementById("prev").addEventListener("click", () => {});
+        songSeekBarEl.addEventListener("change", (event) => {
+		    const seekTime = Number(event.target.value);
+		    //const audio = document.getElementById("aud") as any;
+		    audioPlayerEl.currentTime = seekTime;
+		    //player = audio;
+	    });
+
+        audioPlayerEl.addEventListener("loadeddata", 	(event) => {
+            playPauseToggleEl.disabled = null;
+            shuffleEl.disabled = null;
+            nextEl.disabled = null;
+            prevEl.disabled = null;
+            window.isPlayerReady = true;
+
+            const duration = Math.ceil(Number.isNaN(event.target.duration)? 0: event.target.duration);
+            songSeekBarEl.max = Math.ceil(duration);
+            songSeekBarEl.value = 0;
+            if (songDurationEl) {
+                songDurationEl.innerHTML = formatTime(duration);
+            }
+
+            document.getElementById("play").innerHTML = playPauseIcons.pause;
+            document.body.style.cursor = "auto";
+		   // duration = a.duration;
+	    });
+
+        audioPlayerEl.addEventListener("timeupdate", (event) => {
+		    const currentTime = Math.floor(event.target.currentTime);
+            if (songCurrentTimeEl) {
+                songCurrentTimeEl.innerHTML = formatTime(currentTime);
+            }
+            if (songSeekBarEl) {
+                songSeekBarEl.value = Math.ceil(currentTime);
+            }
+        });
+
+        audioPlayerEl.addEventListener("ended", (event) => {
+            document.getElementById("play").innerHTML = playPauseIcons.play;
+            audioPlayerEl.currentTime = 0;
+        });
+
+        audioPlayerEl.addEventListener("progress", (event) => {
+            console.log("downloading...");
+        });
     </script>
 }

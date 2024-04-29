@@ -36,7 +36,7 @@ templ searchResults(isMobile bool, results []SearchResult) {
 					>
 						<div
 							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative", "cursor-pointer" }
-							onClick={ playSong(res.Id) }
+							onClick={ playSong(res.Id, res.ThumbnailUrl, res.Title, res.ChannelTitle) }
 						>
 							<img
 								class={ "w-full", "h-full", "rounded-lg" }
@@ -57,7 +57,7 @@ templ searchResults(isMobile bool, results []SearchResult) {
 							<h3
 								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer" }
 								title={ res.Title }
-								onClick={ playSong(res.Id) }
+								onClick={ playSong(res.Id, res.ThumbnailUrl, res.Title, res.ChannelTitle) }
 							>
 								if isMobile {
 									{ trunkString(res.Title, 25) }
@@ -82,14 +82,14 @@ templ searchResults(isMobile bool, results []SearchResult) {
 	</main>
 }
 
-script playSong(videoId string) {
-    document.body.style.cursor = "progress";
-    const interval = setInterval(() => {
-        if (window.isPlayerReady) {
-            clearInterval(interval);
-            window.playYTSongById(videoId);
-        }
-    }, 100);
+script playSong(id, thumbnailUrl, title, artist string) {
+//    document.body.style.cursor = "progress";
+//    const interval = setInterval(() => {
+//        if (window.isPlayerReady) {
+//            clearInterval(interval);
+            window.playYTSongById(id, thumbnailUrl, title, artist);
+//        }
+//    }, 100);
 }
 
 func trunkString(s string, maxLength int) string {
