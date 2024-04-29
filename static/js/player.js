@@ -1,13 +1,13 @@
 "use strict";
 
 const playPauseIcons = {
-  playDisabled: `<img src="/static/images/play-disabled-icon.svg" alt="Play"/>`,
-  play: `<img src="/static/images/play-icon.svg" alt="Play"/>`,
-  pauseDisabled: `<img src="/static/images/pause-disabled-icon.svg" alt="Pause"/>`,
-  pause: `<img src="/static/images/pause-icon.svg" alt="Pause"/>`,
-  loop: `<img src="/static/images/loop-icon.svg" alt="Loop"/>`,
-  loopOnce: `<img src="/static/images/loop-once-icon.svg" alt="Loop Once"/>`,
-  loopOff: `<img src="/static/images/loop-off-icon.svg" alt="Loop Off"/>`,
+  playDisabled: ` <img class="w-[50px] h-[50px]" src="/static/images/play-disabled-icon.svg" alt="Play"/>`,
+  play: `<img class="w-[50px] h-[50px]" src="/static/images/play-icon.svg" alt="Play"/>`,
+  pauseDisabled: `<img class="w-[50px] h-[50px]" src="/static/images/pause-disabled-icon.svg" alt="Pause"/>`,
+  pause: `<img class="w-[50px] h-[50px]" src="/static/images/pause-icon.svg" alt="Pause"/>`,
+  loop: `<img class="w-[40px]" src="/static/images/loop-icon.svg" alt="Loop"/>`,
+  loopOnce: `<img class="w-[40px]" src="/static/images/loop-once-icon.svg" alt="Loop Once"/>`,
+  loopOff: `<img class="w-[40px]" src="/static/images/loop-off-icon.svg" alt="Loop Off"/>`,
   loading: `<div class="loader !h-10 !w-10"></div>`,
 };
 
