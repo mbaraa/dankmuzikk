@@ -56,41 +56,42 @@ templ PlayerSticky(isMobile bool) {
 	}}
         */
 
-        function setMediaSession() {
+        function setMediaSession(videoData) {
 		    if ("mediaSession" in navigator) {
 		    	navigator.mediaSession.metadata = new MediaMetadata({
-		    		//title: currentAudio.title,
-		    		//artist: currentAudio.artistName,
-		    		//album: currentAudio.albumTitle,
-		    		//artwork: [
-		    		//	{
-		    		//		src: cover,
-		    		//		sizes: "96x96",
-		    		//		type: "image/png"
-		    		//	}
-		    		//]
+		    		title:  videoData.title,
+		    		artist: videoData.artist,
+		    		album:  videoData.artist,
+		    		artwork: [
+		    			{
+		    				src: videoData.thumbnailUrl,
+		    				sizes: "96x96",
+		    				type: "image/png"
+		    			}
+		    		]
 		    	});
 
 		    	navigator.mediaSession.setActionHandler("play", () => {
-		    		audioPlayerEl.play();
+                    playPauseToggle();
 		    	});
 		    	navigator.mediaSession.setActionHandler("pause", () => {
-		    		audioPlayerEl.pause();
+                    playPauseToggle();
 		    	});
 		    	navigator.mediaSession.setActionHandler("stop", () => {
 		    		audioPlayerEl.pause();
 		    		audioPlayerEl.currentTime = 0;
+                    document.getElementById("play").innerHTML = playPauseIcons.play;
 		    	});
 		    	navigator.mediaSession.setActionHandler("seekbackward", () => {
 		    		let seekTo = -10;
-		    		if (currentTime + seekTo < 0) {
+		    		if (audioPlayerEl.currentTime + seekTo < 0) {
 		    			seekTo = 0;
 		    		}
 		    		audioPlayerEl.currentTime += seekTo;
 		    	});
 		    	navigator.mediaSession.setActionHandler("seekforward", () => {
 		    		let seekTo = +10;
-		    		if (currentTime + seekTo > duration) {
+		    		if (audioPlayerEl.currentTime + seekTo > duration) {
 		    			seekTo = 0;
 		    		}
 		    		audioPlayerEl.currentTime += seekTo;
@@ -144,7 +145,6 @@ templ PlayerSticky(isMobile bool) {
 	    	audioPlayerEl.load();
 //	    	currentAudio = music;
 //	    	pageTitle = currentAudio.title + translate(TranslationKeys.TITLE_PLAYING_SUFFIX);
-	    	setMediaSession();
 	    }
 
 
@@ -169,6 +169,7 @@ function getTextWidth() {
             const videoData = {id, thumbnailUrl, title, artist}
             // window.player.loadVideoById(videoId);
             await fetchMusic(videoData.id);
+	    	setMediaSession(videoData);
             if (videoData.title) {
                 songNameEl.innerHTML =  videoData.title;
                 songNameEl.title = videoData.title;
