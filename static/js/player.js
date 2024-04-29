@@ -22,6 +22,7 @@ const playPauseToggleEl = document.getElementById("play"),
   songDurationEl = document.getElementById("song-duration"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
+  loadingEl = document.getElementById("loading"),
   audioPlayerEl = document.getElementById("audio-player");
 
 let currentTime = 0,
@@ -99,6 +100,7 @@ let timeUpdateInterval;
 async function fetchMusic(youtubeId) {
   document.getElementById("play").innerHTML = playPauseIcons.loading;
   document.body.style.cursor = "progress";
+  toggleLoading();
 
   await fetch("/api/song/download/" + youtubeId)
     .then((res) => console.log(res))
@@ -166,6 +168,14 @@ window.playYTSongById = async (id, thumbnailUrl, title, artist) => {
   songImageEl.style.backgroundImage = `url("${videoData.thumbnailUrl}")`;
 };
 
+window.toggleLoading = () => {
+  if (loadingEl.classList.contains("hidden")) {
+    loadingEl.classList.remove("hidden");
+  } else {
+    loadingEl.classList.add("hidden");
+  }
+};
+
 document.getElementById("play").addEventListener("click", () => {
   playPauseToggle();
 });
@@ -210,6 +220,7 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
 
   document.getElementById("play").innerHTML = playPauseIcons.pause;
   document.body.style.cursor = "auto";
+  toggleLoading();
   // duration = a.duration;
 });
 

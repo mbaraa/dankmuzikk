@@ -2,6 +2,7 @@ package layouts
 
 import "dankmuzikk/components/ui/header"
 import "dankmuzikk/components/ui/player"
+import "dankmuzikk/components/ui/loading"
 
 templ Default(isMobile bool, children ...templ.Component) {
 	<!DOCTYPE html>
@@ -63,6 +64,9 @@ templ Default(isMobile bool, children ...templ.Component) {
 			for _, child := range children {
 				@child
 			}
+			<div id="loading" class="hidden">
+				@loading.Loading()
+			</div>
 			@player.PlayerSticky(isMobile)
 			<script type="module">
 			    function registerServiceWorkers() {
