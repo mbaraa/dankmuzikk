@@ -1,22 +1,19 @@
 package player
 
 templ PlayerSticky(isMobile bool) {
-	<div id="muzikk" class="">
+	<div id="muzikk" class="hidden">
 		if isMobile {
 			@mobilePlayer()
 		} else {
 			@desktopPlayer()
 		}
 	</div>
-	<div class="hidden">
-		<div id="yt-player"></div>
-		<audio
-			id="audio-player"
-			class="hidden"
-			controls
-			preload="none"
-		></audio>
-	</div>
+	<audio
+		id="audio-player"
+		class="hidden"
+		controls
+		preload="none"
+	></audio>
 	///
 	<script lang="javascript">
         const playPauseIcons = {
