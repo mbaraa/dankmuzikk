@@ -41,6 +41,9 @@ func (y *YouTubeScraperSearch) Search(query string) (results []SearchResult, err
 	}
 
 	for _, res := range apiResults.Results {
+		if res.Video.Id == "" || res.Video.Title == "" || res.Video.ThumbnailUrl == "" || res.Uploader.Username == "" {
+			continue
+		}
 		duration := strings.Split(res.Video.Duration, ":")
 		if len(duration[0]) == 1 {
 			duration[0] = "0" + duration[0]
