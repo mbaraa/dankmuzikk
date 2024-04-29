@@ -9,6 +9,8 @@ RUN go install github.com/a-h/templ/cmd/templ@latest &&\
 
 FROM alpine:latest as run
 
+RUN apk add yt-dlp
+
 WORKDIR /app
 COPY --from=build /app/dankmuzikk ./run
 
