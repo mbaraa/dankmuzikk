@@ -8,19 +8,30 @@ templ PlayerSticky(isMobile bool) {
 			@desktopPlayer()
 		}
 	</div>
-	<audio
-		id="audio-player"
-		class="hidden"
-		controls
-		preload="none"
-	></audio>
+	<div class="hidden">
+		<img src="/static/images/play-disabled-icon.svg" alt="Play"/>
+		<img src="/static/images/play-icon.svg" alt="Play"/>
+		<img src="/static/images/pause-disabled-icon.svg" alt="Pause"/>
+		<img src="/static/images/pause-icon.svg" alt="Pause"/>
+		<img src="/static/images/loop-icon.svg" alt="Loop"/>
+		<img src="/static/images/loop-once-icon.svg" alt="Loop Once"/>
+		<img src="/static/images/loop-off-icon.svg" alt="Loop Off"/>
+		<audio
+			id="audio-player"
+			controls
+			preload="none"
+		></audio>
+	</div>
 	///
 	<script lang="javascript">
         const playPauseIcons = {
-            playDisabled: `<img src="/static/images/play-disabled-icon.svg" alt="Play"/>`,
+            playDisabled:`<img src="/static/images/play-disabled-icon.svg" alt="Play"/>`,
             play: `<img src="/static/images/play-icon.svg" alt="Play"/>`,
             pauseDisabled: `<img src="/static/images/pause-disabled-icon.svg" alt="Pause"/>`,
             pause: `<img src="/static/images/pause-icon.svg" alt="Pause"/>`,
+            loop: `<img src="/static/images/loop-icon.svg" alt="Loop"/>`,
+            loopOnce: `<img src="/static/images/loop-once-icon.svg" alt="Loop Once"/>`,
+            loopOff: `<img src="/static/images/loop-off-icon.svg" alt="Loop Off"/>`,
             loading: `<div class="loader !h-10 !w-10"></div>`,
         };
 
@@ -28,6 +39,7 @@ templ PlayerSticky(isMobile bool) {
         const shuffleEl = document.getElementById("shuffle");
         const nextEl = document.getElementById("next");
         const prevEl = document.getElementById("prev");
+        const loopEl = document.getElementById("loop");
         const songNameEl = document.getElementById("song-name");
         const artistNameEl = document.getElementById("artist-name");
         const songSeekBarEl = document.getElementById("song-seek-bar");
@@ -196,6 +208,18 @@ function getTextWidth() {
         });
         document.getElementById("next").addEventListener("click", () => {});
         document.getElementById("prev").addEventListener("click", () => {});
+
+        const loopModes = [
+            { icon: "loop-off-icon.svg", mode: "OFF"},
+            { icon: "loop-once-icon.svg", mode: "ONCE"},
+            //{ icon: "loop-icon.svg", mode: "ALL"},
+        ];
+        let currentLoopIdx = 0;
+        loopEl.addEventListener("click", (event) => {
+            currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
+            event.target.src = "/static/images/" + loopModes[currentLoopIdx].icon;
+        });
+
         songSeekBarEl.addEventListener("change", (event) => {
 		    const seekTime = Number(event.target.value);
 		    //const audio = document.getElementById("aud") as any;
@@ -208,6 +232,7 @@ function getTextWidth() {
             shuffleEl.disabled = null;
             nextEl.disabled = null;
             prevEl.disabled = null;
+            loopEl.disabled = null;
             window.isPlayerReady = true;
 
             const duration = Math.ceil(Number.isNaN(event.target.duration)? 0: event.target.duration);
@@ -233,8 +258,20 @@ function getTextWidth() {
         });
 
         audioPlayerEl.addEventListener("ended", (event) => {
-            document.getElementById("play").innerHTML = playPauseIcons.play;
-            audioPlayerEl.currentTime = 0;
+            switch (loopModes[currentLoopIdx].mode) {
+            case "OFF":
+                document.getElementById("play").innerHTML = playPauseIcons.play;
+                audioPlayerEl.currentTime = 0;
+                break;
+            case "ONCE":
+                document.getElementById("play").innerHTML = playPauseIcons.pause;
+                audioPlayerEl.currentTime = 0;
+                audioPlayerEl.play();
+                break;
+            case "ALL":
+                break;
+            }
+
         });
 
         audioPlayerEl.addEventListener("progress", (event) => {
