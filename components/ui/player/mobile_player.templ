@@ -40,21 +40,20 @@ templ mobilePlayer() {
 				</div>
 				<!-- player controls -->
 				<div class={ "flex", "items-center", "gap-x-0", "min-w-[200px]" }>
-					<button id="shuffle" type="button" disabled>
+					<button id="shuffle" type="button" title="Shuffle" disabled>
 						<img src="/static/images/shuffle-icon.svg" alt="Shuffle"/>
 					</button>
-					<button id="prev" type="button" disabled>
+					<button id="prev" type="button" title="Previous song" disabled>
 						<img src="/static/images/previous-icon.svg" alt="Previous"/>
 					</button>
-					<button id="play" type="button" disabled>
+					<button id="play" type="button" title="Play/Pause" disabled>
 						<div id="loading" class="loader !h-10 !w-10"></div>
-						<!-- <img src="/static/images/play-disabled-icon.svg" alt="Play"/> -->
 					</button>
-					<button id="next" type="button" disabled>
+					<button id="next" type="button" title="Next song" disabled>
 						<img src="/static/images/next-icon.svg" alt="Next"/>
 					</button>
-					<button id="loop" type="button" disabled>
-						<img src="/static/images/loop-off-icon.svg" alt="Shuffle"/>
+					<button id="loop" type="button" title="Loop" disabled>
+						<img src="/static/images/loop-off-icon.svg" alt="Loop"/>
 					</button>
 				</div>
 			</div>
