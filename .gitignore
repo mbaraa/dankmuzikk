@@ -10,4 +10,4 @@ static/css/tailwind.css
 google-service-account.json
 components/**/*.go
 components/**/*.txt
-
+_*/

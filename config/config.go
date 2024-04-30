@@ -13,13 +13,31 @@ func init() {
 	_config = config{
 		Port: getEnv("PORT"),
 		YouTube: struct {
+			ScraperUrl string
+			MusicDir   string
+		}{
+			ScraperUrl: getEnv("YOUTUBE_SCAPER_URL"),
+			MusicDir:   getEnv("YOUTUBE_MUSIC_DOWNLOAD_PATH"),
+		},
+		Google: struct {
 			ApiServiceAccount string
-			ScraperUrl        string
-			MusicDir          string
+			ClientId          string
+			ClientSecret      string
 		}{
 			ApiServiceAccount: getEnv("GOOGLE_APPLICATION_CREDENTIALS"),
-			ScraperUrl:        getEnv("YOUTUBE_SCAPER_URL"),
-			MusicDir:          getEnv("YOUTUBE_MUSIC_DOWNLOAD_PATH"),
+			ClientId:          getEnv("GOOGLE_CLIENT_ID"),
+			ClientSecret:      getEnv("GOOGLE_CLIENT_SECRET"),
+		},
+		DB: struct {
+			Name     string
+			Host     string
+			Username string
+			Password string
+		}{
+			Name:     getEnv("DB_NAME"),
+			Host:     getEnv("DB_HOST"),
+			Username: getEnv("DB_USERNAME"),
+			Password: getEnv("DB_PASSWORD"),
 		},
 	}
 }
@@ -27,9 +45,19 @@ func init() {
 type config struct {
 	Port    string
 	YouTube struct {
+		ScraperUrl string
+		MusicDir   string
+	}
+	Google struct {
 		ApiServiceAccount string
-		ScraperUrl        string
-		MusicDir          string
+		ClientId          string
+		ClientSecret      string
+	}
+	DB struct {
+		Name     string
+		Host     string
+		Username string
+		Password string
 	}
 }
 
