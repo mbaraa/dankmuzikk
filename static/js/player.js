@@ -47,12 +47,19 @@ function setMediaSession(videoData) {
     artist: videoData.artist,
     album: videoData.artist,
     artwork: [
-      {
+      "96x96",
+      "128x128",
+      "192x192",
+      "256x256",
+      "384x384",
+      "512x512",
+    ].map((i) => {
+      return {
         src: videoData.thumbnailUrl,
-        sizes: "96x96",
+        sizes: i,
         type: "image/png",
-      },
-    ],
+      };
+    }),
   });
 
   navigator.mediaSession.setActionHandler("play", () => {
