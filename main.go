@@ -1,6 +1,7 @@
 package main
 
 import (
+	"dankmuzikk/config"
 	"dankmuzikk/handlers"
 	"dankmuzikk/log"
 	"dankmuzikk/services/youtube"
@@ -22,6 +23,6 @@ func main() {
 	handlers.HandleServeSongs(applicationHandler)
 	handlers.HandleDownloadSong(applicationHandler)
 
-	log.Info("Starting http server at port 3000")
-	log.Fatalln(log.ErrorLevel, http.ListenAndServe(":3000", applicationHandler))
+	log.Info("Starting http server at port " + config.Vals().Port)
+	log.Fatalln(log.ErrorLevel, http.ListenAndServe(":"+config.Vals().Port, applicationHandler))
 }

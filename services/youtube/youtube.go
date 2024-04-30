@@ -1,9 +1,7 @@
 package youtube
 
 import (
-	"dankmuzikk/log"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 	"unicode"
@@ -12,17 +10,6 @@ import (
 const (
 	maxSearchResults = 7
 )
-
-func init() {
-	// youtube api
-	if os.Getenv("GOOGLE_APPLICATION_CREDENTIALS") == "" {
-		log.Fatalln(log.ErrorLevel, "[YOUTUBE SERVICE] Missing Google API Service Account File")
-	}
-	// youtube scraper 👀
-	if os.Getenv("YOUTUBE_SCAPER_URL") == "" {
-		log.Fatalln(log.ErrorLevel, "[YOUTUBE SERVICE] Missing YouTube Scrapper URL")
-	}
-}
 
 type SearchResult struct {
 	Id           string

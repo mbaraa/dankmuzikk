@@ -1,6 +1,7 @@
 package download
 
 import (
+	"dankmuzikk/config"
 	"dankmuzikk/log"
 	"errors"
 	"fmt"
@@ -8,17 +9,11 @@ import (
 	"os/exec"
 )
 
-func init() {
-	if os.Getenv("YOUTUBE_MUSIC_DOWNLOAD_PATH") == "" {
-		log.Fatalln(log.ErrorLevel, "[YOUTUBE DOWNLOAD SERVICE] Missing YouTube Music Download Path")
-	}
-}
-
 // DownloadYoutubeVideo downloads a youtube music file into the path specified by the environment variable
 // YOUTUBE_MUSIC_DOWNLOAD_PATH, where the file name will be <video_id.mp3> to be served under /music/{id}
 // and retuens an occurring error
 func DownloadYoutubeVideo(id string) error {
-	path := fmt.Sprintf("%s/%s.mp3", os.Getenv("YOUTUBE_MUSIC_DOWNLOAD_PATH"), id)
+	path := fmt.Sprintf("%s/%s.mp3", config.Vals().YouTube.MusicDir, id)
 	if _, err := os.Stat(path); err == nil {
 		log.Infof("The song with id %s is already downloaded\n", id)
 		return nil
