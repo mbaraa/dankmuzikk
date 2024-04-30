@@ -11,7 +11,7 @@ import (
 var instance *gorm.DB = nil
 
 func Connector() (*gorm.DB, error) {
-	return getDBConnector(config.Vals().DB.Name)
+	return getDBConnector(config.Env().DB.Name)
 }
 
 func getDBConnector(dbName string) (*gorm.DB, error) {
@@ -19,7 +19,7 @@ func getDBConnector(dbName string) (*gorm.DB, error) {
 		return instance, nil
 	}
 
-	createDBDsn := fmt.Sprintf("%s:%s@tcp(%s)/", config.Vals().DB.Username, config.Vals().DB.Password, config.Vals().DB.Host)
+	createDBDsn := fmt.Sprintf("%s:%s@tcp(%s)/", config.Env().DB.Username, config.Env().DB.Password, config.Env().DB.Host)
 	database, err := gorm.Open(mysql.Open(createDBDsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -30,9 +30,9 @@ func getDBConnector(dbName string) (*gorm.DB, error) {
 	}
 	instance, err := gorm.Open(mysql.Open(
 		fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=True&loc=Local",
-			config.Vals().DB.Username,
-			config.Vals().DB.Password,
-			config.Vals().DB.Host,
+			config.Env().DB.Username,
+			config.Env().DB.Password,
+			config.Env().DB.Host,
 			dbName,
 		),
 	), &gorm.Config{})

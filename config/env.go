@@ -61,8 +61,8 @@ type config struct {
 	}
 }
 
-// Vals returns the thing's config values :)
-func Vals() config {
+// Env returns the thing's config values :)
+func Env() config {
 	return _config
 }
 

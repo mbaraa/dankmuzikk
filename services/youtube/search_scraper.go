@@ -29,7 +29,7 @@ type YouTubeScraperSearch struct{}
 
 func (y *YouTubeScraperSearch) Search(query string) (results []SearchResult, err error) {
 	// TODO: write a proper scraper instead of this hacky node js api
-	resp, err := http.Get(fmt.Sprintf("%s/api/search?q=%s", config.Vals().YouTube.ScraperUrl, url.QueryEscape(query)))
+	resp, err := http.Get(fmt.Sprintf("%s/api/search?q=%s", config.Env().YouTube.ScraperUrl, url.QueryEscape(query)))
 	if err != nil {
 		return
 	}

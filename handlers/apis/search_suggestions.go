@@ -1,4 +1,4 @@
-package handlers
+package apis
 
 import (
 	"context"

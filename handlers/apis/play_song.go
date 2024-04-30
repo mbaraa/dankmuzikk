@@ -1,4 +1,4 @@
-package handlers
+package apis
 
 import (
 	"dankmuzikk/config"
@@ -8,7 +8,7 @@ import (
 )
 
 func HandleServeSongs(hand *http.ServeMux) {
-	hand.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Vals().YouTube.MusicDir))))
+	hand.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 }
 
 func HandleDownloadSong(hand *http.ServeMux) {
