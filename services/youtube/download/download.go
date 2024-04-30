@@ -18,10 +18,13 @@ func init() {
 // YOUTUBE_MUSIC_DOWNLOAD_PATH, where the file name will be <video_id.mp3> to be served under /music/{id}
 // and retuens an occurring error
 func DownloadYoutubeVideo(id string) error {
-	path := os.Getenv("YOUTUBE_MUSIC_DOWNLOAD_PATH")
-	// TODO: check if the file is already downloaded!
+	path := fmt.Sprintf("%s/%s.mp3", os.Getenv("YOUTUBE_MUSIC_DOWNLOAD_PATH"), id)
+	if _, err := os.Stat(path); err == nil {
+		log.Infof("The song with id %s is already downloaded\n", id)
+		return nil
+	}
 	// TODO: write a downloader instead of using this sub process command thingy.
-	cmd := exec.Command("yt-dlp", "-x", "--audio-format", "mp3", "--audio-quality", "best", "-o", fmt.Sprintf("%s/%s.%%(ext)s", path, id), "https://www.youtube.com/watch?v="+id)
+	cmd := exec.Command("yt-dlp", "-x", "--audio-format", "mp3", "--audio-quality", "best", "-o", path, "https://www.youtube.com/watch?v="+id)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
