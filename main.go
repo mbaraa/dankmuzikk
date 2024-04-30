@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dankmuzikk/cmd/migration"
+	"dankmuzikk/cmd/migrator"
 	"dankmuzikk/cmd/server"
 	"dankmuzikk/log"
 	"embed"
@@ -19,7 +19,7 @@ func main() {
 	case "serve", "server":
 		err = server.StartServer(static)
 	case "migrate", "migration", "theotherthing":
-		err = migration.Migrate()
+		err = migrator.Migrate()
 	}
 	if err != nil {
 		log.Fatalln(log.ErrorLevel, err)
