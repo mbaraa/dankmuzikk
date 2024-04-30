@@ -9,14 +9,14 @@ import (
 type SearchResult = youtube.SearchResult
 
 templ SearchResults(isMobile bool, results []SearchResult) {
-	@layouts.Default(isMobile, searchResults(isMobile, results))
+	@layouts.Default(isMobile, searchResults(results))
 }
 
 templ addToPlayListButton() {
 	<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
 }
 
-templ searchResults(isMobile bool, results []SearchResult) {
+templ searchResults(results []SearchResult) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",  "bg-[#00000044]", "rounded-md",
