@@ -52,23 +52,16 @@ templ searchResults(isMobile bool, results []SearchResult) {
 						</div>
 					</div>
 					<!-- title, channel title, and description -->
-					<div class={ "w-[150px]", "md:min-w-[300px]", "xl:min-w-[400px]" }>
-						<div class={ "w-full", "h-full", "flex", "justify-between", "items-center", "flex-col",  "font-MyriadPro", "text-white" }>
+					<div class={ "w-[150px]", "md:w-[250px]", "lg:min-w-[300px]", "xl:min-w-[400px]" }>
+						<div class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-MyriadPro", "text-white" }>
 							<h3
-								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer" }
+								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
 								title={ res.Title }
 								onClick={ playSong(res.Id, res.ThumbnailUrl, res.Title, res.ChannelTitle) }
 							>
-								if isMobile {
-									{ trunkString(res.Title, 25) }
-								} else {
-									{ trunkString(res.Title, 45) }
-								}
+								{ res.Title }
 							</h3>
 							<p class={ "w-full", "text-sm", "font-normal" }>{ res.ChannelTitle }</p>
-							if !isMobile {
-								<p class={ "w-full", "hidden", "md:block", "text-sm", "font-light" }>{ trunkString(res.Description, 250) }</p>
-							}
 						</div>
 					</div>
 					<!-- actions -->
@@ -83,13 +76,5 @@ templ searchResults(isMobile bool, results []SearchResult) {
 }
 
 script playSong(id, thumbnailUrl, title, artist string) {
-    Player.playYTSongById(id, thumbnailUrl, title, artist);
-}
-
-func trunkString(s string, maxLength int) string {
-	if len(s) > maxLength {
-		return s[:maxLength] + "..."
-	} else {
-		return s
-	}
+    window.playYTSongById(id, thumbnailUrl, title, artist);
 }
