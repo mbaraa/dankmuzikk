@@ -1,12 +1,11 @@
 package main
 
 import (
-	"dankmuzikk/config"
-	"dankmuzikk/handlers"
+	"dankmuzikk/cmd/migration"
+	"dankmuzikk/cmd/server"
 	"dankmuzikk/log"
-	"dankmuzikk/services/youtube"
 	"embed"
-	"net/http"
+	"os"
 )
 
 //go:embed static/*
@@ -15,14 +14,14 @@ var static embed.FS
 //go:generate npx tailwindcss build -i static/css/style.css -o static/css/tailwind.css -m
 
 func main() {
-	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/static/", http.FileServer(http.FS(static)))
-	handlers.HandleHomePage(applicationHandler)
-	handlers.HandleSearchResultsPage(applicationHandler, &youtube.YouTubeScraperSearch{})
-	handlers.HandleSearchSugessions(applicationHandler)
-	handlers.HandleServeSongs(applicationHandler)
-	handlers.HandleDownloadSong(applicationHandler)
-
-	log.Info("Starting http server at port " + config.Vals().Port)
-	log.Fatalln(log.ErrorLevel, http.ListenAndServe(":"+config.Vals().Port, applicationHandler))
+	var err error
+	switch os.Args[1] {
+	case "serve", "server":
+		err = server.StartServer(static)
+	case "migrate", "migration", "theotherthing":
+		err = migration.Migrate()
+	}
+	if err != nil {
+		log.Fatalln(log.ErrorLevel, err)
+	}
 }

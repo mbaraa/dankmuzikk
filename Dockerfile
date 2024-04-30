@@ -16,4 +16,4 @@ COPY --from=build /app/dankmuzikk ./run
 
 EXPOSE 8080
 
-CMD ["./run"]
+CMD ["./run", "serve"]

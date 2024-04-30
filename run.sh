@@ -5,4 +5,4 @@
 # idk, that's it.
 
 go generate
-go run .
+go run . serve
