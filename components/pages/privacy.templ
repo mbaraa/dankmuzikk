@@ -1,0 +1,15 @@
+package pages
+
+import "dankmuzikk/components/layouts"
+
+templ Privacy(isMobile bool) {
+	@layouts.Default(isMobile, privacy())
+}
+
+templ privacy() {
+	<main class={ "w-full", "h-full" }>
+		<pre>
+			Privacy:
+		</pre>
+	</main>
+}

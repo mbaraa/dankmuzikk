@@ -15,6 +15,12 @@ func StartServer(staticFS embed.FS) error {
 	applicationHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
 	pages.HandleHomePage(applicationHandler)
 	pages.HandleSearchResultsPage(applicationHandler, &youtube.YouTubeScraperSearch{})
+	pages.HandlePrivacyPage(applicationHandler)
+	pages.HandleTOSPage(applicationHandler)
+	pages.HandleAboutPage(applicationHandler)
+	pages.HandleProfilePage(applicationHandler)
+	pages.HandlePlaylistsPage(applicationHandler)
+	pages.HandleLoginPage(applicationHandler)
 
 	apis.HandleSearchSugessions(applicationHandler)
 	apis.HandleServeSongs(applicationHandler)

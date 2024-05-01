@@ -1,0 +1,15 @@
+package pages
+
+import "dankmuzikk/components/layouts"
+
+templ About(isMobile bool) {
+	@layouts.Default(isMobile, about())
+}
+
+templ about() {
+	<main class={ "w-full", "h-full" }>
+		<pre>
+			About:
+		</pre>
+	</main>
+}
