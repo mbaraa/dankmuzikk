@@ -9,9 +9,10 @@ var (
 	_config = config{}
 )
 
-func init() {
+func initEnvVars() {
 	_config = config{
-		Port: getEnv("PORT"),
+		Port:     getEnv("PORT"),
+		Hostname: getEnv("HOSTNAME"),
 		YouTube: struct {
 			ScraperUrl string
 			MusicDir   string
@@ -43,8 +44,9 @@ func init() {
 }
 
 type config struct {
-	Port    string
-	YouTube struct {
+	Port     string
+	Hostname string
+	YouTube  struct {
 		ScraperUrl string
 		MusicDir   string
 	}
