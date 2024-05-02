@@ -10,10 +10,10 @@ templ Search() {
 			hx-target="#search-suggestions-container"
 			hx-trigger="keyup"
 		>
-			<div class={ "flex", "bg-white", "rounded-3xl", "shadow-sm", "shadow-black" }>
+			<div class={ "flex", "bg-white", "rounded-[8px]", "border", "border-b-[3px]", "border-black" }>
 				<input
 					id="search-input"
-					class={ "w-full", "p-[10px]", "ps-[15px]", "rounded-l-3xl" }
+					class={ "w-full", "p-[10px]", "ps-[15px]", "rounded-l-[8px]", "font-MyriadPro" }
 					type="search"
 					name="query"
 					autofocus
@@ -22,7 +22,7 @@ templ Search() {
 				/>
 				<button id="search-icon">
 					<img
-						class={ "w-[44px]", "h-[44px]", "rounded-r-3xl", "pe-[10px]" }
+						class={ "w-[44px]", "h-[44px]", "rounded-r-[8px]", "pe-[10px]" }
 						src="/static/images/search-icon.svg"
 						alt="search"
 					/>
