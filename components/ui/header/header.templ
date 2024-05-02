@@ -52,10 +52,23 @@ templ desktopHeader() {
 
 templ Header(isMobile bool) {
 	<header class={ "bg-accent", "p-[20px]", "md:p-[10px]" }>
+		// mobiles are usually shitty at rendering, so this prevents mobiles from rendering two blocks and choosing one using CSS.
 		if isMobile {
 			@mobileHeader()
 		} else {
-			@desktopHeader()
+			<div style="display: contents" class={ "hidden", "md:block" }>
+				@desktopHeader()
+			</div>
+			<!--
+                for when opened on a desktop and the client's width is really small,
+                and a similar thing isn't being done for mobile, since mobile clients can't change width w/o reloading
+            -->
+			<div style="display: contents" class={ "md:hidden" }>
+				@mobileHeader()
+			</div>
 		}
 	</header>
+	// script is being used here, so it doesn't render twice on desktops and break shit.
+	<script src="/static/js/search.js" lang="javascript">
+    </script>
 }
