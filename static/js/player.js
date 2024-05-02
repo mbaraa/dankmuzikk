@@ -30,7 +30,8 @@ const playPauseToggleEl = document.getElementById("play"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
   loadingEl = document.getElementById("loading"),
-  audioPlayerEl = document.getElementById("audio-player");
+  audioPlayerEl = document.getElementById("audio-player"),
+  muzikkContainerEl = document.getElementById("muzikk");
 
 let currentLoopIdx = 0;
 
@@ -71,9 +72,7 @@ function setMediaSession(videoData) {
   });
 
   navigator.mediaSession.setActionHandler("stop", () => {
-    audioPlayerEl.pause();
-    audioPlayerEl.currentTime = 0;
-    document.getElementById("play").innerHTML = playerButtonsIcons.play;
+    stopMuzikk();
   });
 
   navigator.mediaSession.setActionHandler("seekbackward", () => {
@@ -106,18 +105,31 @@ function setMediaSession(videoData) {
   });
 }
 
+function playMuzikk() {
+  audioPlayerEl.play();
+  playPauseToggleEl.innerHTML = playerButtonsIcons.pause;
+}
+
+function pauseMuzikk() {
+  audioPlayerEl.pause();
+  playPauseToggleEl.innerHTML = playerButtonsIcons.play;
+}
+
+function stopMuzikk() {
+  pauseMuzikk();
+  audioPlayerEl.currentTime = 0;
+}
+
 function playPauseToggle() {
   if (audioPlayerEl.paused) {
-    audioPlayerEl.play();
-    document.getElementById("play").innerHTML = playerButtonsIcons.pause;
+    playMuzikk();
   } else {
-    audioPlayerEl.pause();
-    document.getElementById("play").innerHTML = playerButtonsIcons.play;
+    pauseMuzikk();
   }
 }
 
 async function fetchMusic(youtubeId) {
-  document.getElementById("play").innerHTML = playerButtonsIcons.loading;
+  playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
   document.body.style.cursor = "progress";
   Utils.toggleLoading();
 
@@ -126,10 +138,8 @@ async function fetchMusic(youtubeId) {
     .catch((err) => console.error(err));
 
   if (audioPlayerEl) {
-    audioPlayerEl.pause();
-    audioPlayerEl.currentTime = 0;
+    stopMuzikk();
   }
-  document.getElementById("muzikk").style.display = "block";
   audioPlayerEl.src = `/music/${youtubeId}.mp3`;
   audioPlayerEl.load();
 }
@@ -138,6 +148,7 @@ async function playYTSongById(id, thumbnailUrl, title, artist) {
   const videoData = { id, thumbnailUrl, title, artist };
   await fetchMusic(videoData.id);
   setMediaSession(videoData);
+  showPlayer();
 
   if (videoData.title) {
     songNameEl.innerHTML = videoData.title;
@@ -158,8 +169,17 @@ async function playYTSongById(id, thumbnailUrl, title, artist) {
     }
   }
 
-  audioPlayerEl.play();
+  playMuzikk();
   songImageEl.style.backgroundImage = `url("${videoData.thumbnailUrl}")`;
+}
+
+function showPlayer() {
+  muzikkContainerEl.style.display = "block";
+}
+
+function hidePlayer() {
+  muzikkContainerEl.style.display = "none";
+  audioPlayerEl.stopMuzikk();
 }
 
 loopEl.addEventListener("click", (event) => {
@@ -196,10 +216,9 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
     songDurationEl.innerHTML = Utils.formatTime(duration);
   }
 
-  document.getElementById("play").innerHTML = playerButtonsIcons.pause;
+  playPauseToggleEl.innerHTML = playerButtonsIcons.pause;
   document.body.style.cursor = "auto";
   Utils.toggleLoading();
-  // duration = a.duration;
 });
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
@@ -215,13 +234,11 @@ audioPlayerEl.addEventListener("timeupdate", (event) => {
 audioPlayerEl.addEventListener("ended", () => {
   switch (loopModes[currentLoopIdx].mode) {
     case "OFF":
-      document.getElementById("play").innerHTML = playerButtonsIcons.play;
-      audioPlayerEl.currentTime = 0;
+      stopMuzikk();
       break;
     case "ONCE":
-      document.getElementById("play").innerHTML = playerButtonsIcons.pause;
-      audioPlayerEl.currentTime = 0;
-      audioPlayerEl.play();
+      stopMuzikk();
+      playMuzikk();
       break;
     case "ALL":
       break;
@@ -234,4 +251,6 @@ audioPlayerEl.addEventListener("progress", () => {
 
 window.Player = {
   playYTSongById,
+  showPlayer,
+  hidePlayer,
 };
