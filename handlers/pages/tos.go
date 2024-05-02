@@ -6,8 +6,6 @@ import (
 	"net/http"
 )
 
-func HandleTOSPage(hand *http.ServeMux) {
-	hand.HandleFunc("/tos", func(w http.ResponseWriter, r *http.Request) {
-		pages.TOS(isMobile(r)).Render(context.Background(), w)
-	})
+func HandleTOSPage(w http.ResponseWriter, r *http.Request) {
+	pages.TOS(isMobile(r)).Render(context.Background(), w)
 }

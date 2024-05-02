@@ -6,8 +6,6 @@ import (
 	"net/http"
 )
 
-func HandlePlaylistsPage(hand *http.ServeMux) {
-	hand.HandleFunc("/playlists", func(w http.ResponseWriter, r *http.Request) {
-		pages.Playlists(isMobile(r)).Render(context.Background(), w)
-	})
+func HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
+	pages.Playlists(isMobile(r)).Render(context.Background(), w)
 }

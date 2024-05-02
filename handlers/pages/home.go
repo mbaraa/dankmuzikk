@@ -9,10 +9,8 @@ import (
 	_ "github.com/a-h/templ"
 )
 
-func HandleHomePage(hand *http.ServeMux) {
-	hand.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		pages.Index(isMobile(r)).Render(context.Background(), w)
-	})
+func HandleHomePage(w http.ResponseWriter, r *http.Request) {
+	pages.Index(isMobile(r)).Render(context.Background(), w)
 }
 
 func isMobile(r *http.Request) bool {

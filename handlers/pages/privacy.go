@@ -6,8 +6,6 @@ import (
 	"net/http"
 )
 
-func HandlePrivacyPage(hand *http.ServeMux) {
-	hand.HandleFunc("/privacy", func(w http.ResponseWriter, r *http.Request) {
-		pages.Privacy(isMobile(r)).Render(context.Background(), w)
-	})
+func HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
+	pages.Privacy(isMobile(r)).Render(context.Background(), w)
 }

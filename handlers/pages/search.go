@@ -8,8 +8,8 @@ import (
 	"net/http"
 )
 
-func HandleSearchResultsPage(hand *http.ServeMux, ytSearch youtube.YouTubeSearcher) {
-	hand.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
+func HandleSearchResultsPage(ytSearch youtube.YouTubeSearcher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query().Get("query")
 		results, err := ytSearch.Search(query)
 		if err != nil {
@@ -19,5 +19,5 @@ func HandleSearchResultsPage(hand *http.ServeMux, ytSearch youtube.YouTubeSearch
 			return
 		}
 		pages.SearchResults(isMobile(r), results).Render(context.Background(), w)
-	})
+	}
 }
