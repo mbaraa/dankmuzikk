@@ -14,11 +14,12 @@ templ mobileLogin() {
 
 templ desktopLogin() {
 	<main id="main-login-container" class={ "w-full", "h-fit", "flex" }>
+		<!-- frank and details -->
 		<div class={ "hidden", "lg:block", "relative", "w-[70%]", "xl:w-full", "h-fit", "flex" }>
 			<div
 				id="frank"
 				class={
-					"w-full", "rounded-md", "bg-accent", "bg-[url('/static/images/frank-cropped.png')]",
+					"w-full", "bg-accent", "bg-[url('/static/images/frank-cropped.png')]",
 					"bg-repeat", "bg-cover", "bg-center",
 				}
 			></div>
@@ -48,24 +49,7 @@ templ desktopLogin() {
 			</div>
 		</div>
 	</main>
-	<script>
-        if (window.Player) {
-            window.Player.hidePlayer();
-        }
-        function setContainerFullHeight(id) {
-            document.getElementById(id).style.height =
-                (window.innerHeight -
-                document.getElementById("dank-header").getBoundingClientRect().height)
-                .toString() + "px";
-        }
-        window.addEventListener("load", () => {
-            setContainerFullHeight("frank");
-            setContainerFullHeight("login-form");
-        });
-        window.addEventListener("resize", () => {
-            setContainerFullHeight("frank");
-            setContainerFullHeight("login-form");
-        });
+	<script src="/static/js/login.js">
     </script>
 }
 
