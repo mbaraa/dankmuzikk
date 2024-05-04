@@ -42,6 +42,7 @@ templ login() {
 			}
 		>
 			<div
+				id="replaceable-login-form"
 				class={
 					"w-full", "h-[95%]", "lg:h-auto", "bg-white-trans-100",
 					"p-[20px]", "lg:p-[60px]", "rounded-[10px]",
@@ -64,23 +65,26 @@ templ login() {
 			</div>
 		</div>
 	</main>
-	<script src="/static/js/login.js">
-    </script>
+	<script src="/static/js/login.js"></script>
 }
 
 templ loginForm() {
 	<form
 		class={ "flex", "flex-col", "gap-y-[15px]", "lg:gap-y-[35px]" }
-		hx-post="/api/login"
+		hx-post="/api/login/email"
 		hx-ext="json-enc"
+		hx-target="#replaceable-login-form"
 	>
 		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
 			<label class={ "text-white", "text-[16px]" } for="email">Email</label>
 			<input
 				id="email"
+				type="email"
+				required
 				class={ "w-full", "p-[10px]", "lg:p-[15px]", "rounded-[8px]" }
 				name="email"
 				placeholder="Enter your email"
+				autofocus
 			/>
 		</div>
 		<div class={ "flex", "justify-between", "gap-x-[10px]", "lg:gap-x-[30px]" }>
@@ -95,8 +99,9 @@ templ loginForm() {
 				</button>
 			</a>
 			<button
-				type="button"
+				type="submit"
 				class={ "bg-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+				onclick="window.Utils.toggleLoading()"
 			>
 				Login
 			</button>
