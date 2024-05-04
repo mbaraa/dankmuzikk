@@ -5,6 +5,7 @@ import "time"
 type Account struct {
 	Id        uint   `gorm:"primaryKey;autoIncrement"`
 	Email     string `gorm:"unique;not null"`
+	IsOAuth   bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

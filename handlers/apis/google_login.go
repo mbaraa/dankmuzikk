@@ -3,7 +3,7 @@ package apis
 import (
 	"dankmuzikk/config"
 	"dankmuzikk/log"
-	"dankmuzikk/services/google"
+	"dankmuzikk/services/login/google"
 	"net/http"
 	"time"
 )

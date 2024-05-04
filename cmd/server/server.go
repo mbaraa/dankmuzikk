@@ -2,15 +2,20 @@ package server
 
 import (
 	"dankmuzikk/config"
+	"dankmuzikk/db"
 	"dankmuzikk/handlers/apis"
 	"dankmuzikk/handlers/pages"
 	"dankmuzikk/log"
+	"dankmuzikk/models"
+	"dankmuzikk/services/jwt"
+	"dankmuzikk/services/login"
 	"dankmuzikk/services/youtube"
 	"embed"
 	"net/http"
 )
 
 func StartServer(staticFS embed.FS) error {
+	///////////// Pages and files /////////////
 	pagesHandler := http.NewServeMux()
 	pagesHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
@@ -24,9 +29,24 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.HandleFunc("/privacy", pages.Handler(pages.HandlePrivacyPage))
 	pagesHandler.HandleFunc("/search", pages.Handler(pages.HandleSearchResultsPage(&youtube.YouTubeScraperSearch{})))
 
+	///////////// APIs /////////////
+	dbConn, err := db.Connector()
+	if err != nil {
+		log.Fatalln(log.ErrorLevel, err)
+	}
+
+	jwtUtil := jwt.NewJWTImpl()
+	accountRepo := db.NewBaseDB[models.Account](dbConn)
+	profileRepo := db.NewBaseDB[models.Profile](dbConn)
+
+	emailLoginApi := apis.NewEmailLoginApi(*login.NewEmailLoginService(accountRepo, profileRepo, jwtUtil))
+
 	apisHandler := http.NewServeMux()
-	apisHandler.HandleFunc("/login/google", apis.HandleGoogleOAuthLogin)
-	apisHandler.HandleFunc("/login/google/callback", apis.HandleGoogleOAuthLoginCallback)
+	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
+	apisHandler.HandleFunc("POST /signup/email", emailLoginApi.HandleEmailSignup)
+	apisHandler.HandleFunc("POST /verify-otp", emailLoginApi.HandleEmailOTPVerification)
+	// apisHandler.HandleFunc("/login/google", apis.HandleGoogleOAuthLogin)
+	// apisHandler.HandleFunc("/login/google/callback", apis.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("/search-suggession", apis.HandleSearchSugessions)
 	apisHandler.HandleFunc("/song/download/{youtube_video_id}", apis.HandleDownloadSong)
 
