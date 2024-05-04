@@ -4,8 +4,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        AudioNugget: ["Audio Nugget"],
-        MyriadPro: ["Myriad Pro"],
+        Ubuntu: ["Ubuntu", "sans"],
       },
       colors: {
         primary: {

@@ -26,7 +26,7 @@ templ searchResults(results []SearchResult) {
 			for idx, res := range results {
 				<div
 					class={
-						"!font-MyriadPro", "w-full", "bg-[#ffffff00]", "p-[12px]", "flex", "justify-between",
+						"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "p-[12px]", "flex", "justify-between",
 						"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10",
 					}
 				>
@@ -45,7 +45,7 @@ templ searchResults(results []SearchResult) {
 								alt="Video Thumbnail"
 							/>
 							<div class={ "absolute", "right-0", "bottom-0", "text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-black-trans-400", "rounded-sm" }>
-								<p class={ "leading-3", "font-MyriadPro" }>
+								<p class={ "leading-3", "font-Ubuntu" }>
 									{ res.Duration }
 								</p>
 							</div>
@@ -53,7 +53,7 @@ templ searchResults(results []SearchResult) {
 					</div>
 					<!-- title, channel title, and description -->
 					<div class={ "w-[150px]", "md:w-[250px]", "lg:min-w-[300px]", "xl:min-w-[400px]" }>
-						<div class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-MyriadPro", "text-white" }>
+						<div class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-white" }>
 							<h3
 								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
 								title={ res.Title }

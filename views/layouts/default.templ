@@ -37,14 +37,7 @@ templ Default(isMobile bool, children ...templ.Component) {
 				defer
 				rel="stylesheet"
 				type="text/css"
-				href="/static/css/myrad-pro-font.css"
-			/>
-			<link
-				async
-				defer
-				rel="stylesheet"
-				type="text/css"
-				href="/static/css/audio-nugget-font.css"
+				href="/static/css/ubuntu-font.css"
 			/>
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
 			<script src="/static/js/htmx.min.js"></script>
@@ -60,6 +53,7 @@ templ Default(isMobile bool, children ...templ.Component) {
                 background-position: center;
                 background-attachment: fixed;
                 min-height: 100dvh;
+                font-family: "Ubuntu";
             '
 		>
 			@header.Header(isMobile)

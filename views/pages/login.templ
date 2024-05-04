@@ -2,20 +2,19 @@ package pages
 
 import "dankmuzikk/views/layouts"
 
+/*
+   This page uses desktop design after lg (1024px)
+*/
+
 templ Login(isMobile bool) {
 	@layouts.Default(isMobile, login())
 }
 
-templ mobileLogin() {
-	<main class={ "w-full", "h-full" }>
-		mobile
-	</main>
-}
-
-templ desktopLogin() {
+templ login() {
 	<main id="main-login-container" class={ "w-full", "h-fit", "flex" }>
 		<!-- frank and details -->
 		<div class={ "hidden", "lg:block", "relative", "w-[70%]", "xl:w-full", "h-fit", "flex" }>
+			<!-- frank -->
 			<div
 				id="frank"
 				class={
@@ -23,8 +22,12 @@ templ desktopLogin() {
 					"bg-repeat", "bg-cover", "bg-center",
 				}
 			></div>
-			<div class={ "absolute", "top-0", "left-0", "z-10", "w-full", "h-full", "bg-black-trans-300" }></div>
+			<!-- details -->
+			<div class={ "absolute", "top-0", "left-0", "z-10", "w-full", "h-full", "bg-black-trans-300" }>
+				lol
+			</div>
 		</div>
+		<!-- login form -->
 		<div
 			id="login-form"
 			class={
@@ -34,16 +37,21 @@ templ desktopLogin() {
 		>
 			<div
 				class={
-					"w-full", "h-[95%]", "lg:h-1/2", "mx-[15px]", "lg:mx-[40px]",
-					"bg-white-trans-100", "rounded-[10px]",
+					"w-full", "h-[95%]", "lg:h-1/2", "bg-white-trans-100", "lg:mx-[40px]",
+					"mx-[15px]", "p-[20px]", "lg:p-[40px]", "rounded-[10px]",
 				}
 			>
+				<h1
+					class={ "text-white", "text-[48px]", "font-Ubuntu" }
+				>
+					Login
+				</h1>
 				<a href="/api/login/google">
 					<button
 						type="button"
 						class={ "bg-white", }
 					>
-						<span class={ "font-MyriadPro" }>Login with Google</span>
+						<span class={ "font-Ubuntu" }>Login with Google</span>
 					</button>
 				</a>
 			</div>
@@ -51,13 +59,4 @@ templ desktopLogin() {
 	</main>
 	<script src="/static/js/login.js">
     </script>
-}
-
-templ login() {
-	//<div class={ "contents", "lg:hidden" }>
-	//	@mobileLogin()
-	//</div>
-	//<div class={ "hidden", "lg:contents" }>
-	@desktopLogin()
-	//</div>
 }
