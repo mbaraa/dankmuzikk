@@ -1,6 +1,9 @@
 package pages
 
-import "dankmuzikk/views/layouts"
+import (
+	"dankmuzikk/views/layouts"
+	"dankmuzikk/views/components/info"
+)
 
 /*
    This page uses desktop design after lg (1024px)
@@ -18,45 +21,93 @@ templ login() {
 			<div
 				id="frank"
 				class={
-					"w-full", "bg-accent", "bg-[url('/static/images/frank-cropped.png')]",
+					"w-full", "h-[90vh]", "bg-accent", "bg-[url('/static/images/frank-cropped.png')]",
 					"bg-repeat", "bg-cover", "bg-center",
 				}
 			></div>
 			<!-- details -->
 			<div class={ "absolute", "top-0", "left-0", "z-10", "w-full", "h-full", "bg-black-trans-300" }>
-				lol
+				<div class={ "absolute", "left-[20px]", "bottom-[20px]" }>
+					@info.Intro()
+					@info.Links()
+				</div>
 			</div>
 		</div>
 		<!-- login form -->
 		<div
 			id="login-form"
 			class={
-				"w-full",
-				"bg-black-trans-500", "flex", "justify-center", "items-center",
+				"w-full", "p-[15px]", "lg:px-[40px]",
+				"bg-black-trans-500", "flex", "flex-col", "justify-center", "items-center",
 			}
 		>
 			<div
 				class={
-					"w-full", "h-[95%]", "lg:h-1/2", "bg-white-trans-100", "lg:mx-[40px]",
-					"mx-[15px]", "p-[20px]", "lg:p-[40px]", "rounded-[10px]",
+					"w-full", "h-[95%]", "lg:h-auto", "bg-white-trans-100",
+					"p-[20px]", "lg:p-[60px]", "rounded-[10px]",
+					"flex", "flex-col", "justify-between", "lg:gap-y-[30px]",
 				}
 			>
 				<h1
-					class={ "text-white", "text-[48px]", "font-Ubuntu" }
+					class={ "text-white", "text-[35px]", "lg:text-[48px]", "font-light" }
 				>
 					Login
 				</h1>
-				<a href="/api/login/google">
-					<button
-						type="button"
-						class={ "bg-white", }
-					>
-						<span class={ "font-Ubuntu" }>Login with Google</span>
-					</button>
-				</a>
+				@loginForm()
+				<div class={ "text-white", "flex", "justify-between" }>
+					<p class={ "" }>New here?</p>
+					<a class={ "underline" } href="/signup">Signup</a>
+				</div>
+			</div>
+			<div class={ "block", "lg:hidden" }>
+				@info.Links()
 			</div>
 		</div>
 	</main>
 	<script src="/static/js/login.js">
     </script>
+}
+
+templ loginForm() {
+	<form
+		class={ "flex", "flex-col", "gap-y-[15px]", "lg:gap-y-[35px]" }
+		hx-post="/api/login"
+	>
+		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
+			<label class={ "text-white", "text-[16px]" } for="name">Name</label>
+			<input
+				id="name"
+				class={ "w-full", "p-[10px]", "lg:p-[15px]", "ps-[15px]", "rounded-[8px]" }
+				name="name"
+				placeholder="Enter your name"
+			/>
+		</div>
+		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
+			<label class={ "text-white", "text-[16px]" } for="email">Email</label>
+			<input
+				id="email"
+				class={ "w-full", "p-[10px]", "lg:p-[15px]", "rounded-[8px]" }
+				name="email"
+				placeholder="Enter your email"
+			/>
+		</div>
+		<div class={ "flex", "justify-between", "gap-x-[10px]", "lg:gap-x-[30px]" }>
+			<a class={ "w-full" } href="/api/login/google">
+				<button
+					type="button"
+					class={ "w-full", "bg-white", "rounded-[50px]", "p-[10px]", "flex", "justify-center", "items-center" }
+				>
+					<span class={ "font-Ubuntu" }>
+						<img class={ "w-[25px]", "h-[25px]" } src="/static/images/google.webp" alt="Login with Google"/>
+					</span>
+				</button>
+			</a>
+			<button
+				type="button"
+				class={ "bg-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+			>
+				Login
+			</button>
+		</div>
+	</form>
 }
