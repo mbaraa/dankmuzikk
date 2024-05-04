@@ -2,9 +2,9 @@ package pages
 
 import (
 	"context"
-	"dankmuzikk/components/pages"
 	"dankmuzikk/log"
 	"dankmuzikk/services/youtube"
+	"dankmuzikk/views/pages"
 	"net/http"
 )
 

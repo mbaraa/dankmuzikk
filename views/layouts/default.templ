@@ -1,8 +1,10 @@
 package layouts
 
-import "dankmuzikk/components/ui/header"
-import "dankmuzikk/components/ui/player"
-import "dankmuzikk/components/ui/loading"
+import (
+	"dankmuzikk/views/components/header"
+	"dankmuzikk/views/components/player"
+	"dankmuzikk/views/components/loading"
+)
 
 templ Default(isMobile bool, children ...templ.Component) {
 	<!DOCTYPE html>

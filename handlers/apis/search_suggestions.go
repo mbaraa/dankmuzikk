@@ -2,9 +2,9 @@ package apis
 
 import (
 	"context"
-	"dankmuzikk/components/ui/search"
 	"dankmuzikk/log"
 	"dankmuzikk/services/youtube"
+	"dankmuzikk/views/components/search"
 	"net/http"
 )
 

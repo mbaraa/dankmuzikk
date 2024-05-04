@@ -4,6 +4,8 @@ import (
 	"dankmuzikk/log"
 	"net/http"
 	"strings"
+
+	_ "github.com/a-h/templ"
 )
 
 func Handler(hand http.HandlerFunc) http.HandlerFunc {

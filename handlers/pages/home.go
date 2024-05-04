@@ -2,10 +2,8 @@ package pages
 
 import (
 	"context"
-	"dankmuzikk/components/pages"
+	"dankmuzikk/views/pages"
 	"net/http"
-
-	_ "github.com/a-h/templ"
 )
 
 func HandleHomePage(w http.ResponseWriter, r *http.Request) {

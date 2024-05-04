@@ -2,7 +2,7 @@ package pages
 
 import (
 	"context"
-	"dankmuzikk/components/pages"
+	"dankmuzikk/views/pages"
 	"net/http"
 )
 
