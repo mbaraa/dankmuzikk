@@ -3,7 +3,7 @@ package search
 import "fmt"
 
 templ SearchSuggestions(suggestions []string, originalQuery string) {
-	<ul id="search-suggestions" class={ "grid", "grid-cols-1", "w-full", "bg-[#FFFFFFBB]", "rounded-lg", "p-[10px]" }>
+	<ul id="search-suggestions" class={ "grid", "grid-cols-1", "w-full", "bg-white-trans-200", "rounded-lg", "p-[10px]" }>
 		for i, suggestion := range suggestions {
 			<li
 				class={ "focus-within:bg-primary", "focus-within:text-white",

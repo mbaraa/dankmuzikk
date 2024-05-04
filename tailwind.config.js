@@ -31,6 +31,7 @@ module.exports = {
           DEFAULT: "#fff",
           trans: {
             100: "#FFFFFF25",
+            200: "#FFFFFFEE",
           },
         },
       },
