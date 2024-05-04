@@ -72,6 +72,7 @@ templ loginForm() {
 	<form
 		class={ "flex", "flex-col", "gap-y-[15px]", "lg:gap-y-[35px]" }
 		hx-post="/api/login"
+		hx-ext="json-enc"
 	>
 		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
 			<label class={ "text-white", "text-[16px]" } for="name">Name</label>
@@ -92,7 +93,7 @@ templ loginForm() {
 			/>
 		</div>
 		<div class={ "flex", "justify-between", "gap-x-[10px]", "lg:gap-x-[30px]" }>
-			<a class={ "w-full" } href="/api/login/google">
+			<a class={ "w-full" } href="/api/login/google" title="Login with Google">
 				<button
 					type="button"
 					class={ "w-full", "bg-white", "rounded-[50px]", "p-[10px]", "flex", "justify-center", "items-center" }
