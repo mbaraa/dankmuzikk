@@ -16,12 +16,12 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
 	pagesHandler.HandleFunc("/", pages.Handler(pages.HandleHomePage))
-	pagesHandler.HandleFunc("/login", pages.Handler(pages.HandleLoginPage))
-	pagesHandler.HandleFunc("/profile", pages.Handler(pages.HandleProfilePage))
+	pagesHandler.HandleFunc("/signup", pages.AuthHandler(pages.HandleSignupPage))
+	pagesHandler.HandleFunc("/login", pages.AuthHandler(pages.HandleLoginPage))
+	pagesHandler.HandleFunc("/profile", pages.AuthHandler(pages.HandleProfilePage))
 	pagesHandler.HandleFunc("/about", pages.Handler(pages.HandleAboutPage))
-	pagesHandler.HandleFunc("/playlists", pages.Handler(pages.HandlePlaylistsPage))
+	pagesHandler.HandleFunc("/playlists", pages.AuthHandler(pages.HandlePlaylistsPage))
 	pagesHandler.HandleFunc("/privacy", pages.Handler(pages.HandlePrivacyPage))
-	pagesHandler.HandleFunc("/tos", pages.Handler(pages.HandleTOSPage))
 	pagesHandler.HandleFunc("/search", pages.Handler(pages.HandleSearchResultsPage(&youtube.YouTubeScraperSearch{})))
 
 	apisHandler := http.NewServeMux()

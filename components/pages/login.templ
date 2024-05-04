@@ -6,10 +6,74 @@ templ Login(isMobile bool) {
 	@layouts.Default(isMobile, login())
 }
 
-templ login() {
+templ mobileLogin() {
 	<main class={ "w-full", "h-full" }>
-		<pre>
-			Login:
-		</pre>
+		mobile
 	</main>
+}
+
+templ desktopLogin() {
+	<main id="main-login-container" class={ "w-full", "h-fit", "flex" }>
+		<div class={ "hidden", "lg:block", "relative", "w-[70%]", "xl:w-full", "h-fit", "flex" }>
+			<div
+				id="frank"
+				class={
+					"w-full", "rounded-md", "bg-accent", "bg-[url('/static/images/frank-cropped.png')]",
+					"bg-repeat", "bg-cover", "bg-center",
+				}
+			></div>
+			<div class={ "absolute", "top-0", "left-0", "z-30", "w-full", "h-full", "bg-black-trans-300" }></div>
+		</div>
+		<div
+			id="login-form"
+			class={
+				"w-full",
+				"bg-black-trans-500", "flex", "justify-center", "items-center",
+			}
+		>
+			<div
+				class={
+					"w-full", "h-[95%]", "lg:h-1/2", "mx-[15px]", "lg:mx-[40px]",
+					"bg-white-trans-100", "rounded-[10px]",
+				}
+			>
+				<a href="/api/login/google">
+					<button
+						type="button"
+						class={ "bg-white", }
+					>
+						<span class={ "font-MyriadPro" }>Login with Google</span>
+					</button>
+				</a>
+			</div>
+		</div>
+	</main>
+	<script>
+        if (window.Player) {
+            window.Player.hidePlayer();
+        }
+        function setContainerFullHeight(id) {
+            document.getElementById(id).style.height =
+                (window.innerHeight -
+                document.getElementById("dank-header").getBoundingClientRect().height)
+                .toString() + "px";
+        }
+        window.addEventListener("load", () => {
+            setContainerFullHeight("frank");
+            setContainerFullHeight("login-form");
+        });
+        window.addEventListener("resize", () => {
+            setContainerFullHeight("frank");
+            setContainerFullHeight("login-form");
+        });
+    </script>
+}
+
+templ login() {
+	//<div class={ "contents", "lg:hidden" }>
+	//	@mobileLogin()
+	//</div>
+	//<div class={ "hidden", "lg:contents" }>
+	@desktopLogin()
+	//</div>
 }

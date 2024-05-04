@@ -51,7 +51,7 @@ templ desktopHeader() {
 }
 
 templ Header(isMobile bool) {
-	<header class={ "bg-accent", "p-[20px]", "md:p-[10px]" }>
+	<header id="dank-header" class={ "bg-accent", "p-[20px]", "md:p-[10px]" }>
 		// mobiles are usually shitty at rendering, so this prevents mobiles from rendering two blocks and choosing one using CSS.
 		if isMobile {
 			@mobileHeader()

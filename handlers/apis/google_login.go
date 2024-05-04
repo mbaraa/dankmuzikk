@@ -5,6 +5,7 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/services/google"
 	"net/http"
+	"time"
 )
 
 func HandleGoogleOAuthLogin(w http.ResponseWriter, r *http.Request) {
@@ -26,10 +27,18 @@ func HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := google.CompleteLoginWithGoogle(state, code)
+	sessionToken, err := google.CompleteLoginWithGoogle(state, code)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		log.Errorln("[GOOGLE LOGIN API]: ", err)
 		return
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    sessionToken,
+		HttpOnly: true,
+		Expires:  time.Now().UTC().Add(time.Hour * 24 * 30),
+	})
+	http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
 }

@@ -1,0 +1,26 @@
+package pages
+
+import "dankmuzikk/components/layouts"
+
+templ Signup(isMobile bool) {
+	@layouts.Default(isMobile, signup())
+}
+
+templ signup() {
+	<main class={ "w-full", "h-full", "flex", "justify-center", "items-center" }>
+		<section
+			class={
+				"w-full", "lg:w-1/2", "min-h-[58dvh]", "md:min-h-[85dvh]", "h-full", "bg-black-trans-100", "rounded-md",
+				"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[5px]", "md:p-[20px]",
+				"flex", "flex-col", "gap-y-3", "justify-between",
+			}
+		>
+			cyka
+		</section>
+	</main>
+	<script>
+        if (window.Player) {
+            window.Player.hidePlayer();
+        }
+    </script>
+}
