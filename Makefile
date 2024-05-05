@@ -23,7 +23,7 @@ init:
 # dev runs the development server where it builds the tailwind css sheet,
 # and compiles the project whenever a file is changed.
 dev:
-	templ generate --watch --cmd="./run.sh"
+	templ generate --watch --cmd="./run.sh dev"
 
 clean:
 	go clean

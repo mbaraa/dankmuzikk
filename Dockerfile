@@ -12,8 +12,9 @@ FROM alpine:latest as run
 RUN apk add yt-dlp
 
 WORKDIR /app
-COPY --from=build /app/dankmuzikk ./run
+COPY --from=build /app/dankmuzikk ./dankmuzikk
+COPY --from=build /app/run.sh ./run.sh
 
 EXPOSE 8080
 
-CMD ["./run", "serve"]
+CMD ["./run.sh", "prod"]
