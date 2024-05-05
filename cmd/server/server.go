@@ -41,16 +41,17 @@ func StartServer(staticFS embed.FS) error {
 	profileRepo := db.NewBaseDB[models.Profile](dbConn)
 	otpRepo := db.NewBaseDB[models.EmailVerificationCode](dbConn)
 
-	emailLoginApi := apis.NewEmailLoginApi(*login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
+	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
+	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
 	apisHandler.HandleFunc("POST /signup/email", emailLoginApi.HandleEmailSignup)
 	apisHandler.HandleFunc("POST /verify-otp", emailLoginApi.HandleEmailOTPVerification)
-	// apisHandler.HandleFunc("/login/google", apis.HandleGoogleOAuthLogin)
-	// apisHandler.HandleFunc("/login/google/callback", apis.HandleGoogleOAuthLoginCallback)
-	apisHandler.HandleFunc("/search-suggession", apis.HandleSearchSugessions)
-	apisHandler.HandleFunc("/song/download/{youtube_video_id}", apis.HandleDownloadSong)
+	apisHandler.HandleFunc("GET /login/google", googleLoginApi.HandleGoogleOAuthLogin)
+	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
+	apisHandler.HandleFunc("GET /search-suggession", apis.HandleSearchSugessions)
+	apisHandler.HandleFunc("GET /song/download/{youtube_video_id}", apis.HandleDownloadSong)
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)
