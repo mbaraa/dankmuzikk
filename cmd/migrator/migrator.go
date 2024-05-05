@@ -14,5 +14,6 @@ func Migrate() error {
 	return dbConn.Debug().AutoMigrate(
 		new(models.Account),
 		new(models.Profile),
+		new(models.EmailVerificationCode),
 	)
 }

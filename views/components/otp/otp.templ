@@ -23,17 +23,19 @@ templ VerifyOtp() {
 		</div>
 		<div class={ "flex", "justify-between", "gap-x-[10px]", "lg:gap-x-[30px]" }>
 			<button
-				type="button"
+				type="submit"
 				class={ "bg-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
 			>
 				Continue
 			</button>
 		</div>
 	</form>
+	<!--
 	<div class={ "text-white", "flex", "justify-between" }>
 		<p class={ "" }>Didn't receive anything?</p>
 		<a class={ "underline" } href="/signup">Resend</a>
 	</div>
+    -->
 	<script>
         window.Utils.toggleLoading();
     </script>

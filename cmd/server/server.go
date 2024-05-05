@@ -38,8 +38,9 @@ func StartServer(staticFS embed.FS) error {
 	jwtUtil := jwt.NewJWTImpl()
 	accountRepo := db.NewBaseDB[models.Account](dbConn)
 	profileRepo := db.NewBaseDB[models.Profile](dbConn)
+	otpRepo := db.NewBaseDB[models.EmailVerificationCode](dbConn)
 
-	emailLoginApi := apis.NewEmailLoginApi(*login.NewEmailLoginService(accountRepo, profileRepo, jwtUtil))
+	emailLoginApi := apis.NewEmailLoginApi(*login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
