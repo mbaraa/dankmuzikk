@@ -20,12 +20,14 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
+	jwtUtil := jwt.NewJWTImpl()
+
 	pagesHandler.HandleFunc("/", pages.Handler(pages.HandleHomePage))
-	pagesHandler.HandleFunc("/signup", pages.AuthHandler(pages.HandleSignupPage))
-	pagesHandler.HandleFunc("/login", pages.AuthHandler(pages.HandleLoginPage))
-	pagesHandler.HandleFunc("/profile", pages.AuthHandler(pages.HandleProfilePage))
+	pagesHandler.HandleFunc("/signup", pages.AuthHandler(pages.HandleSignupPage, jwtUtil))
+	pagesHandler.HandleFunc("/login", pages.AuthHandler(pages.HandleLoginPage, jwtUtil))
+	pagesHandler.HandleFunc("/profile", pages.AuthHandler(pages.HandleProfilePage, jwtUtil))
 	pagesHandler.HandleFunc("/about", pages.Handler(pages.HandleAboutPage))
-	pagesHandler.HandleFunc("/playlists", pages.AuthHandler(pages.HandlePlaylistsPage))
+	pagesHandler.HandleFunc("/playlists", pages.AuthHandler(pages.HandlePlaylistsPage, jwtUtil))
 	pagesHandler.HandleFunc("/privacy", pages.Handler(pages.HandlePrivacyPage))
 	pagesHandler.HandleFunc("/search", pages.Handler(pages.HandleSearchResultsPage(&youtube.YouTubeScraperSearch{})))
 
@@ -35,7 +37,6 @@ func StartServer(staticFS embed.FS) error {
 		log.Fatalln(log.ErrorLevel, err)
 	}
 
-	jwtUtil := jwt.NewJWTImpl()
 	accountRepo := db.NewBaseDB[models.Account](dbConn)
 	profileRepo := db.NewBaseDB[models.Profile](dbConn)
 	otpRepo := db.NewBaseDB[models.EmailVerificationCode](dbConn)
