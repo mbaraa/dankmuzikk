@@ -71,7 +71,7 @@ func (s *JWTImpl[T]) Decode(token string, subject Subject) (Claims[T], error) {
 			return nil, ErrExpiredToken.NewWithNoMessage()
 		}
 
-		return config.Env().JwtSecret, nil
+		return []byte(config.Env().JwtSecret), nil
 	})
 
 	if err != nil {

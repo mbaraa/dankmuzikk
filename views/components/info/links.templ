@@ -1,0 +1,46 @@
+package info
+
+type linkT struct {
+	logoUrl string
+	target  string
+	alt     string
+}
+
+var links = []linkT{
+	{
+		logoUrl: "/static/images/github.webp",
+		target:  "https://github.com/mbaraa/dankmuzikk",
+		alt:     "GitHub - dankmuzikk",
+	},
+	{
+		logoUrl: "https://mbaraa.com/resources/images/favicon.png",
+		target:  "https://mbaraa.com",
+		alt:     "mbaraa.com",
+	},
+}
+
+templ Links() {
+	<div class={ "m-[10px]", "flex", "gap-x-[10px]" }>
+		for _, l := range links {
+			@link(l)
+		}
+	</div>
+}
+
+templ link(l linkT) {
+	<a
+		class={
+			"w-[45px]", "h-[45px]", "bg-black",
+			"rounded-[25px]", "flex", "justify-center", "items-center",
+		}
+		href={ templ.SafeURL(l.target) }
+		title={ l.alt }
+		target="_blank"
+	>
+		<img
+			class={ "w-[25px]", "w-[25px]", "rounded-xl" }
+			src={ l.logoUrl }
+			alt={ l.alt }
+		/>
+	</a>
+}

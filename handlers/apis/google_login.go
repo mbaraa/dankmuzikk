@@ -2,18 +2,27 @@ package apis
 
 import (
 	"dankmuzikk/config"
+	"dankmuzikk/handlers"
 	"dankmuzikk/log"
-	"dankmuzikk/services/google"
+	"dankmuzikk/services/login"
 	"net/http"
 	"time"
 )
 
-func HandleGoogleOAuthLogin(w http.ResponseWriter, r *http.Request) {
-	url := config.GoogleOAuthConfig().AuthCodeURL(google.CurrentRandomState())
+type googleLoginApi struct {
+	service *login.GoogleLoginService
+}
+
+func NewGoogleLoginApi(service *login.GoogleLoginService) *googleLoginApi {
+	return &googleLoginApi{service}
+}
+
+func (g *googleLoginApi) HandleGoogleOAuthLogin(w http.ResponseWriter, r *http.Request) {
+	url := config.GoogleOAuthConfig().AuthCodeURL(g.service.CurrentRandomState())
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r *http.Request) {
+func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
 	if state == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -27,7 +36,7 @@ func HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionToken, err := google.CompleteLoginWithGoogle(state, code)
+	sessionToken, err := g.service.Login(state, code)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		log.Errorln("[GOOGLE LOGIN API]: ", err)
@@ -35,9 +44,11 @@ func HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
+		Name:     handlers.SessionTokenKey,
 		Value:    sessionToken,
 		HttpOnly: true,
+		Path:     "/",
+		Domain:   config.Env().Hostname,
 		Expires:  time.Now().UTC().Add(time.Hour * 24 * 30),
 	})
 	http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)

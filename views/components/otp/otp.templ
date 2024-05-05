@@ -1,0 +1,42 @@
+package otp
+
+templ VerifyOtp() {
+	<h1
+		class={ "text-white", "text-[35px]", "lg:text-[48px]", "font-light" }
+	>
+		One more step...
+	</h1>
+	<form
+		class={ "flex", "flex-col", "gap-y-[15px]", "lg:gap-y-[35px]" }
+		hx-post="/api/verify-otp"
+		hx-ext="json-enc"
+	>
+		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
+			<label class={ "text-white", "text-[16px]" } for="otp">One Time Password</label>
+			<input
+				id="otp"
+				class={ "w-full", "p-[10px]", "lg:p-[15px]", "rounded-[8px]" }
+				name="code"
+				placeholder="Enter the OTP that was sent to your email"
+				autofocus
+			/>
+		</div>
+		<div class={ "flex", "justify-between", "gap-x-[10px]", "lg:gap-x-[30px]" }>
+			<button
+				type="submit"
+				class={ "bg-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+			>
+				Continue
+			</button>
+		</div>
+	</form>
+	<!--
+	<div class={ "text-white", "flex", "justify-between" }>
+		<p class={ "" }>Didn't receive anything?</p>
+		<a class={ "underline" } href="/signup">Resend</a>
+	</div>
+    -->
+	<script>
+        window.Utils.toggleLoading();
+    </script>
+}
