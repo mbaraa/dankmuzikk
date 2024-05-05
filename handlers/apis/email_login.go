@@ -14,10 +14,10 @@ import (
 )
 
 type emailLoginApi struct {
-	service login.EmailLoginService
+	service *login.EmailLoginService
 }
 
-func NewEmailLoginApi(service login.EmailLoginService) *emailLoginApi {
+func NewEmailLoginApi(service *login.EmailLoginService) *emailLoginApi {
 	return &emailLoginApi{service}
 }
 
