@@ -8,7 +8,10 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/services/login"
 	"dankmuzikk/views/components/otp"
+	"dankmuzikk/views/components/status"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -32,7 +35,10 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 	verificationToken, err := e.service.Login(reqBody)
 	if err != nil {
 		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		// w.WriteHeader(http.StatusInternalServerError)
+		status.
+			GenericError(fmt.Sprintf("No account associated with the email \"%s\" was found", reqBody.Email)).
+			Render(context.Background(), w)
 		return
 	}
 
@@ -56,9 +62,20 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 	}
 
 	verificationToken, err := e.service.Signup(reqBody)
+	if errors.Is(err, login.ErrAccountExists) {
+		log.Errorf("[EMAIL LOGIN API]: Failed to sign up a new user: %+v, error: %s\n", reqBody, err.Error())
+		// w.WriteHeader(http.StatusConflict)
+		status.
+			GenericError(fmt.Sprintf("An account associated with the email \"%s\" already exists", reqBody.Email)).
+			Render(context.Background(), w)
+		return
+	}
+	if errors.Is(err, login.ErrAccountNotFound) || errors.Is(err, login.ErrProfileNotFound) {
+
+	}
 	if err != nil {
 		log.Errorf("[EMAIL LOGIN API]: Failed to sign up a new user: %+v, error: %s\n", reqBody, err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 

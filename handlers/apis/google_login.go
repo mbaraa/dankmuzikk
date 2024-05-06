@@ -1,10 +1,12 @@
 package apis
 
 import (
+	"context"
 	"dankmuzikk/config"
 	"dankmuzikk/handlers"
 	"dankmuzikk/log"
 	"dankmuzikk/services/login"
+	"dankmuzikk/views/components/status"
 	"net/http"
 	"time"
 )
@@ -38,7 +40,10 @@ func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r
 
 	sessionToken, err := g.service.Login(state, code)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+		// w.WriteHeader(http.StatusUnauthorized)
+		status.
+			GenericError("Account doesn't exist").
+			Render(context.Background(), w)
 		log.Errorln("[GOOGLE LOGIN API]: ", err)
 		return
 	}

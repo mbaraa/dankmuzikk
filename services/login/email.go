@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -37,14 +36,14 @@ func NewEmailLoginService(
 }
 
 func (e *EmailLoginService) Login(user entities.LoginRequest) (string, error) {
-	account, err := e.accountRepo.GetByConds("email = ?", user.Email)
+	account, err := e.accountRepo.GetByConds("email = ? AND is_o_auth = 0", user.Email)
 	if err != nil {
-		return "", err
+		return "", errors.Join(ErrAccountNotFound, err)
 	}
 
 	profile, err := e.profileRepo.GetByConds("account_id = ?", account[0].Id)
 	if err != nil {
-		return "", err
+		return "", errors.Join(ErrProfileNotFound, err)
 	}
 	profile[0].Account = account[0]
 	profile[0].AccountId = account[0].Id
@@ -66,11 +65,14 @@ func (e *EmailLoginService) Signup(user entities.SignupRequest) (string, error) 
 			Email: user.Email,
 		},
 		Name:     user.Name,
-		Username: user.Email[:strings.Index(user.Email, "@")],
+		Username: user.Email,
 	}
 
-	// creating a new account will create the account underneeth it.
+	// creating a new account will create the account underneath it.
 	err := e.profileRepo.Add(&profile)
+	if errors.Is(err, db.ErrRecordExists) {
+		return "", errors.Join(ErrAccountExists, err)
+	}
 	if err != nil {
 		return "", err
 	}

@@ -11,7 +11,6 @@ import (
 	"errors"
 
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -66,7 +65,7 @@ func (g *GoogleLoginService) Login(state, code string) (string, error) {
 		return "", err
 	}
 
-	account, err := g.accountRepo.GetByConds("email = ?", googleUser.Email)
+	account, err := g.accountRepo.GetByConds("email = ? AND is_o_auth = 1", googleUser.Email)
 	if errorx.IsOfType(err, db.ErrRecordNotFound) || len(account) == 0 {
 		return g.Signup(googleUser)
 	}
@@ -95,12 +94,13 @@ func (g *GoogleLoginService) Login(state, code string) (string, error) {
 func (g *GoogleLoginService) Signup(googleUser oauthUserInfo) (string, error) {
 	profile := models.Profile{
 		Account: models.Account{
-			Email: googleUser.Email,
+			Email:   googleUser.Email,
+			IsOAuth: true,
 		},
 		Name:     googleUser.FullName,
-		Username: googleUser.Email[:strings.Index(googleUser.Email, "@")],
+		Username: googleUser.Email,
 	}
-	// creating a new account will create the account underneeth it.
+	// creating a new account will create the account underneath it.
 	err := g.profileRepo.Add(&profile)
 	if err != nil {
 		return "", err
