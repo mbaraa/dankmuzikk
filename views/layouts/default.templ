@@ -42,8 +42,10 @@ templ Default(isMobile bool, children ...templ.Component) {
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
 			<script src="/static/js/htmx.min.js"></script>
 			<script async defer src="/static/js/json-enc.js"></script>
+			<script src="/static/js/htmx/loading-states.js"></script>
 		</head>
 		<body
+			hx-ext="loading-states"
 			style='
                 background-image: url("/static/images/dankground.svg"), linear-gradient(to right, #4C8C36 , #9EE07E);
                 background-repeat: repeat;

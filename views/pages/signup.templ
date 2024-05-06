@@ -74,6 +74,8 @@ templ signupForm() {
 		hx-post="/api/signup/email"
 		hx-ext="json-enc"
 		hx-target="#replaceable-login-form"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
 	>
 		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
 			<label class={ "text-white", "text-[16px]" } for="name">Name</label>
@@ -110,7 +112,6 @@ templ signupForm() {
 			<button
 				type="submit"
 				class={ "bg-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
-				onclick="window.Utils.toggleLoading()"
 			>
 				Sign up
 			</button>
