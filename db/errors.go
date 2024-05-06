@@ -1,22 +1,17 @@
 package db
 
 import (
-	"dankmuzikk/errors"
-
-	goerrors "errors"
+	"errors"
 
 	"github.com/go-sql-driver/mysql"
 )
 
-var DbErrNamespace = errors.DankMuzikkErrNamespace.NewSubNamespace("database error")
-
 var (
-	ErrInvalidModel           = DbErrNamespace.NewType("model does not implement the `AllowedModel` interface")
-	ErrNilObject              = DbErrNamespace.NewType("object's pointer is nil")
-	ErrEmptySlice             = DbErrNamespace.NewType("slice is nil or empty")
-	ErrInvalidWhereConditions = DbErrNamespace.NewType("invalid where conditions")
-	ErrRecordNotFound         = DbErrNamespace.NewType("no records were found")
-	ErrRecordExists           = goerrors.New("record exists in table")
+	ErrNilObject              = errors.New("db: object's pointer is nil")
+	ErrEmptySlice             = errors.New("db: slice is nil or empty")
+	ErrInvalidWhereConditions = errors.New("db: invalid where conditions")
+	ErrRecordNotFound         = errors.New("db: no records were found")
+	ErrRecordExists           = errors.New("db: record exists in table")
 )
 
 func tryWrapMySqlError(err error) error {

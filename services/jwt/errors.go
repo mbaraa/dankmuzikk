@@ -1,14 +1,12 @@
 package jwt
 
 import (
-	"dankmuzikk/errors"
+	"errors"
 )
 
-var JwtErrNamespace = errors.DankMuzikkErrNamespace.NewSubNamespace("jwt error")
-
 var (
-	ErrEmptyToken     = JwtErrNamespace.NewType("empty token")
-	ErrInvalidToken   = JwtErrNamespace.NewType("invalid token")
-	ErrExpiredToken   = JwtErrNamespace.NewType("expired token")
-	ErrInvalidSubject = JwtErrNamespace.NewType("invalid token's subject")
+	ErrEmptyToken     = errors.New("jwt: empty token")
+	ErrInvalidToken   = errors.New("jwt: invalid token")
+	ErrExpiredToken   = errors.New("jwt: expired token")
+	ErrInvalidSubject = errors.New("jwt: invalid token's subject")
 )

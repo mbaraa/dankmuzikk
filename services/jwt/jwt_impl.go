@@ -58,17 +58,17 @@ func (s *JWTImpl[T]) Validate(token string, subject Subject) error {
 // Decode decodes the given token using the set JWT secret
 func (s *JWTImpl[T]) Decode(token string, subject Subject) (Claims[T], error) {
 	if len(token) == 0 {
-		return Claims[T]{}, ErrEmptyToken.NewWithNoMessage()
+		return Claims[T]{}, ErrEmptyToken
 	}
 
 	claims := Claims[T]{}
 
 	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		if claims.Subject != subject {
-			return nil, ErrInvalidSubject.NewWithNoMessage()
+			return nil, ErrInvalidSubject
 		}
 		if claims.ExpiresAt.Time.Before(time.Now().UTC()) {
-			return nil, ErrExpiredToken.NewWithNoMessage()
+			return nil, ErrExpiredToken
 		}
 
 		return []byte(config.Env().JwtSecret), nil
