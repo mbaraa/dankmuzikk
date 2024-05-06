@@ -19,7 +19,7 @@ func NewBaseDB[T AllowedModels](db *gorm.DB) UnsafeCRUDRepo[T] {
 // the new object is a pointer, so it updates the object's id after creation
 func (b *BaseDB[T]) Add(obj *T) error {
 	if obj == nil {
-		return ErrNilObject.NewWithNoMessage()
+		return ErrNilObject
 	}
 
 	err := b.db.
@@ -37,7 +37,7 @@ func (b *BaseDB[T]) Add(obj *T) error {
 // AddMany is same as Add but for numerous objects
 func (b *BaseDB[T]) AddMany(objs []*T) error {
 	if len(objs) == 0 {
-		return ErrNilObject.NewWithNoMessage()
+		return ErrNilObject
 	}
 
 	err := b.db.
@@ -81,7 +81,7 @@ func (b *BaseDB[T]) Get(id uint) (T, error) {
 // which uses a given search condition and retrieves every record with the given condition
 func (b *BaseDB[T]) GetByConds(conds ...any) ([]T, error) {
 	if !checkConds(conds...) {
-		return nil, ErrInvalidWhereConditions.NewWithNoMessage()
+		return nil, ErrInvalidWhereConditions
 	}
 
 	var foundRecords []T
@@ -92,7 +92,7 @@ func (b *BaseDB[T]) GetByConds(conds ...any) ([]T, error) {
 		Error
 
 	if err != nil || len(foundRecords) == 0 {
-		return nil, ErrRecordNotFound.NewWithNoMessage()
+		return nil, ErrRecordNotFound
 	}
 
 	return foundRecords, nil
@@ -124,11 +124,11 @@ func (b *BaseDB[T]) Count() int64 {
 // and gives it its id(in case searching condition weren't using id)
 func (b *BaseDB[T]) Update(obj *T, conds ...any) error {
 	if obj == nil {
-		return ErrNilObject.NewWithNoMessage()
+		return ErrNilObject
 	}
 	if len(conds) > 1 {
 		if !checkConds(conds...) {
-			return ErrInvalidWhereConditions.NewWithNoMessage()
+			return ErrInvalidWhereConditions
 		}
 	} else {
 		conds = []any{"id = ?", (*obj).GetId()}

@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/joomcode/errorx"
 )
 
 var (
@@ -66,7 +65,7 @@ func (g *GoogleLoginService) Login(state, code string) (string, error) {
 	}
 
 	account, err := g.accountRepo.GetByConds("email = ? AND is_o_auth = 1", googleUser.Email)
-	if errorx.IsOfType(err, db.ErrRecordNotFound) || len(account) == 0 {
+	if errors.Is(err, db.ErrRecordNotFound) || len(account) == 0 {
 		return g.Signup(googleUser)
 	}
 	if err != nil {
