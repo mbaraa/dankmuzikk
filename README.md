@@ -7,7 +7,7 @@
   </p>
   <p>
     <a href="https://goreportcard.com/report/github.com/mbaraa/dankmuzikk"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/mbaraa/dankmuzikk"/></a>
-    <a href="https://github.com/mbaraa/dankmuzikk/actions/workflows/rex-deployment.yml"><img alt="rex-deployment" src="https://github.com/mbaraa/dankmuzikk/actions/workflows/rex-deployment.yml/badge.svg"/></a>
+    <a href="https://github.com/mbaraa/dankmuzikk/actions/workflows/rex-deploy.yml"><img alt="rex-deployment" src="https://github.com/mbaraa/dankmuzikk/actions/workflows/rex-deploy.yml/badge.svg"/></a>
   </p>
 </div>
 
