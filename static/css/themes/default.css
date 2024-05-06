@@ -1,0 +1,10 @@
+:root {
+  --primary-color: #7acb65;
+  --secondary-color: #9ee07e;
+  --accent-color: #4c8c36;
+}
+
+body {
+  background-image: url("/static/images/dankground.svg"),
+    linear-gradient(to right, var(--accent-color), var(--secondary-color));
+}

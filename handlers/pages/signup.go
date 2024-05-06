@@ -7,5 +7,5 @@ import (
 )
 
 func HandleSignupPage(w http.ResponseWriter, r *http.Request) {
-	pages.Signup(isMobile(r)).Render(context.Background(), w)
+	pages.Signup(isMobile(r), getTheme(r)).Render(context.Background(), w)
 }

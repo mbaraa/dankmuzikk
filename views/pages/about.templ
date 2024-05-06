@@ -3,8 +3,8 @@ package pages
 import "dankmuzikk/views/layouts"
 import "dankmuzikk/views/components/info"
 
-templ About(isMobile bool) {
-	@layouts.Default(isMobile, about())
+templ About(isMobile bool, themeName string) {
+	@layouts.Default(isMobile, themeName, about())
 }
 
 templ about() {

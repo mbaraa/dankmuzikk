@@ -7,5 +7,5 @@ import (
 )
 
 func HandleLoginPage(w http.ResponseWriter, r *http.Request) {
-	pages.Login(isMobile(r)).Render(context.Background(), w)
+	pages.Login(isMobile(r), getTheme(r)).Render(context.Background(), w)
 }

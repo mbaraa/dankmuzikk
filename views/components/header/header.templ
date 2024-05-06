@@ -1,6 +1,7 @@
 package header
 
 import "dankmuzikk/views/components/search"
+import "dankmuzikk/views/components/themeswitch"
 
 templ mobileHeader() {
 	<div class={ "md:hidden", "h-[250px]", "", "flex", "flex-col", "justify-between" }>
@@ -40,13 +41,16 @@ templ desktopHeader() {
 		<div class={ "flex", "justify-center", "items-center" }>
 			@search.Search()
 		</div>
-		<nav class={ "flex", "justify-center", "items-center" }>
-			<ul class={ "m-0", "list-none", "flex", "gap-x-[20px]" }>
-				<li><a href="/about">About</a></li>
-				<li><a href="/playlists">Playlists</a></li>
-				<li><a href="/profile">Profile</a></li>
-			</ul>
-		</nav>
+		<div class={ "flex", "justify-center", "items-center", "gap-x-7" }>
+			<nav>
+				<ul class={ "m-0", "list-none", "flex", "gap-x-5" }>
+					<li><a href="/about">About</a></li>
+					<li><a href="/playlists">Playlists</a></li>
+					<li><a href="/profile">Profile</a></li>
+				</ul>
+			</nav>
+			@themeswitch.ThemeSwitch()
+		</div>
 	</div>
 }
 

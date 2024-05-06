@@ -7,5 +7,5 @@ import (
 )
 
 func HandleProfilePage(w http.ResponseWriter, r *http.Request) {
-	pages.Profile(isMobile(r)).Render(context.Background(), w)
+	pages.Profile(isMobile(r), getTheme(r)).Render(context.Background(), w)
 }

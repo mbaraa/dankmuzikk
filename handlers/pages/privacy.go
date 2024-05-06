@@ -7,5 +7,5 @@ import (
 )
 
 func HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
-	pages.Privacy(isMobile(r)).Render(context.Background(), w)
+	pages.Privacy(isMobile(r), getTheme(r)).Render(context.Background(), w)
 }
