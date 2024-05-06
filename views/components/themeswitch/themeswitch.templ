@@ -1,0 +1,62 @@
+package themeswitch
+
+var themes = []struct {
+	displayName string
+	actualName  string
+}{
+	{
+		displayName: "Default",
+		actualName:  "default",
+	},
+	{
+		displayName: "Black",
+		actualName:  "black",
+	},
+}
+
+templ ThemeSwitch() {
+	<div class={ "theme-toggle-container", "relative" }>
+		<button
+			onClick={ toggleTheThing() }
+			class={ "p-2", "rounded-md", "hover:bg-black-trans-100" }
+		>
+			<img src="/static/images/theme-icon.svg" alt="Theme Selector"/>
+		</button>
+		<div
+			id="theme-selector"
+			class={
+				"hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
+				"bg-white", "shadow-md", "p-[10px]", "rounded-[5px]",
+				"min-w-[150px]", "text-black",
+			}
+		>
+			<ul class={ "text-black" }>
+				for _, theme := range themes {
+					<li>
+						<button
+							onClick={ changeTheme(theme.actualName) }
+							type="button"
+							class={ "w-full", "p-2", "rounded-md", "hover:bg-black-trans-100", "text-left" }
+						>{ theme.displayName }</button>
+					</li>
+				}
+			</ul>
+		</div>
+	</div>
+}
+
+script changeTheme(themeName string) {
+    const themeCookie = "theme-name";
+    document.cookie = "theme-name" + "=" + themeName + "; path=/";
+    window.location.reload();
+}
+
+script toggleTheThing() {
+    const themeTogglePopover = document.getElementById("theme-selector");
+
+    if (themeTogglePopover.style.display !== "block") {
+      themeTogglePopover.style.display = "block";
+    } else {
+      themeTogglePopover.style.display = "none";
+    }
+}
