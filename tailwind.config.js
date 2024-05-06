@@ -8,13 +8,13 @@ module.exports = {
       },
       colors: {
         primary: {
-          DEFAULT: "#7ACB65",
+          DEFAULT: "var(--primary-color)",
         },
         secondary: {
-          DEFAULT: "#9EE07E",
+          DEFAULT: "var(--secondary-color)",
         },
         accent: {
-          DEFAULT: "#4C8C36",
+          DEFAULT: "var(--accent-color)",
         },
         black: {
           DEFAULT: "#000",
