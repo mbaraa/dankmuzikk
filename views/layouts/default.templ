@@ -5,6 +5,7 @@ import (
 	"dankmuzikk/views/components/player"
 	"dankmuzikk/views/components/loading"
 	"fmt"
+	"dankmuzikk/views/components/mobilenav"
 )
 
 templ Default(isMobile bool, themeName string, children ...templ.Component) {
@@ -63,10 +64,19 @@ templ Default(isMobile bool, themeName string, children ...templ.Component) {
 			for _, child := range children {
 				@child
 			}
+			<!--
+                For when opened on a desktop and the client's width is really small,
+                and a similar thing isn't being done for mobile, since mobile clients can't change width w/o reloading.
+                And since desktops don't really mind rendering the same shit twice.
+            -->
+			<div style="display: contents" class={ "md:hidden" }>
+				@mobilenav.MobileNav()
+			</div>
 			<div id="loading" class="hidden">
 				@loading.Loading()
 			</div>
 			@player.PlayerSticky(isMobile)
+			//
 			<script src="/static/js/utils.js"></script>
 			<script type="module">
 			    function registerServiceWorkers() {

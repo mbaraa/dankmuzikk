@@ -1,0 +1,32 @@
+package mobilenav
+
+templ MobileNav() {
+	<div
+		class={ "fixed", "bottom-0", "left-0", "h-auto", "w-full" }
+	>
+		<nav
+			class={ "bg-primary",  "h-[70px]", "m-[5px]", "rounded-[10px]", "flex", "justify-center", "items-center" }
+		>
+			<ul class={ "w-full", "m-0", "p-5", "list-none", "flex", "justify-between" }>
+				<li>
+					<a href="/"><img src="/static/images/nav-home-icon.svg" alt="Home"/></a>
+				</li>
+				<li>
+					<a href="/playlists"><img src="/static/images/nav-playlists-icon.svg" alt="Playlists"/></a>
+				</li>
+				<li>
+					<a href="/profile"><img src="/static/images/nav-profile-icon.svg" alt="Profile"/></a>
+				</li>
+				<li>
+					<a href="/about"><img src="/static/images/nav-about-icon.svg" alt="About"/></a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+	<div class="hidden">
+		<img src="/static/images/nav-home-selected-icon.svg" alt="Home"/>
+		<img src="/static/images/nav-playlists-selected-icon.svg" alt="Playlists"/>
+		<img src="/static/images/nav-profile-selected-icon.svg" alt="Profile"/>
+		<img src="/static/images/nav-about-selected-icon.svg" alt="About"/>
+	</div>
+}
