@@ -8,8 +8,8 @@ import (
 
 type SearchResult = youtube.SearchResult
 
-templ SearchResults(isMobile bool, results []SearchResult) {
-	@layouts.Default(isMobile, searchResults(results))
+templ SearchResults(isMobile bool, themeName string, results []SearchResult) {
+	@layouts.Default(isMobile, themeName, searchResults(results))
 }
 
 templ addToPlayListButton() {

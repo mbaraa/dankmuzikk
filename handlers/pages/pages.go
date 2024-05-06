@@ -57,3 +57,18 @@ func AuthHandler(hand http.HandlerFunc, jwtUtil jwt.Manager[any]) http.HandlerFu
 func isMobile(r *http.Request) bool {
 	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
 }
+
+func getTheme(r *http.Request) string {
+	themeCookie, err := r.Cookie(handlers.ThemeName)
+	if err != nil || themeCookie == nil || themeCookie.Value == "" {
+		return "default"
+	}
+	switch themeCookie.Value {
+	case "black":
+		return "black"
+	case "default":
+		fallthrough
+	default:
+		return "default"
+	}
+}

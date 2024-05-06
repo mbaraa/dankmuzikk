@@ -7,5 +7,5 @@ import (
 )
 
 func HandleAboutPage(w http.ResponseWriter, r *http.Request) {
-	pages.About(isMobile(r)).Render(context.Background(), w)
+	pages.About(isMobile(r), getTheme(r)).Render(context.Background(), w)
 }

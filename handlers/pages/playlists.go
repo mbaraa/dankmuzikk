@@ -7,5 +7,5 @@ import (
 )
 
 func HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
-	pages.Playlists(isMobile(r)).Render(context.Background(), w)
+	pages.Playlists(isMobile(r), getTheme(r)).Render(context.Background(), w)
 }

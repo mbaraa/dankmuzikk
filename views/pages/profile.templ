@@ -2,8 +2,8 @@ package pages
 
 import "dankmuzikk/views/layouts"
 
-templ Profile(isMobile bool) {
-	@layouts.Default(isMobile, profile())
+templ Profile(isMobile bool, themeName string) {
+	@layouts.Default(isMobile, themeName, profile())
 }
 
 templ profile() {

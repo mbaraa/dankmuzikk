@@ -4,9 +4,10 @@ import (
 	"dankmuzikk/views/components/header"
 	"dankmuzikk/views/components/player"
 	"dankmuzikk/views/components/loading"
+	"fmt"
 )
 
-templ Default(isMobile bool, children ...templ.Component) {
+templ Default(isMobile bool, themeName string, children ...templ.Component) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -40,6 +41,7 @@ templ Default(isMobile bool, children ...templ.Component) {
 				href="/static/css/ubuntu-font.css"
 			/>
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
+			<link href={ fmt.Sprintf("/static/css/themes/%s.css", themeName) } rel="stylesheet"/>
 			<script src="/static/js/htmx/htmx.min.js"></script>
 			<script async defer src="/static/js/htmx/json-enc.js"></script>
 			<script async defer src="/static/js/htmx/loading-states.js"></script>
@@ -47,7 +49,6 @@ templ Default(isMobile bool, children ...templ.Component) {
 		<body
 			hx-ext="loading-states"
 			style='
-                background-image: url("/static/images/dankground.svg"), linear-gradient(to right, #4C8C36 , #9EE07E);
                 background-repeat: repeat;
                 background-size: cover;
                 padding: 0px;

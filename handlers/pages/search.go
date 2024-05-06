@@ -18,6 +18,6 @@ func HandleSearchResultsPage(ytSearch youtube.YouTubeSearcher) http.HandlerFunc 
 			log.Errorln(err)
 			return
 		}
-		pages.SearchResults(isMobile(r), results).Render(context.Background(), w)
+		pages.SearchResults(isMobile(r), getTheme(r), results).Render(context.Background(), w)
 	}
 }
