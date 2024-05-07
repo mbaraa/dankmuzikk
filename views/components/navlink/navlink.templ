@@ -1,0 +1,16 @@
+package navlink
+
+templ NavLink(title, imageUrl, target string) {
+	<a
+		title={ title }
+		class={ "cursor-pointer" }
+		hx-get={ target + "?no_reload=true" }
+		hx-target="#main-contents"
+	>
+		if imageUrl != "" {
+			<img src={ imageUrl } alt={ title }/>
+		} else {
+			{ title }
+		}
+	</a>
+}
