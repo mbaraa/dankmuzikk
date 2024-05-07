@@ -3,7 +3,6 @@ package pages
 import (
 	"dankmuzikk/config"
 	"dankmuzikk/handlers"
-	"dankmuzikk/log"
 	"dankmuzikk/services/jwt"
 	"net/http"
 	"slices"
@@ -24,44 +23,32 @@ func Handler(hand http.HandlerFunc) http.HandlerFunc {
 func AuthHandler(hand http.HandlerFunc, jwtUtil jwt.Manager[any]) http.HandlerFunc {
 	return Handler(func(w http.ResponseWriter, r *http.Request) {
 		htmxRedirect := isNoReload(r)
+		authed := isAuthed(r, jwtUtil)
 
-		sessionToken, err := r.Cookie(handlers.SessionTokenKey)
-		if err != nil {
-			log.Errorln("[AUTH]:", err)
-			if slices.Contains(noAuthPaths, r.URL.Path) {
-				hand(w, r)
-				return
-			}
-			if htmxRedirect {
-				w.Header().Set("HX-Redirect", "/login")
-				return
-			}
-			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
-			return
-		}
-
-		err = jwtUtil.Validate(sessionToken.Value, jwt.SessionToken)
-		if err != nil {
-			log.Errorln("[AUTH]:", err)
-			if slices.Contains(noAuthPaths, r.URL.Path) {
-				hand(w, r)
-				return
-			}
-			if htmxRedirect {
-				w.Header().Set("HX-Redirect", "/login")
-				return
-			}
-			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
-			return
-		}
-
-		if slices.Contains(noAuthPaths, r.URL.Path) {
+		switch {
+		case authed && slices.Contains(noAuthPaths, r.URL.Path):
 			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
-			return
+		case !authed && htmxRedirect:
+			w.Header().Set("HX-Redirect", "/login")
+		case !authed && !htmxRedirect:
+			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
+		default:
+			hand(w, r)
 		}
-
-		hand(w, r)
 	})
+}
+
+func isAuthed(r *http.Request, jwtUtil jwt.Manager[any]) bool {
+	sessionToken, err := r.Cookie(handlers.SessionTokenKey)
+	if err != nil {
+		return false
+	}
+	err = jwtUtil.Validate(sessionToken.Value, jwt.SessionToken)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func isMobile(r *http.Request) bool {
