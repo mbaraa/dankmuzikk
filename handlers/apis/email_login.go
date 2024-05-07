@@ -93,11 +93,17 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *http.Request) {
 	verificationToken, err := r.Cookie(handlers.VerificationTokenKey)
 	if err != nil {
-		w.Write([]byte("Invalid verification token"))
+		// w.Write([]byte("Invalid verification token"))
+		status.
+			GenericError("Invalid verification token").
+			Render(context.Background(), w)
 		return
 	}
 	if verificationToken.Expires.After(time.Now().UTC()) {
-		w.Write([]byte("Expired verification token"))
+		// w.Write([]byte("Expired verification token"))
+		status.
+			GenericError("Expired verification token").
+			Render(context.Background(), w)
 		return
 	}
 
@@ -105,7 +111,10 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	err = json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		// w.WriteHeader(http.StatusBadRequest)
+		status.
+			GenericError("Invalid verification token").
+			Render(context.Background(), w)
 		return
 	}
 
@@ -113,7 +122,10 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	// TODO: specify errors further suka
 	if err != nil {
 		log.Error(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		// w.WriteHeader(http.StatusInternalServerError)
+		status.
+			GenericError("Something went wrong...").
+			Render(context.Background(), w)
 		return
 	}
 
