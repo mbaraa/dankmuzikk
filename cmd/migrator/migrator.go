@@ -15,5 +15,6 @@ func Migrate() error {
 		new(models.Account),
 		new(models.Profile),
 		new(models.EmailVerificationCode),
+		new(models.Song),
 	)
 }
