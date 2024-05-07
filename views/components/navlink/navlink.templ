@@ -2,10 +2,13 @@ package navlink
 
 templ NavLink(title, imageUrl, path string) {
 	<a
+		href={ templ.SafeURL(path) }
 		title={ title }
 		class={ "cursor-pointer" }
 		hx-get={ path + "?no_reload=true" }
 		hx-target="#main-contents"
+		hx-swap="innerHTML"
+		hx-trigger="click,submit"
 		onClick={ updateHref(path) }
 	>
 		if imageUrl != "" {

@@ -28,14 +28,7 @@ templ Search() {
 					hx-trigger="keyup"
 				/>
 				<button
-					hx-get="/search?no_reload=true"
-					hx-include="[name='query']"
-					hx-swap="innerHTML"
-					hx-target="#main-contents"
-					hx-trigger="submit"
-					data-loading-target="#loading"
-					data-loading-class-remove="hidden"
-					data-loading-path="/search?no_reload=true"
+					type="submit"
 					id="search-icon"
 				>
 					<img
