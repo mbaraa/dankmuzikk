@@ -41,11 +41,7 @@ function getTextWidth() {
 window.addEventListener("popstate", (e) => {
   e.stopImmediatePropagation();
   e.preventDefault();
-  if (history.state && history.state.prevPath) {
-    window.open(history.state.prevPath, "_self");
-  } else {
-    window.open(window.location.prevPath, "_self");
-  }
+  window.open(window.location.prevPath, "_self");
 });
 
 window.Utils = {

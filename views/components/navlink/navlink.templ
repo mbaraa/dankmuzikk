@@ -19,5 +19,5 @@ templ NavLink(title, imageUrl, path string) {
 script updateHref(path string) {
     const prevPath = window.location.href.substring((window.location.protocol+"//"+window.location.host).length);
     window.location.prevPath = prevPath;
-    window.history.pushState({ prevPath }, "", path)
+    window.history.pushState({}, "", path)
 }

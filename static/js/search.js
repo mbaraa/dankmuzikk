@@ -14,7 +14,7 @@ function searchNoRealod(searchQuery) {
     (window.location.protocol + "//" + window.location.host).length,
   );
   window.location.prevPath = prevPath;
-  window.history.pushState({ prevPath }, "", `/search?query=${query}`);
+  window.history.pushState({}, "", `/search?query=${query}`);
 }
 
 searchFormEl.addEventListener("submit", (e) => {
