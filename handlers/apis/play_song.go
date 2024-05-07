@@ -1,19 +1,54 @@
 package apis
 
 import (
+	"dankmuzikk/entities"
 	"dankmuzikk/log"
 	"dankmuzikk/services/youtube/download"
 	"net/http"
 )
 
-func HandleDownloadSong(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("youtube_video_id")
+type songDownloadHandler struct {
+	service download.DownloadService
+}
+
+func NewDownloadHandler(service download.DownloadService) *songDownloadHandler {
+	return &songDownloadHandler{service}
+}
+
+func (s *songDownloadHandler) HandleDownloadSong(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	thumbnailUrl := r.URL.Query().Get("thumbnailUrl")
+	if thumbnailUrl == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	title := r.URL.Query().Get("title")
+	if title == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	artist := r.URL.Query().Get("artist")
+	if artist == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	duration := r.URL.Query().Get("duration")
+	if duration == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	err := download.DownloadYoutubeVideo(id)
+	err := s.service.DownloadYoutubeSong(entities.SongDownloadRequest{
+		Id:           id,
+		ThumbnailUrl: thumbnailUrl,
+		Title:        title,
+		Artist:       artist,
+		Duration:     duration,
+	})
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)

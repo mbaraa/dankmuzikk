@@ -127,25 +127,26 @@ function playPauseToggle() {
   }
 }
 
-async function fetchMusic(youtubeId) {
+async function fetchMusic(videoData) {
   playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
   document.body.style.cursor = "progress";
   Utils.showLoading();
 
-  await fetch("/api/song/download/" + youtubeId)
-    .then((res) => console.log(res))
+  await fetch("/api/song/download?" + new URLSearchParams(videoData).toString())
+    .then((res) => {
+      if (audioPlayerEl) {
+        stopMuzikk();
+      }
+      audioPlayerEl.src = `/music/${videoData.id}.mp3`;
+      audioPlayerEl.load();
+      console.log(res);
+    })
     .catch((err) => console.error(err));
-
-  if (audioPlayerEl) {
-    stopMuzikk();
-  }
-  audioPlayerEl.src = `/music/${youtubeId}.mp3`;
-  audioPlayerEl.load();
 }
 
-async function playYTSong(id, thumbnailUrl, title, artist) {
-  const videoData = { id, thumbnailUrl, title, artist };
-  await fetchMusic(videoData.id);
+async function playYTSong(id, thumbnailUrl, title, artist, duration) {
+  const videoData = { id, thumbnailUrl, title, artist, duration };
+  await fetchMusic(videoData);
   setMediaSession(videoData);
   showPlayer();
 

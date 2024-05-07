@@ -10,6 +10,7 @@ import (
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/login"
 	"dankmuzikk/services/youtube"
+	"dankmuzikk/services/youtube/download"
 	"embed"
 	"net/http"
 )
@@ -23,6 +24,7 @@ func StartServer(staticFS embed.FS) error {
 	accountRepo := db.NewBaseDB[models.Account](dbConn)
 	profileRepo := db.NewBaseDB[models.Profile](dbConn)
 	otpRepo := db.NewBaseDB[models.EmailVerificationCode](dbConn)
+	songRepo := db.NewBaseDB[models.Song](dbConn)
 
 	jwtUtil := jwt.NewJWTImpl()
 
@@ -45,6 +47,7 @@ func StartServer(staticFS embed.FS) error {
 
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
+	songDownloadApi := apis.NewDownloadHandler(*download.NewDownloadService(songRepo))
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -54,7 +57,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggession", apis.HandleSearchSugessions)
-	apisHandler.HandleFunc("GET /song/download/{youtube_video_id}", apis.HandleDownloadSong)
+	apisHandler.HandleFunc("GET /song/download", songDownloadApi.HandleDownloadSong)
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)
