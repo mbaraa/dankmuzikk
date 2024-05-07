@@ -16,6 +16,9 @@ templ SearchSuggestions(suggestions []string, originalQuery string) {
 					hx-swap="innerHTML"
 					hx-target="#main-contents"
 					hx-trigger="click,submit"
+					data-loading-target="#loading"
+					data-loading-class-remove="hidden"
+					data-loading-path={ fmt.Sprintf("/search?no_reload=true&query=%s", suggestion) }
 					class={ "w-full", "p-[10px]" }
 					id={ fmt.Sprintf("search-suggestion-%d", i) }
 					onClick={ searchNoRealod(suggestion) }
