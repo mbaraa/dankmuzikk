@@ -93,11 +93,21 @@ func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request)
 }
 
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
+	tokenPayload := p.getRequestSessionTokenPayload(r)
+	dbProfile, err := p.profileRepo.GetByConds("username = ?", tokenPayload["username"].(string))
+	if err != nil {
+		if p.isNoReload(r) {
+			w.Header().Set("HX-Redirect", "/")
+		} else {
+			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
+		}
+		return
+	}
+
 	profile := entities.Profile{
-		Email:    "pub@mbaraa.com",
-		Name:     "Baraa Al-Masri",
-		PfpLink:  "",
-		Username: "mbaraa",
+		Name:     dbProfile[0].Name,
+		PfpLink:  dbProfile[0].PfpLink,
+		Username: dbProfile[0].Username,
 	}
 
 	if p.isNoReload(r) {

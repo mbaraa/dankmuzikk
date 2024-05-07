@@ -80,8 +80,9 @@ func (g *GoogleLoginService) Login(state, code string) (string, error) {
 	profile[0].AccountId = account[0].Id
 
 	verificationToken, err := g.jwtUtil.Sign(map[string]string{
-		"name":  profile[0].Name,
-		"email": profile[0].Account.Email,
+		"name":     profile[0].Name,
+		"email":    profile[0].Account.Email,
+		"username": profile[0].Username,
 	}, jwt.SessionToken, time.Hour*24*30)
 	if err != nil {
 		return "", err
@@ -97,6 +98,7 @@ func (g *GoogleLoginService) Signup(googleUser oauthUserInfo) (string, error) {
 			IsOAuth: true,
 		},
 		Name:     googleUser.FullName,
+		PfpLink:  googleUser.PfpLink,
 		Username: googleUser.Email,
 	}
 	// creating a new account will create the account underneath it.
@@ -106,8 +108,9 @@ func (g *GoogleLoginService) Signup(googleUser oauthUserInfo) (string, error) {
 	}
 
 	verificationToken, err := g.jwtUtil.Sign(map[string]string{
-		"name":  profile.Name,
-		"email": profile.Account.Email,
+		"name":     profile.Name,
+		"email":    profile.Account.Email,
+		"username": profile.Username,
 	}, jwt.SessionToken, time.Hour*24*30)
 	if err != nil {
 		return "", err

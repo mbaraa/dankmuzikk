@@ -49,8 +49,9 @@ func (e *EmailLoginService) Login(user entities.LoginRequest) (string, error) {
 	profile[0].AccountId = account[0].Id
 
 	verificationToken, err := e.jwtUtil.Sign(map[string]string{
-		"name":  profile[0].Name,
-		"email": profile[0].Account.Email,
+		"name":     profile[0].Name,
+		"email":    profile[0].Account.Email,
+		"username": profile[0].Username,
 	}, jwt.VerificationToken, time.Hour/2)
 	if err != nil {
 		return "", err
@@ -78,8 +79,9 @@ func (e *EmailLoginService) Signup(user entities.SignupRequest) (string, error) 
 	}
 
 	verificationToken, err := e.jwtUtil.Sign(map[string]string{
-		"name":  profile.Name,
-		"email": profile.Account.Email,
+		"name":     profile.Name,
+		"email":    profile.Account.Email,
+		"username": profile.Username,
 	}, jwt.VerificationToken, time.Hour/2)
 	if err != nil {
 		return "", err
@@ -105,6 +107,11 @@ func (e *EmailLoginService) VerifyOtp(token string, otp entities.OtpRequest) (st
 	if !nameExists {
 		return "", errors.New("missing name")
 	}
+	username, usernameExists := mappedUser["username"].(string)
+	// TODO: ADD THE FUCKING ERRORS SUKA
+	if !usernameExists {
+		return "", errors.New("missing username")
+	}
 
 	account, err := e.accountRepo.GetByConds("email = ?", email)
 	if err != nil {
@@ -126,8 +133,9 @@ func (e *EmailLoginService) VerifyOtp(token string, otp entities.OtpRequest) (st
 	}
 
 	sessionToken, err := e.jwtUtil.Sign(map[string]string{
-		"email": email,
-		"name":  name,
+		"email":    email,
+		"name":     name,
+		"username": username,
 	}, jwt.SessionToken, time.Hour*24*30)
 	if err != nil {
 		return "", err
