@@ -1,27 +1,66 @@
 package pages
 
-import "dankmuzikk/views/layouts"
+import (
+	"dankmuzikk/views/layouts"
+	"dankmuzikk/entities"
+	"dankmuzikk/views/components/themeswitch"
+)
 
-templ Profile(isMobile bool, themeName string) {
-	@layouts.Default(isMobile, themeName, profile())
+templ Profile(isMobile bool, themeName string, prfl entities.Profile) {
+	@layouts.Default(isMobile, themeName, profile(prfl))
 }
 
-templ ProfileNoReload() {
-	@profile()
+templ ProfileNoReload(prfl entities.Profile) {
+	@profile(prfl)
 }
 
-templ profile() {
-	<main class={ "w-full", "h-full" }>
-		<pre>
-			Profile:
-		</pre>
-		<a href="/api/logout">
-			<button
-				type="submit"
-				class={ "bg-[#DE3333]", "text-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+templ profile(prfl entities.Profile) {
+	<main class={ "w-full", "h-[105dvh]" }>
+		<div class={ "flex", "justify-center" }>
+			<section
+				class={
+					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl",
+					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
+					"justify-between", "text-white",
+				}
 			>
-				Logout
-			</button>
-		</a>
+				<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Profile</h1>
+				<section id="brand" class={ "w-full", "flex", "justify-center" }>
+					<div
+						class={ "flex", "flex-col", "justify-center", "items-center", "gap-y-3", }
+					>
+						<img
+							class={ "w-[200px]", "h-[200px]", "rounded-[100px]" }
+							if prfl.PfpLink != "" {
+								src={ prfl.PfpLink }
+							} else {
+								src="/static/images/default-pfp.svg"
+							}
+							alt="Profile picture"
+						/>
+						<h2 class={ "text-3xl" }>{ prfl.Name }</h2>
+						<h3>{ prfl.Email }</h3>
+					</div>
+				</section>
+				<section class={ "w-full", "flex", "justify-center" }>
+					<a href="/api/logout">
+						<button
+							type="submit"
+							class={ "bg-[#DE3333]", "text-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+						>
+							Logout
+						</button>
+					</a>
+				</section>
+				<!-- TODO: remove the settings hide thingy, i.e. implement rest of the fucking settings :) -->
+				<section id="more-info" class={ "flex", "md:hidden", "flex-col", "gap-y-4" }>
+					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Settings</h1>
+					<div class={ "flex", "justify-between" }>
+						<span>Theme</span>
+						@themeswitch.ThemeSwitch()
+					</div>
+				</section>
+			</section>
+		</div>
 	</main>
 }

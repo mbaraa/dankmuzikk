@@ -15,23 +15,6 @@ import (
 )
 
 func StartServer(staticFS embed.FS) error {
-	///////////// Pages and files /////////////
-	pagesHandler := http.NewServeMux()
-	pagesHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
-	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
-
-	jwtUtil := jwt.NewJWTImpl()
-
-	pagesHandler.HandleFunc("/", pages.Handler(pages.HandleHomePage))
-	pagesHandler.HandleFunc("/signup", pages.AuthHandler(pages.HandleSignupPage, jwtUtil))
-	pagesHandler.HandleFunc("/login", pages.AuthHandler(pages.HandleLoginPage, jwtUtil))
-	pagesHandler.HandleFunc("/profile", pages.AuthHandler(pages.HandleProfilePage, jwtUtil))
-	pagesHandler.HandleFunc("/about", pages.Handler(pages.HandleAboutPage))
-	pagesHandler.HandleFunc("/playlists", pages.AuthHandler(pages.HandlePlaylistsPage, jwtUtil))
-	pagesHandler.HandleFunc("/privacy", pages.Handler(pages.HandlePrivacyPage))
-	pagesHandler.HandleFunc("/search", pages.Handler(pages.HandleSearchResultsPage(&youtube.YouTubeScraperSearch{})))
-
-	///////////// APIs /////////////
 	dbConn, err := db.Connector()
 	if err != nil {
 		log.Fatalln(log.ErrorLevel, err)
@@ -40,6 +23,25 @@ func StartServer(staticFS embed.FS) error {
 	accountRepo := db.NewBaseDB[models.Account](dbConn)
 	profileRepo := db.NewBaseDB[models.Profile](dbConn)
 	otpRepo := db.NewBaseDB[models.EmailVerificationCode](dbConn)
+
+	jwtUtil := jwt.NewJWTImpl()
+
+	///////////// Pages and files /////////////
+	pagesHandler := http.NewServeMux()
+	pagesHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
+	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
+
+	pagesRouter := pages.NewPagesHandler(profileRepo, jwtUtil)
+	pagesHandler.HandleFunc("/", pagesRouter.Handler(pagesRouter.HandleHomePage))
+	pagesHandler.HandleFunc("/signup", pagesRouter.AuthHandler(pagesRouter.HandleSignupPage))
+	pagesHandler.HandleFunc("/login", pagesRouter.AuthHandler(pagesRouter.HandleLoginPage))
+	pagesHandler.HandleFunc("/profile", pagesRouter.AuthHandler(pagesRouter.HandleProfilePage))
+	pagesHandler.HandleFunc("/about", pagesRouter.Handler(pagesRouter.HandleAboutPage))
+	pagesHandler.HandleFunc("/playlists", pagesRouter.AuthHandler(pagesRouter.HandlePlaylistsPage))
+	pagesHandler.HandleFunc("/privacy", pagesRouter.Handler(pagesRouter.HandlePrivacyPage))
+	pagesHandler.HandleFunc("/search", pagesRouter.Handler(pagesRouter.HandleSearchResultsPage(&youtube.YouTubeScraperSearch{})))
+
+	///////////// APIs /////////////
 
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
