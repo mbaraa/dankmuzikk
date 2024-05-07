@@ -5,6 +5,10 @@ templ Search() {
 		<form
 			id="search-form"
 			class={ "w-full" }
+			hx-get="/search?no_reload=true"
+			hx-swap="innerHTML"
+			hx-target="#main-contents"
+			hx-trigger="submit"
 		>
 			<div class={ "flex", "bg-white", "rounded-[8px]", "border", "border-b-[3px]", "border-black" }>
 				<input
@@ -20,7 +24,14 @@ templ Search() {
 					hx-target="#search-suggestions-container"
 					hx-trigger="keyup"
 				/>
-				<button id="search-icon">
+				<button
+					hx-get="/search?no_reload=true"
+					hx-include="[name='query']"
+					hx-swap="innerHTML"
+					hx-target="#main-contents"
+					hx-trigger="submit"
+					id="search-icon"
+				>
 					<img
 						class={ "w-[44px]", "h-[44px]", "rounded-r-[8px]", "pe-[10px]" }
 						src="/static/images/search-icon.svg"

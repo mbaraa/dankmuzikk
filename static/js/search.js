@@ -5,15 +5,21 @@ const searchFormEl = document.getElementById("search-form"),
 
 let focusedSuggestionIndex = 0;
 
+function searchNoRealod(searchQuery) {
+  searchFormEl.blur();
+  searchInputEl.blur();
+  const query = encodeURIComponent(searchQuery);
+  document.getElementById("search-suggestions").style.display = "none";
+  window.history.pushState({}, "", `/search?query=${query}`);
+}
+
 searchFormEl.addEventListener("submit", (e) => {
   e.preventDefault();
-  const query = encodeURIComponent(e.target.query.value);
-  window.open(`/search?query=${query}`, "_self");
+  searchNoRealod(e.target.query.value);
 });
 
 document.getElementById("search-icon").addEventListener("click", () => {
-  const query = encodeURIComponent(searchFormEl.query.value);
-  window.open(`/search?query=${query}`, "_self");
+  searchNoRealod(searchFormEl.query.value);
 });
 
 searchInputEl.addEventListener("keydown", (e) => {
@@ -59,3 +65,7 @@ function moveToSuggestions() {
   searchSuggestionsEl.focus();
   searchSuggestionsEl.addEventListener("keydown", moveToNextSuggestion);
 }
+
+window.Search = {
+  searchNoRealod: searchNoRealod,
+};
