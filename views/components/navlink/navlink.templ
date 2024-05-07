@@ -1,11 +1,12 @@
 package navlink
 
-templ NavLink(title, imageUrl, target string) {
+templ NavLink(title, imageUrl, path string) {
 	<a
 		title={ title }
 		class={ "cursor-pointer" }
-		hx-get={ target + "?no_reload=true" }
+		hx-get={ path + "?no_reload=true" }
 		hx-target="#main-contents"
+		onClick={ updateHref(path) }
 	>
 		if imageUrl != "" {
 			<img src={ imageUrl } alt={ title }/>
@@ -13,4 +14,8 @@ templ NavLink(title, imageUrl, target string) {
 			{ title }
 		}
 	</a>
+}
+
+script updateHref(path string) {
+    window.history.pushState({}, "", path)
 }
