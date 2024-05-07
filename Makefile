@@ -18,7 +18,8 @@ init:
 	npm i && \
 	go get && \
 	go generate && \
-	templ generate
+	templ generate && \
+    go run main.go migrate
 
 # dev runs the development server where it builds the tailwind css sheet,
 # and compiles the project whenever a file is changed.
