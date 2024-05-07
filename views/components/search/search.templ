@@ -5,10 +5,6 @@ templ Search() {
 		<form
 			id="search-form"
 			class={ "w-full" }
-			hx-get="/api/search-suggession"
-			hx-swap="innerHTML"
-			hx-target="#search-suggestions-container"
-			hx-trigger="keyup"
 		>
 			<div class={ "flex", "bg-white", "rounded-[8px]", "border", "border-b-[3px]", "border-black" }>
 				<input
@@ -19,6 +15,10 @@ templ Search() {
 					autofocus
 					autocomplete="off"
 					placeholder="Search for some tunes"
+					hx-get="/api/search-suggession"
+					hx-swap="innerHTML"
+					hx-target="#search-suggestions-container"
+					hx-trigger="keyup"
 				/>
 				<button id="search-icon">
 					<img
@@ -34,5 +34,5 @@ templ Search() {
 			id="search-suggestions-container"
 		></div>
 	</div>
-	// script is in views/components/header/header.templ
+	// script is in /static/js/search.js
 }
