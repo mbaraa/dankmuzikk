@@ -72,3 +72,8 @@ func getTheme(r *http.Request) string {
 		return "default"
 	}
 }
+
+func isNoRealod(r *http.Request) bool {
+	noReload, exists := r.URL.Query()["no_reload"]
+	return exists && noReload[0] == "true"
+}
