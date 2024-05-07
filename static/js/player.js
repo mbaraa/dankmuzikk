@@ -29,7 +29,6 @@ const playPauseToggleEl = document.getElementById("play"),
   songDurationEl = document.getElementById("song-duration"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
-  loadingEl = document.getElementById("loading"),
   audioPlayerEl = document.getElementById("audio-player"),
   muzikkContainerEl = document.getElementById("muzikk");
 
@@ -144,7 +143,7 @@ async function fetchMusic(youtubeId) {
   audioPlayerEl.load();
 }
 
-async function playYTSongById(id, thumbnailUrl, title, artist) {
+async function playYTSong(id, thumbnailUrl, title, artist) {
   const videoData = { id, thumbnailUrl, title, artist };
   await fetchMusic(videoData.id);
   setMediaSession(videoData);
@@ -250,7 +249,7 @@ audioPlayerEl.addEventListener("progress", () => {
 });
 
 window.Player = {
-  playYTSongById,
+  playYTSong,
   showPlayer,
   hidePlayer,
 };

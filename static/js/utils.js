@@ -1,5 +1,7 @@
 "use strict";
 
+const loadingEl = document.getElementById("loading");
+
 function showLoading() {
   loadingEl.classList.remove("hidden");
 }

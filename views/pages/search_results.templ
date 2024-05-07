@@ -80,5 +80,5 @@ templ searchResults(results []SearchResult) {
 }
 
 script playSong(id, thumbnailUrl, title, artist string) {
-    window.playYTSongById(id, thumbnailUrl, title, artist);
+    window.Player.playYTSong(id, thumbnailUrl, title, artist);
 }
