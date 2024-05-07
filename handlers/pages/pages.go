@@ -28,6 +28,8 @@ func AuthHandler(hand http.HandlerFunc, jwtUtil jwt.Manager[any]) http.HandlerFu
 		switch {
 		case authed && slices.Contains(noAuthPaths, r.URL.Path):
 			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
+		case !authed && slices.Contains(noAuthPaths, r.URL.Path):
+			hand(w, r)
 		case !authed && htmxRedirect:
 			w.Header().Set("HX-Redirect", "/login")
 		case !authed && !htmxRedirect:
@@ -35,6 +37,7 @@ func AuthHandler(hand http.HandlerFunc, jwtUtil jwt.Manager[any]) http.HandlerFu
 		default:
 			hand(w, r)
 		}
+
 	})
 }
 
