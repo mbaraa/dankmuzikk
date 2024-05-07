@@ -48,7 +48,33 @@ templ ThemeSwitch() {
 script changeTheme(themeName string) {
     const themeCookie = "theme-name";
     document.cookie = "theme-name" + "=" + themeName + "; path=/";
-    window.location.reload();
+
+    const themes = {
+        default: {
+            primary: "#7acb65",
+            secondary: "#9ee07e",
+            accent: "#4c8c36",
+            bg: "/static/images/dankground.svg",
+        },
+        black: {
+            primary: "#000",
+            secondary: "#000",
+            accent: "#000",
+            bg: "/static/images/dankground-dark.svg",
+        },
+    };
+
+    const style = document.documentElement.style;
+    const theme = themes[themeName];
+    if (!theme) {
+        window.location.reload();
+        return;
+    }
+
+    style.setProperty('--primary-color', theme.primary);
+    style.setProperty('--secondary-color', theme.secondary);
+    style.setProperty('--accent-color', theme.accent);
+    document.body.style.backgroundImage = `url('${theme.bg}'), linear-gradient(to right, var(--accent-color), var(--secondary-color))`;
 }
 
 script toggleTheThing() {
