@@ -38,6 +38,16 @@ function getTextWidth() {
   return window.innerWidth > 768 ? 35 : 15;
 }
 
+window.addEventListener("popstate", (e) => {
+  e.stopImmediatePropagation();
+  e.preventDefault();
+  if (history.state && history.state.prevPath) {
+    window.open(history.state.prevPath, "_self");
+  } else {
+    window.open(window.location.prevPath, "_self");
+  }
+});
+
 window.Utils = {
   toggleLoading,
   formatTime,

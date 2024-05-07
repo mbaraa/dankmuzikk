@@ -10,7 +10,11 @@ function searchNoRealod(searchQuery) {
   searchInputEl.blur();
   const query = encodeURIComponent(searchQuery);
   document.getElementById("search-suggestions").style.display = "none";
-  window.history.pushState({}, "", `/search?query=${query}`);
+  const prevPath = window.location.href.substring(
+    (window.location.protocol + "//" + window.location.host).length,
+  );
+  window.location.prevPath = prevPath;
+  window.history.pushState({ prevPath }, "", `/search?query=${query}`);
 }
 
 searchFormEl.addEventListener("submit", (e) => {
