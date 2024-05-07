@@ -6,6 +6,10 @@ templ Profile(isMobile bool, themeName string) {
 	@layouts.Default(isMobile, themeName, profile())
 }
 
+templ ProfileNoReload() {
+	@profile()
+}
+
 templ profile() {
 	<main class={ "w-full", "h-full" }>
 		<pre>

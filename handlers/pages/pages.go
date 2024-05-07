@@ -23,11 +23,17 @@ func Handler(hand http.HandlerFunc) http.HandlerFunc {
 
 func AuthHandler(hand http.HandlerFunc, jwtUtil jwt.Manager[any]) http.HandlerFunc {
 	return Handler(func(w http.ResponseWriter, r *http.Request) {
+		htmxRedirect := isNoReload(r)
+
 		sessionToken, err := r.Cookie(handlers.SessionTokenKey)
 		if err != nil {
 			log.Errorln("[AUTH]:", err)
 			if slices.Contains(noAuthPaths, r.URL.Path) {
 				hand(w, r)
+				return
+			}
+			if htmxRedirect {
+				w.Header().Set("HX-Redirect", "/login")
 				return
 			}
 			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
@@ -39,6 +45,10 @@ func AuthHandler(hand http.HandlerFunc, jwtUtil jwt.Manager[any]) http.HandlerFu
 			log.Errorln("[AUTH]:", err)
 			if slices.Contains(noAuthPaths, r.URL.Path) {
 				hand(w, r)
+				return
+			}
+			if htmxRedirect {
+				w.Header().Set("HX-Redirect", "/login")
 				return
 			}
 			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
@@ -71,4 +81,9 @@ func getTheme(r *http.Request) string {
 	default:
 		return "default"
 	}
+}
+
+func isNoReload(r *http.Request) bool {
+	noReload, exists := r.URL.Query()["no_reload"]
+	return exists && noReload[0] == "true"
 }

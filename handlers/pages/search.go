@@ -18,6 +18,10 @@ func HandleSearchResultsPage(ytSearch youtube.YouTubeSearcher) http.HandlerFunc 
 			log.Errorln(err)
 			return
 		}
+		if isNoReload(r) {
+			pages.SearchResultsNoReload(results).Render(context.Background(), w)
+			return
+		}
 		pages.SearchResults(isMobile(r), getTheme(r), results).Render(context.Background(), w)
 	}
 }

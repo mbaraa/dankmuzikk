@@ -1,5 +1,7 @@
 package mobilenav
 
+import "dankmuzikk/views/components/navlink"
+
 templ MobileNav() {
 	<div
 		class={ "fixed", "bottom-0", "left-0", "h-auto", "w-full" }
@@ -8,17 +10,23 @@ templ MobileNav() {
 			class={ "bg-primary",  "h-[70px]", "m-[5px]", "rounded-[10px]", "flex", "justify-center", "items-center" }
 		>
 			<ul class={ "w-full", "m-0", "p-5", "list-none", "flex", "justify-between" }>
+				<!-- kept for SEO -->
+				<div class="hidden">
+					<li><a href="/about">About</a></li>
+					<li><a href="/playlists">Playlists</a></li>
+					<li><a href="/profile">Profile</a></li>
+				</div>
 				<li>
-					<a href="/"><img src="/static/images/nav-home-icon.svg" alt="Home"/></a>
+					@navlink.NavLink("Home", "/static/images/nav-home-icon.svg", "/")
 				</li>
 				<li>
-					<a href="/playlists"><img src="/static/images/nav-playlists-icon.svg" alt="Playlists"/></a>
+					@navlink.NavLink("Playlists", "/static/images/nav-playlists-icon.svg", "/playlists")
 				</li>
 				<li>
-					<a href="/profile"><img src="/static/images/nav-profile-icon.svg" alt="Profile"/></a>
+					@navlink.NavLink("Profile", "/static/images/nav-profile-icon.svg", "/profile")
 				</li>
 				<li>
-					<a href="/about"><img src="/static/images/nav-about-icon.svg" alt="About"/></a>
+					@navlink.NavLink("About", "/static/images/nav-about-icon.svg", "/about")
 				</li>
 			</ul>
 		</nav>

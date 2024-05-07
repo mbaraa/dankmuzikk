@@ -6,6 +6,10 @@ templ Playlists(isMobile bool, themeName string) {
 	@layouts.Default(isMobile, themeName, playlists())
 }
 
+templ PlaylistsNoReload() {
+	@playlists()
+}
+
 templ playlists() {
 	<main class={ "w-full", "h-full" }>
 		<pre>
