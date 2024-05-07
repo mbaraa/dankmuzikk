@@ -6,6 +6,10 @@ templ Index(isMobile bool, themeName string) {
 	@layouts.Default(isMobile, themeName, main())
 }
 
+templ IndexNoReload() {
+	@main()
+}
+
 templ main() {
 	<main class="w-full">
 		yooo hooo

@@ -61,15 +61,17 @@ templ Default(isMobile bool, themeName string, children ...templ.Component) {
             '
 		>
 			@header.Header(isMobile)
-			for _, child := range children {
-				@child
-			}
+			<div id="main-contents" style="display: contents">
+				for _, child := range children {
+					@child
+				}
+			</div>
 			<!--
                 For when opened on a desktop and the client's width is really small,
                 and a similar thing isn't being done for mobile, since mobile clients can't change width w/o reloading.
                 And since desktops don't really mind rendering the same shit twice.
             -->
-			<div style="display: contents" class={ "md:hidden" }>
+			<div class={ "contents", "md:hidden" }>
 				@mobilenav.MobileNav()
 			</div>
 			<div id="loading" class="hidden">

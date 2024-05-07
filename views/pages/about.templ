@@ -7,6 +7,10 @@ templ About(isMobile bool, themeName string) {
 	@layouts.Default(isMobile, themeName, about())
 }
 
+templ AboutNoReload() {
+	@about()
+}
+
 templ about() {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
