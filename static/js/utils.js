@@ -1,11 +1,11 @@
 "use strict";
 
-function toggleLoading() {
-  if (loadingEl.classList.contains("hidden")) {
-    loadingEl.classList.remove("hidden");
-  } else {
-    loadingEl.classList.add("hidden");
-  }
+function showLoading() {
+  loadingEl.classList.remove("hidden");
+}
+
+function hideLoading() {
+  loadingEl.classList.add("hidden");
 }
 
 /**
@@ -45,7 +45,8 @@ window.addEventListener("popstate", (e) => {
 });
 
 window.Utils = {
-  toggleLoading,
+  showLoading,
+  hideLoading,
   formatTime,
   formatNumber,
   getTextWidth,

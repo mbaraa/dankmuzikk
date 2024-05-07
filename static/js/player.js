@@ -40,7 +40,7 @@ let currentLoopIdx = 0;
  */
 function setMediaSession(videoData) {
   if (!("mediaSession" in navigator)) {
-    console.error("Browser doen't support mediaSession");
+    console.error("Browser doesn't support mediaSession");
     return;
   }
   navigator.mediaSession.metadata = new MediaMetadata({
@@ -131,7 +131,7 @@ function playPauseToggle() {
 async function fetchMusic(youtubeId) {
   playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
   document.body.style.cursor = "progress";
-  Utils.toggleLoading();
+  Utils.showLoading();
 
   await fetch("/api/song/download/" + youtubeId)
     .then((res) => console.log(res))
@@ -218,7 +218,7 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
 
   playPauseToggleEl.innerHTML = playerButtonsIcons.pause;
   document.body.style.cursor = "auto";
-  Utils.toggleLoading();
+  Utils.hideLoading();
 });
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
