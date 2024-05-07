@@ -2,6 +2,7 @@ package header
 
 import "dankmuzikk/views/components/search"
 import "dankmuzikk/views/components/themeswitch"
+import "dankmuzikk/views/components/navlink"
 
 templ mobileHeader() {
 	<div class={ "md:hidden", "h-[250px]", "", "flex", "flex-col", "justify-between" }>
@@ -44,9 +45,21 @@ templ desktopHeader() {
 		<div class={ "flex", "justify-center", "items-center", "gap-x-7" }>
 			<nav>
 				<ul class={ "m-0", "list-none", "flex", "gap-x-5" }>
-					<li><a href="/about">About</a></li>
-					<li><a href="/playlists">Playlists</a></li>
-					<li><a href="/profile">Profile</a></li>
+					<!-- kept for SEO -->
+					<div class="hidden">
+						<li><a href="/about">About</a></li>
+						<li><a href="/playlists">Playlists</a></li>
+						<li><a href="/profile">Profile</a></li>
+					</div>
+					<li>
+						@navlink.NavLink("About", "", "/about")
+					</li>
+					<li>
+						@navlink.NavLink("Playlists", "", "/playlists")
+					</li>
+					<li>
+						@navlink.NavLink("Profile", "", "/profile")
+					</li>
 				</ul>
 			</nav>
 			@themeswitch.ThemeSwitch()
