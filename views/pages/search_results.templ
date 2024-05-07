@@ -12,6 +12,10 @@ templ SearchResults(isMobile bool, themeName string, results []SearchResult) {
 	@layouts.Default(isMobile, themeName, searchResults(results))
 }
 
+templ SearchResultsNoReload(results []SearchResult) {
+	@searchResults(results)
+}
+
 templ addToPlayListButton() {
 	<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
 }
