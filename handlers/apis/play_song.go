@@ -8,10 +8,10 @@ import (
 )
 
 type songDownloadHandler struct {
-	service download.DownloadService
+	service download.Service
 }
 
-func NewDownloadHandler(service download.DownloadService) *songDownloadHandler {
+func NewDownloadHandler(service download.Service) *songDownloadHandler {
 	return &songDownloadHandler{service}
 }
 

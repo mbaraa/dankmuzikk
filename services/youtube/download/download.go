@@ -12,18 +12,21 @@ import (
 	"os"
 )
 
-type DownloadService struct {
+// Service represents the YouTube downloader service.
+type Service struct {
 	repo db.CreatorRepo[models.Song]
 }
 
-func NewDownloadService(repo db.CRUDRepo[models.Song]) *DownloadService {
-	return &DownloadService{repo}
+// New accepts a models.Song creator repo to store songs' meta-data,
+// and returns a new instance of the YouTube downloader service.
+func New(repo db.CreatorRepo[models.Song]) *Service {
+	return &Service{repo}
 }
 
-// DownloadYoutubeVideo downloads a youtube music file into the path specified by the environment variable
+// DownloadYoutubeSong downloads a YouTube music file into the path specified by the environment variable
 // YOUTUBE_MUSIC_DOWNLOAD_PATH, where the file name will be <video_id.mp3> to be served under /music/{id}
-// and retuens an occurring error
-func (d *DownloadService) DownloadYoutubeSong(req entities.SongDownloadRequest) error {
+// and returns an occurring error
+func (d *Service) DownloadYoutubeSong(req entities.SongDownloadRequest) error {
 	path := fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, req.Id)
 	if _, err := os.Stat(path); err == nil {
 		log.Infof("The song with id %s is already downloaded\n", req.Id)

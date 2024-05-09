@@ -1,4 +1,4 @@
-package youtube
+package search
 
 import (
 	"dankmuzikk/config"
@@ -25,9 +25,10 @@ type scrapSearchResult struct {
 	} `json:"results"`
 }
 
-type YouTubeScraperSearch struct{}
+// ScraperSearch is a scrapper enabled YouTube search, using the search service under ~/ytscraper
+type ScraperSearch struct{}
 
-func (y *YouTubeScraperSearch) Search(query string) (results []SearchResult, err error) {
+func (y *ScraperSearch) Search(query string) (results []Result, err error) {
 	// TODO: write a proper scraper instead of this hacky node js api
 	resp, err := http.Get(fmt.Sprintf("%s/api/search?q=%s", config.Env().YouTube.ScraperUrl, url.QueryEscape(query)))
 	if err != nil {
@@ -49,7 +50,7 @@ func (y *YouTubeScraperSearch) Search(query string) (results []SearchResult, err
 			duration[0] = "0" + duration[0]
 		}
 
-		results = append(results, SearchResult{
+		results = append(results, Result{
 			Id:           res.Video.Id,
 			Title:        res.Video.Title,
 			ChannelTitle: res.Uploader.Username,

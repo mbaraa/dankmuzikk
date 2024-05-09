@@ -1,4 +1,4 @@
-package youtube
+package suggestions
 
 import (
 	"encoding/json"
@@ -6,8 +6,8 @@ import (
 	"net/url"
 )
 
-func SearchSuggestions(query string) (sugesstions []string, err error) {
-	resp, err := http.Get("http://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=" +
+func SearchSuggestions(query string) (suggestions []string, err error) {
+	resp, err := http.Get("https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=" +
 		url.QueryEscape(query))
 	if err != nil {
 		panic(err)
@@ -23,7 +23,7 @@ func SearchSuggestions(query string) (sugesstions []string, err error) {
 		if i >= 9 { // max displayed suggestions is 10
 			break
 		}
-		sugesstions = append(sugesstions, res.(string))
+		suggestions = append(suggestions, res.(string))
 	}
 
 	return

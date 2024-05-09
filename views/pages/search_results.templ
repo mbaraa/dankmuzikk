@@ -2,11 +2,11 @@ package pages
 
 import (
 	"dankmuzikk/views/layouts"
-	"dankmuzikk/services/youtube"
+	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/components/playlist"
 )
 
-type SearchResult = youtube.SearchResult
+type SearchResult = search.Result
 
 templ SearchResults(isMobile bool, themeName string, results []SearchResult) {
 	@layouts.Default(isMobile, themeName, searchResults(results))

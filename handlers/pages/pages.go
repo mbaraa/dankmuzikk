@@ -9,7 +9,7 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/models"
 	"dankmuzikk/services/jwt"
-	"dankmuzikk/services/youtube"
+	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/pages"
 	"net/http"
 	"slices"
@@ -117,7 +117,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 	pages.Profile(p.isMobile(r), p.getTheme(r), profile).Render(context.Background(), w)
 }
 
-func (p *pagesHandler) HandleSearchResultsPage(ytSearch youtube.YouTubeSearcher) http.HandlerFunc {
+func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query().Get("query")
 		results, err := ytSearch.Search(query)
