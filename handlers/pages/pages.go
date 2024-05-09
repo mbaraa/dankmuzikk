@@ -30,7 +30,7 @@ func NewPagesHandler(
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
-	if p.isNoReload(r) {
+	if handlers.IsNoReloadPage(r) {
 		pages.AboutNoReload().Render(context.Background(), w)
 		return
 	}
@@ -38,7 +38,7 @@ func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
-	if p.isNoReload(r) {
+	if handlers.IsNoReloadPage(r) {
 		pages.IndexNoReload().Render(context.Background(), w)
 		return
 	}
@@ -50,7 +50,7 @@ func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
-	if p.isNoReload(r) {
+	if handlers.IsNoReloadPage(r) {
 		pages.PlaylistsNoReload().Render(context.Background(), w)
 		return
 	}
@@ -65,7 +65,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 	tokenPayload := p.getRequestSessionTokenPayload(r)
 	dbProfile, err := p.profileRepo.GetByConds("username = ?", tokenPayload["username"].(string))
 	if err != nil {
-		if p.isNoReload(r) {
+		if handlers.IsNoReloadPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
 			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
@@ -79,7 +79,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		Username: dbProfile[0].Username,
 	}
 
-	if p.isNoReload(r) {
+	if handlers.IsNoReloadPage(r) {
 		pages.ProfileNoReload(profile).Render(context.Background(), w)
 		return
 	}
@@ -96,7 +96,7 @@ func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.Han
 			log.Errorln(err)
 			return
 		}
-		if p.isNoReload(r) {
+		if handlers.IsNoReloadPage(r) {
 			pages.SearchResultsNoReload(results).Render(context.Background(), w)
 			return
 		}
@@ -125,11 +125,6 @@ func (p *pagesHandler) getTheme(r *http.Request) string {
 	default:
 		return "default"
 	}
-}
-
-func (p *pagesHandler) isNoReload(r *http.Request) bool {
-	noReload, exists := r.URL.Query()["no_reload"]
-	return exists && noReload[0] == "true"
 }
 
 func (p *pagesHandler) getRequestSessionTokenPayload(r *http.Request) map[string]any {

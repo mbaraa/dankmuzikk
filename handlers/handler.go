@@ -30,7 +30,7 @@ func NewHandler(
 // AuthPage authenticates a page's handler.
 func (a *Handler) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return a.NoAuthPage(func(w http.ResponseWriter, r *http.Request) {
-		htmxRedirect := a.isNoReloadPage(r)
+		htmxRedirect := IsNoReloadPage(r)
 		authed := a.isAuthed(r)
 
 		switch {
@@ -87,7 +87,8 @@ func (a *Handler) isAuthed(r *http.Request) bool {
 		Error == nil
 }
 
-func (a *Handler) isNoReloadPage(r *http.Request) bool {
+// IsNoReloadPage checks if the requested page requires a no reload or not.
+func IsNoReloadPage(r *http.Request) bool {
 	noReload, exists := r.URL.Query()["no_reload"]
 	return exists && noReload[0] == "true"
 }
