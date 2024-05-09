@@ -12,6 +12,7 @@ type Song struct {
 	Artist       string
 	ThumbnailUrl string
 	Duration     string
+	Playlists    []*Playlist `gorm:"many2many:playlist_songs;"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
