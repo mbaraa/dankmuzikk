@@ -15,7 +15,7 @@ type CreatorRepo[T any] interface {
 // GetterRepo is a safe wrapper for records retrieval for a certain repo
 type GetterRepo[T any] interface {
 	// Exists checks the existence of the given record's id
-	Exists(id uint) bool
+	Exists(id uint) error
 
 	// Get retrieves the object which has the given id
 	Get(id uint) (T, error)

@@ -53,12 +53,18 @@ func (b *BaseDB[T]) AddMany(objs []*T) error {
 }
 
 // Exists checks the existence of the given record's id
-func (b *BaseDB[T]) Exists(id uint) bool {
+func (b *BaseDB[T]) Exists(id uint) error {
 	if id == 0 { // better to check this before, fetching eh?
-		return false
+		return ErrRecordNotFound
 	}
-	_, err := b.Get(id)
-	return err == nil
+
+	var obj T
+	return b.
+		db.
+		Select("id").
+		Where("id = ?", id).
+		First(&obj).
+		Error
 }
 
 // Get retrieves the object which has the given id
