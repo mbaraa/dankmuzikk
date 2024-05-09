@@ -8,8 +8,8 @@ import (
 	"dankmuzikk/models"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
-	"os/exec"
 )
 
 type DownloadService struct {
@@ -24,19 +24,18 @@ func NewDownloadService(repo db.CRUDRepo[models.Song]) *DownloadService {
 // YOUTUBE_MUSIC_DOWNLOAD_PATH, where the file name will be <video_id.mp3> to be served under /music/{id}
 // and retuens an occurring error
 func (d *DownloadService) DownloadYoutubeSong(req entities.SongDownloadRequest) error {
-	log.Infoln(req)
 	path := fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, req.Id)
 	if _, err := os.Stat(path); err == nil {
 		log.Infof("The song with id %s is already downloaded\n", req.Id)
 		return nil
 	}
-	// TODO: write a downloader instead of using this sub process command thingy.
-	cmd := exec.Command("yt-dlp", "-x", "--audio-format", "mp3", "--audio-quality", "best", "-o", path, "https://www.youtube.com/watch?v="+req.Id)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
+
+	resp, err := http.Get(fmt.Sprintf("%s/download/%s", config.Env().YouTube.DownloaderUrl, req.Id))
 	if err != nil {
-		return errors.New("Download failed:" + err.Error())
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("something went wrong when downloading a song; id: " + req.Id)
 	}
 
 	err = d.repo.Add(&models.Song{

@@ -21,13 +21,26 @@ services:
     ports:
       - "1234:8080"
 
+  yt-dl:
+    container_name: "yt-dl"
+    build:
+      context: ./ytdl
+    image: "ytdl"
+    restart: "always"
+    ports:
+      - "4321:8000"
+    env_file:
+      - .env.docker
+    volumes:
+      - dankuploads-dir:/app/_serve
+
 volumes:
   dankuploads-dir:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: .
+      device: ./_serve/
   db-config:
     driver: local
     driver_opts:
