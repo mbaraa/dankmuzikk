@@ -16,7 +16,9 @@ services:
 
   yt-scraper:
     container_name: "yt-scraper"
-    image: "baraamasri/yt-scrape"
+    build:
+      context: ./ytscraper
+    image: "yt-scraper"
     restart: "always"
     ports:
       - "1234:8080"

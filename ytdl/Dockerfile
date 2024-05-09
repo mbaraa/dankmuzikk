@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS build
+FROM python:3.11-alpine AS build
 
 WORKDIR /app
 
@@ -8,10 +8,9 @@ RUN pip install --upgrade pip && \
 COPY . /app
 
 
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
-RUN apt-get update -y &&\
-    apt-get install ffmpeg -y
+RUN apk add ffmpeg
 
 WORKDIR /app
 
