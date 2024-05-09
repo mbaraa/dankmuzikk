@@ -20,6 +20,7 @@ services:
     depends_on:
       - dank-db
       - yt-scraper
+      - yt-dl
 
   dank-db:
     image: "mariadb:10.8"
@@ -41,7 +42,23 @@ services:
     image: "baraamasri/yt-scrape"
     restart: "always"
     ports:
-      - "8080"
+      - 8080
+    networks:
+      - danknetwork
+
+  yt-dl:
+    container_name: "ytdl"
+    build:
+      context: ./ytdl
+    image: "ytdl"
+    restart: "always"
+    ports:
+      - 8000
+    stdin_open: true
+    env_file:
+      - .env.docker
+    volumes:
+      - dankuploads-dir:/app/_serve
     networks:
       - danknetwork
 
@@ -54,7 +71,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: .
+      device: ./_serve/
   db-config:
     driver: local
     driver_opts:
