@@ -1,29 +1,30 @@
 "use strict";
 
 const searchFormEl = document.getElementById("search-form"),
-  searchInputEl = document.getElementById("search-input");
+  searchInputEl = document.getElementById("search-input"),
+    searchSugEl = document.getElementById("search-suggestions-container");
 
 let focusedSuggestionIndex = 0;
 
-function searchNoRealod(searchQuery) {
+function searchNoReload(searchQuery) {
   searchFormEl.blur();
   searchInputEl.blur();
   const query = encodeURIComponent(searchQuery);
-  document.getElementById("search-suggestions").style.display = "none";
   const prevPath = window.location.href.substring(
     (window.location.protocol + "//" + window.location.host).length,
   );
   window.location.prevPath = prevPath;
   window.history.pushState({}, "", `/search?query=${query}`);
+  searchSugEl.innerText = "";
 }
 
 searchFormEl.addEventListener("submit", (e) => {
   e.preventDefault();
-  searchNoRealod(e.target.query.value);
+  searchNoReload(e.target.query.value);
 });
 
 document.getElementById("search-icon").addEventListener("click", () => {
-  searchNoRealod(searchFormEl.query.value);
+  searchNoReload(searchFormEl.query.value);
 });
 
 searchInputEl.addEventListener("keydown", (e) => {
@@ -71,5 +72,5 @@ function moveToSuggestions() {
 }
 
 window.Search = {
-  searchNoRealod: searchNoRealod,
+  searchNoReload,
 };

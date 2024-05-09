@@ -9,8 +9,8 @@ import (
 	"dankmuzikk/models"
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/login"
-	"dankmuzikk/services/youtube"
 	"dankmuzikk/services/youtube/download"
+	"dankmuzikk/services/youtube/search"
 	"embed"
 	"net/http"
 )
@@ -18,13 +18,14 @@ import (
 func StartServer(staticFS embed.FS) error {
 	dbConn, err := db.Connector()
 	if err != nil {
-		log.Fatalln(log.ErrorLevel, err)
+		return err
 	}
 
 	accountRepo := db.NewBaseDB[models.Account](dbConn)
 	profileRepo := db.NewBaseDB[models.Profile](dbConn)
 	otpRepo := db.NewBaseDB[models.EmailVerificationCode](dbConn)
 	songRepo := db.NewBaseDB[models.Song](dbConn)
+	// playlistRepo := db.NewBaseDB[models.Playlist](dbConn)
 
 	jwtUtil := jwt.NewJWTImpl()
 
@@ -41,13 +42,13 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.HandleFunc("/about", pagesRouter.Handler(pagesRouter.HandleAboutPage))
 	pagesHandler.HandleFunc("/playlists", pagesRouter.AuthHandler(pagesRouter.HandlePlaylistsPage))
 	pagesHandler.HandleFunc("/privacy", pagesRouter.Handler(pagesRouter.HandlePrivacyPage))
-	pagesHandler.HandleFunc("/search", pagesRouter.Handler(pagesRouter.HandleSearchResultsPage(&youtube.YouTubeScraperSearch{})))
+	pagesHandler.HandleFunc("/search", pagesRouter.Handler(pagesRouter.HandleSearchResultsPage(&search.ScraperSearch{})))
 
 	///////////// APIs /////////////
 
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
-	songDownloadApi := apis.NewDownloadHandler(*download.NewDownloadService(songRepo))
+	songDownloadApi := apis.NewDownloadHandler(*download.New(songRepo))
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -57,7 +58,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /signup/google", googleLoginApi.HandleGoogleOAuthLogin)
 	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
-	apisHandler.HandleFunc("GET /search-suggession", apis.HandleSearchSugessions)
+	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
 	apisHandler.HandleFunc("GET /song/download", songDownloadApi.HandleDownloadSong)
 
 	applicationHandler := http.NewServeMux()

@@ -3,26 +3,31 @@ package apis
 import (
 	"context"
 	"dankmuzikk/log"
-	"dankmuzikk/services/youtube"
+	"dankmuzikk/services/youtube/search/suggestions"
 	"dankmuzikk/views/components/search"
 	"net/http"
 )
 
-func HandleSearchSugessions(w http.ResponseWriter, r *http.Request) {
+func HandleSearchSuggestions(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("query")
 	if q == "" {
-		w.Write(nil)
+		_, _ = w.Write(nil)
 		return
 	}
 
-	suggessions, err := youtube.SearchSuggestions(q)
+	sug, err := suggestions.SearchSuggestions(q)
 	if err != nil {
 		log.Warningln(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = search.SearchSuggestions(suggessions, q).Render(context.Background(), w)
+	if len(sug) == 0 {
+		_, _ = w.Write(nil)
+		return
+	}
+
+	err = search.SearchSuggestions(sug, q).Render(context.Background(), w)
 	if err != nil {
 		log.Warningln(err)
 		w.WriteHeader(http.StatusInternalServerError)

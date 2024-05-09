@@ -1,4 +1,4 @@
-package youtube
+package search
 
 import (
 	"fmt"
@@ -11,7 +11,8 @@ const (
 	maxSearchResults = 7
 )
 
-type SearchResult struct {
+// Result represents a common search result object.
+type Result struct {
 	Id           string
 	Title        string
 	ChannelTitle string // or artist idk
@@ -20,11 +21,11 @@ type SearchResult struct {
 	Duration     string
 }
 
-// YouTubeSearcher is an interface that represents a youtube search behavior.
-type YouTubeSearcher interface {
-	// Search searches youtube for the given query,
+// Service is an interface that represents a YouTube search behavior.
+type Service interface {
+	// Search searches YouTube for the given query,
 	// and returns a SearchResult slice, and an occurring error.
-	Search(query string) (results []SearchResult, err error)
+	Search(query string) (results []Result, err error)
 }
 
 func getTime(isoDuration string) (string, error) {
@@ -40,7 +41,7 @@ func getTime(isoDuration string) (string, error) {
 		return "", err
 	}
 	days, hours, mins, secs :=
-		duration/(time.Hour*24), (duration / time.Hour), duration/time.Minute, duration/time.Second
+		duration/(time.Hour*24), duration/time.Hour, duration/time.Minute, duration/time.Second
 
 	builder := strings.Builder{}
 	if days > 0 {
