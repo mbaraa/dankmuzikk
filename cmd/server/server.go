@@ -3,6 +3,7 @@ package server
 import (
 	"dankmuzikk/config"
 	"dankmuzikk/db"
+	"dankmuzikk/handlers"
 	"dankmuzikk/handlers/apis"
 	"dankmuzikk/handlers/pages"
 	"dankmuzikk/log"
@@ -29,20 +30,22 @@ func StartServer(staticFS embed.FS) error {
 
 	jwtUtil := jwt.NewJWTImpl()
 
+	gHandler := handlers.NewHandler(accountRepo, jwtUtil)
+
 	///////////// Pages and files /////////////
 	pagesHandler := http.NewServeMux()
 	pagesHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
 	pagesRouter := pages.NewPagesHandler(profileRepo, jwtUtil)
-	pagesHandler.HandleFunc("/", pagesRouter.Handler(pagesRouter.HandleHomePage))
-	pagesHandler.HandleFunc("/signup", pagesRouter.AuthHandler(pagesRouter.HandleSignupPage))
-	pagesHandler.HandleFunc("/login", pagesRouter.AuthHandler(pagesRouter.HandleLoginPage))
-	pagesHandler.HandleFunc("/profile", pagesRouter.AuthHandler(pagesRouter.HandleProfilePage))
-	pagesHandler.HandleFunc("/about", pagesRouter.Handler(pagesRouter.HandleAboutPage))
-	pagesHandler.HandleFunc("/playlists", pagesRouter.AuthHandler(pagesRouter.HandlePlaylistsPage))
-	pagesHandler.HandleFunc("/privacy", pagesRouter.Handler(pagesRouter.HandlePrivacyPage))
-	pagesHandler.HandleFunc("/search", pagesRouter.Handler(pagesRouter.HandleSearchResultsPage(&search.ScraperSearch{})))
+	pagesHandler.HandleFunc("/", gHandler.NoAuthPage(pagesRouter.HandleHomePage))
+	pagesHandler.HandleFunc("/signup", gHandler.AuthPage(pagesRouter.HandleSignupPage))
+	pagesHandler.HandleFunc("/login", gHandler.AuthPage(pagesRouter.HandleLoginPage))
+	pagesHandler.HandleFunc("/profile", gHandler.AuthPage(pagesRouter.HandleProfilePage))
+	pagesHandler.HandleFunc("/about", gHandler.NoAuthPage(pagesRouter.HandleAboutPage))
+	pagesHandler.HandleFunc("/playlists", gHandler.AuthPage(pagesRouter.HandlePlaylistsPage))
+	pagesHandler.HandleFunc("/privacy", gHandler.NoAuthPage(pagesRouter.HandlePrivacyPage))
+	pagesHandler.HandleFunc("/search", gHandler.NoAuthPage(pagesRouter.HandleSearchResultsPage(&search.ScraperSearch{})))
 
 	///////////// APIs /////////////
 

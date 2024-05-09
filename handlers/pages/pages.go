@@ -12,13 +12,10 @@ import (
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/pages"
 	"net/http"
-	"slices"
 	"strings"
 
 	_ "github.com/a-h/templ"
 )
-
-var noAuthPaths = []string{"/login", "/signup"}
 
 type pagesHandler struct {
 	profileRepo db.GetterRepo[models.Profile]
@@ -30,34 +27,6 @@ func NewPagesHandler(
 	jwtUtil jwt.Manager[any],
 ) *pagesHandler {
 	return &pagesHandler{profileRepo, jwtUtil}
-}
-
-func (p *pagesHandler) Handler(hand http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		hand(w, r)
-	}
-}
-
-func (p *pagesHandler) AuthHandler(hand http.HandlerFunc) http.HandlerFunc {
-	return p.Handler(func(w http.ResponseWriter, r *http.Request) {
-		htmxRedirect := p.isNoReload(r)
-		authed := p.isAuthed(r, p.jwtUtil)
-
-		switch {
-		case authed && slices.Contains(noAuthPaths, r.URL.Path):
-			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
-		case !authed && slices.Contains(noAuthPaths, r.URL.Path):
-			hand(w, r)
-		case !authed && htmxRedirect:
-			w.Header().Set("HX-Redirect", "/login")
-		case !authed && !htmxRedirect:
-			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
-		default:
-			hand(w, r)
-		}
-
-	})
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
@@ -139,19 +108,6 @@ func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) 
 	pages.Signup(p.isMobile(r), p.getTheme(r)).Render(context.Background(), w)
 }
 
-func (p *pagesHandler) isAuthed(r *http.Request, jwtUtil jwt.Manager[any]) bool {
-	sessionToken, err := r.Cookie(handlers.SessionTokenKey)
-	if err != nil {
-		return false
-	}
-	err = jwtUtil.Validate(sessionToken.Value, jwt.SessionToken)
-	if err != nil {
-		return false
-	}
-
-	return true
-}
-
 func (p *pagesHandler) isMobile(r *http.Request) bool {
 	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
 }
@@ -177,7 +133,7 @@ func (p *pagesHandler) isNoReload(r *http.Request) bool {
 }
 
 func (p *pagesHandler) getRequestSessionTokenPayload(r *http.Request) map[string]any {
-	// errors are ignored here becasue this method is used in pages that are wrapped with AuthHandler
+	// errors are ignored here because this method is used in pages that are wrapped with AuthHandler
 	sessionToken, _ := r.Cookie(handlers.SessionTokenKey)
 	token, _ := p.jwtUtil.Decode(sessionToken.Value, jwt.SessionToken)
 	return token.Payload.(map[string]any)
