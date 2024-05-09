@@ -15,11 +15,13 @@ func initEnvVars() {
 		Hostname:  getEnv("HOSTNAME"),
 		JwtSecret: getEnv("JWT_SECRET"),
 		YouTube: struct {
-			ScraperUrl string
-			MusicDir   string
+			ScraperUrl    string
+			DownloaderUrl string
+			MusicDir      string
 		}{
-			ScraperUrl: getEnv("YOUTUBE_SCAPER_URL"),
-			MusicDir:   getEnv("YOUTUBE_MUSIC_DOWNLOAD_PATH"),
+			ScraperUrl:    getEnv("YOUTUBE_SCAPER_URL"),
+			DownloaderUrl: getEnv("YOUTUBE_DOWNLOADER_URL"),
+			MusicDir:      getEnv("YOUTUBE_MUSIC_DOWNLOAD_PATH"),
 		},
 		Google: struct {
 			ApiServiceAccount string
@@ -60,8 +62,9 @@ type config struct {
 	Hostname  string
 	JwtSecret string
 	YouTube   struct {
-		ScraperUrl string
-		MusicDir   string
+		ScraperUrl    string
+		DownloaderUrl string
+		MusicDir      string
 	}
 	Google struct {
 		ApiServiceAccount string
