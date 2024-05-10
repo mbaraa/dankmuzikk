@@ -75,6 +75,7 @@ script changeTheme(themeName string) {
     style.setProperty('--secondary-color', theme.secondary);
     style.setProperty('--accent-color', theme.accent);
     document.body.style.backgroundImage = `url('${theme.bg}'), linear-gradient(to right, var(--accent-color), var(--secondary-color))`;
+    document.getElementById("theme-selector").style.display = "none";
 }
 
 script toggleTheThing() {
