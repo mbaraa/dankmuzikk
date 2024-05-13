@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"dankmuzikk/config"
 	"dankmuzikk/db"
 	"dankmuzikk/models"
@@ -13,7 +14,7 @@ var noAuthPaths = []string{"/login", "/signup"}
 
 // Handler is handler for pages and APIs, where it wraps the common stuff in one place.
 type Handler struct {
-	accountRepo db.GORMDBGetter
+	profileRepo db.GORMDBGetter
 	jwtUtil     jwt.Decoder[any]
 }
 
@@ -31,21 +32,21 @@ func NewHandler(
 func (a *Handler) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return a.NoAuthPage(func(w http.ResponseWriter, r *http.Request) {
 		htmxRedirect := IsNoReloadPage(r)
-		authed := a.isAuthed(r)
+		profileId, err := a.authenticate(r)
+		authed := err == nil
 
 		switch {
 		case authed && slices.Contains(noAuthPaths, r.URL.Path):
 			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
 		case !authed && slices.Contains(noAuthPaths, r.URL.Path):
-			h(w, r)
+			h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profileId)))
 		case !authed && htmxRedirect:
 			w.Header().Set("HX-Redirect", "/login")
 		case !authed && !htmxRedirect:
 			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
 		default:
-			h(w, r)
+			h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profileId)))
 		}
-
 	})
 }
 
@@ -57,34 +58,60 @@ func (a *Handler) NoAuthPage(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (a *Handler) isAuthed(r *http.Request) bool {
+// AuthApi authenticates an API's handler.
+func (a *Handler) AuthApi(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		profileId, err := a.authenticate(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profileId)))
+	}
+}
+
+// NoAuthApi returns a page's handler after setting Content-Type to application/json.
+func (a *Handler) NoAuthApi(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		h(w, r)
+	}
+}
+
+func (a *Handler) authenticate(r *http.Request) (uint, error) {
 	sessionToken, err := r.Cookie(SessionTokenKey)
 	if err != nil {
-		return false
+		return 0, err
 	}
 	theThing, err := a.jwtUtil.Decode(sessionToken.Value, jwt.SessionToken)
 	if err != nil {
-		return false
+		return 0, err
 	}
 	payload, valid := theThing.Payload.(map[string]any)
 	if !valid || payload == nil {
-		return false
+		return 0, err
 	}
-	userEmail, validEmail := theThing.Payload.(map[string]any)["email"].(string)
-	if !validEmail || userEmail == "" {
-		return false
+	username, validUsername := theThing.Payload.(map[string]any)["username"].(string)
+	if !validUsername || username == "" {
+		return 0, err
 	}
 
-	var act models.Account
+	var profile models.Profile
 
-	return a.
-		accountRepo.
+	err = a.
+		profileRepo.
 		GetDB().
-		Model(&act).
+		Model(&profile).
 		Select("id").
-		Where("email = ?", userEmail).
-		First(&act).
-		Error == nil
+		Where("username = ?", username).
+		First(&profile).
+		Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	return profile.Id, nil
 }
 
 // IsNoReloadPage checks if the requested page requires a no reload or not.

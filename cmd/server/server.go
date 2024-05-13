@@ -30,7 +30,7 @@ func StartServer(staticFS embed.FS) error {
 
 	jwtUtil := jwt.NewJWTImpl()
 
-	gHandler := handlers.NewHandler(accountRepo, jwtUtil)
+	gHandler := handlers.NewHandler(profileRepo, jwtUtil)
 
 	///////////// Pages and files /////////////
 	pagesHandler := http.NewServeMux()

@@ -62,9 +62,8 @@ func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request)
 }
 
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
-	tokenPayload := p.getRequestSessionTokenPayload(r)
-	dbProfile, err := p.profileRepo.GetByConds("username = ?", tokenPayload["username"].(string))
-	if err != nil {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
 		if handlers.IsNoReloadPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
@@ -72,13 +71,13 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		}
 		return
 	}
-
+	// error is ignored, because the id was checked in the AuthHandler
+	dbProfile, _ := p.profileRepo.Get(profileId)
 	profile := entities.Profile{
-		Name:     dbProfile[0].Name,
-		PfpLink:  dbProfile[0].PfpLink,
-		Username: dbProfile[0].Username,
+		Name:     dbProfile.Name,
+		PfpLink:  dbProfile.PfpLink,
+		Username: dbProfile.Username,
 	}
-
 	if handlers.IsNoReloadPage(r) {
 		pages.ProfileNoReload(profile).Render(context.Background(), w)
 		return
