@@ -125,10 +125,3 @@ func (p *pagesHandler) getTheme(r *http.Request) string {
 		return "default"
 	}
 }
-
-func (p *pagesHandler) getRequestSessionTokenPayload(r *http.Request) map[string]any {
-	// errors are ignored here because this method is used in pages that are wrapped with AuthHandler
-	sessionToken, _ := r.Cookie(handlers.SessionTokenKey)
-	token, _ := p.jwtUtil.Decode(sessionToken.Value, jwt.SessionToken)
-	return token.Payload.(map[string]any)
-}
