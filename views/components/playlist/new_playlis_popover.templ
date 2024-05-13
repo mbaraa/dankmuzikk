@@ -1,0 +1,60 @@
+package playlist
+
+templ NewPlaylistPlaylistsPopover() {
+	<div class={ "popover-container", "relative" }>
+		<button onClick={ toggleNewPlaylistPopover() } class={ "popover-trigger" }>
+			New playlist
+		</button>
+		<div
+			id="new-playlist-popover"
+			class={
+				"hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
+				"bg-white", "shadow-md", "p-[10px]", "rounded-[5px]",
+				"min-w-[250px]", "text-black",
+			}
+		>
+			<form
+				class={ "flex", "flex-col", "gap-3" }
+				hx-post="/api/playlist"
+				hx-swap="innerHTML"
+				hx-target="#playlists-listing"
+				hx-trigger="submit"
+				hx-ext="json-enc"
+				data-loading-target="#loading"
+				data-loading-class-remove="hidden"
+				data-loading-path="/api/playlist"
+			>
+				<input
+					type="text"
+					class={ "w-full", "p-[10px]", "rounded-[8px]", "border", "border-black" }
+					name="title"
+					placeholder="Enter the playlist's title"
+					autofocus
+				/>
+				<button
+					class={
+						"bg-accent", "text-white", "rounded-[50px]", "py-[5px]",
+						"px-[60px]", "w-full",
+					}
+					type="submit"
+					onClick={ hideNewPlayListPopover() }
+				>Create playlist</button>
+			</form>
+		</div>
+	</div>
+}
+
+script hideNewPlayListPopover() {
+    document.getElementById("new-playlist-popover")
+        .style.display = "none";
+}
+
+script toggleNewPlaylistPopover() {
+    const popover = document.getElementById("new-playlist-popover");
+
+    if (popover.style.display !== "block") {
+      popover.style.display = "block";
+    } else {
+      popover.style.display = "none";
+    }
+}
