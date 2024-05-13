@@ -10,6 +10,7 @@ import (
 	"dankmuzikk/models"
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/login"
+	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/youtube/download"
 	"dankmuzikk/services/youtube/search"
 	"embed"
@@ -26,7 +27,10 @@ func StartServer(staticFS embed.FS) error {
 	profileRepo := db.NewBaseDB[models.Profile](dbConn)
 	otpRepo := db.NewBaseDB[models.EmailVerificationCode](dbConn)
 	songRepo := db.NewBaseDB[models.Song](dbConn)
-	// playlistRepo := db.NewBaseDB[models.Playlist](dbConn)
+	playlistRepo := db.NewBaseDB[models.Playlist](dbConn)
+	playlistOwnersRepo := db.NewBaseDB[models.PlaylistOwner](dbConn)
+
+	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo)
 
 	jwtUtil := jwt.NewJWTImpl()
 
@@ -37,7 +41,7 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
-	pagesRouter := pages.NewPagesHandler(profileRepo, jwtUtil)
+	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil)
 	pagesHandler.HandleFunc("/", gHandler.NoAuthPage(pagesRouter.HandleHomePage))
 	pagesHandler.HandleFunc("/signup", gHandler.AuthPage(pagesRouter.HandleSignupPage))
 	pagesHandler.HandleFunc("/login", gHandler.AuthPage(pagesRouter.HandleLoginPage))
@@ -52,6 +56,7 @@ func StartServer(staticFS embed.FS) error {
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	songDownloadApi := apis.NewDownloadHandler(*download.New(songRepo))
+	playlistsApi := apis.NewPlaylistApi(playlistsService)
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -63,6 +68,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
 	apisHandler.HandleFunc("GET /song/download", songDownloadApi.HandleDownloadSong)
+	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)

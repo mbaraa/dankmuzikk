@@ -9,6 +9,7 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/models"
 	"dankmuzikk/services/jwt"
+	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/pages"
 	"net/http"
@@ -18,15 +19,17 @@ import (
 )
 
 type pagesHandler struct {
-	profileRepo db.GetterRepo[models.Profile]
-	jwtUtil     jwt.Manager[any]
+	profileRepo      db.GetterRepo[models.Profile]
+	playlistsService *playlists.Service
+	jwtUtil          jwt.Manager[any]
 }
 
 func NewPagesHandler(
 	profileRepo db.GetterRepo[models.Profile],
+	playlistsService *playlists.Service,
 	jwtUtil jwt.Manager[any],
 ) *pagesHandler {
-	return &pagesHandler{profileRepo, jwtUtil}
+	return &pagesHandler{profileRepo, playlistsService, jwtUtil}
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
@@ -50,11 +53,22 @@ func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
-	if handlers.IsNoReloadPage(r) {
-		pages.PlaylistsNoReload().Render(context.Background(), w)
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte("🤷‍♂️"))
 		return
 	}
-	pages.Playlists(p.isMobile(r), p.getTheme(r)).Render(context.Background(), w)
+
+	playlists, err := p.playlistsService.GetAll(profileId)
+	if err != nil {
+		playlists = make([]entities.Playlist, 0)
+	}
+
+	if handlers.IsNoReloadPage(r) {
+		pages.PlaylistsNoReload(playlists).Render(context.Background(), w)
+		return
+	}
+	pages.Playlists(p.isMobile(r), p.getTheme(r), playlists).Render(context.Background(), w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
