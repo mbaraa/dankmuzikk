@@ -24,6 +24,25 @@ func (p Playlist) GetId() uint {
 	return p.Id
 }
 
+func (p *Playlist) BeforeDelete(tx *gorm.DB) error {
+	err := tx.
+		Model(new(PlaylistOwner)).
+		Delete(&PlaylistOwner{
+			PlaylistId: p.Id,
+		}, "playlist_id = ?", p.Id).
+		Error
+	if err != nil {
+		return err
+	}
+
+	return tx.
+		Model(new(PlaylistSong)).
+		Delete(&PlaylistSong{
+			PlaylistId: p.Id,
+		}, "playlist_id = ?", p.Id).
+		Error
+}
+
 type PlaylistSong struct {
 	PlaylistId uint `gorm:"primaryKey"`
 	SongId     uint `gorm:"primaryKey"`

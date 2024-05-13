@@ -11,8 +11,10 @@ type Profile struct {
 	AccountId uint
 	Account   Account
 	Name      string `gorm:"not null"`
-	PfpLink   string `gorm:"not null"`
+	PfpLink   string
 	Username  string `gorm:"unique;not null"`
+
+	Playlist  []*Playlist `gorm:"many2many:playlist_owners"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
