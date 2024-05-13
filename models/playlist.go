@@ -9,15 +9,15 @@ import (
 type Playlist struct {
 	Id uint `gorm:"primaryKey;autoIncrement"`
 
-	AccountId uint
-	Account   Account
-
 	PublicId   string `gorm:"unique;not null;index"`
 	Title      string
 	SongsCount int
-	Songs      []*Song `gorm:"many2many:playlist_songs;"`
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	IsPublic   bool
+
+	Songs     []*Song    `gorm:"many2many:playlist_songs;"`
+	Owners    []*Profile `gorm:"many2many:playlist_owners;"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (p Playlist) GetId() uint {
@@ -72,3 +72,24 @@ func (p *PlaylistSong) BeforeDelete(tx *gorm.DB) error {
 		Update("songs_count", playlist.SongsCount-1).
 		Error
 }
+
+type PlaylistOwner struct {
+	PlaylistId  uint `gorm:"primaryKey"`
+	ProfileId   uint `gorm:"primaryKey"`
+	Permissions PlaylistPermissions
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (p PlaylistOwner) GetId() uint {
+	return p.ProfileId | p.PlaylistId
+}
+
+type PlaylistPermissions int8
+
+const (
+	ReadPermission PlaylistPermissions = 1 << iota
+	WritePermission
+	OwnerPermission
+)

@@ -18,5 +18,6 @@ func Migrate() error {
 		new(models.Song),
 		new(models.Playlist),
 		new(models.PlaylistSong),
+		new(models.PlaylistOwner),
 	)
 }
