@@ -21,6 +21,9 @@ init:
 	templ generate && \
     go run main.go migrate
 
+seed:
+	go run main.go seed
+
 # dev runs the development server where it builds the tailwind css sheet,
 # and compiles the project whenever a file is changed.
 dev:
