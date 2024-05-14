@@ -1,0 +1,67 @@
+package pages
+
+import (
+	"dankmuzikk/views/layouts"
+	"dankmuzikk/entities"
+	"fmt"
+)
+
+templ Playlist(isMobile bool, themeName string, pl entities.Playlist) {
+	@layouts.Default(isMobile, themeName, justPlaylist(pl))
+}
+
+templ PlaylistNoReload(pl entities.Playlist) {
+	@justPlaylist(pl)
+}
+
+templ justPlaylist(pl entities.Playlist) {
+	<main class={ "w-full", "h-[120dvh]" }>
+		<div class={ "flex", "justify-center" }>
+			<section
+				class={
+					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl", "text-white",
+					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
+				}
+			>
+				<div class={ "flex", "justify-between", "w-full" }>
+					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
+					<button type="button">Play</button>
+				</div>
+				<div id="playlists-listing">
+					if pl.Songs == nil || len(pl.Songs) == 0 {
+						<p>This playlist is empty!</p>
+					} else {
+						<div
+							class={
+								"grid", "grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3", "xl:grid-cols-4", "2xl:grid-cols-5",
+								"gap-5", "lg:my-10",
+							}
+						>
+							for _, song := range pl.Songs {
+								<div
+									class={
+										"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5", "cursor-pointer",
+										"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-5",
+									}
+									onClick={ playSong(song.YtId, song.ThumbnailUrl, song.Title, song.Artist, song.Duration) }
+								>
+									<div
+										class={
+											"w-[80px]", "h-[80px]", "lg:w-[125px]", "lg:h-[125px]", "rounded-md", "bg-accent",
+											songThumb(fmt.Sprintf("url(\"%s\")", song.ThumbnailUrl)), "bg-repeat", "bg-cover", "bg-center",
+										}
+									></div>
+									<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
+								</div>
+							}
+						</div>
+					}
+				</div>
+			</section>
+		</div>
+	</main>
+}
+
+css songThumb(url string) {
+	background-image: { url };
+}

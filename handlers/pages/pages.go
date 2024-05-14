@@ -96,10 +96,10 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	_ = playlist
 
 	if handlers.IsNoReloadPage(r) {
-		// pages.PlaylistsNoReload(playlists).Render(context.Background(), w)
+		pages.PlaylistNoReload(playlist).Render(context.Background(), w)
 		return
 	}
-	// pages.Playlists(p.isMobile(r), p.getTheme(r), playlists).Render(context.Background(), w)
+	pages.Playlist(p.isMobile(r), p.getTheme(r), playlist).Render(context.Background(), w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
