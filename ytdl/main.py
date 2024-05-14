@@ -118,8 +118,14 @@ def handle_download_song(id: str, response: Response):
 
 
 @app.get("/download/multi/{ids}",  status_code=status.HTTP_200_OK)
-def handle_download_song(ids: str, response: Response):
+def handle_download_songs(ids: str, response: Response):
     err = download_songs(ids.split(","))
     if err != 0:
         response.status_code = status.HTTP_400_BAD_REQUEST
+
+
+@app.get("/download/queue/multi/{ids}",  status_code=status.HTTP_200_OK)
+def handle_add_download_songs_to_queue(ids: str, response: Response):
+    for id in ids.split(","):
+        add_song_to_queue(id)
 
