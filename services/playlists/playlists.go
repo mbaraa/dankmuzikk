@@ -226,7 +226,7 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 		}
 	}
 
-	err = p.downloadService.DownloadYoutubeSongQueueMulti(songRequests)
+	err = p.downloadService.DownloadYoutubeSongsMetadata(songRequests)
 	if err != nil {
 		return nil, err
 	}

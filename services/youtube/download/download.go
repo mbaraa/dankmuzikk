@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 )
 
 // Service represents the YouTube downloader service.
@@ -86,9 +85,8 @@ func (d *Service) DownloadYoutubeSongQueue(req entities.SongDownloadRequest) err
 	return nil
 }
 
-// DownloadYoutubeSongQueue same as DownloadYoutubeSong but it downloads the song in the background
-func (d *Service) DownloadYoutubeSongQueueMulti(req []entities.SongDownloadRequest) error {
-	ids := make([]string, 0)
+// DownloadYoutubeSongsMetadata same as DownloadYoutubeSong but it downloads the song in the background
+func (d *Service) DownloadYoutubeSongsMetadata(req []entities.SongDownloadRequest) error {
 	newSongs := make([]*models.Song, 0)
 	for _, song := range req {
 		path := fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, song.Id)
@@ -97,7 +95,6 @@ func (d *Service) DownloadYoutubeSongQueueMulti(req []entities.SongDownloadReque
 			continue
 		}
 
-		ids = append(ids, song.Id)
 		newSongs = append(newSongs, &models.Song{
 			YtId:         song.Id,
 			Title:        song.Title,
@@ -107,20 +104,7 @@ func (d *Service) DownloadYoutubeSongQueueMulti(req []entities.SongDownloadReque
 		})
 	}
 
-	resp, err := http.Get(
-		fmt.Sprintf("%s/download/queue/multi/%s",
-			config.Env().YouTube.DownloaderUrl,
-			strings.Join(ids, ","),
-		),
-	)
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode != http.StatusOK {
-		return errors.New("something went wrong when downloading the songs: " + strings.Join(ids, ","))
-	}
-
-	err = d.repo.AddMany(newSongs)
+	err := d.repo.AddMany(newSongs)
 	if err != nil {
 		return err
 	}
