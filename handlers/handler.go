@@ -28,6 +28,18 @@ func NewHandler(
 	return &Handler{accountRepo, jwtUtil}
 }
 
+// OptionalAuthPage authenticates a page's handler optionally (without redirection).
+func (a *Handler) OptionalAuthPage(h http.HandlerFunc) http.HandlerFunc {
+	return a.NoAuthPage(func(w http.ResponseWriter, r *http.Request) {
+		profileId, err := a.authenticate(r)
+		if err != nil {
+			h(w, r)
+			return
+		}
+		h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profileId)))
+	})
+}
+
 // AuthPage authenticates a page's handler.
 func (a *Handler) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return a.NoAuthPage(func(w http.ResponseWriter, r *http.Request) {
