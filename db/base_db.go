@@ -28,7 +28,7 @@ func (b *BaseDB[T]) Add(obj *T) error {
 		Error
 
 	if err != nil {
-		return tryWrapMySqlError(err)
+		return TryWrapMySqlError(err)
 	}
 
 	return nil
@@ -46,7 +46,7 @@ func (b *BaseDB[T]) AddMany(objs []*T) error {
 		Error
 
 	if err != nil {
-		return tryWrapMySqlError(err)
+		return TryWrapMySqlError(err)
 	}
 
 	return nil
