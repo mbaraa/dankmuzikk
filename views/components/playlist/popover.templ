@@ -28,13 +28,27 @@ templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, 
 					for _, playlist := range playlists {
 						<li
 							class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
-							hx-put={ fmt.Sprintf("/api/add-song-to-playlist?song-id=%s&playlist-id=%s", songId, playlist.PublicId) }
+							hx-put={
+								fmt.Sprintf(
+									"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
+									songId,
+									playlist.PublicId,
+									playlist.PublicId == songsInPlaylists[songId],
+								),
+							}
 							hx-swap="innerHTML"
 							hx-target={ fmt.Sprintf("#song-in-playlist-%s", songId) }
 							hx-trigger="click"
 							data-loading-target="#loading"
 							data-loading-class-remove="hidden"
-							data-loading-path={ fmt.Sprintf("/api/add-song-to-playlist?song-id=%s&playlist-id=%s", songId, playlist.PublicId) }
+							data-loading-path={
+								fmt.Sprintf(
+									"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
+									songId,
+									playlist.PublicId,
+									playlist.PublicId == songsInPlaylists[songId],
+								),
+							}
 						>
 							<div
 								id={ fmt.Sprintf("song-in-playlist-%s", songId) }
@@ -49,7 +63,7 @@ templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, 
 								></div>
 							</div>
 							<p class={ "max-w-[300px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>
-								{ songId }: { playlist.Title }
+								{ playlist.Title }
 							</p>
 						</li>
 					}

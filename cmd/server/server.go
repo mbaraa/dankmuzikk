@@ -75,7 +75,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /song/download", songDownloadApi.HandleDownloadSong)
 	apisHandler.HandleFunc("GET /song/download/queue", songDownloadApi.HandleDownloadSongToQueue)
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
-	apisHandler.HandleFunc("PUT /add-song-to-playlist", gHandler.AuthApi(playlistsApi.HandleAddSongToPlaylist))
+	apisHandler.HandleFunc("PUT /toggle-song-in-playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)

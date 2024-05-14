@@ -52,7 +52,7 @@ func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Reques
 	pages.JustPlaylists(playlists).Render(context.Background(), w)
 }
 
-func (p *playlistApi) HandleAddSongToPlaylist(w http.ResponseWriter, r *http.Request) {
+func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.Request) {
 	_, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
@@ -69,8 +69,20 @@ func (p *playlistApi) HandleAddSongToPlaylist(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	removeSongFromPlaylist := r.URL.Query().Get("remove")
+	if removeSongFromPlaylist != "true" && removeSongFromPlaylist != "false" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	err := p.songService.AddSongToPlaylist(songId, playlistId)
+	var err error
+	switch removeSongFromPlaylist {
+	case "false":
+		err = p.songService.AddSongToPlaylist(songId, playlistId)
+	case "true":
+		err = p.songService.RemoveSongFromPlaylist(songId, playlistId)
+	}
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -78,5 +90,10 @@ func (p *playlistApi) HandleAddSongToPlaylist(w http.ResponseWriter, r *http.Req
 	}
 
 	// TODO: idk, this is ugly, but it works lol
-	w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-accent bg-accent\"></div>"))
+	switch removeSongFromPlaylist {
+	case "false":
+		w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-accent bg-accent\"></div>"))
+	case "true":
+		w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-accent\"></div>"))
+	}
 }
