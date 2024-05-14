@@ -104,9 +104,14 @@ func (d *Service) DownloadYoutubeSongsMetadata(req []entities.SongDownloadReques
 		})
 	}
 
-	err := d.repo.AddMany(newSongs)
-	if err != nil {
-		return err
+	// adding the songs one at a time, so that if a song exists, it won't ruin the batch!
+	for _, newSong := range newSongs {
+		err := d.repo.Add(newSong)
+		if errors.Is(err, db.ErrRecordExists) {
+			log.Warningln(err)
+		} else if err != nil {
+			return err
+		}
 	}
 
 	return nil

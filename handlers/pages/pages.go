@@ -152,18 +152,19 @@ func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.Han
 			}
 		}
 
-		var mappedPlaylists map[string]entities.Playlist
+		var songsInPlaylists map[string]string
+		var playlists []entities.Playlist
 		profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 		if profileIdCorrect {
 			log.Info("downloading songs from search")
-			mappedPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(songs, profileId)
+			playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(songs, profileId)
 		}
 
 		if handlers.IsNoReloadPage(r) {
-			pages.SearchResultsNoReload(results, mappedPlaylists).Render(context.Background(), w)
+			pages.SearchResultsNoReload(results, playlists, songsInPlaylists).Render(context.Background(), w)
 			return
 		}
-		pages.SearchResults(p.isMobile(r), p.getTheme(r), results, mappedPlaylists).Render(context.Background(), w)
+		pages.SearchResults(p.isMobile(r), p.getTheme(r), results, playlists, songsInPlaylists).Render(context.Background(), w)
 	}
 }
 

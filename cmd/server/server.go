@@ -11,6 +11,7 @@ import (
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/login"
 	"dankmuzikk/services/playlists"
+	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
 	"dankmuzikk/services/youtube/search"
 	"embed"
@@ -29,9 +30,11 @@ func StartServer(staticFS embed.FS) error {
 	songRepo := db.NewBaseDB[models.Song](dbConn)
 	playlistRepo := db.NewBaseDB[models.Playlist](dbConn)
 	playlistOwnersRepo := db.NewBaseDB[models.PlaylistOwner](dbConn)
+	playlistSongssRepo := db.NewBaseDB[models.PlaylistSong](dbConn)
 
 	downloadService := download.New(songRepo)
 	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, downloadService)
+	songsService := songs.New(playlistSongssRepo, songRepo, playlistRepo)
 
 	jwtUtil := jwt.NewJWTImpl()
 
@@ -58,7 +61,7 @@ func StartServer(staticFS embed.FS) error {
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	songDownloadApi := apis.NewDownloadHandler(downloadService)
-	playlistsApi := apis.NewPlaylistApi(playlistsService)
+	playlistsApi := apis.NewPlaylistApi(playlistsService, songsService)
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -72,6 +75,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /song/download", songDownloadApi.HandleDownloadSong)
 	apisHandler.HandleFunc("GET /song/download/queue", songDownloadApi.HandleDownloadSongToQueue)
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
+	apisHandler.HandleFunc("PUT /add-song-to-playlist", gHandler.AuthApi(playlistsApi.HandleAddSongToPlaylist))
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)

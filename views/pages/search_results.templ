@@ -9,15 +9,15 @@ import (
 
 type SearchResult = search.Result
 
-templ SearchResults(isMobile bool, themeName string, results []SearchResult, playlists map[string]entities.Playlist) {
-	@layouts.Default(isMobile, themeName, searchResults(results, playlists))
+templ SearchResults(isMobile bool, themeName string, results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
+	@layouts.Default(isMobile, themeName, searchResults(results, playlists, songsInPlaylists))
 }
 
-templ SearchResultsNoReload(results []SearchResult, playlists map[string]entities.Playlist) {
-	@searchResults(results, playlists)
+templ SearchResultsNoReload(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
+	@searchResults(results, playlists, songsInPlaylists)
 }
 
-templ searchResults(results []SearchResult, playlists map[string]entities.Playlist) {
+templ searchResults(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",  "bg-black-trans-100", "rounded-md",
@@ -68,7 +68,7 @@ templ searchResults(results []SearchResult, playlists map[string]entities.Playli
 					<!-- actions -->
 					<div class={ "w-[30px]", "h-[30px]", "relative" }>
 						<!-- TODO: Add add to playlist action -->
-						@playlist.PlaylistsPopover(idx, playlists)
+						@playlist.PlaylistsPopover(idx, res.Id, playlists, songsInPlaylists)
 					</div>
 				</div>
 			}

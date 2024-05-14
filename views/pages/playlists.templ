@@ -54,7 +54,7 @@ templ JustPlaylists(pls []entities.Playlist) {
 				}
 			>
 				<img src="/static/images/album-cover-icon.svg" class={ "lg:w-[125px]", "lg:h-[125px]" } alt=""/>
-				<p class={ "text-xl" }>{ playlist.Title }</p>
+				<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ playlist.Title }</p>
 			</div>
 		}
 	</div>

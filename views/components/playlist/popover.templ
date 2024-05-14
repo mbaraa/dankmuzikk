@@ -5,7 +5,7 @@ import (
 	"dankmuzikk/entities"
 )
 
-templ PlaylistsPopover(index int, playlists map[string]entities.Playlist) {
+templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]string) {
 	<div class={ "popover-container", "relative" }>
 		<button onClick={ toggleTheThing(index) } class={ "popover-trigger" }>
 			<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
@@ -14,18 +14,43 @@ templ PlaylistsPopover(index int, playlists map[string]entities.Playlist) {
 			class={
 				fmt.Sprintf("popover-%d", index), "hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
 				"bg-white", "shadow-md", "p-[10px]", "rounded-[5px]",
-				"min-w-[200px]",
+				"min-w-[250px]",
 			}
 		>
-			<ul>
+			<h2 class={ "text-lg" }>Save this song to...</h2>
+			<div class={ "my-2" }></div>
+			<ul class={ "flex", "flex-col", "gap-y-2" }>
 				if playlists == nil {
 					<p>
 						No playlists were found
 					</p>
 				} else {
-					for songYtId, playlist := range playlists {
-						<li>
-							{ songYtId }: { playlist.PublicId }, { playlist.Title }
+					for _, playlist := range playlists {
+						<li
+							class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
+							hx-put={ fmt.Sprintf("/api/add-song-to-playlist?song-id=%s&playlist-id=%s", songId, playlist.PublicId) }
+							hx-swap="innerHTML"
+							hx-target={ fmt.Sprintf("#song-in-playlist-%s", songId) }
+							hx-trigger="click"
+							data-loading-target="#loading"
+							data-loading-class-remove="hidden"
+							data-loading-path={ fmt.Sprintf("/api/add-song-to-playlist?song-id=%s&playlist-id=%s", songId, playlist.PublicId) }
+						>
+							<div
+								id={ fmt.Sprintf("song-in-playlist-%s", songId) }
+							>
+								<div
+									class={
+										"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-accent",
+										map[string]bool{
+											"bg-accent": playlist.PublicId == songsInPlaylists[songId],
+										},
+									}
+								></div>
+							</div>
+							<p class={ "max-w-[300px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>
+								{ songId }: { playlist.Title }
+							</p>
 						</li>
 					}
 				}

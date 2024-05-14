@@ -5,6 +5,7 @@ import (
 	"dankmuzikk/entities"
 	"dankmuzikk/models"
 	"dankmuzikk/services/youtube/download"
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -188,7 +189,7 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 	return playlists, nil
 }
 
-func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) (map[string]entities.Playlist, error) {
+func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) ([]entities.Playlist, map[string]string, error) {
 	var dbPlaylists []models.Playlist
 	err := p.
 		repo.
@@ -202,16 +203,29 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 		Find(&dbPlaylists)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	mappedPlaylists := make(map[string]entities.Playlist)
+	mappedPlaylists := make(map[string]string)
+	usedPlaylists := make(map[string]bool)
 	for _, playlist := range dbPlaylists {
 		for _, song := range playlist.Songs {
-			mappedPlaylists[song.YtId] = entities.Playlist{
-				PublicId: playlist.PublicId,
-				Title:    playlist.Title,
-			}
+			mappedPlaylists[song.YtId] = playlist.PublicId
+			usedPlaylists[playlist.PublicId] = true
+		}
+	}
+	for i := 0; i < len(dbPlaylists); i++ {
+		if usedPlaylists[dbPlaylists[i].PublicId] {
+			continue
+		}
+		mappedPlaylists[fmt.Sprintf("unmapped-%d", i)] = dbPlaylists[i].PublicId
+	}
+
+	playlists := make([]entities.Playlist, len(dbPlaylists))
+	for i, dbPlaylist := range dbPlaylists {
+		playlists[i] = entities.Playlist{
+			PublicId: dbPlaylist.PublicId,
+			Title:    dbPlaylist.Title,
 		}
 	}
 
@@ -228,8 +242,8 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 
 	err = p.downloadService.DownloadYoutubeSongsMetadata(songRequests)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return mappedPlaylists, nil
+	return playlists, mappedPlaylists, nil
 }
