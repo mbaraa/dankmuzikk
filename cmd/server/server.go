@@ -30,7 +30,8 @@ func StartServer(staticFS embed.FS) error {
 	playlistRepo := db.NewBaseDB[models.Playlist](dbConn)
 	playlistOwnersRepo := db.NewBaseDB[models.PlaylistOwner](dbConn)
 
-	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo)
+	downloadService := download.New(songRepo)
+	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, downloadService)
 
 	jwtUtil := jwt.NewJWTImpl()
 
@@ -42,20 +43,21 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
 	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil)
-	pagesHandler.HandleFunc("/", gHandler.NoAuthPage(pagesRouter.HandleHomePage))
+	pagesHandler.HandleFunc("/", gHandler.OptionalAuthPage(pagesRouter.HandleHomePage))
 	pagesHandler.HandleFunc("/signup", gHandler.AuthPage(pagesRouter.HandleSignupPage))
 	pagesHandler.HandleFunc("/login", gHandler.AuthPage(pagesRouter.HandleLoginPage))
 	pagesHandler.HandleFunc("/profile", gHandler.AuthPage(pagesRouter.HandleProfilePage))
 	pagesHandler.HandleFunc("/about", gHandler.NoAuthPage(pagesRouter.HandleAboutPage))
 	pagesHandler.HandleFunc("/playlists", gHandler.AuthPage(pagesRouter.HandlePlaylistsPage))
+	pagesHandler.HandleFunc("/playlist/{playlist_id}", gHandler.AuthPage(pagesRouter.HandleSinglePlaylistPage))
 	pagesHandler.HandleFunc("/privacy", gHandler.NoAuthPage(pagesRouter.HandlePrivacyPage))
-	pagesHandler.HandleFunc("/search", gHandler.NoAuthPage(pagesRouter.HandleSearchResultsPage(&search.ScraperSearch{})))
+	pagesHandler.HandleFunc("/search", gHandler.OptionalAuthPage(pagesRouter.HandleSearchResultsPage(&search.ScraperSearch{})))
 
 	///////////// APIs /////////////
 
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
-	songDownloadApi := apis.NewDownloadHandler(*download.New(songRepo))
+	songDownloadApi := apis.NewDownloadHandler(downloadService)
 	playlistsApi := apis.NewPlaylistApi(playlistsService)
 
 	apisHandler := http.NewServeMux()
@@ -68,6 +70,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
 	apisHandler.HandleFunc("GET /song/download", songDownloadApi.HandleDownloadSong)
+	apisHandler.HandleFunc("GET /song/download/queue", songDownloadApi.HandleDownloadSongToQueue)
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
 
 	applicationHandler := http.NewServeMux()

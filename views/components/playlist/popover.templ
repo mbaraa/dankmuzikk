@@ -1,11 +1,14 @@
 package playlist
 
-import "fmt"
+import (
+	"fmt"
+	"dankmuzikk/entities"
+)
 
-templ PlaylistsPopover(buttonChild templ.Component, index int) {
+templ PlaylistsPopover(index int, playlists map[string]entities.Playlist) {
 	<div class={ "popover-container", "relative" }>
 		<button onClick={ toggleTheThing(index) } class={ "popover-trigger" }>
-			@buttonChild
+			<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
 		</button>
 		<div
 			class={
@@ -15,13 +18,17 @@ templ PlaylistsPopover(buttonChild templ.Component, index int) {
 			}
 		>
 			<ul>
-				{ fmt.Sprint(index) }
-				<li>Work Muzikk</li>
-				<li>Hyper Work Muzikk</li>
-				<li>Food Muzikk</li>
-				<li>Morning Muzikk</li>
-				<li>Night Muzikk</li>
-				<li>Muzikk to watch cats to under the chemtrails over the country club</li>
+				if playlists == nil {
+					<p>
+						No playlists were found
+					</p>
+				} else {
+					for songYtId, playlist := range playlists {
+						<li>
+							{ songYtId }: { playlist.PublicId }, { playlist.Title }
+						</li>
+					}
+				}
 			</ul>
 		</div>
 	</div>

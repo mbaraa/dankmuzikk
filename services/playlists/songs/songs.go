@@ -25,18 +25,19 @@ func New(
 // AddSongToPlaylist adds a given song to the given playlist,
 // checks if the actual song and playlist exist then adds the song to the given playlist,
 // and returns an occurring error.
-func (s *Service) AddSongToPlaylist(songId, playlistId uint) error {
+// TODO: check playlist's owner :)
+func (s *Service) AddSongToPlaylist(songId uint, playlistPubId string) error {
 	err := s.songRepo.Exists(songId)
 	if err != nil {
 		return err
 	}
-	err = s.playlistRepo.Exists(playlistId)
+	playlist, err := s.playlistRepo.GetByConds("public_id = ?", playlistPubId)
 	if err != nil {
 		return err
 	}
 
 	return s.repo.Add(&models.PlaylistSong{
-		PlaylistId: playlistId,
+		PlaylistId: playlist[0].Id,
 		SongId:     songId,
 	})
 }
@@ -44,17 +45,18 @@ func (s *Service) AddSongToPlaylist(songId, playlistId uint) error {
 // RemoveSongFromPlaylist removes a given song from the given playlist,
 // checks if the actual song and playlist exist then removes the song to the given playlist,
 // and returns an occurring error.
-func (s *Service) RemoveSongFromPlaylist(songId, playlistId uint) error {
+// TODO: check playlist's owner :)
+func (s *Service) RemoveSongFromPlaylist(songId uint, playlistPubId string) error {
 	err := s.songRepo.Exists(songId)
 	if err != nil {
 		return err
 	}
-	err = s.playlistRepo.Exists(playlistId)
+	playlist, err := s.playlistRepo.GetByConds("public_id = ?", playlistPubId)
 	if err != nil {
 		return err
 	}
 
 	return s.
 		repo.
-		Delete("playlist_id = ? AND song_id = ?", playlistId, songId)
+		Delete("playlist_id = ? AND song_id = ?", playlist[0].Id, songId)
 }

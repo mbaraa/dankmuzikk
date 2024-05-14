@@ -4,23 +4,20 @@ import (
 	"dankmuzikk/views/layouts"
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/components/playlist"
+	"dankmuzikk/entities"
 )
 
 type SearchResult = search.Result
 
-templ SearchResults(isMobile bool, themeName string, results []SearchResult) {
-	@layouts.Default(isMobile, themeName, searchResults(results))
+templ SearchResults(isMobile bool, themeName string, results []SearchResult, playlists map[string]entities.Playlist) {
+	@layouts.Default(isMobile, themeName, searchResults(results, playlists))
 }
 
-templ SearchResultsNoReload(results []SearchResult) {
-	@searchResults(results)
+templ SearchResultsNoReload(results []SearchResult, playlists map[string]entities.Playlist) {
+	@searchResults(results, playlists)
 }
 
-templ addToPlayListButton() {
-	<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
-}
-
-templ searchResults(results []SearchResult) {
+templ searchResults(results []SearchResult, playlists map[string]entities.Playlist) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",  "bg-black-trans-100", "rounded-md",
@@ -71,7 +68,7 @@ templ searchResults(results []SearchResult) {
 					<!-- actions -->
 					<div class={ "w-[30px]", "h-[30px]", "relative" }>
 						<!-- TODO: Add add to playlist action -->
-						@playlist.PlaylistsPopover(addToPlayListButton(), idx)
+						@playlist.PlaylistsPopover(idx, playlists)
 					</div>
 				</div>
 			}

@@ -18,6 +18,10 @@ import (
 	_ "github.com/a-h/templ"
 )
 
+const (
+	notFoundMessage = "🤷‍♂️ I have no idea about what you requested!"
+)
+
 type pagesHandler struct {
 	profileRepo      db.GetterRepo[models.Profile]
 	playlistsService *playlists.Service
@@ -55,7 +59,7 @@ func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
+		w.Write([]byte(notFoundMessage))
 		return
 	}
 
@@ -69,6 +73,33 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	pages.Playlists(p.isMobile(r), p.getTheme(r), playlists).Render(context.Background(), w)
+}
+
+func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte(notFoundMessage))
+		return
+	}
+
+	playlistPubId := r.PathValue("playlist_id")
+	if playlistPubId == "" {
+		w.Write([]byte(notFoundMessage))
+		return
+	}
+
+	playlist, err := p.playlistsService.Get(playlistPubId, profileId)
+	if err != nil {
+		w.Write([]byte(notFoundMessage))
+		return
+	}
+	_ = playlist
+
+	if handlers.IsNoReloadPage(r) {
+		// pages.PlaylistsNoReload(playlists).Render(context.Background(), w)
+		return
+	}
+	// pages.Playlists(p.isMobile(r), p.getTheme(r), playlists).Render(context.Background(), w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
@@ -109,11 +140,30 @@ func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.Han
 			log.Errorln(err)
 			return
 		}
+
+		songs := make([]entities.Song, len(results))
+		for i, result := range results {
+			songs[i] = entities.Song{
+				YtId:         result.Id,
+				Title:        result.Title,
+				Artist:       result.ChannelTitle,
+				ThumbnailUrl: result.ThumbnailUrl,
+				Duration:     result.Duration,
+			}
+		}
+
+		var mappedPlaylists map[string]entities.Playlist
+		profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+		if profileIdCorrect {
+			log.Info("downloading songs from search")
+			mappedPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(songs, profileId)
+		}
+
 		if handlers.IsNoReloadPage(r) {
-			pages.SearchResultsNoReload(results).Render(context.Background(), w)
+			pages.SearchResultsNoReload(results, mappedPlaylists).Render(context.Background(), w)
 			return
 		}
-		pages.SearchResults(p.isMobile(r), p.getTheme(r), results).Render(context.Background(), w)
+		pages.SearchResults(p.isMobile(r), p.getTheme(r), results, mappedPlaylists).Render(context.Background(), w)
 	}
 }
 

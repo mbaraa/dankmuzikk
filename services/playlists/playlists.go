@@ -4,6 +4,7 @@ import (
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
 	"dankmuzikk/models"
+	"dankmuzikk/services/youtube/download"
 	"strings"
 
 	"github.com/google/uuid"
@@ -14,14 +15,16 @@ import (
 type Service struct {
 	repo               db.UnsafeCRUDRepo[models.Playlist]
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner]
+	downloadService    *download.Service
 }
 
 // New accepts a playlist repo, a playlist pwners, and returns a new instance to the playlists service.
 func New(
 	repo db.UnsafeCRUDRepo[models.Playlist],
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner],
+	downloadService *download.Service,
 ) *Service {
-	return &Service{repo, playlistOwnersRepo}
+	return &Service{repo, playlistOwnersRepo, downloadService}
 }
 
 // CreatePlaylist creates a new playlist with with provided details for the given account's profile.
@@ -183,4 +186,50 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 	}
 
 	return playlists, nil
+}
+
+func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) (map[string]entities.Playlist, error) {
+	var dbPlaylists []models.Playlist
+	err := p.
+		repo.
+		GetDB().
+		Model(&models.Profile{
+			Id: ownerId,
+		}).
+		Preload("Songs").
+		Select("id", "public_id", "title").
+		Association("Playlist").
+		Find(&dbPlaylists)
+
+	if err != nil {
+		return nil, err
+	}
+
+	mappedPlaylists := make(map[string]entities.Playlist)
+	for _, playlist := range dbPlaylists {
+		for _, song := range playlist.Songs {
+			mappedPlaylists[song.YtId] = entities.Playlist{
+				PublicId: playlist.PublicId,
+				Title:    playlist.Title,
+			}
+		}
+	}
+
+	songRequests := make([]entities.SongDownloadRequest, len(songs))
+	for i, song := range songs {
+		songRequests[i] = entities.SongDownloadRequest{
+			Id:           song.YtId,
+			ThumbnailUrl: song.ThumbnailUrl,
+			Title:        song.Title,
+			Artist:       song.Artist,
+			Duration:     song.Duration,
+		}
+	}
+
+	err = p.downloadService.DownloadYoutubeSongQueueMulti(songRequests)
+	if err != nil {
+		return nil, err
+	}
+
+	return mappedPlaylists, nil
 }
