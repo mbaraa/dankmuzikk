@@ -1,0 +1,22 @@
+name: rex-deploy
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - non-existent
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  rex-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: rex-7567-e27
+        uses: mbaraa/rex-action@v1.6
+        with:
+          server-url: ${{ secrets.REX_SERVER }}
+          token: ${{ secrets.REX_KEY }}
+          repo-name: dankmuzikk-beta
