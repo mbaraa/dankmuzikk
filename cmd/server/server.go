@@ -33,7 +33,7 @@ func StartServer(staticFS embed.FS) error {
 	playlistSongssRepo := db.NewBaseDB[models.PlaylistSong](dbConn)
 
 	downloadService := download.New(songRepo)
-	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, downloadService)
+	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongssRepo, downloadService)
 	songsService := songs.New(playlistSongssRepo, songRepo, playlistRepo)
 
 	jwtUtil := jwt.NewJWTImpl()
