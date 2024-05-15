@@ -27,8 +27,9 @@ templ justPlaylist(pl entities.Playlist) {
 					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
 					<button
 						type="button"
+						title="Play playlist"
 						onClick={ playPlaylist(pl) }
-					>Play</button>
+					><img src="/static/images/play-playlist-icon.svg" alt="Play"/></button>
 				</div>
 				<div id="playlists-listing">
 					if pl.Songs == nil || len(pl.Songs) == 0 {
