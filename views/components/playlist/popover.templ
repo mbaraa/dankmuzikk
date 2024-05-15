@@ -20,7 +20,7 @@ templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, 
 			<h2 class={ "text-lg" }>Save this song to...</h2>
 			<div class={ "my-2" }></div>
 			<ul class={ "flex", "flex-col", "gap-y-2" }>
-				if playlists == nil {
+				if playlists == nil || len(playlists) == 0 {
 					<p>
 						No playlists were found
 					</p>
