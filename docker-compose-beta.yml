@@ -16,56 +16,11 @@ services:
       - ./google-service-account.json:/app/google-service-account.json
       - dankuploads-dir:/app/_serve
     networks:
-      - danknetwork-beta
-    depends_on:
-      - dank-db-beta
-      - yt-scraper-beta
-      - yt-dl-beta
-
-  dank-db-beta:
-    image: "mariadb:10.8"
-    container_name: "dank-db-beta"
-    restart: "always"
-    environment:
-      MARIADB_ROOT_PASSWORD: "previetcomrade"
-      MARIADB_DATABASE: "dankabase"
-    ports:
-      - 3306
-    volumes:
-      - db-config:/etc/mysql
-      - db-data:/var/lib/mysql
-    networks:
-      - danknetwork-beta
-
-  yt-scraper-beta:
-    container_name: "yt-scraper-beta"
-    build:
-      context: ./ytscraper
-    image: "yt-scraper-beta"
-    restart: "always"
-    ports:
-      - 8080
-    networks:
-      - danknetwork-beta
-
-  yt-dl-beta:
-    container_name: "ytdl-beta"
-    build:
-      context: ./ytdl
-    image: "ytdl-beta"
-    restart: "always"
-    ports:
-      - 8000
-    stdin_open: true
-    env_file:
-      - .env.docker
-    volumes:
-      - dankuploads-dir:/app/_serve
-    networks:
-      - danknetwork-beta
+      - danknetwork
 
 networks:
-  danknetwork-beta: {}
+  danknetwork:
+    external: true
 
 volumes:
   dankuploads-dir:
@@ -73,16 +28,4 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./_serve/
-  db-config:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./_db/etc/
-  db-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./_db/var/
+      device: /mnt/vault/blobs/dankmuzikk/muzikk/
