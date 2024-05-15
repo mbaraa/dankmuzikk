@@ -16,6 +16,7 @@ import (
 type Service struct {
 	repo               db.UnsafeCRUDRepo[models.Playlist]
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner]
+	playlistSongsRepo  db.UnsafeCRUDRepo[models.PlaylistSong]
 	downloadService    *download.Service
 }
 
@@ -23,9 +24,10 @@ type Service struct {
 func New(
 	repo db.UnsafeCRUDRepo[models.Playlist],
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner],
+	playlistSongsRepo db.UnsafeCRUDRepo[models.PlaylistSong],
 	downloadService *download.Service,
 ) *Service {
-	return &Service{repo, playlistOwnersRepo, downloadService}
+	return &Service{repo, playlistOwnersRepo, playlistSongsRepo, downloadService}
 }
 
 // CreatePlaylist creates a new playlist with with provided details for the given account's profile.
@@ -145,6 +147,27 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
 	}
 
+	var playlistSongs []models.PlaylistSong
+	err = p.
+		playlistSongsRepo.
+		GetDB().
+		Model(new(models.PlaylistSong)).
+		Where("playlist_id = ?", dbPlaylists[0].Id).
+		Select("song_id", "play_times", "votes").
+		Find(&playlistSongs).
+		Error
+	if err != nil {
+		return entities.Playlist{}, err
+	}
+	if len(playlistSongs) == 0 {
+		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
+	}
+
+	mappedPlaylistSongsToPlaysSuka := make(map[uint]int)
+	for _, playlistSong := range playlistSongs {
+		mappedPlaylistSongsToPlaysSuka[playlistSong.SongId] = playlistSong.PlayTimes
+	}
+
 	songs := make([]entities.Song, len(dbPlaylists[0].Songs))
 	for i, song := range dbPlaylists[0].Songs {
 		songs[i] = entities.Song{
@@ -153,6 +176,7 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 			Artist:       song.Artist,
 			ThumbnailUrl: song.ThumbnailUrl,
 			Duration:     song.Duration,
+			PlayTimes:    mappedPlaylistSongsToPlaysSuka[song.Id],
 		}
 	}
 

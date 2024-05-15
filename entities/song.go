@@ -6,4 +6,5 @@ type Song struct {
 	Artist       string `json:"artist"`
 	ThumbnailUrl string `json:"thumbnail_url"`
 	Duration     string `json:"duration"`
+	PlayTimes    int    `json:"play_times"`
 }
