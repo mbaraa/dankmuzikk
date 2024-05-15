@@ -84,6 +84,7 @@ class PlaylistPlayer {
       songToPlay.artist,
       songToPlay.duration,
     );
+    this.#updateSongPlays();
   }
 
   next(shuffle = false, loop = false) {
@@ -107,6 +108,7 @@ class PlaylistPlayer {
       songToPlay.artist,
       songToPlay.duration,
     );
+    this.#updateSongPlays();
   }
 
   previous(shuffle = false, loop = false) {
@@ -126,6 +128,20 @@ class PlaylistPlayer {
       songToPlay.artist,
       songToPlay.duration,
     );
+    this.#updateSongPlays();
+  }
+
+  async #updateSongPlays() {
+    await fetch(
+      "/api/increment-song-plays?" +
+        new URLSearchParams({
+          "song-id": this.#currentPlaylist.songs[this.#currentSongIndex].yt_id,
+          "playlist-id": this.#currentPlaylist.public_id,
+        }).toString(),
+      {
+        method: "PUT",
+      },
+    ).catch((err) => console.error(err));
   }
 }
 
