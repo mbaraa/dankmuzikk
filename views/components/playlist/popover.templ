@@ -37,7 +37,7 @@ templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, 
 								),
 							}
 							hx-swap="innerHTML"
-							hx-target={ fmt.Sprintf("#song-in-playlist-%s", songId) }
+							hx-target={ fmt.Sprintf("#song-in-playlist-%s", playlist.PublicId) }
 							hx-trigger="click"
 							data-loading-target="#loading"
 							data-loading-class-remove="hidden"
@@ -51,7 +51,7 @@ templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, 
 							}
 						>
 							<div
-								id={ fmt.Sprintf("song-in-playlist-%s", songId) }
+								id={ fmt.Sprintf("song-in-playlist-%s", playlist.PublicId) }
 							>
 								<div
 									class={
