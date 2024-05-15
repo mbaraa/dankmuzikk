@@ -19,6 +19,20 @@ templ NavLink(title, imageUrl, path string) {
 	</a>
 }
 
+templ LinkContainer(path string, child templ.Component) {
+	<a
+		href={ templ.SafeURL(path) }
+		class={ "cursor-pointer" }
+		hx-get={ path + "?no_reload=true" }
+		hx-target="#main-contents"
+		hx-swap="innerHTML"
+		hx-trigger="click,submit"
+		onClick={ updateHref(path) }
+	>
+		@child
+	</a>
+}
+
 script updateHref(path string) {
     const prevPath = window.location.href.substring((window.location.protocol+"//"+window.location.host).length);
     window.location.prevPath = prevPath;
