@@ -46,7 +46,7 @@ templ justPlaylist(pl entities.Playlist) {
 										"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5", "cursor-pointer",
 										"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-5",
 									}
-									onClick={ playSong(song.YtId, song.ThumbnailUrl, song.Title, song.Artist, song.Duration) }
+									onClick={ playSongFromPlaylist(song.YtId, pl) }
 								>
 									<div
 										class={
@@ -71,4 +71,8 @@ css songThumb(url string) {
 
 script playPlaylist(playlist entities.Playlist) {
     window.Player.playPlaylist(playlist)
+}
+
+script playSongFromPlaylist(songId string, playlist entities.Playlist) {
+    window.Player.playSongFromPlaylist(songId, playlist)
 }

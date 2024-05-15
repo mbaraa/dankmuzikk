@@ -14,8 +14,7 @@ const playerButtonsIcons = {
 const loopModes = [
   { icon: "loop-off-icon.svg", mode: "OFF" },
   { icon: "loop-once-icon.svg", mode: "ONCE" },
-  // TODO: implement this
-  //{ icon: "loop-icon.svg", mode: "ALL"},
+  { icon: "loop-icon.svg", mode: "ALL" },
 ];
 
 const playPauseToggleEl = document.getElementById("play"),
@@ -65,7 +64,16 @@ class PlaylistPlayer {
     this.#currentSongIndex = 0;
   }
 
-  start() {
+  /**
+   * @param {string} songYtIt
+   */
+  play(songYtIt = "") {
+    this.#currentSongIndex = this.#currentPlaylist.songs.findIndex(
+      (song) => song.yt_id === songYtIt,
+    );
+    if (this.#currentSongIndex < 0) {
+      this.#currentSongIndex = 0;
+    }
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
     playYTSong(
       songToPlay.yt_id,
@@ -77,10 +85,17 @@ class PlaylistPlayer {
   }
 
   next(shuffle = false, loop = false) {
-    if (this.#currentSongIndex + 1 > this.#currentPlaylist.songs.length) {
+    if (
+      !loop &&
+      this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+    ) {
       return;
     }
-    this.#currentSongIndex++;
+
+    this.#currentSongIndex =
+      loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+        ? 0
+        : this.#currentSongIndex + 1;
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
     playYTSong(
       songToPlay.yt_id,
@@ -92,10 +107,13 @@ class PlaylistPlayer {
   }
 
   previous(shuffle = false, loop = false) {
-    if (this.#currentSongIndex - 1 < 0) {
+    if (!loop && this.#currentSongIndex - 1 < 0) {
       return;
     }
-    this.#currentSongIndex++;
+    this.#currentSongIndex =
+      loop && this.#currentSongIndex - 1 < 0
+        ? this.#currentPlaylist.songs.length - 1
+        : this.#currentSongIndex - 1;
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
     playYTSong(
       songToPlay.yt_id,
@@ -112,7 +130,16 @@ class PlaylistPlayer {
  */
 function playPlaylist(playlist) {
   currentPlaylistPlayer = new PlaylistPlayer(playlist);
-  currentPlaylistPlayer.start();
+  currentPlaylistPlayer.play();
+}
+
+/**
+ * @param {string} songId
+ * @param {Playlist} playlist
+ */
+function playSongFromPlaylist(songId, playlist) {
+  currentPlaylistPlayer = new PlaylistPlayer(playlist);
+  currentPlaylistPlayer.play(songId);
 }
 
 /**
@@ -189,14 +216,20 @@ function nexMuzikk() {
   if (!currentPlaylistPlayer) {
     return;
   }
-  currentPlaylistPlayer.next();
+  currentPlaylistPlayer.next(
+    shuffleSongs,
+    loopModes[currentLoopIdx].mode === "ALL",
+  );
 }
 
 function previousMuzikk() {
   if (!currentPlaylistPlayer) {
     return;
   }
-  currentPlaylistPlayer.previous();
+  currentPlaylistPlayer.previous(
+    shuffleSongs,
+    loopModes[currentLoopIdx].mode === "ALL",
+  );
 }
 
 function playMuzikk() {
@@ -348,4 +381,5 @@ window.Player = {
   showPlayer,
   hidePlayer,
   playPlaylist,
+  playSongFromPlaylist,
 };
