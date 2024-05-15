@@ -1,11 +1,16 @@
 package header
 
-import "dankmuzikk/views/components/search"
-import "dankmuzikk/views/components/themeswitch"
-import "dankmuzikk/views/components/navlink"
+import (
+	"dankmuzikk/views/components/search"
+	"dankmuzikk/views/components/themeswitch"
+	"dankmuzikk/views/components/navlink"
+)
 
 templ mobileHeader() {
 	<div class={ "md:hidden", "h-[250px]", "", "flex", "flex-col", "justify-between" }>
+		<div class={ "absolute", "top-[15px]", "right-[15px]" }>
+			@navlink.NavLink("About", "/static/images/nav-about-icon.svg", "/about")
+		</div>
 		<div class={ "font-Ubuntu", "text-white" }>
 			<a href="/" class={ "flex", "justify-center", "items-center", "flex-col", "gap-y-3", "h-min" }>
 				<img
