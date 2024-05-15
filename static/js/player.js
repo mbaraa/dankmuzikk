@@ -393,7 +393,10 @@ audioPlayerEl.addEventListener("ended", () => {
     case "ALL":
       if (currentPlaylistPlayer) {
         currentPlaylistPlayer.next(shuffleSongs, true);
+        return;
       }
+      stopMuzikk();
+      playMuzikk();
       break;
   }
 });
