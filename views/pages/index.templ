@@ -1,6 +1,9 @@
 package pages
 
-import "dankmuzikk/views/layouts"
+import (
+	"dankmuzikk/views/layouts"
+	"dankmuzikk/views/components/navlink"
+)
 
 templ Index(isMobile bool, themeName string) {
 	@layouts.Default(isMobile, themeName, main())
@@ -11,7 +14,25 @@ templ IndexNoReload() {
 }
 
 templ main() {
-	<main class="w-full">
-		yooo hooo
+	<main class={ "w-full", "h-full", "flex", "flex-col", "justify-center", "items-center" }>
+		<div class={ "flex", "justify-center" }>
+			<section
+				class={
+					"w-full", "md:w-2/3", "bg-black-trans-100", "rounded-xl",
+					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
+					"", "text-white",
+				}
+			>
+				<h2 class={ "text-xl" }>What should you expect?</h2>
+				<p>
+					DankMuzikk is music player that plays music from YouTube but without actually using YouTube, start by typing a song's name into the search bar.
+					<br/>
+					More details&nbsp;
+					@navlink.NavLink("here", "", "/about")
+					<br/>
+					Happy danking 🎉✨
+				</p>
+			</section>
+		</div>
 	</main>
 }
