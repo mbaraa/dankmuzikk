@@ -25,7 +25,10 @@ templ justPlaylist(pl entities.Playlist) {
 			>
 				<div class={ "flex", "justify-between", "w-full" }>
 					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
-					<button type="button">Play</button>
+					<button
+						type="button"
+						onClick={ playPlaylist(pl) }
+					>Play</button>
 				</div>
 				<div id="playlists-listing">
 					if pl.Songs == nil || len(pl.Songs) == 0 {
@@ -64,4 +67,8 @@ templ justPlaylist(pl entities.Playlist) {
 
 css songThumb(url string) {
 	background-image: { url };
+}
+
+script playPlaylist(playlist entities.Playlist) {
+    window.Player.playPlaylist(playlist)
 }
