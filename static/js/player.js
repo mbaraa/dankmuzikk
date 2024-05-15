@@ -47,6 +47,7 @@ let currentPlaylistPlayer;
  * @property {string} duration
  * @property {string} thumbnail_url
  * @property {string} yt_id
+ * @property {number} play_times
  *
  * @typedef {object} Playlist
  * @property {string} public_id
