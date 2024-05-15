@@ -8,6 +8,8 @@ const playerButtonsIcons = {
   loop: `<img class="w-[40px]" src="/static/images/loop-icon.svg" alt="Loop"/>`,
   loopOnce: `<img class="w-[40px]" src="/static/images/loop-once-icon.svg" alt="Loop Once"/>`,
   loopOff: `<img class="w-[40px]" src="/static/images/loop-off-icon.svg" alt="Loop Off"/>`,
+  shuffle: `<img src="/static/images/shuffle-icon.svg" alt="Shuffle"/>`,
+  shuffleOff: `<img src="/static/images/shuffle-off-icon.svg" alt="Shuffle"/>`,
   loading: `<div class="loader !h-10 !w-10"></div>`,
 };
 
@@ -92,8 +94,9 @@ class PlaylistPlayer {
       return;
     }
 
-    this.#currentSongIndex =
-      loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+    this.#currentSongIndex = shuffle
+      ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
+      : loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
         ? 0
         : this.#currentSongIndex + 1;
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
@@ -110,8 +113,9 @@ class PlaylistPlayer {
     if (!loop && this.#currentSongIndex - 1 < 0) {
       return;
     }
-    this.#currentSongIndex =
-      loop && this.#currentSongIndex - 1 < 0
+    this.#currentSongIndex = shuffle
+      ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
+      : loop && this.#currentSongIndex - 1 < 0
         ? this.#currentPlaylist.songs.length - 1
         : this.#currentSongIndex - 1;
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
@@ -255,6 +259,19 @@ function playPauseToggle() {
   }
 }
 
+function toggleShuffle() {
+  if (!currentPlaylistPlayer) {
+    window.alert("Shuffling can't be enabled for a single song!");
+    return;
+  }
+  if (shuffleSongs) {
+    shuffleEl.innerHTML = playerButtonsIcons.shuffleOff;
+  } else {
+    shuffleEl.innerHTML = playerButtonsIcons.shuffle;
+  }
+  shuffleSongs = !shuffleSongs;
+}
+
 async function fetchMusic(videoData) {
   playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
   document.body.style.cursor = "progress";
@@ -313,6 +330,7 @@ function hidePlayer() {
 playPauseToggleEl.addEventListener("click", playPauseToggle);
 nextEl.addEventListener("click", nexMuzikk);
 prevEl.addEventListener("click", previousMuzikk);
+shuffleEl.addEventListener("click", toggleShuffle);
 
 loopEl.addEventListener("click", (event) => {
   currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
