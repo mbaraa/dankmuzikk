@@ -54,3 +54,65 @@ func (d *Service) DownloadYoutubeSong(req entities.SongDownloadRequest) error {
 
 	return nil
 }
+
+// DownloadYoutubeSongQueue same as DownloadYoutubeSong but it downloads the song in the background
+func (d *Service) DownloadYoutubeSongQueue(req entities.SongDownloadRequest) error {
+	path := fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, req.Id)
+	if _, err := os.Stat(path); err == nil {
+		log.Infof("The song with id %s is already downloaded\n", req.Id)
+		return nil
+	}
+
+	resp, err := http.Get(fmt.Sprintf("%s/download/queue/%s", config.Env().YouTube.DownloaderUrl, req.Id))
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("something went wrong when downloading a song; id: " + req.Id)
+	}
+
+	err = d.repo.Add(&models.Song{
+		YtId:         req.Id,
+		Title:        req.Title,
+		Artist:       req.Artist,
+		ThumbnailUrl: req.ThumbnailUrl,
+		Duration:     req.Duration,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DownloadYoutubeSongsMetadata same as DownloadYoutubeSong but it downloads the song in the background
+func (d *Service) DownloadYoutubeSongsMetadata(req []entities.SongDownloadRequest) error {
+	newSongs := make([]*models.Song, 0)
+	for _, song := range req {
+		path := fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, song.Id)
+		if _, err := os.Stat(path); err == nil {
+			log.Infof("The song with id %s is already downloaded\n", song.Id)
+			continue
+		}
+
+		newSongs = append(newSongs, &models.Song{
+			YtId:         song.Id,
+			Title:        song.Title,
+			Artist:       song.Artist,
+			ThumbnailUrl: song.ThumbnailUrl,
+			Duration:     song.Duration,
+		})
+	}
+
+	// adding the songs one at a time, so that if a song exists, it won't ruin the batch!
+	for _, newSong := range newSongs {
+		err := d.repo.Add(newSong)
+		if errors.Is(err, db.ErrRecordExists) {
+			log.Warningln(err)
+		} else if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

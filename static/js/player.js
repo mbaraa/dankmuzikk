@@ -14,8 +14,7 @@ const playerButtonsIcons = {
 const loopModes = [
   { icon: "loop-off-icon.svg", mode: "OFF" },
   { icon: "loop-once-icon.svg", mode: "ONCE" },
-  // TODO: implement this
-  //{ icon: "loop-icon.svg", mode: "ALL"},
+  { icon: "loop-icon.svg", mode: "ALL" },
 ];
 
 const playPauseToggleEl = document.getElementById("play"),
@@ -32,7 +31,116 @@ const playPauseToggleEl = document.getElementById("play"),
   audioPlayerEl = document.getElementById("audio-player"),
   muzikkContainerEl = document.getElementById("muzikk");
 
+let shuffleSongs = false;
 let currentLoopIdx = 0;
+/**
+ * @type{PlaylistPlayer}
+ */
+let currentPlaylistPlayer;
+
+/**
+ * @typedef {object} Song
+ * @property {string} title
+ * @property {string} artist
+ * @property {string} duration
+ * @property {string} thumbnail_url
+ * @property {string} yt_id
+ *
+ * @typedef {object} Playlist
+ * @property {string} public_id
+ * @property {string} title
+ * @property {string} songs_count
+ * @property {Song[]} songs
+ */
+class PlaylistPlayer {
+  #currentPlaylist;
+  #currentSongIndex;
+
+  /**
+   * @param {Playlist} playlist
+   */
+  constructor(playlist) {
+    this.#currentPlaylist = playlist;
+    this.#currentSongIndex = 0;
+  }
+
+  /**
+   * @param {string} songYtIt
+   */
+  play(songYtIt = "") {
+    this.#currentSongIndex = this.#currentPlaylist.songs.findIndex(
+      (song) => song.yt_id === songYtIt,
+    );
+    if (this.#currentSongIndex < 0) {
+      this.#currentSongIndex = 0;
+    }
+    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
+    playYTSong(
+      songToPlay.yt_id,
+      songToPlay.thumbnail_url,
+      songToPlay.title,
+      songToPlay.artist,
+      songToPlay.duration,
+    );
+  }
+
+  next(shuffle = false, loop = false) {
+    if (
+      !loop &&
+      this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+    ) {
+      return;
+    }
+
+    this.#currentSongIndex =
+      loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+        ? 0
+        : this.#currentSongIndex + 1;
+    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
+    playYTSong(
+      songToPlay.yt_id,
+      songToPlay.thumbnail_url,
+      songToPlay.title,
+      songToPlay.artist,
+      songToPlay.duration,
+    );
+  }
+
+  previous(shuffle = false, loop = false) {
+    if (!loop && this.#currentSongIndex - 1 < 0) {
+      return;
+    }
+    this.#currentSongIndex =
+      loop && this.#currentSongIndex - 1 < 0
+        ? this.#currentPlaylist.songs.length - 1
+        : this.#currentSongIndex - 1;
+    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
+    playYTSong(
+      songToPlay.yt_id,
+      songToPlay.thumbnail_url,
+      songToPlay.title,
+      songToPlay.artist,
+      songToPlay.duration,
+    );
+  }
+}
+
+/**
+ * @param {Playlist} playlist
+ */
+function playPlaylist(playlist) {
+  currentPlaylistPlayer = new PlaylistPlayer(playlist);
+  currentPlaylistPlayer.play();
+}
+
+/**
+ * @param {string} songId
+ * @param {Playlist} playlist
+ */
+function playSongFromPlaylist(songId, playlist) {
+  currentPlaylistPlayer = new PlaylistPlayer(playlist);
+  currentPlaylistPlayer.play(songId);
+}
 
 /**
  * @param {{id: string, artist: string, thumbnailUrl: string, title: string}} videoData
@@ -96,12 +204,32 @@ function setMediaSession(videoData) {
   });
 
   navigator.mediaSession.setActionHandler("previoustrack", () => {
-    // previous();
+    previousMuzikk();
   });
 
   navigator.mediaSession.setActionHandler("nexttrack", () => {
-    // next();
+    nexMuzikk();
   });
+}
+
+function nexMuzikk() {
+  if (!currentPlaylistPlayer) {
+    return;
+  }
+  currentPlaylistPlayer.next(
+    shuffleSongs,
+    loopModes[currentLoopIdx].mode === "ALL",
+  );
+}
+
+function previousMuzikk() {
+  if (!currentPlaylistPlayer) {
+    return;
+  }
+  currentPlaylistPlayer.previous(
+    shuffleSongs,
+    loopModes[currentLoopIdx].mode === "ALL",
+  );
 }
 
 function playMuzikk() {
@@ -182,18 +310,14 @@ function hidePlayer() {
   audioPlayerEl.stopMuzikk();
 }
 
+playPauseToggleEl.addEventListener("click", playPauseToggle);
+nextEl.addEventListener("click", nexMuzikk);
+prevEl.addEventListener("click", previousMuzikk);
+
 loopEl.addEventListener("click", (event) => {
   currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
   event.target.src = "/static/images/" + loopModes[currentLoopIdx].icon;
 });
-
-playPauseToggleEl.addEventListener("click", () => {
-  playPauseToggle();
-});
-
-nextEl.addEventListener("click", () => {});
-
-prevEl.addEventListener("click", () => {});
 
 songSeekBarEl.addEventListener("change", (event) => {
   const seekTime = Number(event.target.value);
@@ -241,6 +365,9 @@ audioPlayerEl.addEventListener("ended", () => {
       playMuzikk();
       break;
     case "ALL":
+      if (currentPlaylistPlayer) {
+        currentPlaylistPlayer.next(shuffleSongs, true);
+      }
       break;
   }
 });
@@ -253,4 +380,6 @@ window.Player = {
   playYTSong,
   showPlayer,
   hidePlayer,
+  playPlaylist,
+  playSongFromPlaylist,
 };

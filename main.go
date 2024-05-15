@@ -2,6 +2,7 @@ package main
 
 import (
 	"dankmuzikk/cmd/migrator"
+	"dankmuzikk/cmd/seeder"
 	"dankmuzikk/cmd/server"
 	"dankmuzikk/log"
 	"embed"
@@ -12,6 +13,7 @@ import (
 var static embed.FS
 
 //go:generate npx tailwindcss build -i static/css/style.css -o static/css/tailwind.css -m
+//go:generate templ generate
 
 func main() {
 	var err error
@@ -20,6 +22,8 @@ func main() {
 		err = server.StartServer(static)
 	case "migrate", "migration", "theotherthing":
 		err = migrator.Migrate()
+	case "seed", "seeder", "theotherotherthing":
+		err = seeder.SeedDb()
 	}
 	if err != nil {
 		log.Fatalln(log.ErrorLevel, err)

@@ -14,7 +14,7 @@ var (
 	ErrRecordExists           = errors.New("db: record exists in table")
 )
 
-func tryWrapMySqlError(err error) error {
+func TryWrapMySqlError(err error) error {
 	if mysqlErr, ok := err.(*mysql.MySQLError); ok {
 		switch mysqlErr.Number {
 		case 1062:

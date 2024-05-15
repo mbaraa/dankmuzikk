@@ -1,19 +1,64 @@
 package pages
 
-import "dankmuzikk/views/layouts"
+import (
+	"dankmuzikk/views/layouts"
+	"dankmuzikk/entities"
+	"dankmuzikk/views/components/playlist"
+	"fmt"
+)
 
-templ Playlists(isMobile bool, themeName string) {
-	@layouts.Default(isMobile, themeName, playlists())
+templ Playlists(isMobile bool, themeName string, pls []entities.Playlist) {
+	@layouts.Default(isMobile, themeName, playlists(pls))
 }
 
-templ PlaylistsNoReload() {
-	@playlists()
+templ PlaylistsNoReload(pls []entities.Playlist) {
+	@playlists(pls)
 }
 
-templ playlists() {
-	<main class={ "w-full", "h-full" }>
-		<pre>
-			Playlists:
-		</pre>
+templ playlists(pls []entities.Playlist) {
+	<main class={ "w-full", "h-[120dvh]" }>
+		<div class={ "flex", "justify-center" }>
+			<section
+				class={
+					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl", "text-white",
+					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
+				}
+			>
+				<div class={ "flex", "justify-between", "w-full" }>
+					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Playlists</h1>
+					@playlist.NewPlaylistPlaylistsPopover()
+				</div>
+				<div id="playlists-listing">
+					if pls == nil || len(pls) == 0 {
+						<p>No playlists were found!</p>
+					} else {
+						@JustPlaylists(pls)
+					}
+				</div>
+			</section>
+		</div>
 	</main>
+}
+
+templ JustPlaylists(pls []entities.Playlist) {
+	<div
+		class={
+			"grid", "grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3", "xl:grid-cols-4", "2xl:grid-cols-5",
+			"gap-5", "lg:my-10",
+		}
+	>
+		for _, playlist := range pls {
+			<a href={ templ.SafeURL(fmt.Sprintf("/playlist/%s", playlist.PublicId)) }>
+				<div
+					class={
+						"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5",
+						"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-5",
+					}
+				>
+					<img src="/static/images/album-cover-icon.svg" class={ "lg:w-[125px]", "lg:h-[125px]" } alt=""/>
+					<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ playlist.Title }</p>
+				</div>
+			</a>
+		}
+	</div>
 }
