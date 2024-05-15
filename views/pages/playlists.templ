@@ -5,6 +5,7 @@ import (
 	"dankmuzikk/entities"
 	"dankmuzikk/views/components/playlist"
 	"fmt"
+	"dankmuzikk/views/components/navlink"
 )
 
 templ Playlists(isMobile bool, themeName string, pls []entities.Playlist) {
@@ -48,17 +49,19 @@ templ JustPlaylists(pls []entities.Playlist) {
 		}
 	>
 		for _, playlist := range pls {
-			<a href={ templ.SafeURL(fmt.Sprintf("/playlist/%s", playlist.PublicId)) }>
-				<div
-					class={
-						"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5",
-						"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-5",
-					}
-				>
-					<img src="/static/images/album-cover-icon.svg" class={ "lg:w-[125px]", "lg:h-[125px]" } alt=""/>
-					<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ playlist.Title }</p>
-				</div>
-			</a>
+			@navlink.LinkContainer(fmt.Sprintf("/playlist/%s", playlist.PublicId), singlePlaylist(playlist))
 		}
+	</div>
+}
+
+templ singlePlaylist(pl entities.Playlist) {
+	<div
+		class={
+			"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5",
+			"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-5",
+		}
+	>
+		<img src="/static/images/album-cover-icon.svg" class={ "lg:w-[125px]", "lg:h-[125px]" } alt=""/>
+		<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ pl.Title }</p>
 	</div>
 }
