@@ -141,6 +141,9 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 	if err != nil {
 		return entities.Playlist{}, err
 	}
+	if len(dbPlaylists) == 0 {
+		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
+	}
 
 	songs := make([]entities.Song, len(dbPlaylists[0].Songs))
 	for i, song := range dbPlaylists[0].Songs {
@@ -176,6 +179,9 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(dbPlaylists) == 0 {
+		return nil, ErrUnauthorizedToSeePlaylist
+	}
 
 	playlists := make([]entities.Playlist, len(dbPlaylists))
 	for i, dbPlaylist := range dbPlaylists {
@@ -189,6 +195,7 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 	return playlists, nil
 }
 
+// TODO: fix this weird ass 3 return values
 func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) ([]entities.Playlist, map[string]string, error) {
 	var dbPlaylists []models.Playlist
 	err := p.
@@ -204,6 +211,9 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 
 	if err != nil {
 		return nil, nil, err
+	}
+	if len(dbPlaylists) == 0 {
+		return nil, nil, ErrUnauthorizedToSeePlaylist
 	}
 
 	mappedPlaylists := make(map[string]string)
