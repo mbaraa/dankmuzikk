@@ -27,10 +27,10 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - [x] Web UI
 - [x] Audio player
 - [x] Accounts and Profiles
-- [ ] Playlists
+- [x] Playlists
+- [ ] Share playlists
 - [ ] Vote songs in playlists
 - [ ] Write a better YouTube scraper (or try to fix the quota thing)
-- [ ]
 - [ ] Refactor the code (never gonna happen)
 
 ## Run locally
