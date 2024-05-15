@@ -37,15 +37,15 @@ templ justPlaylist(pl entities.Playlist) {
 					} else {
 						<div
 							class={
-								"grid", "grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3", "xl:grid-cols-4", "2xl:grid-cols-5",
+								"w-full", "flex", "flex-col",
 								"gap-5", "lg:my-10",
 							}
 						>
 							for _, song := range pl.Songs {
 								<div
 									class={
-										"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5", "cursor-pointer",
-										"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-5",
+										"", "bg-white-trans-100", "rounded-[10px]", "p-2", "lg:p-5", "cursor-pointer",
+										"flex", "flex-row", "items-center", "gap-5",
 									}
 									onClick={ playSongFromPlaylist(song.YtId, pl) }
 								>
@@ -55,7 +55,16 @@ templ justPlaylist(pl entities.Playlist) {
 											songThumb(fmt.Sprintf("url(\"%s\")", song.ThumbnailUrl)), "bg-repeat", "bg-cover", "bg-center",
 										}
 									></div>
-									<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
+									<div class={ "flex", "flex-col", "lg:gap-2" }>
+										<p class={ "text-lg", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
+										<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Artist }</p>
+										<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
+										if song.PlayTimes == 1 {
+											<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
+										} else if song.PlayTimes > 1 {
+											<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
+										}
+									</div>
 								</div>
 							}
 						</div>
