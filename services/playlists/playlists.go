@@ -7,6 +7,7 @@ import (
 	"dankmuzikk/services/youtube/download"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -153,7 +154,7 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		GetDB().
 		Model(new(models.PlaylistSong)).
 		Where("playlist_id = ?", dbPlaylists[0].Id).
-		Select("song_id", "play_times", "votes").
+		Select("song_id", "play_times", "votes", "created_at").
 		Find(&playlistSongs).
 		Error
 	if err != nil {
@@ -164,8 +165,10 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 	}
 
 	mappedPlaylistSongsToPlaysSuka := make(map[uint]int)
+	mappedPlaylistSongsToCreatedAtSuka := make(map[uint]time.Time)
 	for _, playlistSong := range playlistSongs {
 		mappedPlaylistSongsToPlaysSuka[playlistSong.SongId] = playlistSong.PlayTimes
+		mappedPlaylistSongsToCreatedAtSuka[playlistSong.SongId] = playlistSong.CreatedAt
 	}
 
 	songs := make([]entities.Song, len(dbPlaylists[0].Songs))
@@ -177,6 +180,7 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 			ThumbnailUrl: song.ThumbnailUrl,
 			Duration:     song.Duration,
 			PlayTimes:    mappedPlaylistSongsToPlaysSuka[song.Id],
+			AddedAt:      mappedPlaylistSongsToCreatedAtSuka[song.Id].Format("January 2nd 2006"),
 		}
 	}
 
