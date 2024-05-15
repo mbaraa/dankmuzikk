@@ -28,4 +28,4 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/vault/blobs/dankmuzikk/muzikk/
+      device: ./_serve/
