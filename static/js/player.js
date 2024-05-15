@@ -203,7 +203,7 @@ function setMediaSession(videoData) {
   });
 
   navigator.mediaSession.setActionHandler("seekto", (a) => {
-    const seekTime = Number(a.seekOffset);
+    const seekTime = Number(a.seekTime);
     audioPlayerEl.currentTime = seekTime;
   });
 
@@ -213,6 +213,10 @@ function setMediaSession(videoData) {
 
   navigator.mediaSession.setActionHandler("nexttrack", () => {
     nexMuzikk();
+  });
+
+  navigator.mediaSession.setActionHandler("stop", () => {
+    stopMuzikk();
   });
 }
 
