@@ -60,7 +60,7 @@ func StartServer(staticFS embed.FS) error {
 
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
-	songDownloadApi := apis.NewDownloadHandler(downloadService)
+	songDownloadApi := apis.NewDownloadHandler(downloadService, songsService)
 	playlistsApi := apis.NewPlaylistApi(playlistsService, songsService)
 
 	apisHandler := http.NewServeMux()
@@ -76,6 +76,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /song/download/queue", songDownloadApi.HandleDownloadSongToQueue)
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
 	apisHandler.HandleFunc("PUT /toggle-song-in-playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
+	apisHandler.HandleFunc("PUT /increment-song-plays", gHandler.AuthApi(songDownloadApi.HandleIncrementSongPlaysInPlaylist))
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)

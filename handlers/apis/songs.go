@@ -3,6 +3,7 @@ package apis
 import (
 	"dankmuzikk/entities"
 	"dankmuzikk/log"
+	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
 	"errors"
 	"net/http"
@@ -10,11 +11,32 @@ import (
 )
 
 type songDownloadHandler struct {
-	service *download.Service
+	service      *download.Service
+	songsService *songs.Service
 }
 
-func NewDownloadHandler(service *download.Service) *songDownloadHandler {
-	return &songDownloadHandler{service}
+func NewDownloadHandler(service *download.Service, songsService *songs.Service) *songDownloadHandler {
+	return &songDownloadHandler{service, songsService}
+}
+
+func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+	songId := r.URL.Query().Get("song-id")
+	if songId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err := s.songsService.IncrementSongPlays(songId, playlistId)
+	if err != nil {
+		log.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *songDownloadHandler) HandleDownloadSong(w http.ResponseWriter, r *http.Request) {
