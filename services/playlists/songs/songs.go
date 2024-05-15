@@ -8,18 +8,18 @@ import (
 // Service represents songs in platlists management service,
 // where it adds and deletes songs to and from playlists
 type Service struct {
-	repo         db.CRUDRepo[models.PlaylistSong]
-	songRepo     db.GetterRepo[models.Song]
-	playlistRepo db.GetterRepo[models.Playlist]
+	playlistSongRepo db.UnsafeCRUDRepo[models.PlaylistSong]
+	songRepo         db.UnsafeCRUDRepo[models.Song]
+	playlistRepo     db.UnsafeCRUDRepo[models.Playlist]
 }
 
 // New accepts repos lol, and returns a new instance to the songs playlists service.
 func New(
-	repo db.CRUDRepo[models.PlaylistSong],
-	songRepo db.GetterRepo[models.Song],
-	playlistRepo db.GetterRepo[models.Playlist],
+	playlistSongRepo db.UnsafeCRUDRepo[models.PlaylistSong],
+	songRepo db.UnsafeCRUDRepo[models.Song],
+	playlistRepo db.UnsafeCRUDRepo[models.Playlist],
 ) *Service {
-	return &Service{repo, songRepo, playlistRepo}
+	return &Service{playlistSongRepo, songRepo, playlistRepo}
 }
 
 // AddSongToPlaylist adds a given song to the given playlist,
@@ -36,7 +36,7 @@ func (s *Service) AddSongToPlaylist(songId, playlistPubId string) error {
 		return err
 	}
 
-	return s.repo.Add(&models.PlaylistSong{
+	return s.playlistSongRepo.Add(&models.PlaylistSong{
 		PlaylistId: playlist[0].Id,
 		SongId:     song[0].Id,
 	})
@@ -57,6 +57,6 @@ func (s *Service) RemoveSongFromPlaylist(songId, playlistPubId string) error {
 	}
 
 	return s.
-		repo.
+		playlistSongRepo.
 		Delete("playlist_id = ? AND song_id = ?", playlist[0].Id, song[0].Id)
 }
