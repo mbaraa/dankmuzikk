@@ -11,7 +11,7 @@ func Migrate() error {
 		return err
 	}
 
-	return dbConn.Debug().AutoMigrate(
+	err = dbConn.Debug().AutoMigrate(
 		new(models.Account),
 		new(models.Profile),
 		new(models.EmailVerificationCode),
@@ -20,4 +20,18 @@ func Migrate() error {
 		new(models.PlaylistSong),
 		new(models.PlaylistOwner),
 	)
+	if err != nil {
+		return err
+	}
+
+	for _, tableName := range []string{
+		"profiles", "songs", "playlists",
+	} {
+		err = dbConn.Exec("ALTER TABLE " + tableName + " CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci").Error
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
