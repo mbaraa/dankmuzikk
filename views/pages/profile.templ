@@ -6,8 +6,8 @@ import (
 	"dankmuzikk/views/components/themeswitch"
 )
 
-templ Profile(isMobile bool, themeName string, prfl entities.Profile) {
-	@layouts.Default(isMobile, themeName, profile(prfl))
+templ Profile(prfl entities.Profile) {
+	@layouts.Default(profile(prfl))
 }
 
 templ ProfileNoReload(prfl entities.Profile) {

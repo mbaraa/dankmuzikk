@@ -9,8 +9,8 @@ import (
    This page uses desktop design after lg (1024px)
 */
 
-templ Login(isMobile bool, themeName string) {
-	@layouts.Default(isMobile, themeName, login())
+templ Login() {
+	@layouts.Default(login())
 }
 
 templ login() {

@@ -9,8 +9,8 @@ import (
 
 type SearchResult = search.Result
 
-templ SearchResults(isMobile bool, themeName string, results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
-	@layouts.Default(isMobile, themeName, searchResults(results, playlists, songsInPlaylists))
+templ SearchResults(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
+	@layouts.Default(searchResults(results, playlists, songsInPlaylists))
 }
 
 templ SearchResultsNoReload(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
