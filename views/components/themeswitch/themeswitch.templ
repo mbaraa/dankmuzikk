@@ -1,5 +1,7 @@
 package themeswitch
 
+import "dankmuzikk/views/components/popover"
+
 var themes = []struct {
 	displayName string
 	actualName  string
@@ -15,34 +17,25 @@ var themes = []struct {
 }
 
 templ ThemeSwitch() {
-	<div class={ "theme-toggle-container", "relative" }>
-		<button
-			onClick={ toggleTheThing() }
-			class={ "p-2", "rounded-md", "hover:bg-accent-trans-20" }
-		>
-			<img src="/static/images/theme-icon.svg" alt="Theme Selector"/>
-		</button>
-		<div
-			id="theme-selector"
-			class={
-				"hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
-				"bg-secondary-trans-20", "backdrop-blur-md", "shadow-md", "p-[10px]", "rounded-[5px]",
-				"min-w-[150px]", "text-secondary",
-			}
-		>
-			<ul class={ "text-secondary" }>
-				for _, theme := range themes {
-					<li>
-						<button
-							onClick={ changeTheme(theme.actualName) }
-							type="button"
-							class={ "w-full", "p-2", "rounded-md", "hover:bg-accent-trans-20", "text-left" }
-						>{ theme.displayName }</button>
-					</li>
-				}
-			</ul>
-		</div>
-	</div>
+	@popover.Popover("theme-switcher", themeSwitchButton(), themeSwitch())
+}
+
+templ themeSwitch() {
+	<ul class={ "text-secondary" }>
+		for _, theme := range themes {
+			<li>
+				<button
+					onClick={ changeTheme(theme.actualName) }
+					type="button"
+					class={ "w-full", "p-2", "rounded-md", "hover:bg-accent-trans-20", "text-left" }
+				>{ theme.displayName }</button>
+			</li>
+		}
+	</ul>
+}
+
+templ themeSwitchButton() {
+	<img src="/static/images/theme-icon.svg" alt="Theme Selector"/>
 }
 
 script changeTheme(themeName string) {
@@ -90,15 +83,5 @@ script changeTheme(themeName string) {
     style.setProperty('--accent-color-30', theme.accent30);
     style.setProperty('--accent-color-69', theme.accent69);
     document.body.style.backgroundImage = `url('${theme.bg}'), linear-gradient(to right, var(--accent-color), var(--secondary-color))`;
-    document.getElementById("theme-selector").style.display = "none";
-}
-
-script toggleTheThing() {
-    const themeTogglePopover = document.getElementById("theme-selector");
-
-    if (themeTogglePopover.style.display !== "block") {
-      themeTogglePopover.style.display = "block";
-    } else {
-      themeTogglePopover.style.display = "none";
-    }
+    document.getElementById("popover-theme-switcher").style.display = "none";
 }
