@@ -10,14 +10,14 @@ templ Playlist(pl entities.Playlist) {
 		<div class={ "flex", "justify-center" }>
 			<section
 				class={
-					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl", "text-white",
+					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
 				}
 			>
 				<div class={ "flex", "justify-between", "items-center", "w-full" }>
 					<div class={ "flex", "flex-col", "gap-y-1" }>
-						<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
-						<p class={ "text-white", "text-md" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+						<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
+						<p class={ "text-secondary", "text-md" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
 					</div>
 					if pl.Songs != nil && len(pl.Songs) > 0 {
 						<button
@@ -40,7 +40,7 @@ templ Playlist(pl entities.Playlist) {
 							for _, song := range pl.Songs {
 								<div
 									class={
-										"", "bg-white-trans-100", "rounded-[10px]", "p-2", "lg:p-5", "cursor-pointer",
+										"bg-secondary-trans-20", "rounded-[10px]", "p-2", "lg:p-5", "cursor-pointer",
 										"flex", "flex-row", "items-center", "gap-5",
 									}
 									onClick={ playSongFromPlaylist(song.YtId, pl) }

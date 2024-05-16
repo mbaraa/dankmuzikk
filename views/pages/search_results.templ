@@ -11,9 +11,11 @@ type SearchResult = search.Result
 templ SearchResults(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
-			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",  "bg-black-trans-100", "rounded-md",
-                    "rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[5px]", "md:p-[20px]", "flex", "flex-col", "gap-y-3",
-                    "justify-between" }
+			class={
+				"w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",
+				"bg-accent-trans-20", "backdrop-blur-sm", "rounded-md", "rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[5px]",
+				"md:p-[20px]", "flex", "flex-col", "gap-y-3", "justify-between",
+			}
 		>
 			for idx, res := range results {
 				<div
@@ -36,7 +38,7 @@ templ SearchResults(results []SearchResult, playlists []entities.Playlist, songs
 								src={ res.ThumbnailUrl }
 								alt="Video Thumbnail"
 							/>
-							<div class={ "absolute", "right-0", "bottom-0", "text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-black-trans-400", "rounded-sm" }>
+							<div class={ "absolute", "right-0", "bottom-0", "text-secondary", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-accent-trans-30", "rounded-sm" }>
 								<p class={ "leading-3", "font-Ubuntu" }>
 									{ res.Duration }
 								</p>
@@ -45,7 +47,7 @@ templ SearchResults(results []SearchResult, playlists []entities.Playlist, songs
 					</div>
 					<!-- title, channel title, and description -->
 					<div class={ "w-[150px]", "md:w-[250px]", "lg:min-w-[300px]", "xl:min-w-[400px]" }>
-						<div class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-white" }>
+						<div class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-secondary" }>
 							<h3
 								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
 								title={ res.Title }

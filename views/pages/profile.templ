@@ -10,12 +10,12 @@ templ Profile(prfl entities.Profile) {
 		<div class={ "flex", "justify-center" }>
 			<section
 				class={
-					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl",
+					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl",
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
-					"justify-between", "text-white",
+					"justify-between", "text-secondary",
 				}
 			>
-				<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Profile</h1>
+				<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Profile</h1>
 				<section id="brand" class={ "w-full", "flex", "justify-center" }>
 					<div
 						class={ "flex", "flex-col", "justify-center", "items-center", "gap-y-3", }
@@ -37,7 +37,7 @@ templ Profile(prfl entities.Profile) {
 					<a href="/api/logout">
 						<button
 							type="submit"
-							class={ "bg-[#DE3333]", "text-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+							class={ "bg-[#DE3333]", "text-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
 						>
 							Logout
 						</button>
@@ -45,7 +45,7 @@ templ Profile(prfl entities.Profile) {
 				</section>
 				<!-- TODO: remove the settings hide thingy, i.e. implement rest of the fucking settings :) -->
 				<section id="more-info" class={ "flex", "md:hidden", "flex-col", "gap-y-4" }>
-					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Settings</h1>
+					<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Settings</h1>
 					<div class={ "flex", "justify-between" }>
 						<span>Theme</span>
 						@themeswitch.ThemeSwitch()

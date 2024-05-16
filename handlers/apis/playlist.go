@@ -92,8 +92,8 @@ func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.
 	// TODO: idk, this is ugly, but it works lol
 	switch removeSongFromPlaylist {
 	case "false":
-		w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-accent bg-accent\"></div>"))
+		w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary bg-secondary\"></div>"))
 	case "true":
-		w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-accent\"></div>"))
+		w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary\"></div>"))
 	}
 }
