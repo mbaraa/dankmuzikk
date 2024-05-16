@@ -5,13 +5,13 @@ import "fmt"
 templ SearchSuggestions(suggestions []string, originalQuery string) {
 	<ul
 		id="search-suggestions"
-		class={ "grid", "grid-cols-1", "w-full", "bg-accent-trans-30", "backdrop-blur-md", "rounded-lg", "p-[10px]" }
+		class={ "grid", "grid-cols-1", "w-full", "bg-secondary-trans-20", "backdrop-blur-md", "rounded-lg", "p-[10px]" }
 	>
 		for i, suggestion := range suggestions {
 			<li
 				class={ "focus-within:bg-secondary", "focus-within:text-primary", "text-secondary",
                         "text-lg", "p-2", "first:rounded-t", "last:rounded-b",
-                        "border-b", "border-b-primary", "last:border-b-0" }
+                        "border-b", "border-b-secondary", "last:border-b-0" }
 			>
 				<a
 					href={ templ.SafeURL(fmt.Sprintf("/search?query=%s", suggestion)) }
