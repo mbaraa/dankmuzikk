@@ -72,10 +72,10 @@ templ desktopHeader() {
 	</div>
 }
 
-templ Header(isMobile bool) {
+templ Header() {
 	<header id="dank-header" class={ "bg-accent", "p-[20px]", "md:p-[10px]" }>
 		// mobiles are usually shitty at rendering, so this prevents mobiles from rendering two blocks and choosing one using CSS.
-		if isMobile {
+		if ctx.Value("is-mobile").(bool) {
 			@mobileHeader()
 		} else {
 			<div style="display: contents" class={ "hidden", "md:block" }>
