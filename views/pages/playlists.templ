@@ -18,7 +18,7 @@ templ Playlists(pls []entities.Playlist) {
 			>
 				<div class={ "flex", "justify-between", "items-center", "w-full" }>
 					<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Playlists</h1>
-					@playlist.NewPlaylistPlaylistsPopover()
+					@playlist.NewPlaylistPopover()
 				</div>
 				<div id="playlists-listing">
 					if pls == nil || len(pls) == 0 {
