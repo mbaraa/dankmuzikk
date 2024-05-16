@@ -5,13 +5,13 @@ templ Search() {
 		<form
 			id="search-form"
 			class={ "w-full" }
-			hx-get="/search?no_reload=true"
+			hx-get="/search?no_layout=true"
 			hx-swap="innerHTML"
 			hx-target="#main-contents"
 			hx-trigger="submit"
 			data-loading-target="#loading"
 			data-loading-class-remove="hidden"
-			data-loading-path="/search?no_reload=true"
+			data-loading-path="/search?no_layout=true"
 		>
 			<div class={ "flex", "bg-white", "rounded-[8px]", "border", "border-b-[3px]", "border-black" }>
 				<input

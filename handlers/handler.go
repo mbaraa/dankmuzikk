@@ -44,7 +44,7 @@ func (a *Handler) OptionalAuthPage(h http.HandlerFunc) http.HandlerFunc {
 // AuthPage authenticates a page's handler.
 func (a *Handler) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return a.NoAuthPage(func(w http.ResponseWriter, r *http.Request) {
-		htmxRedirect := IsNoReloadPage(r)
+		htmxRedirect := IsNoLayoutPage(r)
 		profileId, err := a.authenticate(r)
 		authed := err == nil
 
@@ -148,8 +148,8 @@ func getTheme(r *http.Request) string {
 	}
 }
 
-// IsNoReloadPage checks if the requested page requires a no reload or not.
-func IsNoReloadPage(r *http.Request) bool {
-	noReload, exists := r.URL.Query()["no_reload"]
+// IsNoLayoutPage checks if the requested page requires a no reload or not.
+func IsNoLayoutPage(r *http.Request) bool {
+	noReload, exists := r.URL.Query()["no_layout"]
 	return exists && noReload[0] == "true"
 }

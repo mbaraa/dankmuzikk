@@ -35,7 +35,7 @@ func NewPagesHandler(
 }
 
 func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
-	if handlers.IsNoReloadPage(r) {
+	if handlers.IsNoLayoutPage(r) {
 		pages.IndexNoReload().Render(r.Context(), w)
 		return
 	}
@@ -43,7 +43,7 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
-	if handlers.IsNoReloadPage(r) {
+	if handlers.IsNoLayoutPage(r) {
 		pages.AboutNoReload().Render(r.Context(), w)
 		return
 	}
@@ -66,7 +66,7 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 		playlists = make([]entities.Playlist, 0)
 	}
 
-	if handlers.IsNoReloadPage(r) {
+	if handlers.IsNoLayoutPage(r) {
 		pages.PlaylistsNoReload(playlists).Render(r.Context(), w)
 		return
 	}
@@ -93,7 +93,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	}
 	_ = playlist
 
-	if handlers.IsNoReloadPage(r) {
+	if handlers.IsNoLayoutPage(r) {
 		pages.PlaylistNoReload(playlist).Render(r.Context(), w)
 		return
 	}
@@ -107,7 +107,7 @@ func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request)
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		if handlers.IsNoReloadPage(r) {
+		if handlers.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
 			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
@@ -121,7 +121,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		PfpLink:  dbProfile.PfpLink,
 		Username: dbProfile.Username,
 	}
-	if handlers.IsNoReloadPage(r) {
+	if handlers.IsNoLayoutPage(r) {
 		pages.ProfileNoReload(profile).Render(r.Context(), w)
 		return
 	}
@@ -158,7 +158,7 @@ func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.Han
 			playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(songs, profileId)
 		}
 
-		if handlers.IsNoReloadPage(r) {
+		if handlers.IsNoLayoutPage(r) {
 			pages.SearchResultsNoReload(results, playlists, songsInPlaylists).Render(r.Context(), w)
 			return
 		}
