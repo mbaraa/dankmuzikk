@@ -10,18 +10,17 @@ import (
 */
 
 templ Login() {
-	@layouts.Default(login())
+	@layouts.Raw(login())
 }
 
 templ login() {
-	<main id="main-login-container" class={ "w-full", "h-fit", "flex" }>
+	<main id="main-login-container" class={ "w-full", "h-screen", "flex" }>
 		<!-- frank and details -->
 		<div class={ "hidden", "lg:block", "relative", "w-[70%]", "xl:w-full", "h-fit", "flex" }>
 			<!-- frank -->
 			<div
-				id="frank"
 				class={
-					"w-full", "h-[90vh]", "bg-accent", "bg-[url('/static/images/frank-cropped.png')]",
+					"w-full", "h-screen", "bg-accent", "bg-[url('/static/images/frank-cropped.png')]",
 					"bg-repeat", "bg-cover", "bg-center",
 				}
 			></div>
@@ -35,12 +34,14 @@ templ login() {
 		</div>
 		<!-- login form -->
 		<div
-			id="login-form"
 			class={
 				"w-full", "p-[15px]", "lg:px-[40px]",
 				"bg-black-trans-500", "flex", "flex-col", "justify-center", "items-center",
 			}
 		>
+			<div class={ "block", "lg:hidden", "mb-5" }>
+				@info.Intro()
+			</div>
 			<div
 				id="replaceable-login-form"
 				class={
@@ -65,7 +66,6 @@ templ login() {
 			</div>
 		</div>
 	</main>
-	<script src="/static/js/login.js"></script>
 }
 
 templ loginForm() {
@@ -89,7 +89,7 @@ templ loginForm() {
 				autofocus
 			/>
 		</div>
-		<div class={ "flex", "justify-between", "gap-x-[10px]", "lg:gap-x-[30px]" }>
+		<div class={ "flex", "flex-col-reverse", "lg:flex-row", "lg:justify-between", "gap-[15px]", "lg:gap-x-[30px]", "mt-4" }>
 			<a class={ "w-full" } href="/api/login/google" title="Login with Google">
 				<button
 					type="button"
