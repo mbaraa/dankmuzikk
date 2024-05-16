@@ -23,13 +23,15 @@ templ justPlaylist(pl entities.Playlist) {
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
 				}
 			>
-				<div class={ "flex", "justify-between", "w-full" }>
+				<div class={ "flex", "justify-between", "items-center", "w-full" }>
 					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
-					<button
-						type="button"
-						title="Play playlist"
-						onClick={ playPlaylist(pl) }
-					><img src="/static/images/play-playlist-icon.svg" alt="Play"/></button>
+					if pl.Songs != nil && len(pl.Songs) > 0 {
+						<button
+							type="button"
+							title="Play playlist"
+							onClick={ playPlaylist(pl) }
+						><img src="/static/images/play-playlist-icon.svg" alt="Play"/></button>
+					}
 				</div>
 				<div id="playlists-listing">
 					if pl.Songs == nil || len(pl.Songs) == 0 {
