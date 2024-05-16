@@ -13,7 +13,7 @@ templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, 
 		<div
 			class={
 				fmt.Sprintf("popover-%d", index), "hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
-				"bg-white", "shadow-md", "p-[10px]", "rounded-[5px]",
+				"bg-primary-trans-20", "backdrop-blur-md", "shadow-md", "p-[10px]", "rounded-[5px]", "text-secondary",
 				"min-w-[250px]",
 			}
 		>
@@ -55,9 +55,9 @@ templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, 
 							>
 								<div
 									class={
-										"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-accent",
+										"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-secondary",
 										map[string]bool{
-											"bg-accent": playlist.PublicId == songsInPlaylists[songId],
+											"bg-secondary": playlist.PublicId == songsInPlaylists[songId],
 										},
 									}
 								></div>

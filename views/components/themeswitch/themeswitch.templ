@@ -18,7 +18,7 @@ templ ThemeSwitch() {
 	<div class={ "theme-toggle-container", "relative" }>
 		<button
 			onClick={ toggleTheThing() }
-			class={ "p-2", "rounded-md", "hover:bg-black-trans-100" }
+			class={ "p-2", "rounded-md", "hover:bg-accent-trans-20" }
 		>
 			<img src="/static/images/theme-icon.svg" alt="Theme Selector"/>
 		</button>
@@ -26,17 +26,17 @@ templ ThemeSwitch() {
 			id="theme-selector"
 			class={
 				"hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
-				"bg-white", "shadow-md", "p-[10px]", "rounded-[5px]",
-				"min-w-[150px]", "text-black",
+				"bg-secondary-trans-20", "backdrop-blur-md", "shadow-md", "p-[10px]", "rounded-[5px]",
+				"min-w-[150px]", "text-secondary",
 			}
 		>
-			<ul class={ "text-black" }>
+			<ul class={ "text-secondary" }>
 				for _, theme := range themes {
 					<li>
 						<button
 							onClick={ changeTheme(theme.actualName) }
 							type="button"
-							class={ "w-full", "p-2", "rounded-md", "hover:bg-black-trans-100", "text-left" }
+							class={ "w-full", "p-2", "rounded-md", "hover:bg-accent-trans-20", "text-left" }
 						>{ theme.displayName }</button>
 					</li>
 				}
@@ -51,15 +51,25 @@ script changeTheme(themeName string) {
 
     const themes = {
         default: {
-            primary: "#7acb65",
-            secondary: "#9ee07e",
-            accent: "#4c8c36",
+            primary: "#4c8c36",
+            primary20: "#4c8c3633",
+            secondary: "#ffffff",
+            secondary20: "#ffffff33",
+            accent: "#000000",
+            accent20: "#00000033",
+            accent30: "#0000004c",
+            accent69: "#000000b0",
             bg: "/static/images/dankground.svg",
         },
         black: {
-            primary: "#000",
-            secondary: "#000",
-            accent: "#000",
+            primary: "#000000",
+            primary20: "#00000033",
+            secondary: "#ffffff",
+            secondary20: "#ffffff33",
+            accent: "#D3FCBF",
+            accent20: "#D3FCBF33",
+            accent30: "#D3FCBF4c",
+            accent69: "#D3FCBFb0",
             bg: "/static/images/dankground-dark.svg",
         },
     };
@@ -72,8 +82,13 @@ script changeTheme(themeName string) {
     }
 
     style.setProperty('--primary-color', theme.primary);
+    style.setProperty('--primary-color-20', theme.primary20);
     style.setProperty('--secondary-color', theme.secondary);
+    style.setProperty('--secondary-color-20', theme.secondary20);
     style.setProperty('--accent-color', theme.accent);
+    style.setProperty('--accent-color-20', theme.accent20);
+    style.setProperty('--accent-color-30', theme.accent30);
+    style.setProperty('--accent-color-69', theme.accent69);
     document.body.style.backgroundImage = `url('${theme.bg}'), linear-gradient(to right, var(--accent-color), var(--secondary-color))`;
     document.getElementById("theme-selector").style.display = "none";
 }

@@ -8,16 +8,16 @@ import (
 )
 
 templ Playlists(pls []entities.Playlist) {
-	<main class={ "w-full", "h-[120dvh]" }>
+	<main class={ "w-full" }>
 		<div class={ "flex", "justify-center" }>
 			<section
 				class={
-					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl", "text-white",
+					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
 				}
 			>
 				<div class={ "flex", "justify-between", "items-center", "w-full" }>
-					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Playlists</h1>
+					<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Playlists</h1>
 					@playlist.NewPlaylistPlaylistsPopover()
 				</div>
 				<div id="playlists-listing">
@@ -48,7 +48,7 @@ templ JustPlaylists(pls []entities.Playlist) {
 templ singlePlaylist(pl entities.Playlist) {
 	<div
 		class={
-			"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5", "py-2",
+			"lg:w-[200px]", "lg:h-[200px]", "bg-secondary-trans-20", "rounded-[10px]", "px-5", "py-2",
 			"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-x-5", "lg:gap-x-0",
 		}
 	>

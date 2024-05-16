@@ -2,7 +2,7 @@ package otp
 
 templ VerifyOtp() {
 	<h1
-		class={ "text-white", "text-[35px]", "lg:text-[48px]", "font-light" }
+		class={ "text-secondary", "text-[35px]", "lg:text-[48px]", "font-light" }
 	>
 		One more step...
 	</h1>
@@ -15,7 +15,7 @@ templ VerifyOtp() {
 		data-loading-class-remove="hidden"
 	>
 		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
-			<label class={ "text-white", "text-[16px]" } for="otp">One Time Password</label>
+			<label class={ "text-secondary", "text-[16px]" } for="otp">One Time Password</label>
 			<input
 				id="otp"
 				class={ "w-full", "p-[10px]", "lg:p-[15px]", "rounded-[8px]" }
@@ -27,14 +27,14 @@ templ VerifyOtp() {
 		<div class={ "flex", "justify-between", "gap-x-[10px]", "lg:gap-x-[30px]" }>
 			<button
 				type="submit"
-				class={ "bg-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+				class={ "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
 			>
 				Continue
 			</button>
 		</div>
 	</form>
 	<!--
-	<div class={ "text-white", "flex", "justify-between" }>
+	<div class={ "text-secondary", "flex", "justify-between" }>
 		<p class={ "" }>Didn't receive anything?</p>
 		<a class={ "underline" } href="/signup">Resend</a>
 	</div>
