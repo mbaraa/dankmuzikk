@@ -12,7 +12,6 @@ import (
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/pages"
 	"net/http"
-	"strings"
 
 	_ "github.com/a-h/templ"
 )
@@ -169,23 +168,4 @@ func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.Han
 
 func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {
 	pages.Signup().Render(r.Context(), w)
-}
-
-func (p *pagesHandler) isMobile(r *http.Request) bool {
-	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
-}
-
-func (p *pagesHandler) getTheme(r *http.Request) string {
-	themeCookie, err := r.Cookie(handlers.ThemeName)
-	if err != nil || themeCookie == nil || themeCookie.Value == "" {
-		return "default"
-	}
-	switch themeCookie.Value {
-	case "black":
-		return "black"
-	case "default":
-		fallthrough
-	default:
-		return "default"
-	}
 }
