@@ -1,20 +1,11 @@
 package pages
 
 import (
-	"dankmuzikk/views/layouts"
 	"dankmuzikk/entities"
 	"dankmuzikk/views/components/themeswitch"
 )
 
 templ Profile(prfl entities.Profile) {
-	@layouts.Default(profile(prfl))
-}
-
-templ ProfileNoReload(prfl entities.Profile) {
-	@profile(prfl)
-}
-
-templ profile(prfl entities.Profile) {
 	<main class={ "w-full", "h-[105dvh]" }>
 		<div class={ "flex", "justify-center" }>
 			<section

@@ -10,6 +10,7 @@ import (
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/youtube/search"
+	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/pages"
 	"net/http"
 
@@ -36,22 +37,22 @@ func NewPagesHandler(
 
 func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 	if handlers.IsNoLayoutPage(r) {
-		pages.IndexNoReload().Render(r.Context(), w)
+		pages.Index().Render(r.Context(), w)
 		return
 	}
-	pages.Index().Render(r.Context(), w)
+	layouts.Default(pages.Index()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 	if handlers.IsNoLayoutPage(r) {
-		pages.AboutNoReload().Render(r.Context(), w)
+		pages.About().Render(r.Context(), w)
 		return
 	}
-	pages.About().Render(r.Context(), w)
+	layouts.Default(pages.About()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
-	pages.Login().Render(r.Context(), w)
+	layouts.Raw(pages.Login()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
@@ -67,10 +68,10 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	if handlers.IsNoLayoutPage(r) {
-		pages.PlaylistsNoReload(playlists).Render(r.Context(), w)
+		pages.Playlists(playlists).Render(r.Context(), w)
 		return
 	}
-	pages.Playlists(playlists).Render(r.Context(), w)
+	layouts.Default(pages.Playlists(playlists)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
@@ -94,14 +95,14 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	_ = playlist
 
 	if handlers.IsNoLayoutPage(r) {
-		pages.PlaylistNoReload(playlist).Render(r.Context(), w)
+		pages.Playlist(playlist).Render(r.Context(), w)
 		return
 	}
-	pages.Playlist(playlist).Render(r.Context(), w)
+	layouts.Default(pages.Playlist(playlist)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
-	pages.Privacy().Render(r.Context(), w)
+	layouts.Default(pages.Privacy()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
@@ -122,10 +123,10 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		Username: dbProfile.Username,
 	}
 	if handlers.IsNoLayoutPage(r) {
-		pages.ProfileNoReload(profile).Render(r.Context(), w)
+		pages.Profile(profile).Render(r.Context(), w)
 		return
 	}
-	pages.Profile(profile).Render(r.Context(), w)
+	layouts.Default(pages.Profile(profile)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.HandlerFunc {
@@ -159,13 +160,13 @@ func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.Han
 		}
 
 		if handlers.IsNoLayoutPage(r) {
-			pages.SearchResultsNoReload(results, playlists, songsInPlaylists).Render(r.Context(), w)
+			pages.SearchResults(results, playlists, songsInPlaylists).Render(r.Context(), w)
 			return
 		}
-		pages.SearchResults(results, playlists, songsInPlaylists).Render(r.Context(), w)
+		layouts.Default(pages.SearchResults(results, playlists, songsInPlaylists)).Render(r.Context(), w)
 	}
 }
 
 func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {
-	pages.Signup().Render(r.Context(), w)
+	layouts.Raw(pages.Signup()).Render(r.Context(), w)
 }
