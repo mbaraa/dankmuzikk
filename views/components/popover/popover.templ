@@ -1,0 +1,36 @@
+package popover
+
+import (
+	"fmt"
+)
+
+templ Popover(id string, button, child templ.Component) {
+	<div class={ "popover-container", "relative" }>
+		<button
+			class={ "popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20" }
+			onClick={ toggleTheThing(id) }
+		>
+			@button
+		</button>
+		<div
+			id={ fmt.Sprintf("popover-%s", id) }
+			class={
+				"hidden", "absolute", "z-30", "top-[45px]", "right-[0px]",
+				"bg-secondary-trans-20", "backdrop-blur-md", "shadow-md", "p-[10px]", "rounded-[5px]", "text-secondary",
+				"min-w-[150px]",
+			}
+		>
+			@child
+		</div>
+	</div>
+}
+
+script toggleTheThing(id string) {
+    const popover = document.getElementById(`popover-${id}`);
+
+    if (popover.style.display !== "block") {
+      popover.style.display = "block";
+    } else {
+      popover.style.display = "none";
+    }
+}
