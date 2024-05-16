@@ -1,20 +1,11 @@
 package pages
 
 import (
-	"dankmuzikk/views/layouts"
 	"dankmuzikk/entities"
 	"fmt"
 )
 
 templ Playlist(pl entities.Playlist) {
-	@layouts.Default(justPlaylist(pl))
-}
-
-templ PlaylistNoReload(pl entities.Playlist) {
-	@justPlaylist(pl)
-}
-
-templ justPlaylist(pl entities.Playlist) {
 	<main class={ "w-full", "h-[120dvh]" }>
 		<div class={ "flex", "justify-center" }>
 			<section

@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"dankmuzikk/views/layouts"
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/entities"
@@ -10,14 +9,6 @@ import (
 type SearchResult = search.Result
 
 templ SearchResults(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
-	@layouts.Default(searchResults(results, playlists, songsInPlaylists))
-}
-
-templ SearchResultsNoReload(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
-	@searchResults(results, playlists, songsInPlaylists)
-}
-
-templ searchResults(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={ "w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",  "bg-black-trans-100", "rounded-md",

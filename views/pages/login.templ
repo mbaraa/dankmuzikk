@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/components/info"
 )
 
@@ -10,10 +9,6 @@ import (
 */
 
 templ Login() {
-	@layouts.Raw(login())
-}
-
-templ login() {
 	<main id="main-login-container" class={ "w-full", "h-screen", "flex" }>
 		<!-- frank and details -->
 		<div class={ "hidden", "lg:block", "relative", "w-[70%]", "xl:w-full", "h-fit", "flex" }>

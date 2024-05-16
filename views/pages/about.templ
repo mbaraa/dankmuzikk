@@ -1,17 +1,8 @@
 package pages
 
-import "dankmuzikk/views/layouts"
 import "dankmuzikk/views/components/info"
 
 templ About() {
-	@layouts.Default(about())
-}
-
-templ AboutNoReload() {
-	@about()
-}
-
-templ about() {
 	<main class={ "w-full", "h-[120dvh]" }>
 		<div class={ "flex", "justify-center" }>
 			<section

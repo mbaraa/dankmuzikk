@@ -1,19 +1,10 @@
 package pages
 
 import (
-	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/components/navlink"
 )
 
 templ Index() {
-	@layouts.Default(main())
-}
-
-templ IndexNoReload() {
-	@main()
-}
-
-templ main() {
 	<main class={ "w-full", "h-full", "flex", "flex-col", "justify-center", "items-center" }>
 		<div class={ "flex", "justify-center" }>
 			<section
