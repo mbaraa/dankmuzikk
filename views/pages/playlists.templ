@@ -57,11 +57,14 @@ templ JustPlaylists(pls []entities.Playlist) {
 templ singlePlaylist(pl entities.Playlist) {
 	<div
 		class={
-			"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5",
-			"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-5",
+			"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5", "py-2",
+			"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-x-5", "lg:gap-x-0",
 		}
 	>
 		<img src="/static/images/album-cover-icon.svg" class={ "lg:w-[125px]", "lg:h-[125px]" } alt=""/>
-		<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ pl.Title }</p>
+		<div class={ "lg:text-center" }>
+			<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ pl.Title }</p>
+			<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+		</div>
 	</div>
 }
