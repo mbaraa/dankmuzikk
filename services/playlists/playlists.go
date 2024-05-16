@@ -180,7 +180,7 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 			ThumbnailUrl: song.ThumbnailUrl,
 			Duration:     song.Duration,
 			PlayTimes:    mappedPlaylistSongsToPlaysSuka[song.Id],
-			AddedAt:      mappedPlaylistSongsToCreatedAtSuka[song.Id].Format("January 2nd 2006"),
+			AddedAt:      mappedPlaylistSongsToCreatedAtSuka[song.Id].Format("2, January, 2006"),
 		}
 	}
 
