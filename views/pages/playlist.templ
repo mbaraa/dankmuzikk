@@ -24,7 +24,10 @@ templ justPlaylist(pl entities.Playlist) {
 				}
 			>
 				<div class={ "flex", "justify-between", "items-center", "w-full" }>
-					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
+					<div class={ "flex", "flex-col", "gap-y-1" }>
+						<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
+						<p class={ "text-white", "text-md" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+					</div>
 					if pl.Songs != nil && len(pl.Songs) > 0 {
 						<button
 							type="button"
