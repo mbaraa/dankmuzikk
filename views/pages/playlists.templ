@@ -8,8 +8,8 @@ import (
 	"dankmuzikk/views/components/navlink"
 )
 
-templ Playlists(isMobile bool, themeName string, pls []entities.Playlist) {
-	@layouts.Default(isMobile, themeName, playlists(pls))
+templ Playlists(pls []entities.Playlist) {
+	@layouts.Default(playlists(pls))
 }
 
 templ PlaylistsNoReload(pls []entities.Playlist) {
@@ -25,7 +25,7 @@ templ playlists(pls []entities.Playlist) {
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
 				}
 			>
-				<div class={ "flex", "justify-between", "w-full" }>
+				<div class={ "flex", "justify-between", "items-center", "w-full" }>
 					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Playlists</h1>
 					@playlist.NewPlaylistPlaylistsPopover()
 				</div>

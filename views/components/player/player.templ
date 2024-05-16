@@ -1,8 +1,8 @@
 package player
 
-templ PlayerSticky(isMobile bool) {
+templ PlayerSticky() {
 	<div id="muzikk" class="hidden">
-		if isMobile {
+		if ctx.Value("is-mobile").(bool) {
 			@mobilePlayer()
 		} else {
 			@desktopPlayer()

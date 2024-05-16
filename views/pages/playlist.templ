@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-templ Playlist(isMobile bool, themeName string, pl entities.Playlist) {
-	@layouts.Default(isMobile, themeName, justPlaylist(pl))
+templ Playlist(pl entities.Playlist) {
+	@layouts.Default(justPlaylist(pl))
 }
 
 templ PlaylistNoReload(pl entities.Playlist) {

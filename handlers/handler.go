@@ -8,6 +8,7 @@ import (
 	"dankmuzikk/services/jwt"
 	"net/http"
 	"slices"
+	"strings"
 )
 
 var noAuthPaths = []string{"/login", "/signup"}
@@ -62,11 +63,13 @@ func (a *Handler) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-// NoAuthPage returns a page's handler after setting Content-Type to text/html.
+// NoAuthPage returns a page's handler after setting Content-Type to text/html, and some context values.
 func (a *Handler) NoAuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		h(w, r)
+		ctx := context.WithValue(r.Context(), ThemeKey, getTheme(r))
+		ctx = context.WithValue(ctx, IsMobileKey, isMobile(r))
+		h(w, r.WithContext(ctx))
 	}
 }
 
@@ -124,6 +127,25 @@ func (a *Handler) authenticate(r *http.Request) (uint, error) {
 	}
 
 	return profile.Id, nil
+}
+
+func isMobile(r *http.Request) bool {
+	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
+}
+
+func getTheme(r *http.Request) string {
+	themeCookie, err := r.Cookie(ThemeName)
+	if err != nil || themeCookie == nil || themeCookie.Value == "" {
+		return "default"
+	}
+	switch themeCookie.Value {
+	case "black":
+		return "black"
+	case "default":
+		fallthrough
+	default:
+		return "default"
+	}
 }
 
 // IsNoReloadPage checks if the requested page requires a no reload or not.
