@@ -14,6 +14,10 @@ var themes = []struct {
 		displayName: "Black",
 		actualName:  "black",
 	},
+	{
+		displayName: "White",
+		actualName:  "white",
+	},
 }
 
 templ ThemeSwitch() {
@@ -35,7 +39,9 @@ templ themeSwitch() {
 }
 
 templ themeSwitchButton() {
-	<img src="/static/icons/theme-icon.svg" alt="Theme Selector"/>
+	<svg width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M6.3125 1V5.22222M12.6875 1V4.16667M1 8.38889H18M9.5 20C7.62331 20 6.22284 18.2834 6.61141 16.4594L6.67728 16.1502C6.90831 15.0657 6.35912 13.9656 5.35029 13.4921L3.11406 12.4423C1.8233 11.8364 1 10.5454 1 9.12714V2.72213C1 1.77102 1.77609 1 2.73346 1H16.2665C17.2239 1 18 1.77102 18 2.72213V9.12714C18 10.5454 17.1767 11.8364 15.8859 12.4423L13.6497 13.4921C12.6409 13.9656 12.0917 15.0657 12.3227 16.1502L12.3886 16.4594C12.7772 18.2834 11.3767 20 9.5 20Z" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+	</svg>
 }
 
 script changeTheme(themeName string) {
@@ -46,8 +52,12 @@ script changeTheme(themeName string) {
         default: {
             primary: "#4c8c36",
             primary20: "#4c8c3633",
+            primary30: "#4c8c364c",
+            primary69: "#4c8c36b0",
             secondary: "#ffffff",
             secondary20: "#ffffff33",
+            secondary30: "#ffffff4c",
+            secondary69: "#ffffffb0",
             accent: "#000000",
             accent20: "#00000033",
             accent30: "#0000004c",
@@ -57,13 +67,32 @@ script changeTheme(themeName string) {
         black: {
             primary: "#000000",
             primary20: "#00000033",
+            primary30: "#0000004c",
+            primary69: "#000000b0",
             secondary: "#ffffff",
             secondary20: "#ffffff33",
-            accent: "#D3FCBF",
-            accent20: "#D3FCBF33",
-            accent30: "#D3FCBF4c",
-            accent69: "#D3FCBFb0",
+            secondary30: "#ffffff4c",
+            secondary69: "#ffffffb0",
+            ACCENT: "#d3fcbf",
+            ACCENT20: "#d3fcbf33",
+            ACCENT30: "#d3fcbf4C",
+            ACCENT69: "#d3fcbfB0",
             bg: "/static/images/dankground-dark.svg",
+        },
+        white: {
+            primary: "#ffffff",
+            primary20: "#ffffff33",
+            primary30: "#ffffff4c",
+            primary69: "#ffffffb0",
+            secondary: "#4c8c36",
+            secondary20: "#4c8c3633",
+            secondary30: "#4c8c364c",
+            secondary69: "#4c8c36b0",
+            accent: "#d5ffc1",
+            accent20: "#d5ffc133",
+            accent30: "#d5ffc14c",
+            accent69: "#d5ffc1b0",
+            bg: "/static/images/dankground-light.svg",
         },
     };
 
@@ -75,8 +104,12 @@ script changeTheme(themeName string) {
 
     style.setProperty('--primary-color', theme.primary);
     style.setProperty('--primary-color-20', theme.primary20);
+    style.setProperty('--primary-color-30', theme.primary30);
+    style.setProperty('--primary-color-69', theme.primary69);
     style.setProperty('--secondary-color', theme.secondary);
     style.setProperty('--secondary-color-20', theme.secondary20);
+    style.setProperty('--secondary-color-30', theme.secondary30);
+    style.setProperty('--secondary-color-69', theme.secondary69);
     style.setProperty('--accent-color', theme.accent);
     style.setProperty('--accent-color-20', theme.accent20);
     style.setProperty('--accent-color-30', theme.accent30);

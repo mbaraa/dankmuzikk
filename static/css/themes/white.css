@@ -1,0 +1,21 @@
+:root {
+  --primary-color: #ffffff;
+  --primary-color-20: #ffffff33;
+  --primary-color-30: #ffffff4c;
+  --primary-color-69: #ffffffb0;
+
+  --secondary-color: #4c8c36;
+  --secondary-color-20: #4c8c3633;
+  --secondary-color-30: #4c8c364c;
+  --secondary-color-69: #4c8c36b0;
+
+  --accent-color: #d5ffc1;
+  --accent-color-20: #d5ffc133;
+  --accent-color-30: #d5ffc14c;
+  --accent-color-69: #d5ffc1b0;
+}
+
+body {
+  background-image: url("/static/images/dankground-light.svg");
+  background-color: var(--primary-color);
+}

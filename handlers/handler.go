@@ -149,6 +149,8 @@ func getTheme(r *http.Request) string {
 	switch themeCookie.Value {
 	case "black":
 		return "black"
+	case "white":
+		return "white"
 	case "default":
 		fallthrough
 	default:
