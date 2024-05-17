@@ -74,13 +74,13 @@ func (s *songDownloadHandler) HandleDownloadSongToQueue(w http.ResponseWriter, r
 }
 
 func (s *songDownloadHandler) extractSongFromQuery(query url.Values) (entities.Song, error) {
-	id := query.Get("id")
+	id := query.Get("yt_id")
 	if id == "" {
-		return entities.Song{}, errors.New("missing song's yt id")
+		return entities.Song{}, errors.New("missing song's yt_id")
 	}
-	thumbnailUrl := query.Get("thumbnailUrl")
+	thumbnailUrl := query.Get("thumbnail_url")
 	if thumbnailUrl == "" {
-		return entities.Song{}, errors.New("missing song's thumbnailUrl")
+		return entities.Song{}, errors.New("missing song's thumbnail_url")
 	}
 	title := query.Get("title")
 	if title == "" {

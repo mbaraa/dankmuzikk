@@ -27,7 +27,7 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 					>
 						<div
 							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative", "cursor-pointer" }
-							onClick={ playSong(res.YtId, res.ThumbnailUrl, res.Title, res.Artist, res.Duration) }
+							onClick={ playSong(res) }
 						>
 							<img
 								class={ "w-full", "h-full", "rounded-lg" }
@@ -48,7 +48,7 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 							<h3
 								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
 								title={ res.Title }
-								onClick={ playSong(res.YtId, res.ThumbnailUrl, res.Title, res.Artist, res.Duration) }
+								onClick={ playSong(res) }
 							>
 								{ res.Title }
 							</h3>
@@ -65,6 +65,6 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 	</main>
 }
 
-script playSong(id, thumbnailUrl, title, artist, duration string) {
-    window.Player.playYTSong(id, thumbnailUrl, title, artist, duration);
+script playSong(song entities.Song) {
+    window.Player.playYTSong(song);
 }
