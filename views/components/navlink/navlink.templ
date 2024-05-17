@@ -13,7 +13,12 @@ templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 	>
 		if imageUrl != "" {
 			<div class={ "flex", "gap-x-3", "items-center" }>
-				<img src={ imageUrl } alt={ title }/>
+				<img
+					width="20"
+					height="20"
+					src={ imageUrl }
+					alt={ title }
+				/>
 				if len(showTilte) > 0 && showTilte[0] {
 					{ title }
 				}
