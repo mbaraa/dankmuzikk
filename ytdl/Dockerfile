@@ -3,14 +3,16 @@ FROM python:3.11-alpine AS build
 WORKDIR /app
 
 ADD requirements.txt /tmp
-RUN pip install --upgrade pip && \
+RUN apk install mariadb && \
+    pip install --upgrade pip && \
     pip install -r /tmp/requirements.txt
+
 COPY . /app
 
 
 FROM python:3.11-alpine
 
-RUN apk add ffmpeg
+RUN apk add ffmpeg mariadb
 
 WORKDIR /app
 
