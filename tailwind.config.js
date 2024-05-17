@@ -11,12 +11,16 @@ module.exports = {
           DEFAULT: "var(--primary-color)",
           trans: {
             20: "var(--primary-color-20)",
+            30: "var(--primary-color-30)",
+            69: "var(--primary-color-69)",
           },
         },
         secondary: {
           DEFAULT: "var(--secondary-color)",
           trans: {
             20: "var(--secondary-color-20)",
+            30: "var(--secondary-color-30)",
+            69: "var(--secondary-color-69)",
           },
         },
         accent: {
