@@ -21,7 +21,7 @@ var themes = []struct {
 }
 
 templ ThemeSwitch() {
-	@popover.Popover("theme-switcher", themeSwitchButton(), themeSwitch())
+	@popover.Popover("theme-switcher", "Change theme", themeSwitchButton(), themeSwitch())
 }
 
 templ themeSwitch() {

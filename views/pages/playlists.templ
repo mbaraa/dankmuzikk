@@ -42,7 +42,7 @@ templ JustPlaylists(pls []entities.Playlist) {
 		}
 	>
 		for _, playlist := range pls {
-			@navlink.LinkContainer(fmt.Sprintf("/playlist/%s", playlist.PublicId), singlePlaylist(playlist))
+			@navlink.LinkContainer(fmt.Sprintf("/playlist/%s", playlist.PublicId), playlist.Title, singlePlaylist(playlist))
 		}
 	</div>
 }

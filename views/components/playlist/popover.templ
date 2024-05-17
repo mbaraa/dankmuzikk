@@ -7,7 +7,7 @@ import (
 )
 
 templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]string) {
-	@popover.Popover(fmt.Sprint(index), popoverButton(), playlistsSelector(songId, playlists, songsInPlaylists))
+	@popover.Popover(fmt.Sprint(index), "Add to playlist", popoverButton(), playlistsSelector(songId, playlists, songsInPlaylists))
 }
 
 templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]string) {
