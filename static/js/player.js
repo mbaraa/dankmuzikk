@@ -1,13 +1,13 @@
 "use strict";
 
 const playerButtonsIcons = {
-  play: `<img class="w-[50px] h-[50px]" src="/static/images/play-icon.svg" alt="Play"/>`,
-  pause: `<img class="w-[50px] h-[50px]" src="/static/images/pause-icon.svg" alt="Pause"/>`,
-  loop: `<img class="w-[40px]" src="/static/images/loop-icon.svg" alt="Loop"/>`,
-  loopOnce: `<img class="w-[40px]" src="/static/images/loop-once-icon.svg" alt="Loop Once"/>`,
-  loopOff: `<img class="w-[40px]" src="/static/images/loop-off-icon.svg" alt="Loop Off"/>`,
-  shuffle: `<img src="/static/images/shuffle-icon.svg" alt="Shuffle"/>`,
-  shuffleOff: `<img src="/static/images/shuffle-off-icon.svg" alt="Shuffle"/>`,
+  play: `<img class="w-[50px] h-[50px]" src="/static/icons/play-icon.svg" alt="Play"/>`,
+  pause: `<img class="w-[50px] h-[50px]" src="/static/icons/pause-icon.svg" alt="Pause"/>`,
+  loop: `<img class="w-[40px]" src="/static/icons/loop-icon.svg" alt="Loop"/>`,
+  loopOnce: `<img class="w-[40px]" src="/static/icons/loop-once-icon.svg" alt="Loop Once"/>`,
+  loopOff: `<img class="w-[40px]" src="/static/icons/loop-off-icon.svg" alt="Loop Off"/>`,
+  shuffle: `<img src="/static/icons/shuffle-icon.svg" alt="Shuffle"/>`,
+  shuffleOff: `<img src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>`,
   loading: `<div class="loader !h-10 !w-10"></div>`,
 };
 

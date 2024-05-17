@@ -12,7 +12,7 @@ templ mobilePlayer() {
 			<div
 				id="song-image"
 				class={
-					"w-[80px]", "h-[80px]", "rounded-md", "bg-primary", "bg-[url('/static/images/dankground.svg')]",
+					"w-[80px]", "h-[80px]", "rounded-md", "bg-primary", "bg-[url('/static/icons/dankground.svg')]",
 					"bg-repeat", "bg-cover", "bg-center",
 				}
 			></div>
@@ -41,19 +41,19 @@ templ mobilePlayer() {
 				<!-- player controls -->
 				<div class={ "flex", "items-center", "gap-x-0", "min-w-[200px]" }>
 					<button id="shuffle" type="button" title="Shuffle" disabled>
-						<img src="/static/images/shuffle-off-icon.svg" alt="Shuffle"/>
+						<img src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>
 					</button>
 					<button id="prev" type="button" title="Previous song" disabled>
-						<img src="/static/images/previous-icon.svg" alt="Previous"/>
+						<img src="/static/icons/previous-icon.svg" alt="Previous"/>
 					</button>
 					<button id="play" type="button" title="Play/Pause" disabled>
 						<div id="loading" class="loader !h-10 !w-10"></div>
 					</button>
 					<button id="next" type="button" title="Next song" disabled>
-						<img src="/static/images/next-icon.svg" alt="Next"/>
+						<img src="/static/icons/next-icon.svg" alt="Next"/>
 					</button>
 					<button id="loop" type="button" title="Loop" disabled>
-						<img src="/static/images/loop-off-icon.svg" alt="Loop"/>
+						<img src="/static/icons/loop-off-icon.svg" alt="Loop"/>
 					</button>
 				</div>
 			</div>
