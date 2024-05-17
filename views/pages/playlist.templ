@@ -3,6 +3,7 @@ package pages
 import (
 	"dankmuzikk/entities"
 	"fmt"
+	"dankmuzikk/views/components/navlink"
 )
 
 templ Playlist(pl entities.Playlist) {
@@ -11,61 +12,68 @@ templ Playlist(pl entities.Playlist) {
 			<section
 				class={
 					"w-full", "md:w-2/3", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
-					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
+					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]",
 					"mb-[170px]", "lg:mb-0",
 				}
 			>
-				<div class={ "flex", "justify-between", "items-center", "w-full" }>
-					<div class={ "flex", "flex-col", "gap-y-1" }>
-						<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
-						<p class={ "text-secondary", "text-md" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
-					</div>
-					if pl.Songs != nil && len(pl.Songs) > 0 {
-						<button
-							type="button"
-							title="Play playlist"
-							onClick={ playPlaylist(pl) }
-						><img src="/static/icons/play-playlist-icon.svg" alt="Play"/></button>
-					}
+				<div class={ "mb-4" }>
+					@navlink.NavLink("Playlists", "/static/icons/back-button-icon.svg", "/playlists", true)
 				</div>
-				<div id="playlists-listing">
-					if pl.Songs == nil || len(pl.Songs) == 0 {
-						<p>Hmm... This playlist looks empty, you can add songs from the search!</p>
-					} else {
-						<div
-							class={
-								"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
-								"flex", "flex-col", "gap-5", "lg:my-10",
-							}
-						>
-							for _, song := range pl.Songs {
-								<div
-									class={
-										"bg-secondary-trans-20", "rounded-[10px]", "p-2", "lg:p-5", "cursor-pointer",
-										"flex", "flex-row", "items-center", "gap-5",
-									}
-									onClick={ playSongFromPlaylist(song.YtId, pl) }
-								>
+				<div
+					class={ "flex", "flex-col", "gap-y-6", }
+				>
+					<div class={ "flex", "justify-between", "items-center", "w-full" }>
+						<div class={ "flex", "flex-col", "gap-y-1" }>
+							<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
+							<p class={ "text-secondary", "text-md" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+						</div>
+						if pl.Songs != nil && len(pl.Songs) > 0 {
+							<button
+								type="button"
+								title="Play playlist"
+								onClick={ playPlaylist(pl) }
+							><img src="/static/icons/play-playlist-icon.svg" alt="Play"/></button>
+						}
+					</div>
+					<div id="playlists-listing">
+						if pl.Songs == nil || len(pl.Songs) == 0 {
+							<p>Hmm... This playlist looks empty, you can add songs from the search!</p>
+						} else {
+							<div
+								class={
+									"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
+									"flex", "flex-col", "gap-5", "lg:my-10",
+								}
+							>
+								for _, song := range pl.Songs {
 									<div
 										class={
-											"w-[80px]", "h-[80px]", "lg:w-[125px]", "lg:h-[125px]", "rounded-md", "bg-accent",
-											songThumb(fmt.Sprintf("url(\"%s\")", song.ThumbnailUrl)), "bg-repeat", "bg-cover", "bg-center",
+											"bg-secondary-trans-20", "rounded-[10px]", "p-2", "lg:p-5", "cursor-pointer",
+											"flex", "flex-row", "items-center", "gap-5",
 										}
-									></div>
-									<div class={ "flex", "flex-col", "lg:gap-2" }>
-										<p class={ "text-lg", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
-										<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Artist }</p>
-										<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
-										if song.PlayTimes == 1 {
-											<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
-										} else if song.PlayTimes > 1 {
-											<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
-										}
+										onClick={ playSongFromPlaylist(song.YtId, pl) }
+									>
+										<div
+											class={
+												"w-[80px]", "h-[80px]", "lg:w-[125px]", "lg:h-[125px]", "rounded-md", "bg-accent",
+												songThumb(fmt.Sprintf("url(\"%s\")", song.ThumbnailUrl)), "bg-repeat", "bg-cover", "bg-center",
+											}
+										></div>
+										<div class={ "flex", "flex-col", "lg:gap-2" }>
+											<p class={ "text-lg", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
+											<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Artist }</p>
+											<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
+											if song.PlayTimes == 1 {
+												<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
+											} else if song.PlayTimes > 1 {
+												<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
+											}
+										</div>
 									</div>
-								</div>
-							}
-						</div>
-					}
+								}
+							</div>
+						}
+					</div>
 				</div>
 			</section>
 		</div>
