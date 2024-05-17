@@ -23,7 +23,11 @@ templ mobileHeader() {
 		</div>
 		<div class={  }>
 			<p class={ "text-secondary", "font-Ubuntu", "text-xl" }>
-				Hey,
+				if fullName, ok := ctx.Value("full-name").(string); ok {
+					Hi { fullName } 👋
+				} else {
+					Hiyo 👋
+				}
 				<br/>
 				Wanna play something?
 			</p>
