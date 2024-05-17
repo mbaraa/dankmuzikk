@@ -52,6 +52,10 @@ ytdl = YoutubeDL({
 
 
 def download_songs(ids: [str]) -> int:
+    """
+        download_songs downloads the given songs' ids using yt_dlp,
+        and returns the operation's status code.
+    """
     try:
         new_ids = []
         for id in ids:
@@ -70,21 +74,32 @@ def download_songs(ids: [str]) -> int:
 
 
 def download_songs_from_queue():
+    """
+        download_songs_from_queue fetches the current songs in the download queue,
+        and starts the download process.
+    """
     if mutex_array.length() == 0:
         return
     download_songs(mutex_array.get_array_and_clear())
 
 
-def add_song_to_queue(id):
+def add_song_to_queue(id: str):
+    """
+        add_song_to_queue adds a song's id to the download queue.
+    """
     mutex_array.append(id)
 
 
 ## BG downloader thread
 
 def download_songs_in_background(interval=1):
-  while True:
-    download_songs_from_queue()
-    time.sleep(interval)
+    """
+        download_songs_in_background runs every given interval time in seconds (default is 1),
+        and downloads the songs in the queue in the background.
+    """
+    while True:
+        download_songs_from_queue()
+        time.sleep(interval)
 
 def stop_thread(t):
     t.join()
