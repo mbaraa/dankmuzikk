@@ -60,6 +60,11 @@ func StartServer(staticFS embed.FS) error {
 	m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
 	m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
 	pagesHandler.Handle("/static/", m.Middleware(http.FileServer(http.FS(staticFS))))
+	pagesHandler.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		robotsFile, _ := staticFS.ReadFile("static/robots.txt")
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = w.Write(robotsFile)
+	})
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
 	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil)
