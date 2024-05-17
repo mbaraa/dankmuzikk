@@ -73,30 +73,30 @@ func (s *songDownloadHandler) HandleDownloadSongToQueue(w http.ResponseWriter, r
 	}
 }
 
-func (s *songDownloadHandler) extractSongFromQuery(query url.Values) (entities.SongDownloadRequest, error) {
+func (s *songDownloadHandler) extractSongFromQuery(query url.Values) (entities.Song, error) {
 	id := query.Get("id")
 	if id == "" {
-		return entities.SongDownloadRequest{}, errors.New("missing song's yt id")
+		return entities.Song{}, errors.New("missing song's yt id")
 	}
 	thumbnailUrl := query.Get("thumbnailUrl")
 	if thumbnailUrl == "" {
-		return entities.SongDownloadRequest{}, errors.New("missing song's thumbnailUrl")
+		return entities.Song{}, errors.New("missing song's thumbnailUrl")
 	}
 	title := query.Get("title")
 	if title == "" {
-		return entities.SongDownloadRequest{}, errors.New("missing song's title")
+		return entities.Song{}, errors.New("missing song's title")
 	}
 	artist := query.Get("artist")
 	if artist == "" {
-		return entities.SongDownloadRequest{}, errors.New("missing song's artist name")
+		return entities.Song{}, errors.New("missing song's artist name")
 	}
 	duration := query.Get("duration")
 	if duration == "" {
-		return entities.SongDownloadRequest{}, errors.New("missing song's duration")
+		return entities.Song{}, errors.New("missing song's duration")
 	}
 
-	return entities.SongDownloadRequest{
-		Id:           id,
+	return entities.Song{
+		YtId:         id,
 		Title:        title,
 		Artist:       artist,
 		ThumbnailUrl: thumbnailUrl,
