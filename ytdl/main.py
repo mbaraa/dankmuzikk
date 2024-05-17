@@ -6,8 +6,40 @@ import os.path
 from threading import Lock, Thread
 import time
 import signal
+import mariadb
+import sys
 
 DOWNLOAD_PATH = os.environ.get("YOUTUBE_MUSIC_DOWNLOAD_PATH")
+DB_NAME     = os.environ.get("DB_NAME")
+DB_HOST     = os.environ.get("DB_HOST")
+DB_USERNAME = os.environ.get("DB_USERNAME")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+
+## DB stuff
+conn = None
+
+def open_db_conn():
+    try:
+        global conn
+        conn = mariadb.connect(
+            user=DB_USERNAME,
+            password=DB_PASSWORD,
+            host=DB_HOST[:DB_HOST.index(":")],
+            port=3307,
+            database=DB_NAME
+        )
+    except mariadb.Error as e:
+        print(f"Error connecting to MariaDB Platform: {e}")
+        return 1
+
+
+def update_song_status(id: str):
+    cur = conn.cursor()
+    cur.execute("UPDATE songs SET fully_downloaded=1 WHERE yt_id=?", (id,))
+    conn.commit()
+
+
+## Download Video stuff
 
 class MutexArray:
     def __init__(self, initial_array: []):
@@ -36,6 +68,8 @@ class MutexArray:
         with self._lock:
             return len(self._array)
 
+    def release(self):
+        self._lock.release()
 
 mutex_array = MutexArray([])
 
@@ -65,7 +99,9 @@ def download_songs(ids: [str]) -> int:
         if len(new_ids) == 0:
             return
 
-        ytdl.download([f"https://www.youtube.com/watch?v={id}" for id in new_ids])
+        for id in new_ids:
+            ytdl.download(f"https://www.youtube.com/watch?v={id}")
+            update_song_status(id)
         return 0
     except DownloadError:
         return 1
@@ -101,9 +137,8 @@ def download_songs_in_background(interval=1):
         download_songs_from_queue()
         time.sleep(interval)
 
-def stop_thread(t):
-    t.join()
 
+download_thread = Thread(target=download_songs_in_background, args=(30,))
 
 ## FastAPI Stuff
 
@@ -112,12 +147,24 @@ app = FastAPI(
     description="Apparently the CLI's overhead and limitation has got the best of me.",
 )
 
+
 @app.on_event("startup")
 def on_startup():
-    ticker_thread = Thread(target=download_songs_in_background, args=(30,))
-    ticker_thread.start()
-    signal.signal(signal.SIGINT, lambda: stop_thread(ticker_thread))
-    signal.signal(signal.SIGTERM, lambda: stop_thread(ticker_thread))
+    open_db_conn()
+    global download_thread
+    download_thread.start()
+
+
+@app.on_event("shutdown")
+def on_shutdown():
+    print("Stopping background download thread...")
+    global mutex_array
+    mutex_array.release()
+    global download_thread
+    download_thread.join()
+    print("Closing MariaDB's connection...")
+    global conn
+    conn.close()
 
 
 @app.get("/download/queue/{id}", status_code=status.HTTP_200_OK)
