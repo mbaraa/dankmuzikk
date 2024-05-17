@@ -2,6 +2,7 @@ package search
 
 import (
 	"dankmuzikk/config"
+	"dankmuzikk/entities"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -28,7 +29,7 @@ type scrapSearchResult struct {
 // ScraperSearch is a scrapper enabled YouTube search, using the search service under ~/ytscraper
 type ScraperSearch struct{}
 
-func (y *ScraperSearch) Search(query string) (results []Result, err error) {
+func (y *ScraperSearch) Search(query string) (results []entities.Song, err error) {
 	// TODO: write a proper scraper instead of this hacky node js api
 	resp, err := http.Get(fmt.Sprintf("%s/api/search?q=%s", config.Env().YouTube.ScraperUrl, url.QueryEscape(query)))
 	if err != nil {
@@ -50,11 +51,10 @@ func (y *ScraperSearch) Search(query string) (results []Result, err error) {
 			duration[0] = "0" + duration[0]
 		}
 
-		results = append(results, Result{
-			Id:           res.Video.Id,
+		results = append(results, entities.Song{
+			YtId:         res.Video.Id,
 			Title:        res.Video.Title,
-			ChannelTitle: res.Uploader.Username,
-			Description:  "",
+			Artist:       res.Uploader.Username,
 			ThumbnailUrl: res.Video.ThumbnailUrl,
 			Duration:     strings.Join(duration, ":"),
 		})

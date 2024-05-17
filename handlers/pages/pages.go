@@ -145,23 +145,12 @@ func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.Han
 			return
 		}
 
-		songs := make([]entities.Song, len(results))
-		for i, result := range results {
-			songs[i] = entities.Song{
-				YtId:         result.Id,
-				Title:        result.Title,
-				Artist:       result.ChannelTitle,
-				ThumbnailUrl: result.ThumbnailUrl,
-				Duration:     result.Duration,
-			}
-		}
-
 		var songsInPlaylists map[string]string
 		var playlists []entities.Playlist
 		profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 		if profileIdCorrect {
 			log.Info("downloading songs from search")
-			playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(songs, profileId)
+			playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(results, profileId)
 		}
 
 		if handlers.IsNoLayoutPage(r) {

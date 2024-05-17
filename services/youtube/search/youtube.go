@@ -1,6 +1,7 @@
 package search
 
 import (
+	"dankmuzikk/entities"
 	"fmt"
 	"strings"
 	"time"
@@ -11,21 +12,11 @@ const (
 	maxSearchResults = 7
 )
 
-// Result represents a common search result object.
-type Result struct {
-	Id           string
-	Title        string
-	ChannelTitle string // or artist idk
-	Description  string
-	ThumbnailUrl string
-	Duration     string
-}
-
 // Service is an interface that represents a YouTube search behavior.
 type Service interface {
 	// Search searches YouTube for the given query,
 	// and returns a SearchResult slice, and an occurring error.
-	Search(query string) (results []Result, err error)
+	Search(query string) (results []entities.Song, err error)
 }
 
 func getTime(isoDuration string) (string, error) {
