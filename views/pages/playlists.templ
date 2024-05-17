@@ -14,6 +14,7 @@ templ Playlists(pls []entities.Playlist) {
 				class={
 					"w-full", "md:w-2/3", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
+					"mb-[170px]", "lg:mb-0",
 				}
 			>
 				<div class={ "flex", "justify-between", "items-center", "w-full" }>
@@ -30,6 +31,9 @@ templ Playlists(pls []entities.Playlist) {
 			</section>
 		</div>
 	</main>
+	<script>
+        window.scrollTo(0, 1000);
+    </script>
 }
 
 templ JustPlaylists(pls []entities.Playlist) {
