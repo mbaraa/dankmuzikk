@@ -80,7 +80,7 @@ class PlaylistPlayer {
       this.#currentSongIndex = 0;
     }
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playYTSong(
+    playNewSong(
       songToPlay.yt_id,
       songToPlay.thumbnail_url,
       songToPlay.title,
@@ -107,7 +107,7 @@ class PlaylistPlayer {
         : this.#currentSongIndex + 1;
 
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playYTSong(
+    playNewSong(
       songToPlay.yt_id,
       songToPlay.thumbnail_url,
       songToPlay.title,
@@ -128,7 +128,7 @@ class PlaylistPlayer {
         ? this.#currentPlaylist.songs.length - 1
         : this.#currentSongIndex - 1;
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playYTSong(
+    playNewSong(
       songToPlay.yt_id,
       songToPlay.thumbnail_url,
       songToPlay.title,
@@ -334,7 +334,7 @@ async function downloadSong(song) {
 /**
  * @param {Song} song
  */
-async function fetchMusic(song) {
+async function playNewSong(song) {
   playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
   document.body.style.cursor = "progress";
   Utils.showLoading();
@@ -344,13 +344,7 @@ async function fetchMusic(song) {
     audioPlayerEl.src = `/music/${song.yt_id}.mp3`;
     audioPlayerEl.load();
   });
-}
 
-/**
- * @param {Song} song
- */
-async function playYTSong(song) {
-  await fetchMusic(song);
   setMediaSession(song);
   showPlayer();
 
@@ -433,9 +427,8 @@ audioPlayerEl.addEventListener("timeupdate", (event) => {
 
   if (
     !!currentPlaylistPlayer &&
-    event.target.currentTime >= event.target.duration * 0.8
+    event.target.currentTime >= event.target.duration * 0.9
   ) {
-    return;
     downloadSong(
       currentPlaylistPlayer.nextSong(
         shuffleSongs,
@@ -474,9 +467,9 @@ audioPlayerEl.addEventListener("progress", () => {
 });
 
 window.Player = {
-  playYTSong,
   showPlayer,
   hidePlayer,
   playPlaylist,
   playSongFromPlaylist,
+  playNewSong,
 };
