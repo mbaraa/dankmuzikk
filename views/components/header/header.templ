@@ -22,12 +22,12 @@ templ homeLinkContainer() {
 
 templ mobileHeader() {
 	<div class={ "md:hidden", "h-[250px]", "flex", "flex-col", "justify-between" }>
-		@navlink.LinkContainer("/about", icons.About())
+		@navlink.LinkContainer("/about", "About", icons.About())
 		<div class={ "absolute", "top-[15px]", "right-[15px]" }>
 			@themeswitch.ThemeSwitch()
 		</div>
 		<div class={ "font-Ubuntu", "text-secondary" }>
-			@navlink.LinkContainer("/", homeLinkContainer())
+			@navlink.LinkContainer("/", "Home", homeLinkContainer())
 		</div>
 		<div class={  }>
 			<p class={ "text-secondary", "font-Ubuntu", "text-xl" }>
@@ -48,7 +48,7 @@ templ mobileHeader() {
 
 templ desktopHeader() {
 	<div class={ "hidden", "md:flex", "justify-between", "font-Ubuntu", "text-secondary" }>
-		@navlink.LinkContainer("/", homeLinkContainer())
+		@navlink.LinkContainer("/", "Home", homeLinkContainer())
 		<div class={ "flex", "justify-center", "items-center" }>
 			@search.Search()
 		</div>
