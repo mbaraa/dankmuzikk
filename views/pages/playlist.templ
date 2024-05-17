@@ -6,7 +6,7 @@ import (
 )
 
 templ Playlist(pl entities.Playlist) {
-	<main class={ "w-full", "h-[100dvh]", "lg:h-auto" }>
+	<main class={ "w-full", "h-full", "lg:h-auto" }>
 		<div class={ "flex", "justify-center" }>
 			<section
 				class={
@@ -33,8 +33,8 @@ templ Playlist(pl entities.Playlist) {
 					} else {
 						<div
 							class={
-								"w-full", "flex", "flex-col",
-								"gap-5", "lg:my-10",
+								"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
+								"flex", "flex-col", "gap-5", "lg:my-10",
 							}
 						>
 							for _, song := range pl.Songs {
