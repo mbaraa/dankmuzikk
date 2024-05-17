@@ -1,6 +1,7 @@
 package mobilenav
 
 import "dankmuzikk/views/components/navlink"
+import "dankmuzikk/views/icons"
 
 templ MobileNav() {
 	<div
@@ -17,21 +18,15 @@ templ MobileNav() {
 					<li><a href="/profile">Profile</a></li>
 				</div>
 				<li>
-					@navlink.NavLink("Home", "/static/icons/nav-home-icon.svg", "/")
+					@navlink.LinkContainer("/", icons.Home())
 				</li>
 				<li>
-					@navlink.NavLink("Playlists", "/static/icons/nav-playlists-icon.svg", "/playlists")
+					@navlink.LinkContainer("/playlists", icons.Playlist())
 				</li>
 				<li>
-					@navlink.NavLink("Profile", "/static/icons/nav-profile-icon.svg", "/profile")
+					@navlink.LinkContainer("/profile", icons.Profile())
 				</li>
 			</ul>
 		</nav>
-	</div>
-	<div class="hidden">
-		<img src="/static/icons/nav-home-selected-icon.svg" alt="Home"/>
-		<img src="/static/icons/nav-playlists-selected-icon.svg" alt="Playlists"/>
-		<img src="/static/icons/nav-profile-selected-icon.svg" alt="Profile"/>
-		<img src="/static/icons/nav-about-selected-icon.svg" alt="About"/>
 	</div>
 }

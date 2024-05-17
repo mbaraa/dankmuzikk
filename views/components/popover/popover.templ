@@ -7,7 +7,10 @@ import (
 templ Popover(id string, button, child templ.Component) {
 	<div class={ "popover-container", "relative" }>
 		<button
-			class={ "popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20" }
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "justify-center", "items-center",
+			}
 			onClick={ toggleTheThing(id) }
 		>
 			@button
@@ -16,7 +19,7 @@ templ Popover(id string, button, child templ.Component) {
 			id={ fmt.Sprintf("popover-%s", id) }
 			class={
 				"hidden", "absolute", "z-30", "top-[45px]", "right-[0px]",
-				"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-md", "p-[10px]", "rounded-[5px]", "text-secondary",
+				"bg-primary-trans-20", "backdrop-blur-lg", "shadow-md", "p-[10px]", "rounded-[5px]", "text-secondary",
 				"min-w-[150px]",
 			}
 		>

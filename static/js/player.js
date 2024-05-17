@@ -353,7 +353,7 @@ shuffleEl.addEventListener("click", toggleShuffle);
 
 loopEl.addEventListener("click", (event) => {
   currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
-  event.target.src = "/static/images/" + loopModes[currentLoopIdx].icon;
+  event.target.src = "/static/icons/" + loopModes[currentLoopIdx].icon;
 });
 
 songSeekBarEl.addEventListener("change", (event) => {
