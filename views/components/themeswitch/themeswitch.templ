@@ -46,8 +46,12 @@ script changeTheme(themeName string) {
         default: {
             primary: "#4c8c36",
             primary20: "#4c8c3633",
+            primary30: "#4c8c364c",
+            primary69: "#4c8c36b0",
             secondary: "#ffffff",
             secondary20: "#ffffff33",
+            secondary30: "#ffffff4c",
+            secondary69: "#ffffffb0",
             accent: "#000000",
             accent20: "#00000033",
             accent30: "#0000004c",
@@ -57,8 +61,12 @@ script changeTheme(themeName string) {
         black: {
             primary: "#000000",
             primary20: "#00000033",
+            primary30: "#0000004c",
+            primary69: "#000000b0",
             secondary: "#ffffff",
             secondary20: "#ffffff33",
+            secondary30: "#ffffff4c",
+            secondary69: "#ffffffb0",
             accent: "#D3FCBF",
             accent20: "#D3FCBF33",
             accent30: "#D3FCBF4c",
@@ -75,8 +83,12 @@ script changeTheme(themeName string) {
 
     style.setProperty('--primary-color', theme.primary);
     style.setProperty('--primary-color-20', theme.primary20);
+    style.setProperty('--primary-color-30', theme.primary30);
+    style.setProperty('--primary-color-69', theme.primary69);
     style.setProperty('--secondary-color', theme.secondary);
     style.setProperty('--secondary-color-20', theme.secondary20);
+    style.setProperty('--secondary-color-30', theme.secondary30);
+    style.setProperty('--secondary-color-69', theme.secondary69);
     style.setProperty('--accent-color', theme.accent);
     style.setProperty('--accent-color-20', theme.accent20);
     style.setProperty('--accent-color-30', theme.accent30);
