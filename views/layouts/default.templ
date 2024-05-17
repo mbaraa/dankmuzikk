@@ -28,14 +28,12 @@ templ Default(children ...templ.Component) {
 				content="dankmuzikk,dank,dank music,music,music playlist,share playlist,group playlist"
 			/>
 			<link
-				async
 				defer
 				rel="stylesheet"
 				type="text/css"
 				href="/static/css/player-seeker.css"
 			/>
 			<link
-				async
 				defer
 				rel="stylesheet"
 				type="text/css"
@@ -44,8 +42,8 @@ templ Default(children ...templ.Component) {
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
 			<link href={ fmt.Sprintf("/static/css/themes/%s.css", ctx.Value("theme-name").(string)) } rel="stylesheet"/>
 			<script src="/static/js/htmx/htmx.min.js"></script>
-			<script async defer src="/static/js/htmx/json-enc.js"></script>
-			<script async defer src="/static/js/htmx/loading-states.js"></script>
+			<script defer src="/static/js/htmx/json-enc.js"></script>
+			<script defer src="/static/js/htmx/loading-states.js"></script>
 		</head>
 		<body
 			hx-ext="loading-states"
