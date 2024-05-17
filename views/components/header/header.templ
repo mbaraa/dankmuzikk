@@ -4,6 +4,7 @@ import (
 	"dankmuzikk/views/components/search"
 	"dankmuzikk/views/components/themeswitch"
 	"dankmuzikk/views/components/navlink"
+	"dankmuzikk/views/icons"
 )
 
 templ homeLinkContainer() {
@@ -19,9 +20,7 @@ templ homeLinkContainer() {
 
 templ mobileHeader() {
 	<div class={ "md:hidden", "h-[250px]", "flex", "flex-col", "justify-between" }>
-		<div class={ "absolute", "top-[20px]", "left-[20px]", "w-[23px]" }>
-			@navlink.NavLink("About", "/static/icons/nav-about-icon.svg", "/about")
-		</div>
+		@navlink.LinkContainer("/about", icons.About())
 		<div class={ "absolute", "top-[15px]", "right-[15px]" }>
 			@themeswitch.ThemeSwitch()
 		</div>
