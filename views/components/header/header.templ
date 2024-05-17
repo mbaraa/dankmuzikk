@@ -19,8 +19,11 @@ templ homeLinkContainer() {
 
 templ mobileHeader() {
 	<div class={ "md:hidden", "h-[250px]", "flex", "flex-col", "justify-between" }>
-		<div class={ "absolute", "top-[15px]", "right-[15px]" }>
+		<div class={ "absolute", "top-[20px]", "left-[20px]", "w-[23px]" }>
 			@navlink.NavLink("About", "/static/icons/nav-about-icon.svg", "/about")
+		</div>
+		<div class={ "absolute", "top-[15px]", "right-[15px]" }>
+			@themeswitch.ThemeSwitch()
 		</div>
 		<div class={ "font-Ubuntu", "text-secondary" }>
 			@navlink.LinkContainer("/", homeLinkContainer())
