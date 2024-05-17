@@ -158,10 +158,16 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		Find(&playlistSongs).
 		Error
 	if err != nil {
-		return entities.Playlist{}, err
+		return entities.Playlist{
+			PublicId: dbPlaylists[0].PublicId,
+			Title:    dbPlaylists[0].Title,
+		}, err
 	}
 	if len(playlistSongs) == 0 {
-		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
+		return entities.Playlist{
+			PublicId: dbPlaylists[0].PublicId,
+			Title:    dbPlaylists[0].Title,
+		}, ErrEmptyPlaylist
 	}
 
 	mappedPlaylistSongsToPlaysSuka := make(map[uint]int)

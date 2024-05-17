@@ -88,11 +88,16 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	}
 
 	playlist, err := p.playlistsService.Get(playlistPubId, profileId)
-	if err != nil {
+	switch err {
+	case playlists.ErrUnauthorizedToSeePlaylist:
 		w.Write([]byte(notFoundMessage))
 		return
+	default:
+		if playlist.Title == "" {
+			w.Write([]byte(notFoundMessage))
+			return
+		}
 	}
-	_ = playlist
 
 	if handlers.IsNoLayoutPage(r) {
 		pages.Playlist(playlist).Render(r.Context(), w)
