@@ -89,8 +89,10 @@ class PlaylistPlayer {
   next(shuffle = false, loop = false) {
     if (
       !loop &&
+      !shuffle &&
       this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
     ) {
+      stopMuzikk();
       return;
     }
 
@@ -99,6 +101,7 @@ class PlaylistPlayer {
       : loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
         ? 0
         : this.#currentSongIndex + 1;
+
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
     playYTSong(
       songToPlay.yt_id,
@@ -111,7 +114,8 @@ class PlaylistPlayer {
   }
 
   previous(shuffle = false, loop = false) {
-    if (!loop && this.#currentSongIndex - 1 < 0) {
+    if (!loop && !shuffle && this.#currentSongIndex - 1 < 0) {
+      stopMuzikk();
       return;
     }
     this.#currentSongIndex = shuffle
