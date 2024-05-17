@@ -99,7 +99,7 @@ app = FastAPI(
 
 @app.on_event("startup")
 def on_startup():
-    ticker_thread = Thread(target=download_songs_in_background, args=(1,))
+    ticker_thread = Thread(target=download_songs_in_background, args=(30,))
     ticker_thread.start()
     signal.signal(signal.SIGINT, lambda: stop_thread(ticker_thread))
     signal.signal(signal.SIGTERM, lambda: stop_thread(ticker_thread))
