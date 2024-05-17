@@ -3,7 +3,7 @@ package playlist
 import "dankmuzikk/views/components/popover"
 
 templ NewPlaylistPopover() {
-	@popover.Popover("new-playlist", newPlaylistPopoverButton(), newPlaylistPopover())
+	@popover.Popover("new-playlist", "New playlist", newPlaylistPopoverButton(), newPlaylistPopover())
 }
 
 templ newPlaylistPopover() {
