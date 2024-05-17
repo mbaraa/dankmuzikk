@@ -12,6 +12,6 @@
 }
 
 body {
-  background-image: url("/static/images/dankground.svg"),
-    linear-gradient(to right, var(--accent-color), var(--secondary-color));
+  background-image: url("/static/images/dankground.svg");
+  background-color: var(--primary-color);
 }

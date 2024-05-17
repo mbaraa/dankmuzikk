@@ -70,7 +70,6 @@ script changeTheme(themeName string) {
     const style = document.documentElement.style;
     const theme = themes[themeName];
     if (!theme) {
-        window.location.reload();
         return;
     }
 
@@ -82,6 +81,7 @@ script changeTheme(themeName string) {
     style.setProperty('--accent-color-20', theme.accent20);
     style.setProperty('--accent-color-30', theme.accent30);
     style.setProperty('--accent-color-69', theme.accent69);
-    document.body.style.backgroundImage = `url('${theme.bg}'), linear-gradient(to right, var(--accent-color), var(--secondary-color))`;
+    document.body.style.backgroundImage = `url('${theme.bg}')`;
+    document.body.style.backgroundColor = theme.primary;
     document.getElementById("popover-theme-switcher").style.display = "none";
 }
