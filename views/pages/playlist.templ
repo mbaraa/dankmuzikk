@@ -29,7 +29,7 @@ templ Playlist(pl entities.Playlist) {
 				</div>
 				<div id="playlists-listing">
 					if pl.Songs == nil || len(pl.Songs) == 0 {
-						<p>This playlist is empty!</p>
+						<p>Hmm... This playlist looks empty, you can add songs from the search!</p>
 					} else {
 						<div
 							class={

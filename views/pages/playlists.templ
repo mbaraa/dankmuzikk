@@ -22,7 +22,7 @@ templ Playlists(pls []entities.Playlist) {
 				</div>
 				<div id="playlists-listing">
 					if pls == nil || len(pls) == 0 {
-						<p>No playlists were found!</p>
+						<p>Hmm... You don't have any playlists yet, you can create from the button above!</p>
 					} else {
 						@JustPlaylists(pls)
 					}
