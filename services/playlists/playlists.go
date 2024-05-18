@@ -6,7 +6,6 @@ import (
 	"dankmuzikk/models"
 	"dankmuzikk/services/youtube/download"
 	"fmt"
-	"slices"
 	"strings"
 	"time"
 
@@ -139,7 +138,6 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 			Id: ownerId,
 		}).
 		Where("public_id = ?", playlistPubId).
-		Preload("Songs").
 		Association("Playlist").
 		Find(&dbPlaylists)
 	if err != nil {
@@ -149,57 +147,33 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
 	}
 
-	var playlistSongs []models.PlaylistSong
-	err = p.
-		playlistSongsRepo.
+	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, ps.created_at, ps.play_times
+		FROM
+			playlist_owners po JOIN playlist_songs ps ON po.playlist_id = ps.playlist_id
+		JOIN songs
+			ON ps.song_id = songs.id
+		WHERE ps.playlist_id = ? AND po.profile_id = ?
+		ORDER BY ps.created_at;`
+
+	rows, err := p.repo.
 		GetDB().
-		Model(new(models.PlaylistSong)).
-		Where("playlist_id = ?", dbPlaylists[0].Id).
-		Select("song_id", "play_times", "votes", "created_at").
-		Find(&playlistSongs).
-		Error
+		Raw(gigaQuery, dbPlaylists[0].Id, ownerId).
+		Rows()
 	if err != nil {
-		return entities.Playlist{
-			PublicId: dbPlaylists[0].PublicId,
-			Title:    dbPlaylists[0].Title,
-		}, err
+		return entities.Playlist{}, err
 	}
-	if len(playlistSongs) == 0 {
-		return entities.Playlist{
-			PublicId: dbPlaylists[0].PublicId,
-			Title:    dbPlaylists[0].Title,
-		}, ErrEmptyPlaylist
-	}
-	slices.SortFunc(playlistSongs, func(i, j models.PlaylistSong) int {
-		return i.CreatedAt.Compare(j.CreatedAt)
-	})
+	defer rows.Close()
 
-	mappedPlaylistSongsToPlaysSuka := make(map[uint]int)
-	mappedPlaylistSongsToCreatedAtSuka := make(map[uint]time.Time)
-	songsIdOrderSuka := make(map[int]uint)
-	for i, playlistSong := range playlistSongs {
-		mappedPlaylistSongsToPlaysSuka[playlistSong.SongId] = playlistSong.PlayTimes
-		mappedPlaylistSongsToCreatedAtSuka[playlistSong.SongId] = playlistSong.CreatedAt
-		songsIdOrderSuka[i] = playlistSong.SongId
-	}
-
-	mappedSongByIdSuka := make(map[uint]entities.Song)
-	for _, song := range dbPlaylists[0].Songs {
-		mappedSongByIdSuka[song.Id] = entities.Song{
-			YtId:         song.YtId,
-			Title:        song.Title,
-			Artist:       song.Artist,
-			ThumbnailUrl: song.ThumbnailUrl,
-			Duration:     song.Duration,
-			PlayTimes:    mappedPlaylistSongsToPlaysSuka[song.Id],
-			AddedAt:      mappedPlaylistSongsToCreatedAtSuka[song.Id].Format("2, January, 2006"),
+	songs := make([]entities.Song, 0)
+	for rows.Next() {
+		var song entities.Song
+		var addedAt time.Time
+		err = rows.Scan(&song.YtId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.Duration, &addedAt, &song.PlayTimes)
+		if err != nil {
+			continue
 		}
-	}
-
-	songs := make([]entities.Song, len(dbPlaylists[0].Songs))
-	for i := 0; i < len(songs); i++ {
-		songId := songsIdOrderSuka[i]
-		songs[i] = mappedSongByIdSuka[songId]
+		song.AddedAt = addedAt.Format("2, January, 2006")
+		songs = append(songs, song)
 	}
 
 	return entities.Playlist{
