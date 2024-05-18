@@ -6,6 +6,7 @@ import (
 	"dankmuzikk/models"
 	"dankmuzikk/services/youtube/download"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -169,17 +170,22 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 			Title:    dbPlaylists[0].Title,
 		}, ErrEmptyPlaylist
 	}
+	slices.SortFunc(playlistSongs, func(i, j models.PlaylistSong) int {
+		return i.CreatedAt.Compare(j.CreatedAt)
+	})
 
 	mappedPlaylistSongsToPlaysSuka := make(map[uint]int)
 	mappedPlaylistSongsToCreatedAtSuka := make(map[uint]time.Time)
-	for _, playlistSong := range playlistSongs {
+	songsIdOrderSuka := make(map[int]uint)
+	for i, playlistSong := range playlistSongs {
 		mappedPlaylistSongsToPlaysSuka[playlistSong.SongId] = playlistSong.PlayTimes
 		mappedPlaylistSongsToCreatedAtSuka[playlistSong.SongId] = playlistSong.CreatedAt
+		songsIdOrderSuka[i] = playlistSong.SongId
 	}
 
-	songs := make([]entities.Song, len(dbPlaylists[0].Songs))
-	for i, song := range dbPlaylists[0].Songs {
-		songs[i] = entities.Song{
+	mappedSongByIdSuka := make(map[uint]entities.Song)
+	for _, song := range dbPlaylists[0].Songs {
+		mappedSongByIdSuka[song.Id] = entities.Song{
 			YtId:         song.YtId,
 			Title:        song.Title,
 			Artist:       song.Artist,
@@ -188,6 +194,12 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 			PlayTimes:    mappedPlaylistSongsToPlaysSuka[song.Id],
 			AddedAt:      mappedPlaylistSongsToCreatedAtSuka[song.Id].Format("2, January, 2006"),
 		}
+	}
+
+	songs := make([]entities.Song, len(dbPlaylists[0].Songs))
+	for i := 0; i < len(songs); i++ {
+		songId := songsIdOrderSuka[i]
+		songs[i] = mappedSongByIdSuka[songId]
 	}
 
 	return entities.Playlist{
