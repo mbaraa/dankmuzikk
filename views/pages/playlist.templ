@@ -148,11 +148,11 @@ script removeSongFromPlaylist(songId, playlistId string) {
         if (res.ok) {
             document.getElementById("song-" + songId).remove();
         } else {
-            window.location.reload()
+            window.alert("Oopsie something went wrong!");
         }
     })
     .catch((err) => {
-        window.location.reload()
+        window.alert("Oopsie something went wrong!\n", err);
     })
     .finally(() => {
         Utils.hideLoading();
