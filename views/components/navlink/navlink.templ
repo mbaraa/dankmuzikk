@@ -4,7 +4,7 @@ templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 	<a
 		href={ templ.SafeURL(path) }
 		title={ title }
-		class={ "cursor-pointer", "underline", "hover:no-underline" , "inline-block" }
+		class={ "inline-block" }
 		hx-get={ path + "?no_layout=true" }
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
@@ -33,7 +33,6 @@ templ LinkContainer(path, title string, child templ.Component) {
 	<a
 		href={ templ.SafeURL(path) }
 		title={ title }
-		class={ "cursor-pointer" }
 		hx-get={ path + "?no_layout=true" }
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
