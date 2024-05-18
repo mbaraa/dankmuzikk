@@ -18,14 +18,14 @@ type EmailLoginService struct {
 	accountRepo db.CRUDRepo[models.Account]
 	profileRepo db.CRUDRepo[models.Profile]
 	otpRepo     db.CRUDRepo[models.EmailVerificationCode]
-	jwtUtil     jwt.Manager[any]
+	jwtUtil     jwt.Manager[jwt.Json]
 }
 
 func NewEmailLoginService(
 	accountRepo db.CRUDRepo[models.Account],
 	profileRepo db.CRUDRepo[models.Profile],
 	otpRepo db.CRUDRepo[models.EmailVerificationCode],
-	jwtUtil jwt.Manager[any],
+	jwtUtil jwt.Manager[jwt.Json],
 ) *EmailLoginService {
 	return &EmailLoginService{
 		accountRepo: accountRepo,
@@ -48,7 +48,7 @@ func (e *EmailLoginService) Login(user entities.LoginRequest) (string, error) {
 	profile[0].Account = account[0]
 	profile[0].AccountId = account[0].Id
 
-	verificationToken, err := e.jwtUtil.Sign(map[string]string{
+	verificationToken, err := e.jwtUtil.Sign(jwt.Json{
 		"name":     profile[0].Name,
 		"email":    profile[0].Account.Email,
 		"username": profile[0].Username,
@@ -78,7 +78,7 @@ func (e *EmailLoginService) Signup(user entities.SignupRequest) (string, error) 
 		return "", err
 	}
 
-	verificationToken, err := e.jwtUtil.Sign(map[string]string{
+	verificationToken, err := e.jwtUtil.Sign(jwt.Json{
 		"name":     profile.Name,
 		"email":    profile.Account.Email,
 		"username": profile.Username,
@@ -91,23 +91,22 @@ func (e *EmailLoginService) Signup(user entities.SignupRequest) (string, error) 
 }
 
 func (e *EmailLoginService) VerifyOtp(token string, otp entities.OtpRequest) (string, error) {
-	user, err := e.jwtUtil.Decode(token, jwt.VerificationToken)
+	tokeeeen, err := e.jwtUtil.Decode(token, jwt.VerificationToken)
 	if err != nil {
 		return "", err
 	}
 
-	mappedUser := user.Payload.(map[string]any)
-	email, emailExists := mappedUser["email"].(string)
+	email, emailExists := tokeeeen.Payload["email"].(string)
 	// TODO: ADD THE FUCKING ERRORS SUKA
 	if !emailExists {
 		return "", errors.New("missing email")
 	}
-	name, nameExists := mappedUser["name"].(string)
+	name, nameExists := tokeeeen.Payload["name"].(string)
 	// TODO: ADD THE FUCKING ERRORS SUKA
 	if !nameExists {
 		return "", errors.New("missing name")
 	}
-	username, usernameExists := mappedUser["username"].(string)
+	username, usernameExists := tokeeeen.Payload["username"].(string)
 	// TODO: ADD THE FUCKING ERRORS SUKA
 	if !usernameExists {
 		return "", errors.New("missing username")
@@ -132,7 +131,7 @@ func (e *EmailLoginService) VerifyOtp(token string, otp entities.OtpRequest) (st
 		return "", err
 	}
 
-	sessionToken, err := e.jwtUtil.Sign(map[string]string{
+	sessionToken, err := e.jwtUtil.Sign(jwt.Json{
 		"email":    email,
 		"name":     name,
 		"username": username,

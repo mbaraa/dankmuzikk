@@ -24,14 +24,14 @@ const (
 type pagesHandler struct {
 	profileRepo      db.GetterRepo[models.Profile]
 	playlistsService *playlists.Service
-	jwtUtil          jwt.Manager[any]
+	jwtUtil          jwt.Manager[jwt.Json]
 	ytSearch         search.Service
 }
 
 func NewPagesHandler(
 	profileRepo db.GetterRepo[models.Profile],
 	playlistsService *playlists.Service,
-	jwtUtil jwt.Manager[any],
+	jwtUtil jwt.Manager[jwt.Json],
 	ytSearch search.Service,
 ) *pagesHandler {
 	return &pagesHandler{

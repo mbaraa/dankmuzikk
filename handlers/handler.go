@@ -17,7 +17,7 @@ var noAuthPaths = []string{"/login", "/signup"}
 // Handler is handler for pages and APIs, where it wraps the common stuff in one place.
 type Handler struct {
 	profileRepo db.GORMDBGetter
-	jwtUtil     jwt.Decoder[any]
+	jwtUtil     jwt.Decoder[jwt.Json]
 }
 
 // NewHandler returns a new AuthHandler instance.
@@ -25,7 +25,7 @@ type Handler struct {
 // Where BaseDB doesn't provide column selection yet :(
 func NewHandler(
 	accountRepo db.GORMDBGetter,
-	jwtUtil jwt.Decoder[any],
+	jwtUtil jwt.Decoder[jwt.Json],
 ) *Handler {
 	return &Handler{accountRepo, jwtUtil}
 }
@@ -107,11 +107,7 @@ func (a *Handler) authenticate(r *http.Request) (entities.Profile, error) {
 	if err != nil {
 		return entities.Profile{}, err
 	}
-	payload, valid := theThing.Payload.(map[string]any)
-	if !valid || payload == nil {
-		return entities.Profile{}, err
-	}
-	username, validUsername := theThing.Payload.(map[string]any)["username"].(string)
+	username, validUsername := theThing.Payload["username"].(string)
 	if !validUsername || username == "" {
 		return entities.Profile{}, err
 	}
