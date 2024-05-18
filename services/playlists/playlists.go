@@ -273,18 +273,7 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 		}
 	}
 
-	songRequests := make([]entities.SongDownloadRequest, len(songs))
-	for i, song := range songs {
-		songRequests[i] = entities.SongDownloadRequest{
-			Id:           song.YtId,
-			ThumbnailUrl: song.ThumbnailUrl,
-			Title:        song.Title,
-			Artist:       song.Artist,
-			Duration:     song.Duration,
-		}
-	}
-
-	err = p.downloadService.DownloadYoutubeSongsMetadata(songRequests)
+	err = p.downloadService.DownloadYoutubeSongsMetadata(songs)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -46,13 +46,17 @@ let currentPlaylistPlayer;
  * @property {string} thumbnail_url
  * @property {string} yt_id
  * @property {number} play_times
- *
+ * @property {string} added_at
+ */
+
+/**
  * @typedef {object} Playlist
  * @property {string} public_id
  * @property {string} title
  * @property {string} songs_count
  * @property {Song[]} songs
  */
+
 class PlaylistPlayer {
   #currentPlaylist;
   #currentSongIndex;
@@ -76,21 +80,17 @@ class PlaylistPlayer {
       this.#currentSongIndex = 0;
     }
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playYTSong(
-      songToPlay.yt_id,
-      songToPlay.thumbnail_url,
-      songToPlay.title,
-      songToPlay.artist,
-      songToPlay.duration,
-    );
+    playNewSong(songToPlay);
     this.#updateSongPlays();
   }
 
   next(shuffle = false, loop = false) {
     if (
       !loop &&
+      !shuffle &&
       this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
     ) {
+      stopMuzikk();
       return;
     }
 
@@ -99,19 +99,15 @@ class PlaylistPlayer {
       : loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
         ? 0
         : this.#currentSongIndex + 1;
+
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playYTSong(
-      songToPlay.yt_id,
-      songToPlay.thumbnail_url,
-      songToPlay.title,
-      songToPlay.artist,
-      songToPlay.duration,
-    );
+    playNewSong(songToPlay);
     this.#updateSongPlays();
   }
 
   previous(shuffle = false, loop = false) {
-    if (!loop && this.#currentSongIndex - 1 < 0) {
+    if (!loop && !shuffle && this.#currentSongIndex - 1 < 0) {
+      stopMuzikk();
       return;
     }
     this.#currentSongIndex = shuffle
@@ -120,14 +116,31 @@ class PlaylistPlayer {
         ? this.#currentPlaylist.songs.length - 1
         : this.#currentSongIndex - 1;
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playYTSong(
-      songToPlay.yt_id,
-      songToPlay.thumbnail_url,
-      songToPlay.title,
-      songToPlay.artist,
-      songToPlay.duration,
-    );
+    playNewSong(songToPlay);
     this.#updateSongPlays();
+  }
+
+  /**
+   * nextSong returns the next song if applicable
+   * @returns{Song}
+   */
+  nextSong(shuffle = false, loop = false) {
+    if (
+      !loop &&
+      !shuffle &&
+      this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+    ) {
+      stopMuzikk();
+      return;
+    }
+
+    const nextIndex = shuffle
+      ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
+      : loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+        ? 0
+        : this.#currentSongIndex + 1;
+
+    return this.#currentPlaylist.songs[nextIndex];
   }
 
   async #updateSongPlays() {
@@ -162,17 +175,17 @@ function playSongFromPlaylist(songId, playlist) {
 }
 
 /**
- * @param {{id: string, artist: string, thumbnailUrl: string, title: string}} videoData
+ * @param {Song} song
  */
-function setMediaSession(videoData) {
+function setMediaSession(song) {
   if (!("mediaSession" in navigator)) {
     console.error("Browser doesn't support mediaSession");
     return;
   }
   navigator.mediaSession.metadata = new MediaMetadata({
-    title: videoData.title,
-    artist: videoData.artist,
-    album: videoData.artist,
+    title: song.title,
+    artist: song.artist,
+    album: song.artist,
     artwork: [
       "96x96",
       "128x128",
@@ -182,7 +195,7 @@ function setMediaSession(videoData) {
       "512x512",
     ].map((i) => {
       return {
-        src: videoData.thumbnailUrl,
+        src: song.thumbnail_url,
         sizes: i,
         type: "image/png",
       };
@@ -291,42 +304,48 @@ function toggleShuffle() {
   shuffleSongs = !shuffleSongs;
 }
 
-async function fetchMusic(videoData) {
+/**
+ * @param {Song} song
+ */
+async function downloadSong(song) {
+  if (!song) {
+    return;
+  }
+  return await fetch(
+    "/api/song/download?" + new URLSearchParams(song).toString(),
+  ).catch((err) => console.error(err));
+}
+
+/**
+ * @param {Song} song
+ */
+async function playNewSong(song) {
   playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
   document.body.style.cursor = "progress";
   Utils.showLoading();
 
-  await fetch("/api/song/download?" + new URLSearchParams(videoData).toString())
-    .then((res) => {
-      if (audioPlayerEl) {
-        stopMuzikk();
-      }
-      audioPlayerEl.src = `/music/${videoData.id}.mp3`;
-      audioPlayerEl.load();
-      console.log(res);
-    })
-    .catch((err) => console.error(err));
-}
+  await downloadSong(song).then(() => {
+    stopMuzikk();
+    audioPlayerEl.src = `/music/${song.yt_id}.mp3`;
+    audioPlayerEl.load();
+  });
 
-async function playYTSong(id, thumbnailUrl, title, artist, duration) {
-  const videoData = { id, thumbnailUrl, title, artist, duration };
-  await fetchMusic(videoData);
-  setMediaSession(videoData);
+  setMediaSession(song);
   showPlayer();
 
-  if (videoData.title) {
-    songNameEl.innerHTML = videoData.title;
-    songNameEl.title = videoData.title;
-    if (videoData.title.length > Utils.getTextWidth()) {
+  if (song.title) {
+    songNameEl.innerHTML = song.title;
+    songNameEl.title = song.title;
+    if (song.title.length > Utils.getTextWidth()) {
       songNameEl.parentElement.classList.add("marquee");
     } else {
       songNameEl.parentElement.classList.remove("marquee");
     }
   }
-  if (videoData.artist) {
-    artistNameEl.innerHTML = videoData.artist;
-    artistNameEl.title = videoData.artist;
-    if (videoData.artist.length > Utils.getTextWidth()) {
+  if (song.artist) {
+    artistNameEl.innerHTML = song.artist;
+    artistNameEl.title = song.artist;
+    if (song.artist.length > Utils.getTextWidth()) {
       artistNameEl.parentElement.classList.add("marquee");
     } else {
       artistNameEl.parentElement.classList.remove("marquee");
@@ -334,7 +353,7 @@ async function playYTSong(id, thumbnailUrl, title, artist, duration) {
   }
 
   playMuzikk();
-  songImageEl.style.backgroundImage = `url("${videoData.thumbnailUrl}")`;
+  songImageEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
 }
 
 function showPlayer() {
@@ -421,9 +440,9 @@ audioPlayerEl.addEventListener("progress", () => {
 });
 
 window.Player = {
-  playYTSong,
   showPlayer,
   hidePlayer,
   playPlaylist,
   playSongFromPlaylist,
+  playNewSong,
 };

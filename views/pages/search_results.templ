@@ -1,14 +1,11 @@
 package pages
 
 import (
-	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/entities"
 )
 
-type SearchResult = search.Result
-
-templ SearchResults(results []SearchResult, playlists []entities.Playlist, songsInPlaylists map[string]string) {
+templ SearchResults(results []entities.Song, playlists []entities.Playlist, songsInPlaylists map[string]string) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={
@@ -30,7 +27,7 @@ templ SearchResults(results []SearchResult, playlists []entities.Playlist, songs
 					>
 						<div
 							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative", "cursor-pointer" }
-							onClick={ playSong(res.Id, res.ThumbnailUrl, res.Title, res.ChannelTitle, res.Duration) }
+							onClick={ playSong(res) }
 						>
 							<img
 								class={ "w-full", "h-full", "rounded-lg" }
@@ -51,16 +48,16 @@ templ SearchResults(results []SearchResult, playlists []entities.Playlist, songs
 							<h3
 								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
 								title={ res.Title }
-								onClick={ playSong(res.Id, res.ThumbnailUrl, res.Title, res.ChannelTitle, res.Duration) }
+								onClick={ playSong(res) }
 							>
 								{ res.Title }
 							</h3>
-							<p class={ "w-full", "text-sm", "font-normal" }>{ res.ChannelTitle }</p>
+							<p class={ "w-full", "text-sm", "font-normal" }>{ res.Artist }</p>
 						</div>
 					</div>
 					<!-- actions -->
 					<div class={ "w-[30px]", "h-[30px]", "relative" }>
-						@playlist.PlaylistsPopover(idx, res.Id, playlists, songsInPlaylists)
+						@playlist.PlaylistsPopover(idx, res.YtId, playlists, songsInPlaylists)
 					</div>
 				</div>
 			}
@@ -68,6 +65,6 @@ templ SearchResults(results []SearchResult, playlists []entities.Playlist, songs
 	</main>
 }
 
-script playSong(id, thumbnailUrl, title, artist, duration string) {
-    window.Player.playYTSong(id, thumbnailUrl, title, artist, duration);
+script playSong(song entities.Song) {
+    window.Player.playNewSong(song);
 }

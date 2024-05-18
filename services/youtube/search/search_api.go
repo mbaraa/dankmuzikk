@@ -2,6 +2,7 @@ package search
 
 import (
 	"context"
+	"dankmuzikk/entities"
 	"dankmuzikk/log"
 	"encoding/json"
 
@@ -31,7 +32,7 @@ type apiSearchResult struct {
 // ApiSearch is a YouTube enabled YouTube search, using the official YouTube API.
 type ApiSearch struct{}
 
-func (y *ApiSearch) Search(query string) (results []Result, err error) {
+func (y *ApiSearch) Search(query string) (results []entities.Song, err error) {
 	ctx := context.Background()
 	youtubeService, err := youtube.NewService(ctx)
 	if err != nil {
@@ -73,11 +74,10 @@ func (y *ApiSearch) Search(query string) (results []Result, err error) {
 			continue
 		}
 
-		results = append(results, Result{
+		results = append(results, entities.Song{
 			Title:        responseObj.Items[0].Snippet.Title,
-			ChannelTitle: responseObj.Items[0].Snippet.ChannelTitle,
-			Description:  responseObj.Items[0].Snippet.Description,
-			Id:           responseObj.Items[0].Id,
+			Artist:       responseObj.Items[0].Snippet.ChannelTitle,
+			YtId:         responseObj.Items[0].Id,
 			ThumbnailUrl: responseObj.Items[0].Snippet.Thumbnails.Default.Url,
 			Duration:     duration,
 		})
