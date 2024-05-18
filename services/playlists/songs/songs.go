@@ -3,6 +3,7 @@ package songs
 import (
 	"dankmuzikk/db"
 	"dankmuzikk/models"
+	"dankmuzikk/services/youtube/download"
 )
 
 // Service represents songs in platlists management service,
@@ -11,6 +12,7 @@ type Service struct {
 	playlistSongRepo db.UnsafeCRUDRepo[models.PlaylistSong]
 	songRepo         db.UnsafeCRUDRepo[models.Song]
 	playlistRepo     db.UnsafeCRUDRepo[models.Playlist]
+	downloadService  *download.Service
 }
 
 // New accepts repos lol, and returns a new instance to the songs playlists service.
@@ -18,8 +20,14 @@ func New(
 	playlistSongRepo db.UnsafeCRUDRepo[models.PlaylistSong],
 	songRepo db.UnsafeCRUDRepo[models.Song],
 	playlistRepo db.UnsafeCRUDRepo[models.Playlist],
+	downloadService *download.Service,
 ) *Service {
-	return &Service{playlistSongRepo, songRepo, playlistRepo}
+	return &Service{
+		playlistSongRepo: playlistSongRepo,
+		songRepo:         songRepo,
+		playlistRepo:     playlistRepo,
+		downloadService:  downloadService,
+	}
 }
 
 // AddSongToPlaylist adds a given song to the given playlist,
@@ -35,11 +43,15 @@ func (s *Service) AddSongToPlaylist(songId, playlistPubId string) error {
 	if err != nil {
 		return err
 	}
-
-	return s.playlistSongRepo.Add(&models.PlaylistSong{
+	err = s.playlistSongRepo.Add(&models.PlaylistSong{
 		PlaylistId: playlist[0].Id,
 		SongId:     song[0].Id,
 	})
+	if err != nil {
+		return err
+	}
+
+	return s.downloadService.DownloadYoutubeSongQueue(songId)
 }
 
 // IncrementSongPlays increases the song's play times in the given playlist.
