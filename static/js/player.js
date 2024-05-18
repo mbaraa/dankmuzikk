@@ -80,13 +80,7 @@ class PlaylistPlayer {
       this.#currentSongIndex = 0;
     }
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playNewSong(
-      songToPlay.yt_id,
-      songToPlay.thumbnail_url,
-      songToPlay.title,
-      songToPlay.artist,
-      songToPlay.duration,
-    );
+    playNewSong(songToPlay);
     this.#updateSongPlays();
   }
 
@@ -107,13 +101,7 @@ class PlaylistPlayer {
         : this.#currentSongIndex + 1;
 
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playNewSong(
-      songToPlay.yt_id,
-      songToPlay.thumbnail_url,
-      songToPlay.title,
-      songToPlay.artist,
-      songToPlay.duration,
-    );
+    playNewSong(songToPlay);
     this.#updateSongPlays();
   }
 
@@ -128,13 +116,7 @@ class PlaylistPlayer {
         ? this.#currentPlaylist.songs.length - 1
         : this.#currentSongIndex - 1;
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playNewSong(
-      songToPlay.yt_id,
-      songToPlay.thumbnail_url,
-      songToPlay.title,
-      songToPlay.artist,
-      songToPlay.duration,
-    );
+    playNewSong(songToPlay);
     this.#updateSongPlays();
   }
 
