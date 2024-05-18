@@ -14,8 +14,8 @@ type JWTImpl[T any] struct{}
 
 // NewJWTImpl returns a new JWTImpl instance,
 // and since session tokens are to validate users the working type is models.User
-func NewJWTImpl() Manager[any] {
-	return &JWTImpl[any]{}
+func NewJWTImpl() Manager[Json] {
+	return &JWTImpl[Json]{}
 }
 
 // Sign returns a JWT string(which will be the session token) based on the set JWT secret,
