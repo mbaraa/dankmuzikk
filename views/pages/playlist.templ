@@ -4,6 +4,7 @@ import (
 	"dankmuzikk/entities"
 	"fmt"
 	"dankmuzikk/views/components/navlink"
+	"dankmuzikk/views/components/popover"
 )
 
 templ Playlist(pl entities.Playlist) {
@@ -48,26 +49,34 @@ templ Playlist(pl entities.Playlist) {
 								for _, song := range pl.Songs {
 									<div
 										class={
-											"bg-secondary-trans-20", "rounded-[10px]", "p-2", "lg:p-5", "cursor-pointer",
-											"flex", "flex-row", "items-center", "gap-5",
+											"bg-secondary-trans-20", "rounded-[10px]", "p-2", "lg:p-5",
+											"flex", "flex-row", "items-center", "gap-5", "justify-between",
 										}
-										onClick={ playSongFromPlaylist(song.YtId, pl) }
 									>
 										<div
 											class={
-												"w-[80px]", "h-[80px]", "lg:w-[125px]", "lg:h-[125px]", "rounded-md", "bg-accent",
+												"w-[80px]", "h-[80px]", "lg:w-[125px]", "lg:h-[125px]", "rounded-md", "bg-accent", "cursor-pointer",
 												songThumb(fmt.Sprintf("url(\"%s\")", song.ThumbnailUrl)), "bg-repeat", "bg-cover", "bg-center",
 											}
+											onClick={ playSongFromPlaylist(song.YtId, pl) }
 										></div>
-										<div class={ "flex", "flex-col", "lg:gap-2" }>
-											<p class={ "text-lg", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
-											<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Artist }</p>
-											<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
-											if song.PlayTimes == 1 {
-												<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
-											} else if song.PlayTimes > 1 {
-												<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
-											}
+										<div class={ "w-11/12", "flex", "justify-between", "items-center" }>
+											<div
+												class={ "cursor-pointer", "flex", "flex-col", "lg:gap-2" }
+												onClick={ playSongFromPlaylist(song.YtId, pl) }
+											>
+												<p class={ "text-lg", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
+												<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Artist }</p>
+												<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
+												if song.PlayTimes == 1 {
+													<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
+												} else if song.PlayTimes > 1 {
+													<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
+												}
+											</div>
+											<div>
+												@popover.Popover(song.YtId, "Options", songOptionsToggle(), songOptions(song, pl.PublicId))
+											</div>
 										</div>
 									</div>
 								}
@@ -78,6 +87,34 @@ templ Playlist(pl entities.Playlist) {
 			</section>
 		</div>
 	</main>
+}
+
+templ songOptionsToggle() {
+	<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<circle cx="10.5" cy="2.5" r="2.5" fill="var(--secondary-color)"></circle>
+		<circle cx="10.5" cy="10.5" r="2.5" fill="var(--secondary-color)"></circle>
+		<circle cx="10.5" cy="18.5" r="2.5" fill="var(--secondary-color)"></circle>
+	</svg>
+}
+
+templ songOptions(song entities.Song, playlistId string) {
+	<div
+		class={
+			"w-full", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
+			"flex", "flex-col", "gap-y-2",
+		}
+	>
+		<h3>Song's options</h3>
+		<button
+			class={
+				"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
+				"rounded-[5px]", "py-[5px]", "px-[60px]", "w-full",
+			}
+			title={ "Remove " + song.Title + "!" }
+			type="button"
+			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+		>Remove</button>
+	</div>
 }
 
 templ backButton() {
@@ -99,4 +136,33 @@ script playPlaylist(playlist entities.Playlist) {
 
 script playSongFromPlaylist(songId string, playlist entities.Playlist) {
     window.Player.playSongFromPlaylist(songId, playlist)
+}
+
+script removeSongFromPlaylist(songId, playlistId string) {
+    Utils.showLoading();
+    fetch("/api/toggle-song-in-playlist?song-id=" + songId + "&playlist-id=" + playlistId + "&remove=true", {
+        method: "PUT",
+    })
+    .then((res) => {
+        if (res.ok) {
+            fetch("/playlist/"+playlistId+"?no_layout=true")
+            .then((res) => res.text())
+            .then((page) => {
+                if (!page || page.length === 0) {
+                    window.location.reload()
+                    return;
+                }
+                document.getElementById("main-contents").innerHTML = page;
+            })
+            .catch(() => {
+                window.location.reload()
+            })
+        }
+    })
+    .catch((err) => {
+        window.alert(err);
+    })
+    .finally(() => {
+        Utils.hideLoading();
+    });
 }
