@@ -231,6 +231,8 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 
 // TODO: fix this weird ass 3 return values
 func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) ([]entities.Playlist, map[string]string, error) {
+	_ = p.downloadService.DownloadYoutubeSongsMetadata(songs)
+
 	var dbPlaylists []models.Playlist
 	err := p.
 		repo.
@@ -271,11 +273,6 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 			PublicId: dbPlaylist.PublicId,
 			Title:    dbPlaylist.Title,
 		}
-	}
-
-	err = p.downloadService.DownloadYoutubeSongsMetadata(songs)
-	if err != nil {
-		return nil, nil, err
 	}
 
 	return playlists, mappedPlaylists, nil
