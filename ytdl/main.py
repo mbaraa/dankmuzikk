@@ -116,21 +116,19 @@ def download_song(id: str) -> int:
 
         ## wait list
         while to_be_downloaded.exists(id):
-            print(f"the song with the yt id {id} is being downloaded in the background...")
             time.sleep(1)
             pass
-
-
-        print("preparing to download")
 
         ## download the stuff
         if song_exists(id):
             to_be_downloaded.remove(id)
             return 0
+
         to_be_downloaded.append(id)
         ytdl.download(f"https://www.youtube.com/watch?v={id}")
-        update_song_status(id)
         to_be_downloaded.remove(id)
+        update_song_status(id)
+
         return 0
     except DownloadError:
         return 1

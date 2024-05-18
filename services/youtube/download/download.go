@@ -35,9 +35,6 @@ func (d *Service) DownloadYoutubeSong(req entities.Song) error {
 		log.Infof("The song with id %s is already downloaded\n", req.YtId)
 		return nil
 	}
-	if err != nil {
-		return err
-	}
 
 	resp, err := http.Get(fmt.Sprintf("%s/download/%s", config.Env().YouTube.DownloaderUrl, req.YtId))
 	if err != nil {

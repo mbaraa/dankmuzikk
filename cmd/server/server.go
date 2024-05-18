@@ -67,7 +67,7 @@ func StartServer(staticFS embed.FS) error {
 	})
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
-	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil)
+	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil, &search.ScraperSearch{})
 	pagesHandler.HandleFunc("/", gHandler.OptionalAuthPage(pagesRouter.HandleHomePage))
 	pagesHandler.HandleFunc("/signup", gHandler.AuthPage(pagesRouter.HandleSignupPage))
 	pagesHandler.HandleFunc("/login", gHandler.AuthPage(pagesRouter.HandleLoginPage))
@@ -76,7 +76,7 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.HandleFunc("/playlists", gHandler.AuthPage(pagesRouter.HandlePlaylistsPage))
 	pagesHandler.HandleFunc("/playlist/{playlist_id}", gHandler.AuthPage(pagesRouter.HandleSinglePlaylistPage))
 	pagesHandler.HandleFunc("/privacy", gHandler.NoAuthPage(pagesRouter.HandlePrivacyPage))
-	pagesHandler.HandleFunc("/search", gHandler.OptionalAuthPage(pagesRouter.HandleSearchResultsPage(&search.ScraperSearch{})))
+	pagesHandler.HandleFunc("/search", gHandler.OptionalAuthPage(pagesRouter.HandleSearchResultsPage))
 
 	///////////// APIs /////////////
 

@@ -25,14 +25,21 @@ type pagesHandler struct {
 	profileRepo      db.GetterRepo[models.Profile]
 	playlistsService *playlists.Service
 	jwtUtil          jwt.Manager[any]
+	ytSearch         search.Service
 }
 
 func NewPagesHandler(
 	profileRepo db.GetterRepo[models.Profile],
 	playlistsService *playlists.Service,
 	jwtUtil jwt.Manager[any],
+	ytSearch search.Service,
 ) *pagesHandler {
-	return &pagesHandler{profileRepo, playlistsService, jwtUtil}
+	return &pagesHandler{
+		profileRepo:      profileRepo,
+		playlistsService: playlistsService,
+		jwtUtil:          jwtUtil,
+		ytSearch:         ytSearch,
+	}
 }
 
 func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
@@ -134,31 +141,29 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 	layouts.Default(pages.Profile(profile)).Render(r.Context(), w)
 }
 
-func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query().Get("query")
-		results, err := ytSearch.Search(query)
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("not found"))
-			log.Errorln(err)
-			return
-		}
-
-		var songsInPlaylists map[string]string
-		var playlists []entities.Playlist
-		profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
-		if profileIdCorrect {
-			log.Info("downloading songs from search")
-			playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(results, profileId)
-		}
-
-		if handlers.IsNoLayoutPage(r) {
-			pages.SearchResults(results, playlists, songsInPlaylists).Render(r.Context(), w)
-			return
-		}
-		layouts.Default(pages.SearchResults(results, playlists, songsInPlaylists)).Render(r.Context(), w)
+func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("query")
+	results, err := p.ytSearch.Search(query)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("not found"))
+		log.Errorln(err)
+		return
 	}
+
+	var songsInPlaylists map[string]string
+	var playlists []entities.Playlist
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if profileIdCorrect {
+		log.Info("downloading songs' meta data from search")
+		playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(results, profileId)
+	}
+
+	if handlers.IsNoLayoutPage(r) {
+		pages.SearchResults(results, playlists, songsInPlaylists).Render(r.Context(), w)
+		return
+	}
+	layouts.Default(pages.SearchResults(results, playlists, songsInPlaylists)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {

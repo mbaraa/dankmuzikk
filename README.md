@@ -21,7 +21,7 @@ _Note: this is a fling side-project that will die in a while so don't get your h
 
 IDK, it would be really nice of you to contribute, check the poorly written [CONTRIBUTING.md](/CONTRIBUTING.md) for more info.
 
-### Roadmap
+## Roadmap
 
 - [x] Search YouTube for music
 - [x] Web UI
@@ -32,6 +32,17 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - [ ] Vote songs in playlists
 - [ ] Write a better YouTube scraper (or try to fix the quota thing)
 - [ ] Refactor the code (never gonna happen)
+
+## Technologies used
+
+- **[Go](https://golang.org)**: Main programming language.
+- **[templ](https://templ.guide)**: The better [html/template](https://pkg.go.dev/html/template).
+- **[htmx](https://htmx.org)**: The front-end library of peace.
+- **[GORM](https://gorm.io)**: The fantastic ORM library for Golang.
+- **[MariaDB](https://mariadb.org)**: Relational database.
+- **[Python](https://python.org)**: Used for the YouTube download service.
+- **[yt-dlp](https://github.com/yt-dlp/yt-dlp)**: YouTube download helper.
+- **[minify](https://github.com/tdewolff/minify)**: Minify static text files.
 
 ## Run locally
 
@@ -58,9 +69,12 @@ docker compose up
 
 ## Acknowledgements
 
-- The background was taken from dankpods.net
-- Frank’s original image was taken from dankpods.biz
+- **This project is not affiliated with YouTube or Google, or anyone to that matter in any sort of ways.**
+- The background was taken from [dankpods.net](https://dankpods.net)
+- Frank’s original image was taken from [dingusland.biz](https://dingusland.biz)
 - Colorscheme is inspired from [Dankpods](https://www.youtube.com/@DankPods)
-- templ was used to make this project’s views: MIT licensed by [Adrian Hesketh](https://github.com/a-h)
-- htmx was used to make this project’s client more dynamic: No licence but just wanted to say that I used htmx BTW
 - youtube-scrape was used to search videos without using the actual YouTube API (small quota): MIT licenses by [Herman Fassett](https://github.com/HermanFassett)
+
+---
+
+Made with 🧉 by [Baraa Al-Masri](https://mbaraa.com)

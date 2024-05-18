@@ -45,9 +45,6 @@
   }
 }
 
-.btn {
-}
-
 span,
 p,
 h1,
@@ -57,4 +54,12 @@ h4,
 h5,
 h6 {
   font-family: "Ubuntu";
+}
+
+a {
+  text-decoration: underline;
+}
+
+a:hover {
+  text-decoration: none;
 }
