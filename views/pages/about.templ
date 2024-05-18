@@ -37,16 +37,29 @@ templ About() {
 					<p>
 						This application is licensed under the GNU General Public License version 3 (GPLv3), that is, this application is free to use for any purpose, it’s source-code is available on GitHub here for any purpose needed to look at the code, any redestribution of the application has to be under GPLv3 including license and copyright notices.
 						<br/>
-						Full license is available <a class={ "underline" } href="https://github.com/mbaraa/dankmuzikk/blob/main/LICENSE" target="_blank">here</a>.
+						Full license is available <a href="https://github.com/mbaraa/dankmuzikk/blob/main/LICENSE" target="_blank">here</a>.
 					</p>
 				</section>
 				<section id="privacy" class={ "flex", "flex-col", "gap-y-1" }>
 					<h2 class={ "text-xl" }>Privacy</h2>
 					<p>
-						You can find details about privacy <a class={ "underline" } href="/privacy">here</a>.
+						You can find details about privacy <a href="/privacy">here</a>.
 						<br/>
 						TLDR; I don’t collect any data, not sure install uBlock and check trackers yourself or check the code on <a class={ "underline" } href="https://github.com/mbaraa/dankmuzikk" target="_blank">GitHub</a>.
 					</p>
+				</section>
+				<section id="technologies" class={ "flex", "flex-col", "gap-y-1" }>
+					<h2 class={ "text-xl" }>Technologies used</h2>
+					<ul class={ "list-disc", "ms-5" }>
+						<li><a target="_blank" href="https://golang.org">Go</a>: Main programming language.</li>
+						<li><a harget="_blank" href="https://templ.guide">templ</a>:  The better <a harget="_blank" href="https://pkg.go.dev/html/template">html/template</a>.</li>
+						<li><a harget="_blank" href="https://htmx.org">htmx</a>: The front-end library of peace.</li>
+						<li><a harget="_blank" href="https://gorm.io">GORM</a>: The fantastic ORM library for Golang.</li>
+						<li><a harget="_blank" href="https://mariadb.org">MariaDB</a>: Relational database.</li>
+						<li><a harget="_blank" href="https://python.org">Python</a>: Used for the YouTube download service.</li>
+						<li><a harget="_blank" href="https://github.com/yt-dlp/yt-dlp">yt-dlp]</a>: YouTube download helper.</li>
+						<li><a harget="_blank" href="https://github.com/tdewolff/minify">minify</a>: Minify static text files.</li>
+					</ul>
 				</section>
 				<section id="acknoledgements" class={ "flex", "flex-col", "gap-y-1" }>
 					<h2 class={ "text-xl" }>Acknoledgements</h2>
@@ -54,12 +67,10 @@ templ About() {
 						<li>
 							<p class={ "font-bold" }>This project is not affiliated with YouTube or Google, or anyone to that matter in any sort of ways.</p>
 						</li>
-						<li>The background was taken from  <a class={ "underline" } href="https://dankpods.net" target="_blank">dankpods.net</a></li>
-						<li>Frank’s original image was taken from <a class={ "underline" } href="https://dingusland.biz" target="_blank">dingusland.biz</a></li>
-						<li>Colorscheme is inspired from  <a class={ "underline" } href="https://youtube.com/@Dankpods" target="_blank">&commat;Dankpods</a> </li>
-						<li>templ was used to make this project’s views: MIT licensed by  <a class={ "underline" } href="https://github.com/a-h" target="_blank">Adrian Hesketh</a>.</li>
-						<li>htmx was used to make this project’s client more dynamic: No licence but just wanted to say that I used <a class={ "underline" } href="https://htmx.org" target="_blank">htmx</a> BTW.</li>
-						<li>youtube-scrape was used to search videos without using the actual YouTube API (small quota): MIT licenses by <a class={ "underline" } href="https://github.com/HermanFassett" target="_blank">Herman Fassett</a>.</li>
+						<li>The background was taken from  <a href="https://dankpods.net" target="_blank">dankpods.net</a></li>
+						<li>Frank’s original image was taken from <a href="https://dingusland.biz" target="_blank">dingusland.biz</a></li>
+						<li>Colorscheme is inspired from  <a href="https://youtube.com/@Dankpods" target="_blank">&commat;Dankpods</a> </li>
+						<li>youtube-scrape was used to search videos without using the actual YouTube API (small quota): MIT licenses by <a href="https://github.com/HermanFassett" target="_blank">Herman Fassett</a>.</li>
 					</ul>
 				</section>
 			</section>
