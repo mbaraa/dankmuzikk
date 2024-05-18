@@ -1,5 +1,7 @@
 package themeswitch
 
+import "dankmuzikk/views/components/popover"
+
 var themes = []struct {
 	displayName string
 	actualName  string
@@ -12,37 +14,34 @@ var themes = []struct {
 		displayName: "Black",
 		actualName:  "black",
 	},
+	{
+		displayName: "White",
+		actualName:  "white",
+	},
 }
 
 templ ThemeSwitch() {
-	<div class={ "theme-toggle-container", "relative" }>
-		<button
-			onClick={ toggleTheThing() }
-			class={ "p-2", "rounded-md", "hover:bg-black-trans-100" }
-		>
-			<img src="/static/images/theme-icon.svg" alt="Theme Selector"/>
-		</button>
-		<div
-			id="theme-selector"
-			class={
-				"hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
-				"bg-white", "shadow-md", "p-[10px]", "rounded-[5px]",
-				"min-w-[150px]", "text-black",
-			}
-		>
-			<ul class={ "text-black" }>
-				for _, theme := range themes {
-					<li>
-						<button
-							onClick={ changeTheme(theme.actualName) }
-							type="button"
-							class={ "w-full", "p-2", "rounded-md", "hover:bg-black-trans-100", "text-left" }
-						>{ theme.displayName }</button>
-					</li>
-				}
-			</ul>
-		</div>
-	</div>
+	@popover.Popover("theme-switcher", "Change theme", themeSwitchButton(), themeSwitch())
+}
+
+templ themeSwitch() {
+	<ul class={ "text-secondary" }>
+		for _, theme := range themes {
+			<li>
+				<button
+					onClick={ changeTheme(theme.actualName) }
+					type="button"
+					class={ "w-full", "p-2", "rounded-md", "hover:bg-accent-trans-20", "text-left" }
+				>{ theme.displayName }</button>
+			</li>
+		}
+	</ul>
+}
+
+templ themeSwitchButton() {
+	<svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M7.99013 1V6.55556M16.3783 1V5.16667M1 10.7222H23.3684M12.1842 26C9.71488 26 7.87215 23.7412 8.38344 21.3412L8.4701 20.9344C8.77409 19.5075 8.05148 18.06 6.72406 17.4369L3.78165 16.0557C2.08329 15.2585 1 13.5597 1 11.6936V3.26596C1 2.0145 2.02117 1 3.28087 1H21.0875C22.3473 1 23.3684 2.0145 23.3684 3.26596V11.6936C23.3684 13.5597 22.2851 15.2585 20.5868 16.0557L17.6443 17.4369C16.3169 18.06 15.5943 19.5075 15.8983 20.9344L15.985 21.3412C16.4963 23.7412 14.6535 26 12.1842 26Z" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+	</svg>
 }
 
 script changeTheme(themeName string) {
@@ -51,39 +50,71 @@ script changeTheme(themeName string) {
 
     const themes = {
         default: {
-            primary: "#7acb65",
-            secondary: "#9ee07e",
-            accent: "#4c8c36",
+            primary: "#4c8c36",
+            primary20: "#4c8c3633",
+            primary30: "#4c8c364c",
+            primary69: "#4c8c36b0",
+            secondary: "#ffffff",
+            secondary20: "#ffffff33",
+            secondary30: "#ffffff4c",
+            secondary69: "#ffffffb0",
+            accent: "#000000",
+            accent20: "#00000033",
+            accent30: "#0000004c",
+            accent69: "#000000b0",
             bg: "/static/images/dankground.svg",
         },
         black: {
-            primary: "#000",
-            secondary: "#000",
-            accent: "#000",
+            primary: "#000000",
+            primary20: "#00000033",
+            primary30: "#0000004c",
+            primary69: "#000000b0",
+            secondary: "#ffffff",
+            secondary20: "#ffffff33",
+            secondary30: "#ffffff4c",
+            secondary69: "#ffffffb0",
+            accent: "#d3fcbf",
+            accent20: "#d3fcbf33",
+            accent30: "#d3fcbf4C",
+            accent69: "#d3fcbfB0",
             bg: "/static/images/dankground-dark.svg",
+        },
+        white: {
+            primary: "#ffffff",
+            primary20: "#ffffff33",
+            primary30: "#ffffff4c",
+            primary69: "#ffffffb0",
+            secondary: "#4c8c36",
+            secondary20: "#4c8c3633",
+            secondary30: "#4c8c364c",
+            secondary69: "#4c8c36b0",
+            accent: "#d5ffc1",
+            accent20: "#d5ffc133",
+            accent30: "#d5ffc14c",
+            accent69: "#d5ffc1b0",
+            bg: "/static/images/dankground-light.svg",
         },
     };
 
     const style = document.documentElement.style;
     const theme = themes[themeName];
     if (!theme) {
-        window.location.reload();
         return;
     }
 
     style.setProperty('--primary-color', theme.primary);
+    style.setProperty('--primary-color-20', theme.primary20);
+    style.setProperty('--primary-color-30', theme.primary30);
+    style.setProperty('--primary-color-69', theme.primary69);
     style.setProperty('--secondary-color', theme.secondary);
+    style.setProperty('--secondary-color-20', theme.secondary20);
+    style.setProperty('--secondary-color-30', theme.secondary30);
+    style.setProperty('--secondary-color-69', theme.secondary69);
     style.setProperty('--accent-color', theme.accent);
-    document.body.style.backgroundImage = `url('${theme.bg}'), linear-gradient(to right, var(--accent-color), var(--secondary-color))`;
-    document.getElementById("theme-selector").style.display = "none";
-}
-
-script toggleTheThing() {
-    const themeTogglePopover = document.getElementById("theme-selector");
-
-    if (themeTogglePopover.style.display !== "block") {
-      themeTogglePopover.style.display = "block";
-    } else {
-      themeTogglePopover.style.display = "none";
-    }
+    style.setProperty('--accent-color-20', theme.accent20);
+    style.setProperty('--accent-color-30', theme.accent30);
+    style.setProperty('--accent-color-69', theme.accent69);
+    document.body.style.backgroundImage = `url('${theme.bg}')`;
+    document.body.style.backgroundColor = theme.primary;
+    document.getElementById("popover-theme-switcher").style.display = "none";
 }

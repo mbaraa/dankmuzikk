@@ -8,7 +8,7 @@ import (
 	"dankmuzikk/views/components/mobilenav"
 )
 
-templ Default(isMobile bool, themeName string, children ...templ.Component) {
+templ Default(children ...templ.Component) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -28,24 +28,22 @@ templ Default(isMobile bool, themeName string, children ...templ.Component) {
 				content="dankmuzikk,dank,dank music,music,music playlist,share playlist,group playlist"
 			/>
 			<link
-				async
 				defer
 				rel="stylesheet"
 				type="text/css"
 				href="/static/css/player-seeker.css"
 			/>
 			<link
-				async
 				defer
 				rel="stylesheet"
 				type="text/css"
 				href="/static/css/ubuntu-font.css"
 			/>
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
-			<link href={ fmt.Sprintf("/static/css/themes/%s.css", themeName) } rel="stylesheet"/>
+			<link href={ fmt.Sprintf("/static/css/themes/%s.css", ctx.Value("theme-name").(string)) } rel="stylesheet"/>
 			<script src="/static/js/htmx/htmx.min.js"></script>
-			<script async defer src="/static/js/htmx/json-enc.js"></script>
-			<script async defer src="/static/js/htmx/loading-states.js"></script>
+			<script defer src="/static/js/htmx/json-enc.js"></script>
+			<script defer src="/static/js/htmx/loading-states.js"></script>
 		</head>
 		<body
 			hx-ext="loading-states"
@@ -60,7 +58,7 @@ templ Default(isMobile bool, themeName string, children ...templ.Component) {
                 font-family: "Ubuntu";
             '
 		>
-			@header.Header(isMobile)
+			@header.Header()
 			<div id="main-contents" style="display: contents">
 				for _, child := range children {
 					@child
@@ -77,7 +75,7 @@ templ Default(isMobile bool, themeName string, children ...templ.Component) {
 			<div id="loading" class="hidden">
 				@loading.Loading()
 			</div>
-			@player.PlayerSticky(isMobile)
+			@player.PlayerSticky()
 			//
 			<script src="/static/js/utils.js"></script>
 			<script type="module">

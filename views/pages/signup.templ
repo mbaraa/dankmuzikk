@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/components/info"
 )
 
@@ -9,24 +8,19 @@ import (
    This page uses desktop design after lg (1024px)
 */
 
-templ Signup(isMobile bool, themeName string) {
-	@layouts.Default(isMobile, themeName, signup())
-}
-
-templ signup() {
-	<main id="main-login-container" class={ "w-full", "h-fit", "flex" }>
+templ Signup() {
+	<main id="main-login-container" class={ "w-full", "h-screen", "flex" }>
 		<!-- frank and details -->
 		<div class={ "hidden", "lg:block", "relative", "w-[70%]", "xl:w-full", "h-fit", "flex" }>
 			<!-- frank -->
 			<div
-				id="frank"
 				class={
-					"w-full", "h-[90vh]", "bg-accent", "bg-[url('/static/images/frank-cropped.png')]",
+					"w-full", "h-screen", "bg-primary", "bg-[url('/static/images/frank-cropped.png')]",
 					"bg-repeat", "bg-cover", "bg-center",
 				}
 			></div>
 			<!-- details -->
-			<div class={ "absolute", "top-0", "left-0", "z-10", "w-full", "h-full", "bg-black-trans-300" }>
+			<div class={ "absolute", "top-0", "left-0", "z-10", "w-full", "h-full", "bg-primary-trans-20" }>
 				<div class={ "absolute", "left-[20px]", "bottom-[20px]" }>
 					@info.Intro()
 					@info.Links()
@@ -35,27 +29,29 @@ templ signup() {
 		</div>
 		<!-- signup form -->
 		<div
-			id="login-form"
 			class={
 				"w-full", "p-[15px]", "lg:px-[40px]",
-				"bg-black-trans-500", "flex", "flex-col", "justify-center", "items-center",
+				"bg-primary-trans-20", "flex", "flex-col", "justify-center", "items-center",
 			}
 		>
+			<div class={ "block", "lg:hidden", "mb-5" }>
+				@info.Intro()
+			</div>
 			<div
 				id="replaceable-login-form"
 				class={
-					"w-full", "h-[95%]", "lg:h-auto", "bg-white-trans-100",
+					"w-full", "h-[95%]", "lg:h-auto", "bg-secondary-trans-20", "backdrop-blur-sm",
 					"p-[20px]", "lg:p-[60px]", "rounded-[10px]",
 					"flex", "flex-col", "justify-between", "lg:gap-y-[30px]",
 				}
 			>
 				<h1
-					class={ "text-white", "text-[35px]", "lg:text-[48px]", "font-light" }
+					class={ "text-secondary", "text-[35px]", "lg:text-[48px]", "font-light" }
 				>
 					Sign up
 				</h1>
 				@signupForm()
-				<div class={ "text-white", "flex", "justify-between" }>
+				<div class={ "text-secondary", "flex", "justify-between" }>
 					<p class={ "" }>Already a DankMuzikker?</p>
 					<a class={ "underline" } href="/login">Login</a>
 				</div>
@@ -65,7 +61,6 @@ templ signup() {
 			</div>
 		</div>
 	</main>
-	<script src="/static/js/login.js"></script>
 }
 
 templ signupForm() {
@@ -78,7 +73,7 @@ templ signupForm() {
 		data-loading-class-remove="hidden"
 	>
 		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
-			<label class={ "text-white", "text-[16px]" } for="name">Name</label>
+			<label class={ "text-secondary", "text-[16px]" } for="name">Name</label>
 			<input
 				id="name"
 				type="text"
@@ -89,7 +84,7 @@ templ signupForm() {
 			/>
 		</div>
 		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
-			<label class={ "text-white", "text-[16px]" } for="email">Email</label>
+			<label class={ "text-secondary", "text-[16px]" } for="email">Email</label>
 			<input
 				id="email"
 				type="email"
@@ -98,20 +93,26 @@ templ signupForm() {
 				placeholder="Enter your email"
 			/>
 		</div>
-		<div class={ "flex", "justify-between", "gap-x-[10px]", "lg:gap-x-[30px]" }>
+		<div class={ "flex", "flex-col-reverse", "lg:flex-row", "lg:justify-between", "gap-[15px]", "lg:gap-x-[30px]", "mt-4" }>
 			<a class={ "w-full" } href="/api/signup/google" title="Sign up with Google">
 				<button
 					type="button"
-					class={ "w-full", "bg-white", "rounded-[50px]", "p-[10px]", "flex", "justify-center", "items-center" }
+					class={ "w-full", "bg-secondary", "rounded-[50px]", "p-[10px]", "flex", "justify-center", "items-center" }
 				>
 					<span class={ "font-Ubuntu" }>
-						<img class={ "w-[25px]", "h-[25px]" } src="/static/images/google.webp" alt="Sign up with Google"/>
+						<img
+							width="25"
+							height="25"
+							class={ "w-[25px]", "h-[25px]" }
+							src="/static/images/google.webp"
+							alt="Sign up with Google"
+						/>
 					</span>
 				</button>
 			</a>
 			<button
 				type="submit"
-				class={ "bg-white", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+				class={ "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
 			>
 				Sign up
 			</button>

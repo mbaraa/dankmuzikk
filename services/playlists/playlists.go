@@ -7,6 +7,7 @@ import (
 	"dankmuzikk/services/youtube/download"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -16,6 +17,7 @@ import (
 type Service struct {
 	repo               db.UnsafeCRUDRepo[models.Playlist]
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner]
+	playlistSongsRepo  db.UnsafeCRUDRepo[models.PlaylistSong]
 	downloadService    *download.Service
 }
 
@@ -23,9 +25,10 @@ type Service struct {
 func New(
 	repo db.UnsafeCRUDRepo[models.Playlist],
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner],
+	playlistSongsRepo db.UnsafeCRUDRepo[models.PlaylistSong],
 	downloadService *download.Service,
 ) *Service {
-	return &Service{repo, playlistOwnersRepo, downloadService}
+	return &Service{repo, playlistOwnersRepo, playlistSongsRepo, downloadService}
 }
 
 // CreatePlaylist creates a new playlist with with provided details for the given account's profile.
@@ -145,6 +148,35 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
 	}
 
+	var playlistSongs []models.PlaylistSong
+	err = p.
+		playlistSongsRepo.
+		GetDB().
+		Model(new(models.PlaylistSong)).
+		Where("playlist_id = ?", dbPlaylists[0].Id).
+		Select("song_id", "play_times", "votes", "created_at").
+		Find(&playlistSongs).
+		Error
+	if err != nil {
+		return entities.Playlist{
+			PublicId: dbPlaylists[0].PublicId,
+			Title:    dbPlaylists[0].Title,
+		}, err
+	}
+	if len(playlistSongs) == 0 {
+		return entities.Playlist{
+			PublicId: dbPlaylists[0].PublicId,
+			Title:    dbPlaylists[0].Title,
+		}, ErrEmptyPlaylist
+	}
+
+	mappedPlaylistSongsToPlaysSuka := make(map[uint]int)
+	mappedPlaylistSongsToCreatedAtSuka := make(map[uint]time.Time)
+	for _, playlistSong := range playlistSongs {
+		mappedPlaylistSongsToPlaysSuka[playlistSong.SongId] = playlistSong.PlayTimes
+		mappedPlaylistSongsToCreatedAtSuka[playlistSong.SongId] = playlistSong.CreatedAt
+	}
+
 	songs := make([]entities.Song, len(dbPlaylists[0].Songs))
 	for i, song := range dbPlaylists[0].Songs {
 		songs[i] = entities.Song{
@@ -153,6 +185,8 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 			Artist:       song.Artist,
 			ThumbnailUrl: song.ThumbnailUrl,
 			Duration:     song.Duration,
+			PlayTimes:    mappedPlaylistSongsToPlaysSuka[song.Id],
+			AddedAt:      mappedPlaylistSongsToCreatedAtSuka[song.Id].Format("2, January, 2006"),
 		}
 	}
 
@@ -239,18 +273,7 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 		}
 	}
 
-	songRequests := make([]entities.SongDownloadRequest, len(songs))
-	for i, song := range songs {
-		songRequests[i] = entities.SongDownloadRequest{
-			Id:           song.YtId,
-			ThumbnailUrl: song.ThumbnailUrl,
-			Title:        song.Title,
-			Artist:       song.Artist,
-			Duration:     song.Duration,
-		}
-	}
-
-	err = p.downloadService.DownloadYoutubeSongsMetadata(songRequests)
+	err = p.downloadService.DownloadYoutubeSongsMetadata(songs)
 	if err != nil {
 		return nil, nil, err
 	}

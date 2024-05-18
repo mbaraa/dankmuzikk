@@ -3,23 +3,31 @@ package songs
 import (
 	"dankmuzikk/db"
 	"dankmuzikk/models"
+	"dankmuzikk/services/youtube/download"
 )
 
 // Service represents songs in platlists management service,
 // where it adds and deletes songs to and from playlists
 type Service struct {
-	repo         db.CRUDRepo[models.PlaylistSong]
-	songRepo     db.GetterRepo[models.Song]
-	playlistRepo db.GetterRepo[models.Playlist]
+	playlistSongRepo db.UnsafeCRUDRepo[models.PlaylistSong]
+	songRepo         db.UnsafeCRUDRepo[models.Song]
+	playlistRepo     db.UnsafeCRUDRepo[models.Playlist]
+	downloadService  *download.Service
 }
 
 // New accepts repos lol, and returns a new instance to the songs playlists service.
 func New(
-	repo db.CRUDRepo[models.PlaylistSong],
-	songRepo db.GetterRepo[models.Song],
-	playlistRepo db.GetterRepo[models.Playlist],
+	playlistSongRepo db.UnsafeCRUDRepo[models.PlaylistSong],
+	songRepo db.UnsafeCRUDRepo[models.Song],
+	playlistRepo db.UnsafeCRUDRepo[models.Playlist],
+	downloadService *download.Service,
 ) *Service {
-	return &Service{repo, songRepo, playlistRepo}
+	return &Service{
+		playlistSongRepo: playlistSongRepo,
+		songRepo:         songRepo,
+		playlistRepo:     playlistRepo,
+		downloadService:  downloadService,
+	}
 }
 
 // AddSongToPlaylist adds a given song to the given playlist,
@@ -35,11 +43,67 @@ func (s *Service) AddSongToPlaylist(songId, playlistPubId string) error {
 	if err != nil {
 		return err
 	}
-
-	return s.repo.Add(&models.PlaylistSong{
+	err = s.playlistSongRepo.Add(&models.PlaylistSong{
 		PlaylistId: playlist[0].Id,
 		SongId:     song[0].Id,
 	})
+	if err != nil {
+		return err
+	}
+
+	return s.downloadService.DownloadYoutubeSongQueue(songId)
+}
+
+// IncrementSongPlays increases the song's play times in the given playlist.
+// Checks for the song and playlist first, yada yada...
+// TODO: check playlist's owner :)
+func (s *Service) IncrementSongPlays(songId, playlistPubId string) error {
+	var song models.Song
+	err := s.
+		songRepo.
+		GetDB().
+		Model(new(models.Song)).
+		Select("id").
+		Where("yt_id = ?", songId).
+		First(&song).
+		Error
+	if err != nil {
+		return err
+	}
+
+	var playlist models.Playlist
+	err = s.
+		songRepo.
+		GetDB().
+		Model(new(models.Playlist)).
+		Select("id").
+		Where("public_id = ?", playlistPubId).
+		First(&playlist).
+		Error
+	if err != nil {
+		return err
+	}
+
+	var ps models.PlaylistSong
+	err = s.
+		playlistSongRepo.
+		GetDB().
+		Model(new(models.PlaylistSong)).
+		Select("play_times").
+		Where("playlist_id = ? AND song_id = ?", playlist.Id, song.Id).
+		First(&ps).
+		Error
+	if err != nil {
+		return err
+	}
+
+	return s.
+		playlistSongRepo.
+		GetDB().
+		Model(new(models.PlaylistSong)).
+		Where("playlist_id = ? AND song_id = ?", playlist.Id, song.Id).
+		Update("play_times", ps.PlayTimes+1).
+		Error
 }
 
 // RemoveSongFromPlaylist removes a given song from the given playlist,
@@ -57,6 +121,6 @@ func (s *Service) RemoveSongFromPlaylist(songId, playlistPubId string) error {
 	}
 
 	return s.
-		repo.
+		playlistSongRepo.
 		Delete("playlist_id = ? AND song_id = ?", playlist[0].Id, song[0].Id)
 }

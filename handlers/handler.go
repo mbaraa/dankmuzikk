@@ -4,10 +4,12 @@ import (
 	"context"
 	"dankmuzikk/config"
 	"dankmuzikk/db"
+	"dankmuzikk/entities"
 	"dankmuzikk/models"
 	"dankmuzikk/services/jwt"
 	"net/http"
 	"slices"
+	"strings"
 )
 
 var noAuthPaths = []string{"/login", "/signup"}
@@ -31,54 +33,60 @@ func NewHandler(
 // OptionalAuthPage authenticates a page's handler optionally (without redirection).
 func (a *Handler) OptionalAuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return a.NoAuthPage(func(w http.ResponseWriter, r *http.Request) {
-		profileId, err := a.authenticate(r)
+		profile, err := a.authenticate(r)
 		if err != nil {
 			h(w, r)
 			return
 		}
-		h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profileId)))
+		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx = context.WithValue(ctx, FullNameKey, profile.Name)
+		h(w, r.WithContext(ctx))
 	})
 }
 
 // AuthPage authenticates a page's handler.
 func (a *Handler) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return a.NoAuthPage(func(w http.ResponseWriter, r *http.Request) {
-		htmxRedirect := IsNoReloadPage(r)
-		profileId, err := a.authenticate(r)
+		htmxRedirect := IsNoLayoutPage(r)
+		profile, err := a.authenticate(r)
 		authed := err == nil
+		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx = context.WithValue(ctx, FullNameKey, profile.Name)
 
 		switch {
 		case authed && slices.Contains(noAuthPaths, r.URL.Path):
 			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
 		case !authed && slices.Contains(noAuthPaths, r.URL.Path):
-			h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profileId)))
+			h(w, r.WithContext(ctx))
 		case !authed && htmxRedirect:
 			w.Header().Set("HX-Redirect", "/login")
 		case !authed && !htmxRedirect:
 			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
 		default:
-			h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profileId)))
+			h(w, r.WithContext(ctx))
 		}
 	})
 }
 
-// NoAuthPage returns a page's handler after setting Content-Type to text/html.
+// NoAuthPage returns a page's handler after setting Content-Type to text/html, and some context values.
 func (a *Handler) NoAuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		h(w, r)
+		ctx := context.WithValue(r.Context(), ThemeKey, getTheme(r))
+		ctx = context.WithValue(ctx, IsMobileKey, isMobile(r))
+		h(w, r.WithContext(ctx))
 	}
 }
 
 // AuthApi authenticates an API's handler.
 func (a *Handler) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		profileId, err := a.authenticate(r)
+		profile, err := a.authenticate(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profileId)))
+		h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profile.Id)))
 	}
 }
 
@@ -90,22 +98,22 @@ func (a *Handler) NoAuthApi(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (a *Handler) authenticate(r *http.Request) (uint, error) {
+func (a *Handler) authenticate(r *http.Request) (entities.Profile, error) {
 	sessionToken, err := r.Cookie(SessionTokenKey)
 	if err != nil {
-		return 0, err
+		return entities.Profile{}, err
 	}
 	theThing, err := a.jwtUtil.Decode(sessionToken.Value, jwt.SessionToken)
 	if err != nil {
-		return 0, err
+		return entities.Profile{}, err
 	}
 	payload, valid := theThing.Payload.(map[string]any)
 	if !valid || payload == nil {
-		return 0, err
+		return entities.Profile{}, err
 	}
 	username, validUsername := theThing.Payload.(map[string]any)["username"].(string)
 	if !validUsername || username == "" {
-		return 0, err
+		return entities.Profile{}, err
 	}
 
 	var profile models.Profile
@@ -114,20 +122,44 @@ func (a *Handler) authenticate(r *http.Request) (uint, error) {
 		profileRepo.
 		GetDB().
 		Model(&profile).
-		Select("id").
+		Select("id", "name").
 		Where("username = ?", username).
 		First(&profile).
 		Error
 
 	if err != nil {
-		return 0, err
+		return entities.Profile{}, err
 	}
 
-	return profile.Id, nil
+	return entities.Profile{
+		Id:   profile.Id,
+		Name: profile.Name,
+	}, nil
 }
 
-// IsNoReloadPage checks if the requested page requires a no reload or not.
-func IsNoReloadPage(r *http.Request) bool {
-	noReload, exists := r.URL.Query()["no_reload"]
+func isMobile(r *http.Request) bool {
+	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
+}
+
+func getTheme(r *http.Request) string {
+	themeCookie, err := r.Cookie(ThemeName)
+	if err != nil || themeCookie == nil || themeCookie.Value == "" {
+		return "default"
+	}
+	switch themeCookie.Value {
+	case "black":
+		return "black"
+	case "white":
+		return "white"
+	case "default":
+		fallthrough
+	default:
+		return "default"
+	}
+}
+
+// IsNoLayoutPage checks if the requested page requires a no reload or not.
+func IsNoLayoutPage(r *http.Request) bool {
+	noReload, exists := r.URL.Query()["no_layout"]
 	return exists && noReload[0] == "true"
 }

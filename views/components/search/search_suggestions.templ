@@ -3,22 +3,25 @@ package search
 import "fmt"
 
 templ SearchSuggestions(suggestions []string, originalQuery string) {
-	<ul id="search-suggestions" class={ "grid", "grid-cols-1", "w-full", "bg-white-trans-200", "rounded-lg", "p-[10px]" }>
+	<ul
+		id="search-suggestions"
+		class={ "grid", "grid-cols-1", "w-full", "bg-secondary-trans-20", "backdrop-blur-md", "rounded-lg", "p-[10px]" }
+	>
 		for i, suggestion := range suggestions {
 			<li
-				class={ "focus-within:bg-primary", "focus-within:text-white",
-                        "text-lg", "p-1", "first:rounded-t", "last:rounded-b",
-                        "border-b", "border-b-primary", "last:border-b-0" }
+				class={ "focus-within:bg-secondary", "focus-within:text-primary", "text-secondary",
+                        "text-lg", "p-2", "first:rounded-t", "last:rounded-b",
+                        "border-b", "border-b-secondary", "last:border-b-0" }
 			>
 				<a
 					href={ templ.SafeURL(fmt.Sprintf("/search?query=%s", suggestion)) }
-					hx-get={ fmt.Sprintf("/search?no_reload=true&query=%s", suggestion) }
+					hx-get={ fmt.Sprintf("/search?no_layout=true&query=%s", suggestion) }
 					hx-swap="innerHTML"
 					hx-target="#main-contents"
 					hx-trigger="click,submit"
 					data-loading-target="#loading"
 					data-loading-class-remove="hidden"
-					data-loading-path={ fmt.Sprintf("/search?no_reload=true&query=%s", suggestion) }
+					data-loading-path={ fmt.Sprintf("/search?no_layout=true&query=%s", suggestion) }
 					class={ "w-full", "p-[10px]" }
 					id={ fmt.Sprintf("search-suggestion-%d", i) }
 					onClick={ searchNoRealod(suggestion) }

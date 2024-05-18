@@ -1,23 +1,21 @@
 package player
 
-templ PlayerSticky(isMobile bool) {
+templ PlayerSticky() {
 	<div id="muzikk" class="hidden">
-		if isMobile {
+		if ctx.Value("is-mobile").(bool) {
 			@mobilePlayer()
 		} else {
 			@desktopPlayer()
 		}
 	</div>
 	<div class="hidden">
-		<img class="w-[50px]" src="/static/images/play-disabled-icon.svg" alt="Play"/>
-		<img class="w-[50px]" src="/static/images/play-icon.svg" alt="Play"/>
-		<img class="w-[50px]" src="/static/images/pause-disabled-icon.svg" alt="Pause"/>
-		<img class="w-[50px]" src="/static/images/pause-icon.svg" alt="Pause"/>
-		<img class="w-[40px]" src="/static/images/loop-icon.svg" alt="Loop"/>
-		<img class="w-[40px]" src="/static/images/loop-once-icon.svg" alt="Loop Once"/>
-		<img class="w-[40px]" src="/static/images/loop-off-icon.svg" alt="Loop Off"/>
-		<img class="w-[40px]" src="/static/images/shuffle-icon.svg" alt="Shuffle"/>
-		<img class="w-[40px]" src="/static/images/shuffle-off-icon.svg" alt="Shuffle"/>
+		<img class="w-[50px]" src="/static/icons/play-icon.svg" alt="Play"/>
+		<img class="w-[50px]" src="/static/icons/pause-icon.svg" alt="Pause"/>
+		<img class="w-[40px]" src="/static/icons/loop-icon.svg" alt="Loop"/>
+		<img class="w-[40px]" src="/static/icons/loop-once-icon.svg" alt="Loop Once"/>
+		<img class="w-[40px]" src="/static/icons/loop-off-icon.svg" alt="Loop Off"/>
+		<img class="w-[40px]" src="/static/icons/shuffle-icon.svg" alt="Shuffle"/>
+		<img class="w-[40px]" src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>
 		<audio
 			id="audio-player"
 			controls

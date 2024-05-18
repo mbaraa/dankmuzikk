@@ -3,9 +3,9 @@ package player
 templ desktopPlayer() {
 	<div
 		class={
-			"fixed", "bottom-0", "w-screen", "h-[90px]", "bg-accent", "rounded-t-3xl",
+			"fixed", "bottom-0", "w-screen", "h-[90px]", "bg-primary", "rounded-t-3xl",
 			"font-Ubuntu", "flex", "items-center", "justify-between", "gap-x-4", "p-[20px]",
-			"text-white",
+			"text-secondary",
 		}
 	>
 		<!-- details -->
@@ -13,7 +13,7 @@ templ desktopPlayer() {
 			<div
 				id="song-image"
 				class={
-					"w-[60px]", "h-[60px]", "rounded-md", "bg-accent", "bg-[url('/static/images/dankground.svg')]",
+					"w-[60px]", "h-[60px]", "rounded-md", "bg-primary", "bg-[url('/static/icons/dankground.svg')]",
 					"bg-repeat", "bg-cover", "bg-center",
 				}
 			></div>
@@ -42,19 +42,19 @@ templ desktopPlayer() {
 		<!-- player controls -->
 		<div class={ "float-right", "flex", "items-center", "gap-x-1", "min-w-[190px]" }>
 			<button id="shuffle" type="button" title="Shuffle" disabled>
-				<img src="/static/images/shuffle-off-icon.svg" alt="Shuffle"/>
+				<img src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>
 			</button>
 			<button id="prev" type="button" title="Previous song" disabled>
-				<img src="/static/images/previous-icon.svg" alt="Previous"/>
+				<img src="/static/icons/previous-icon.svg" alt="Previous"/>
 			</button>
 			<button id="play" type="button" title="Play/Pause" disabled>
 				<div id="loading" class="loader !h-10 !w-10"></div>
 			</button>
 			<button id="next" type="button" title="Next song" disabled>
-				<img src="/static/images/next-icon.svg" alt="Next"/>
+				<img src="/static/icons/next-icon.svg" alt="Next"/>
 			</button>
 			<button id="loop" type="button" title="Loop" disabled>
-				<img src="/static/images/loop-off-icon.svg" alt="Loop"/>
+				<img src="/static/icons/loop-off-icon.svg" alt="Loop"/>
 			</button>
 		</div>
 	</div>

@@ -47,6 +47,7 @@ type PlaylistSong struct {
 	PlaylistId uint `gorm:"primaryKey"`
 	SongId     uint `gorm:"primaryKey"`
 	Votes      int
+	PlayTimes  int
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

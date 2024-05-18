@@ -1,16 +1,22 @@
-FROM python:3.11-alpine AS build
+FROM python:3.11-slim-bookworm AS build
 
 WORKDIR /app
 
 ADD requirements.txt /tmp
-RUN pip install --upgrade pip && \
-    pip install -r /tmp/requirements.txt
+RUN apt-get update -y && \
+    apt-get install -y gcc libmariadb-dev mariadb-client && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir -r /tmp/requirements.txt
+
 COPY . /app
 
 
 FROM python:3.11-alpine
 
-RUN apk add ffmpeg
+FROM python:3.11-slim-bookworm
+
+RUN apt-get update -y && \
+    apt-get install -y mariadb-client ffmpeg
 
 WORKDIR /app
 

@@ -1,0 +1,89 @@
+package layouts
+
+import (
+	"dankmuzikk/views/components/loading"
+	"fmt"
+)
+
+templ Raw(children ...templ.Component) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<title>DankMuzikk</title>
+			<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png"/>
+			<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>
+			<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>
+			<link rel="manifest" href="/static/site.webmanifest"/>
+			<link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#4C8C36"/>
+			<meta name="msapplication-TileColor" content="#4C8C36"/>
+			<meta name="theme-color" content="#4C8C36"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<meta name="description" content="Create, Share and Play Music Playlists."/>
+			<meta
+				name="keywords"
+				content="dankmuzikk,dank,dank music,music,music playlist,share playlist,group playlist"
+			/>
+			<link
+				defer
+				rel="stylesheet"
+				type="text/css"
+				href="/static/css/player-seeker.css"
+			/>
+			<link
+				defer
+				rel="stylesheet"
+				type="text/css"
+				href="/static/css/ubuntu-font.css"
+			/>
+			<link href="/static/css/tailwind.css" rel="stylesheet"/>
+			<link href={ fmt.Sprintf("/static/css/themes/%s.css", ctx.Value("theme-name").(string)) } rel="stylesheet"/>
+			<script src="/static/js/htmx/htmx.min.js"></script>
+			<script defer src="/static/js/htmx/json-enc.js"></script>
+			<script defer src="/static/js/htmx/loading-states.js"></script>
+		</head>
+		<body
+			hx-ext="loading-states"
+			style='
+                background-repeat: repeat;
+                background-size: cover;
+                padding: 0px;
+                margin: 0px;
+                background-position: center;
+                background-attachment: fixed;
+                min-height: 100dvh;
+                font-family: "Ubuntu";
+            '
+		>
+			<div id="main-contents" style="display: contents">
+				for _, child := range children {
+					@child
+				}
+			</div>
+			<div id="loading" class="hidden">
+				@loading.Loading()
+			</div>
+			//
+			<script src="/static/js/utils.js"></script>
+			<script type="module">
+			    function registerServiceWorkers() {
+			    	if (!("serviceWorker" in navigator)) {
+			    		console.error("Browser doesn't support service workers");
+			    		return;
+			    	}
+			    	window.addEventListener("load", () => {
+			    		navigator.serviceWorker
+			    			.register("/static/js/service-worker.js")
+			    			.then((reg) => {
+			    				console.log("Service Worker Registered", reg);
+			    			})
+			    			.catch((err) => {
+			    				console.log("Service Worker Registration failed:", err);
+			    			});
+		                });
+			    }
+			    registerServiceWorkers();
+		    </script>
+		</body>
+	</html>
+}

@@ -1,24 +1,15 @@
 package pages
 
-import "dankmuzikk/views/layouts"
 import "dankmuzikk/views/components/info"
 
-templ About(isMobile bool, themeName string) {
-	@layouts.Default(isMobile, themeName, about())
-}
-
-templ AboutNoReload() {
-	@about()
-}
-
-templ about() {
-	<main class={ "w-full", "h-[120dvh]" }>
+templ About() {
+	<main class={ "w-full", "h-auto" }>
 		<div class={ "flex", "justify-center" }>
 			<section
 				class={
-					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl",
+					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl",
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
-					"justify-between", "text-white",
+					"justify-between", "text-secondary", "mb-[100px]", "lg:mb-0",
 				}
 			>
 				<section id="brand" class={ "w-full", "flex", "justify-center" }>
@@ -26,8 +17,10 @@ templ about() {
 						class={ "flex", "flex-col", "justify-center", "items-center", "gap-y-3", }
 					>
 						<img
+							width="200"
+							height="200"
 							class={ "w-[200px]", "h-[200px]", "rounded-[100px]" }
-							src="/static/android-chrome-512x512.png"
+							src="/static/images/logo.webp"
 							alt="DrankMuzikk Logo"
 						/>
 						<h2 class={ "text-3xl" }>DankMuzikk</h2>

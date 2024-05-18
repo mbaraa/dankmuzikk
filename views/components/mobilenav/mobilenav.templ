@@ -1,6 +1,7 @@
 package mobilenav
 
 import "dankmuzikk/views/components/navlink"
+import "dankmuzikk/views/icons"
 
 templ MobileNav() {
 	<div
@@ -9,7 +10,7 @@ templ MobileNav() {
 		<nav
 			class={ "bg-primary",  "h-[70px]", "m-[5px]", "rounded-[10px]", "flex", "justify-center", "items-center" }
 		>
-			<ul class={ "w-full", "m-0", "p-5", "list-none", "flex", "justify-between" }>
+			<ul class={ "w-full", "m-0", "p-5", "px-14", "list-none", "flex", "justify-between" }>
 				<!-- kept for SEO -->
 				<div class="hidden">
 					<li><a href="/about">About</a></li>
@@ -17,21 +18,15 @@ templ MobileNav() {
 					<li><a href="/profile">Profile</a></li>
 				</div>
 				<li>
-					@navlink.NavLink("Home", "/static/images/nav-home-icon.svg", "/")
+					@navlink.LinkContainer("/", "Home", icons.Home())
 				</li>
 				<li>
-					@navlink.NavLink("Playlists", "/static/images/nav-playlists-icon.svg", "/playlists")
+					@navlink.LinkContainer("/playlists", "Playlists", icons.Playlist())
 				</li>
 				<li>
-					@navlink.NavLink("Profile", "/static/images/nav-profile-icon.svg", "/profile")
+					@navlink.LinkContainer("/profile", "Profile", icons.Profile())
 				</li>
 			</ul>
 		</nav>
-	</div>
-	<div class="hidden">
-		<img src="/static/images/nav-home-selected-icon.svg" alt="Home"/>
-		<img src="/static/images/nav-playlists-selected-icon.svg" alt="Playlists"/>
-		<img src="/static/images/nav-profile-selected-icon.svg" alt="Profile"/>
-		<img src="/static/images/nav-about-selected-icon.svg" alt="About"/>
 	</div>
 }

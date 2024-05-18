@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"context"
 	"dankmuzikk/config"
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
@@ -11,9 +10,9 @@ import (
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/youtube/search"
+	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/pages"
 	"net/http"
-	"strings"
 
 	_ "github.com/a-h/templ"
 )
@@ -36,24 +35,24 @@ func NewPagesHandler(
 	return &pagesHandler{profileRepo, playlistsService, jwtUtil}
 }
 
-func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
-	if handlers.IsNoReloadPage(r) {
-		pages.AboutNoReload().Render(context.Background(), w)
+func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
+	if handlers.IsNoLayoutPage(r) {
+		pages.Index().Render(r.Context(), w)
 		return
 	}
-	pages.About(p.isMobile(r), p.getTheme(r)).Render(context.Background(), w)
+	layouts.Default(pages.Index()).Render(r.Context(), w)
 }
 
-func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
-	if handlers.IsNoReloadPage(r) {
-		pages.IndexNoReload().Render(context.Background(), w)
+func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
+	if handlers.IsNoLayoutPage(r) {
+		pages.About().Render(r.Context(), w)
 		return
 	}
-	pages.Index(p.isMobile(r), p.getTheme(r)).Render(context.Background(), w)
+	layouts.Default(pages.About()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
-	pages.Login(p.isMobile(r), p.getTheme(r)).Render(context.Background(), w)
+	layouts.Raw(pages.Login()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
@@ -68,11 +67,11 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 		playlists = make([]entities.Playlist, 0)
 	}
 
-	if handlers.IsNoReloadPage(r) {
-		pages.PlaylistsNoReload(playlists).Render(context.Background(), w)
+	if handlers.IsNoLayoutPage(r) {
+		pages.Playlists(playlists).Render(r.Context(), w)
 		return
 	}
-	pages.Playlists(p.isMobile(r), p.getTheme(r), playlists).Render(context.Background(), w)
+	layouts.Default(pages.Playlists(playlists)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
@@ -89,27 +88,32 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	}
 
 	playlist, err := p.playlistsService.Get(playlistPubId, profileId)
-	if err != nil {
+	switch err {
+	case playlists.ErrUnauthorizedToSeePlaylist:
 		w.Write([]byte(notFoundMessage))
 		return
+	default:
+		if playlist.Title == "" {
+			w.Write([]byte(notFoundMessage))
+			return
+		}
 	}
-	_ = playlist
 
-	if handlers.IsNoReloadPage(r) {
-		pages.PlaylistNoReload(playlist).Render(context.Background(), w)
+	if handlers.IsNoLayoutPage(r) {
+		pages.Playlist(playlist).Render(r.Context(), w)
 		return
 	}
-	pages.Playlist(p.isMobile(r), p.getTheme(r), playlist).Render(context.Background(), w)
+	layouts.Default(pages.Playlist(playlist)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
-	pages.Privacy(p.isMobile(r), p.getTheme(r)).Render(context.Background(), w)
+	layouts.Default(pages.Privacy()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		if handlers.IsNoReloadPage(r) {
+		if handlers.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
 			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
@@ -123,11 +127,11 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		PfpLink:  dbProfile.PfpLink,
 		Username: dbProfile.Username,
 	}
-	if handlers.IsNoReloadPage(r) {
-		pages.ProfileNoReload(profile).Render(context.Background(), w)
+	if handlers.IsNoLayoutPage(r) {
+		pages.Profile(profile).Render(r.Context(), w)
 		return
 	}
-	pages.Profile(p.isMobile(r), p.getTheme(r), profile).Render(context.Background(), w)
+	layouts.Default(pages.Profile(profile)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.HandlerFunc {
@@ -141,52 +145,22 @@ func (p *pagesHandler) HandleSearchResultsPage(ytSearch search.Service) http.Han
 			return
 		}
 
-		songs := make([]entities.Song, len(results))
-		for i, result := range results {
-			songs[i] = entities.Song{
-				YtId:         result.Id,
-				Title:        result.Title,
-				Artist:       result.ChannelTitle,
-				ThumbnailUrl: result.ThumbnailUrl,
-				Duration:     result.Duration,
-			}
-		}
-
 		var songsInPlaylists map[string]string
 		var playlists []entities.Playlist
 		profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 		if profileIdCorrect {
 			log.Info("downloading songs from search")
-			playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(songs, profileId)
+			playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(results, profileId)
 		}
 
-		if handlers.IsNoReloadPage(r) {
-			pages.SearchResultsNoReload(results, playlists, songsInPlaylists).Render(context.Background(), w)
+		if handlers.IsNoLayoutPage(r) {
+			pages.SearchResults(results, playlists, songsInPlaylists).Render(r.Context(), w)
 			return
 		}
-		pages.SearchResults(p.isMobile(r), p.getTheme(r), results, playlists, songsInPlaylists).Render(context.Background(), w)
+		layouts.Default(pages.SearchResults(results, playlists, songsInPlaylists)).Render(r.Context(), w)
 	}
 }
 
 func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {
-	pages.Signup(p.isMobile(r), p.getTheme(r)).Render(context.Background(), w)
-}
-
-func (p *pagesHandler) isMobile(r *http.Request) bool {
-	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
-}
-
-func (p *pagesHandler) getTheme(r *http.Request) string {
-	themeCookie, err := r.Cookie(handlers.ThemeName)
-	if err != nil || themeCookie == nil || themeCookie.Value == "" {
-		return "default"
-	}
-	switch themeCookie.Value {
-	case "black":
-		return "black"
-	case "default":
-		fallthrough
-	default:
-		return "default"
-	}
+	layouts.Raw(pages.Signup()).Render(r.Context(), w)
 }

@@ -1,22 +1,22 @@
 package search
 
 templ Search() {
-	<div class={ "!text-accent", "!font-Ubuntu", "w-[92vw]", "md:w-[300px]", "xl:w-[500px]" }>
+	<div class={ "!text-primary", "!font-Ubuntu", "w-[92vw]", "md:w-[300px]", "xl:w-[500px]" }>
 		<form
 			id="search-form"
 			class={ "w-full" }
-			hx-get="/search?no_reload=true"
+			hx-get="/search?no_layout=true"
 			hx-swap="innerHTML"
 			hx-target="#main-contents"
 			hx-trigger="submit"
 			data-loading-target="#loading"
 			data-loading-class-remove="hidden"
-			data-loading-path="/search?no_reload=true"
+			data-loading-path="/search?no_layout=true"
 		>
-			<div class={ "flex", "bg-white", "rounded-[8px]", "border", "border-b-[3px]", "border-black" }>
+			<div class={ "flex", "bg-white", "rounded-[8px]", "border", "border-b-[3px]", "border-accent" }>
 				<input
 					id="search-input"
-					class={ "w-full", "p-[10px]", "ps-[15px]", "rounded-l-[8px]", "font-Ubuntu" }
+					class={ "w-full", "p-[10px]", "ps-[15px]", "rounded-l-[8px]", "font-Ubuntu", "bg-white", "text-[#4c8c36]" }
 					type="search"
 					name="query"
 					autofocus
@@ -32,8 +32,8 @@ templ Search() {
 					id="search-icon"
 				>
 					<img
-						class={ "w-[44px]", "h-[44px]", "rounded-r-[8px]", "pe-[10px]" }
-						src="/static/images/search-icon.svg"
+						class={ "w-[44px]", "h-[44px]", "rounded-r-[8px]", "pe-[10px]", "bg-white" }
+						src="/static/icons/search-icon.svg"
 						alt="search"
 					/>
 				</button>

@@ -4,26 +4,38 @@ import (
 	"dankmuzikk/views/components/search"
 	"dankmuzikk/views/components/themeswitch"
 	"dankmuzikk/views/components/navlink"
+	"dankmuzikk/views/icons"
 )
 
+templ homeLinkContainer() {
+	<div class={ "flex", "justify-center", "items-center", "flex-col", "md:flex-row", "gap-3", "h-min" }>
+		<img
+			width="55"
+			height="55"
+			src="/static/images/logo.webp"
+			alt="DankMuzikk Logo"
+			class={ "w-[55px]", "rounded-md" }
+		/>
+		<h1 class={ "text-3xl", "lg:text-2xl", "md:hidden", "lg:block" }>DankMuzikk</h1>
+	</div>
+}
+
 templ mobileHeader() {
-	<div class={ "md:hidden", "h-[250px]", "", "flex", "flex-col", "justify-between" }>
+	<div class={ "md:hidden", "h-[250px]", "flex", "flex-col", "justify-between" }>
+		@navlink.LinkContainer("/about", "About", icons.About())
 		<div class={ "absolute", "top-[15px]", "right-[15px]" }>
-			@navlink.NavLink("About", "/static/images/nav-about-icon.svg", "/about")
+			@themeswitch.ThemeSwitch()
 		</div>
-		<div class={ "font-Ubuntu", "text-white" }>
-			<a href="/" class={ "flex", "justify-center", "items-center", "flex-col", "gap-y-3", "h-min" }>
-				<img
-					src="/static/android-chrome-512x512.png"
-					alt="DankMuzikk Logo"
-					class={ "w-[55px]", "rounded-md" }
-				/>
-				<h1 class={ "text-3xl" }>DankMuzikk</h1>
-			</a>
+		<div class={ "font-Ubuntu", "text-secondary" }>
+			@navlink.LinkContainer("/", "Home", homeLinkContainer())
 		</div>
 		<div class={  }>
-			<p class={ "text-white", "font-Ubuntu", "text-xl" }>
-				Hey,
+			<p class={ "text-secondary", "font-Ubuntu", "text-xl" }>
+				if fullName, ok := ctx.Value("full-name").(string); ok {
+					Hi { fullName } 👋
+				} else {
+					Hiyo 👋
+				}
 				<br/>
 				Wanna play something?
 			</p>
@@ -35,15 +47,8 @@ templ mobileHeader() {
 }
 
 templ desktopHeader() {
-	<div class={ "hidden", "md:flex", "justify-between", "font-Ubuntu", "text-white" }>
-		<a href="/" class={ "flex", "justify-center", "items-center", "gap-x-3", "h-min" }>
-			<img
-				src="/static/android-chrome-512x512.png"
-				alt="DankMuzikk Logo"
-				class={ "w-[55px]", "rounded-md" }
-			/>
-			<h1 class={ "hidden", "lg:block", "text-2xl" }>DankMuzikk</h1>
-		</a>
+	<div class={ "hidden", "md:flex", "justify-between", "font-Ubuntu", "text-secondary" }>
+		@navlink.LinkContainer("/", "Home", homeLinkContainer())
 		<div class={ "flex", "justify-center", "items-center" }>
 			@search.Search()
 		</div>
@@ -72,10 +77,10 @@ templ desktopHeader() {
 	</div>
 }
 
-templ Header(isMobile bool) {
-	<header id="dank-header" class={ "bg-accent", "p-[20px]", "md:p-[10px]" }>
+templ Header() {
+	<header id="dank-header" class={ "bg-primary", "p-[20px]", "md:p-[10px]" }>
 		// mobiles are usually shitty at rendering, so this prevents mobiles from rendering two blocks and choosing one using CSS.
-		if isMobile {
+		if ctx.Value("is-mobile").(bool) {
 			@mobileHeader()
 		} else {
 			<div style="display: contents" class={ "hidden", "md:block" }>

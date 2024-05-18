@@ -16,6 +16,15 @@ import (
 	"dankmuzikk/services/youtube/search"
 	"embed"
 	"net/http"
+	"regexp"
+
+	"github.com/tdewolff/minify/v2"
+	"github.com/tdewolff/minify/v2/css"
+	"github.com/tdewolff/minify/v2/html"
+	"github.com/tdewolff/minify/v2/js"
+	"github.com/tdewolff/minify/v2/json"
+	"github.com/tdewolff/minify/v2/svg"
+	"github.com/tdewolff/minify/v2/xml"
 )
 
 func StartServer(staticFS embed.FS) error {
@@ -33,8 +42,8 @@ func StartServer(staticFS embed.FS) error {
 	playlistSongssRepo := db.NewBaseDB[models.PlaylistSong](dbConn)
 
 	downloadService := download.New(songRepo)
-	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, downloadService)
-	songsService := songs.New(playlistSongssRepo, songRepo, playlistRepo)
+	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongssRepo, downloadService)
+	songsService := songs.New(playlistSongssRepo, songRepo, playlistRepo, downloadService)
 
 	jwtUtil := jwt.NewJWTImpl()
 
@@ -42,7 +51,20 @@ func StartServer(staticFS embed.FS) error {
 
 	///////////// Pages and files /////////////
 	pagesHandler := http.NewServeMux()
-	pagesHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
+
+	m := minify.New()
+	m.AddFunc("text/css", css.Minify)
+	m.AddFunc("text/html", html.Minify)
+	m.AddFunc("image/svg+xml", svg.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
+	pagesHandler.Handle("/static/", m.Middleware(http.FileServer(http.FS(staticFS))))
+	pagesHandler.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		robotsFile, _ := staticFS.ReadFile("static/robots.txt")
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = w.Write(robotsFile)
+	})
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
 	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil)
@@ -60,7 +82,7 @@ func StartServer(staticFS embed.FS) error {
 
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
-	songDownloadApi := apis.NewDownloadHandler(downloadService)
+	songDownloadApi := apis.NewDownloadHandler(downloadService, songsService)
 	playlistsApi := apis.NewPlaylistApi(playlistsService, songsService)
 
 	apisHandler := http.NewServeMux()
@@ -73,9 +95,9 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
 	apisHandler.HandleFunc("GET /song/download", songDownloadApi.HandleDownloadSong)
-	apisHandler.HandleFunc("GET /song/download/queue", songDownloadApi.HandleDownloadSongToQueue)
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
 	apisHandler.HandleFunc("PUT /toggle-song-in-playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
+	apisHandler.HandleFunc("PUT /increment-song-plays", gHandler.AuthApi(songDownloadApi.HandleIncrementSongPlaysInPlaylist))
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)

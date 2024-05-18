@@ -3,82 +3,70 @@ package playlist
 import (
 	"fmt"
 	"dankmuzikk/entities"
+	"dankmuzikk/views/components/popover"
 )
 
 templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]string) {
-	<div class={ "popover-container", "relative" }>
-		<button onClick={ toggleTheThing(index) } class={ "popover-trigger" }>
-			<img class={ "w-full", "h-full" } height="30" width="30" src="/static/images/add-to-playlist.svg" alt="Add to playlist"/>
-		</button>
-		<div
-			class={
-				fmt.Sprintf("popover-%d", index), "hidden", "absolute", "z-30", "top-[35px]", "right-[0px]",
-				"bg-white", "shadow-md", "p-[10px]", "rounded-[5px]",
-				"min-w-[250px]",
-			}
-		>
-			<h2 class={ "text-lg" }>Save this song to...</h2>
-			<div class={ "my-2" }></div>
-			<ul class={ "flex", "flex-col", "gap-y-2" }>
-				if playlists == nil || len(playlists) == 0 {
-					<p>
-						No playlists were found
-					</p>
-				} else {
-					for _, playlist := range playlists {
-						<li
-							class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
-							hx-put={
-								fmt.Sprintf(
-									"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
-									songId,
-									playlist.PublicId,
-									playlist.PublicId == songsInPlaylists[songId],
-								),
-							}
-							hx-swap="innerHTML"
-							hx-target={ fmt.Sprintf("#song-in-playlist-%s", playlist.PublicId) }
-							hx-trigger="click"
-							data-loading-target="#loading"
-							data-loading-class-remove="hidden"
-							data-loading-path={
-								fmt.Sprintf(
-									"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
-									songId,
-									playlist.PublicId,
-									playlist.PublicId == songsInPlaylists[songId],
-								),
-							}
+	@popover.Popover(fmt.Sprint(index), "Add to playlist", popoverButton(), playlistsSelector(songId, playlists, songsInPlaylists))
+}
+
+templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]string) {
+	<div class={ "min-w-[250px]" }>
+		<h2 class={ "text-lg" }>Save this song to...</h2>
+		<div class={ "my-2" }></div>
+		<ul class={ "flex", "flex-col", "gap-y-2" }>
+			if playlists == nil || len(playlists) == 0 {
+				<p>
+					No playlists were found
+				</p>
+			} else {
+				for _, playlist := range playlists {
+					<li
+						class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
+						hx-put={
+							fmt.Sprintf(
+								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
+								songId,
+								playlist.PublicId,
+								playlist.PublicId == songsInPlaylists[songId],
+							),
+						}
+						hx-swap="innerHTML"
+						hx-target={ fmt.Sprintf("#song-in-playlist-%s", playlist.PublicId) }
+						hx-trigger="click"
+						data-loading-target="#loading"
+						data-loading-class-remove="hidden"
+						data-loading-path={
+							fmt.Sprintf(
+								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
+								songId,
+								playlist.PublicId,
+								playlist.PublicId == songsInPlaylists[songId],
+							),
+						}
+					>
+						<div
+							id={ fmt.Sprintf("song-in-playlist-%s", playlist.PublicId) }
 						>
 							<div
-								id={ fmt.Sprintf("song-in-playlist-%s", playlist.PublicId) }
-							>
-								<div
-									class={
-										"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-accent",
-										map[string]bool{
-											"bg-accent": playlist.PublicId == songsInPlaylists[songId],
-										},
-									}
-								></div>
-							</div>
-							<p class={ "max-w-[300px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>
-								{ playlist.Title }
-							</p>
-						</li>
-					}
+								class={
+									"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-secondary",
+									map[string]bool{
+										"bg-secondary": playlist.PublicId == songsInPlaylists[songId],
+									},
+								}
+							></div>
+						</div>
+						<p class={ "max-w-[300px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "text-secondary" }>
+							{ playlist.Title }
+						</p>
+					</li>
 				}
-			</ul>
-		</div>
+			}
+		</ul>
 	</div>
 }
 
-script toggleTheThing(index int) {
-    const popover = document.querySelector(`.popover-${index}`);
-
-    if (popover.style.display !== "block") {
-      popover.style.display = "block";
-    } else {
-      popover.style.display = "none";
-    }
+templ popoverButton() {
+	<img class={ "max-w-[30px]", "h-[30px]" } src="/static/icons/add-to-playlist.svg" alt="Add to playlist"/>
 }

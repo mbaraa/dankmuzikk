@@ -1,37 +1,29 @@
 package pages
 
 import (
-	"dankmuzikk/views/layouts"
 	"dankmuzikk/entities"
 	"dankmuzikk/views/components/playlist"
 	"fmt"
 	"dankmuzikk/views/components/navlink"
 )
 
-templ Playlists(isMobile bool, themeName string, pls []entities.Playlist) {
-	@layouts.Default(isMobile, themeName, playlists(pls))
-}
-
-templ PlaylistsNoReload(pls []entities.Playlist) {
-	@playlists(pls)
-}
-
-templ playlists(pls []entities.Playlist) {
-	<main class={ "w-full", "h-[120dvh]" }>
+templ Playlists(pls []entities.Playlist) {
+	<main class={ "w-full", "h-auto", "lg:h-auto" }>
 		<div class={ "flex", "justify-center" }>
 			<section
 				class={
-					"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl", "text-white",
+					"w-full", "md:w-2/3", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
+					"mb-[170px]", "lg:mb-0",
 				}
 			>
-				<div class={ "flex", "justify-between", "w-full" }>
-					<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Playlists</h1>
-					@playlist.NewPlaylistPlaylistsPopover()
+				<div class={ "flex", "justify-between", "items-center", "w-full" }>
+					<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Playlists</h1>
+					@playlist.NewPlaylistPopover()
 				</div>
 				<div id="playlists-listing">
 					if pls == nil || len(pls) == 0 {
-						<p>No playlists were found!</p>
+						<p>Hmm... You don't have any playlists yet, you can create from the button above!</p>
 					} else {
 						@JustPlaylists(pls)
 					}
@@ -44,12 +36,13 @@ templ playlists(pls []entities.Playlist) {
 templ JustPlaylists(pls []entities.Playlist) {
 	<div
 		class={
+			"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
 			"grid", "grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3", "xl:grid-cols-4", "2xl:grid-cols-5",
 			"gap-5", "lg:my-10",
 		}
 	>
 		for _, playlist := range pls {
-			@navlink.LinkContainer(fmt.Sprintf("/playlist/%s", playlist.PublicId), singlePlaylist(playlist))
+			@navlink.LinkContainer(fmt.Sprintf("/playlist/%s", playlist.PublicId), playlist.Title, singlePlaylist(playlist))
 		}
 	</div>
 }
@@ -57,11 +50,20 @@ templ JustPlaylists(pls []entities.Playlist) {
 templ singlePlaylist(pl entities.Playlist) {
 	<div
 		class={
-			"lg:w-[200px]", "lg:h-[200px]", "bg-white-trans-100", "rounded-[10px]", "px-5",
-			"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-5",
+			"lg:w-[200px]", "lg:h-[200px]", "bg-secondary-trans-20", "rounded-[10px]", "px-5", "py-2",
+			"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-x-5", "lg:gap-x-0",
 		}
 	>
-		<img src="/static/images/album-cover-icon.svg" class={ "lg:w-[125px]", "lg:h-[125px]" } alt=""/>
-		<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ pl.Title }</p>
+		<img
+			width="100"
+			height="100"
+			src="/static/images/album-cover-icon.svg"
+			class={ "w-[70px] h-[70px] lg:w-[125px]", "lg:h-[125px]" }
+			alt=""
+		/>
+		<div class={ "lg:text-center" }>
+			<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ pl.Title }</p>
+			<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+		</div>
 	</div>
 }

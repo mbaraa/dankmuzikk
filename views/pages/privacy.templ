@@ -1,21 +1,15 @@
 package pages
 
-import "dankmuzikk/views/layouts"
-
-templ Privacy(isMobile bool, themeName string) {
-	@layouts.Default(isMobile, themeName, privacy())
-}
-
-templ privacy() {
+templ Privacy() {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={
-				"w-full", "md:w-2/3", "min-h-[50vh]", "bg-black-trans-100", "rounded-xl",
+				"w-full", "md:w-2/3", "min-h-[50vh]", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl",
 				"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
-				"justify-between", "text-white",
+				"justify-between", "text-secondary", "mb-[100px]", "lg:mb-0",
 			}
 		>
-			<h1 class={ "text-white", "text-3xl", "lg:text-4xl" }>Privacy</h1>
+			<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Privacy</h1>
 			<p>
 				I respect the privacy of my users. This Privacy Policy explains what information we collect when you use this music player application DankMuzikk, how I use that information, and the choices you have about your information.
 			</p>

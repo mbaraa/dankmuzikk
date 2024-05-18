@@ -1,10 +1,21 @@
 :root {
-  --primary-color: #7acb65;
-  --secondary-color: #9ee07e;
-  --accent-color: #4c8c36;
+  --primary-color: #4c8c36;
+  --primary-color-20: #4c8c3633;
+  --primary-color-30: #4c8c364c;
+  --primary-color-69: #4c8c36b0;
+
+  --secondary-color: #ffffff;
+  --secondary-color-20: #ffffff33;
+  --secondary-color-30: #ffffff4c;
+  --secondary-color-69: #ffffffb0;
+
+  --accent-color: #000000;
+  --accent-color-20: #00000033;
+  --accent-color-30: #0000004c;
+  --accent-color-69: #000000b0;
 }
 
 body {
-  background-image: url("/static/images/dankground.svg"),
-    linear-gradient(to right, var(--accent-color), var(--secondary-color));
+  background-image: url("/static/images/dankground.svg");
+  background-color: var(--primary-color);
 }

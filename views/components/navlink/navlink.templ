@@ -1,29 +1,40 @@
 package navlink
 
-templ NavLink(title, imageUrl, path string) {
+templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 	<a
 		href={ templ.SafeURL(path) }
 		title={ title }
 		class={ "cursor-pointer", "underline", "hover:no-underline" , "inline-block" }
-		hx-get={ path + "?no_reload=true" }
+		hx-get={ path + "?no_layout=true" }
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
 		onClick={ updateHref(path) }
 	>
 		if imageUrl != "" {
-			<img src={ imageUrl } alt={ title }/>
+			<div class={ "flex", "gap-x-3", "items-center" }>
+				<img
+					width="20"
+					height="20"
+					src={ imageUrl }
+					alt={ title }
+				/>
+				if len(showTilte) > 0 && showTilte[0] {
+					{ title }
+				}
+			</div>
 		} else {
 			{ title }
 		}
 	</a>
 }
 
-templ LinkContainer(path string, child templ.Component) {
+templ LinkContainer(path, title string, child templ.Component) {
 	<a
 		href={ templ.SafeURL(path) }
+		title={ title }
 		class={ "cursor-pointer" }
-		hx-get={ path + "?no_reload=true" }
+		hx-get={ path + "?no_layout=true" }
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
