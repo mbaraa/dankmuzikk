@@ -123,12 +123,16 @@ func (e *EmailLoginService) VerifyOtp(token string, otp entities.OtpRequest) (st
 	}
 	verCode := verCodes[len(verCodes)-1]
 	defer func() {
-		_ = e.otpRepo.Delete("id = ?", verCode.Id)
+		_ = e.otpRepo.Delete("account_id = ?", account[0].Id)
 	}()
+
+	if verCode.CreatedAt.Add(time.Hour / 2).Before(time.Now()) {
+		return "", ErrExpiredVerificationCode
+	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(verCode.Code), []byte(otp.Code))
 	if err != nil {
-		return "", err
+		return "", ErrInvalidVerificationCode
 	}
 
 	sessionToken, err := e.jwtUtil.Sign(jwt.Json{

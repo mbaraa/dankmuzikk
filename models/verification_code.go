@@ -8,7 +8,6 @@ type EmailVerificationCode struct {
 	Account   Account
 	Code      string `gorm:"not null"`
 	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 func (e EmailVerificationCode) GetId() uint {
