@@ -43,7 +43,7 @@ func StartServer(staticFS embed.FS) error {
 
 	downloadService := download.New(songRepo)
 	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongssRepo, downloadService)
-	songsService := songs.New(playlistSongssRepo, songRepo, playlistRepo)
+	songsService := songs.New(playlistSongssRepo, songRepo, playlistRepo, downloadService)
 
 	jwtUtil := jwt.NewJWTImpl()
 
@@ -95,7 +95,6 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
 	apisHandler.HandleFunc("GET /song/download", songDownloadApi.HandleDownloadSong)
-	apisHandler.HandleFunc("GET /song/download/queue", songDownloadApi.HandleDownloadSongToQueue)
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
 	apisHandler.HandleFunc("PUT /toggle-song-in-playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 	apisHandler.HandleFunc("PUT /increment-song-plays", gHandler.AuthApi(songDownloadApi.HandleIncrementSongPlaysInPlaylist))

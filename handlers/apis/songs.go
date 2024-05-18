@@ -56,23 +56,6 @@ func (s *songDownloadHandler) HandleDownloadSong(w http.ResponseWriter, r *http.
 	}
 }
 
-func (s *songDownloadHandler) HandleDownloadSongToQueue(w http.ResponseWriter, r *http.Request) {
-	song, err := s.extractSongFromQuery(r.URL.Query())
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		log.Errorln(err)
-		return
-	}
-
-	err = s.service.DownloadYoutubeSongQueue(song)
-	if err != nil {
-		log.Errorln(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-}
-
 func (s *songDownloadHandler) extractSongFromQuery(query url.Values) (entities.Song, error) {
 	id := query.Get("yt_id")
 	if id == "" {
