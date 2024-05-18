@@ -308,6 +308,9 @@ function toggleShuffle() {
  * @param {Song} song
  */
 async function downloadSong(song) {
+  if (!song) {
+    return;
+  }
   return await fetch(
     "/api/song/download?" + new URLSearchParams(song).toString(),
   ).catch((err) => console.error(err));
@@ -405,18 +408,6 @@ audioPlayerEl.addEventListener("timeupdate", (event) => {
   }
   if (songSeekBarEl) {
     songSeekBarEl.value = Math.ceil(currentTime);
-  }
-
-  if (
-    !!currentPlaylistPlayer &&
-    event.target.currentTime >= event.target.duration * 0.9
-  ) {
-    downloadSong(
-      currentPlaylistPlayer.nextSong(
-        shuffleSongs,
-        loopModes[currentLoopIdx].mode === "ALL",
-      ),
-    );
   }
 });
 
