@@ -52,6 +52,7 @@ templ Playlist(pl entities.Playlist) {
 											"bg-secondary-trans-20", "rounded-[10px]", "p-2", "lg:p-5",
 											"flex", "flex-row", "items-center", "gap-5", "justify-between",
 										}
+										id={ "song-" + song.YtId }
 									>
 										<div
 											class={
@@ -145,22 +146,13 @@ script removeSongFromPlaylist(songId, playlistId string) {
     })
     .then((res) => {
         if (res.ok) {
-            fetch("/playlist/"+playlistId+"?no_layout=true")
-            .then((res) => res.text())
-            .then((page) => {
-                if (!page || page.length === 0) {
-                    window.location.reload()
-                    return;
-                }
-                document.getElementById("main-contents").innerHTML = page;
-            })
-            .catch(() => {
-                window.location.reload()
-            })
+            document.getElementById("song-" + songId).remove();
+        } else {
+            window.location.reload()
         }
     })
     .catch((err) => {
-        window.alert(err);
+        window.location.reload()
     })
     .finally(() => {
         Utils.hideLoading();
