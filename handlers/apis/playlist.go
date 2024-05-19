@@ -53,7 +53,7 @@ func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -78,9 +78,9 @@ func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.
 	var err error
 	switch removeSongFromPlaylist {
 	case "false":
-		err = p.songService.AddSongToPlaylist(songId, playlistId)
+		err = p.songService.AddSongToPlaylist(songId, playlistId, profileId)
 	case "true":
-		err = p.songService.RemoveSongFromPlaylist(songId, playlistId)
+		err = p.songService.RemoveSongFromPlaylist(songId, playlistId, profileId)
 	}
 
 	if err != nil {

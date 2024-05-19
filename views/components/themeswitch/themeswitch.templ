@@ -25,7 +25,7 @@ templ ThemeSwitch() {
 }
 
 templ themeSwitch() {
-	<ul class={ "text-secondary" }>
+	<ul class={ "text-secondary", "bg-accent-trans-30", "backdrop-blur-md", "p-[10px]", "rounded-[5px]" }>
 		for _, theme := range themes {
 			<li>
 				<button

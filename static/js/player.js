@@ -73,6 +73,7 @@ class PlaylistPlayer {
    * @param {string} songYtIt
    */
   play(songYtIt = "") {
+    this.setSongNotPlayingStyle();
     this.#currentSongIndex = this.#currentPlaylist.songs.findIndex(
       (song) => song.yt_id === songYtIt,
     );
@@ -82,9 +83,11 @@ class PlaylistPlayer {
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
     playNewSong(songToPlay);
     this.#updateSongPlays();
+    this.setSongPlayingStyle();
   }
 
   next(shuffle = false, loop = false) {
+    this.setSongNotPlayingStyle();
     if (
       !loop &&
       !shuffle &&
@@ -93,19 +96,19 @@ class PlaylistPlayer {
       stopMuzikk();
       return;
     }
-
     this.#currentSongIndex = shuffle
       ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
       : loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
         ? 0
         : this.#currentSongIndex + 1;
-
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
     playNewSong(songToPlay);
     this.#updateSongPlays();
+    this.setSongPlayingStyle();
   }
 
   previous(shuffle = false, loop = false) {
+    this.setSongNotPlayingStyle();
     if (!loop && !shuffle && this.#currentSongIndex - 1 < 0) {
       stopMuzikk();
       return;
@@ -115,9 +118,34 @@ class PlaylistPlayer {
       : loop && this.#currentSongIndex - 1 < 0
         ? this.#currentPlaylist.songs.length - 1
         : this.#currentSongIndex - 1;
+    this.setSongNotPlayingStyle();
     const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
     playNewSong(songToPlay);
     this.#updateSongPlays();
+    this.setSongPlayingStyle();
+  }
+
+  removeSong(songYtId) {
+    const songIndex = this.#currentPlaylist.songs.findIndex(
+      (song) => song.yt_id === songYtId,
+    );
+    if (songIndex < 0) {
+      return;
+    }
+    this.#currentPlaylist.songs.splice(songIndex, 1);
+  }
+
+  setSongPlayingStyle() {
+    document.getElementById(
+      "song-" + this.#currentPlaylist.songs[this.#currentSongIndex].yt_id,
+    ).style.backgroundColor = "var(--accent-color-30)";
+  }
+
+  setSongNotPlayingStyle() {
+    for (const song of this.#currentPlaylist.songs) {
+      document.getElementById("song-" + song.yt_id).style.backgroundColor =
+        "var(--secondary-color-20)";
+    }
   }
 
   /**
@@ -155,6 +183,16 @@ class PlaylistPlayer {
       },
     ).catch((err) => console.error(err));
   }
+}
+
+/**
+ * @param {string} songYtId
+ */
+function removeSongFromPlaylist(songYtId) {
+  if (!currentPlaylistPlayer) {
+    return;
+  }
+  currentPlaylistPlayer.removeSong(songYtId);
 }
 
 /**
@@ -445,4 +483,5 @@ window.Player = {
   playPlaylist,
   playSongFromPlaylist,
   playNewSong,
+  removeSongFromPlaylist,
 };

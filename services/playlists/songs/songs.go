@@ -9,24 +9,27 @@ import (
 // Service represents songs in platlists management service,
 // where it adds and deletes songs to and from playlists
 type Service struct {
-	playlistSongRepo db.UnsafeCRUDRepo[models.PlaylistSong]
-	songRepo         db.UnsafeCRUDRepo[models.Song]
-	playlistRepo     db.UnsafeCRUDRepo[models.Playlist]
-	downloadService  *download.Service
+	playlistSongRepo  db.UnsafeCRUDRepo[models.PlaylistSong]
+	playlistOwnerRepo db.CRUDRepo[models.PlaylistOwner]
+	songRepo          db.UnsafeCRUDRepo[models.Song]
+	playlistRepo      db.UnsafeCRUDRepo[models.Playlist]
+	downloadService   *download.Service
 }
 
 // New accepts repos lol, and returns a new instance to the songs playlists service.
 func New(
 	playlistSongRepo db.UnsafeCRUDRepo[models.PlaylistSong],
+	playlistOwnerRepo db.CRUDRepo[models.PlaylistOwner],
 	songRepo db.UnsafeCRUDRepo[models.Song],
 	playlistRepo db.UnsafeCRUDRepo[models.Playlist],
 	downloadService *download.Service,
 ) *Service {
 	return &Service{
-		playlistSongRepo: playlistSongRepo,
-		songRepo:         songRepo,
-		playlistRepo:     playlistRepo,
-		downloadService:  downloadService,
+		playlistSongRepo:  playlistSongRepo,
+		playlistOwnerRepo: playlistOwnerRepo,
+		songRepo:          songRepo,
+		playlistRepo:      playlistRepo,
+		downloadService:   downloadService,
 	}
 }
 
@@ -34,15 +37,20 @@ func New(
 // checks if the actual song and playlist exist then adds the song to the given playlist,
 // and returns an occurring error.
 // TODO: check playlist's owner :)
-func (s *Service) AddSongToPlaylist(songId, playlistPubId string) error {
-	song, err := s.songRepo.GetByConds("yt_id = ?", songId)
-	if err != nil {
-		return err
-	}
+func (s *Service) AddSongToPlaylist(songId, playlistPubId string, ownerId uint) error {
 	playlist, err := s.playlistRepo.GetByConds("public_id = ?", playlistPubId)
 	if err != nil {
 		return err
 	}
+	_, err = s.playlistOwnerRepo.GetByConds("profile_id = ? AND playlist_id = ?", ownerId, playlist[0].Id)
+	if err != nil {
+		return err
+	}
+	song, err := s.songRepo.GetByConds("yt_id = ?", songId)
+	if err != nil {
+		return err
+	}
+
 	err = s.playlistSongRepo.Add(&models.PlaylistSong{
 		PlaylistId: playlist[0].Id,
 		SongId:     song[0].Id,
@@ -57,28 +65,33 @@ func (s *Service) AddSongToPlaylist(songId, playlistPubId string) error {
 // IncrementSongPlays increases the song's play times in the given playlist.
 // Checks for the song and playlist first, yada yada...
 // TODO: check playlist's owner :)
-func (s *Service) IncrementSongPlays(songId, playlistPubId string) error {
-	var song models.Song
-	err := s.
-		songRepo.
-		GetDB().
-		Model(new(models.Song)).
-		Select("id").
-		Where("yt_id = ?", songId).
-		First(&song).
-		Error
-	if err != nil {
-		return err
-	}
-
+func (s *Service) IncrementSongPlays(songId, playlistPubId string, ownerId uint) error {
 	var playlist models.Playlist
-	err = s.
+	err := s.
 		songRepo.
 		GetDB().
 		Model(new(models.Playlist)).
 		Select("id").
 		Where("public_id = ?", playlistPubId).
 		First(&playlist).
+		Error
+	if err != nil {
+		return err
+	}
+
+	_, err = s.playlistOwnerRepo.GetByConds("profile_id = ? AND playlist_id = ?", ownerId, playlist.Id)
+	if err != nil {
+		return err
+	}
+
+	var song models.Song
+	err = s.
+		songRepo.
+		GetDB().
+		Model(new(models.Song)).
+		Select("id").
+		Where("yt_id = ?", songId).
+		First(&song).
 		Error
 	if err != nil {
 		return err
@@ -110,12 +123,16 @@ func (s *Service) IncrementSongPlays(songId, playlistPubId string) error {
 // checks if the actual song and playlist exist then removes the song to the given playlist,
 // and returns an occurring error.
 // TODO: check playlist's owner :)
-func (s *Service) RemoveSongFromPlaylist(songId, playlistPubId string) error {
-	song, err := s.songRepo.GetByConds("yt_id = ?", songId)
+func (s *Service) RemoveSongFromPlaylist(songId, playlistPubId string, ownerId uint) error {
+	playlist, err := s.playlistRepo.GetByConds("public_id = ?", playlistPubId)
 	if err != nil {
 		return err
 	}
-	playlist, err := s.playlistRepo.GetByConds("public_id = ?", playlistPubId)
+	_, err = s.playlistOwnerRepo.GetByConds("profile_id = ? AND playlist_id = ?", ownerId, playlist[0].Id)
+	if err != nil {
+		return err
+	}
+	song, err := s.songRepo.GetByConds("yt_id = ?", songId)
 	if err != nil {
 		return err
 	}

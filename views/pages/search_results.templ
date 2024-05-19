@@ -9,57 +9,61 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={
-				"w-full", "md:w-auto", "overflow-y-scroll", "min-h-[50vh]", "max-h-[50vh]", "md:max-h-[75vh]",
+				"w-full", "md:w-auto", "overflow-y-scroll", "", "max-h-[50vh]", "md:max-h-[75vh]",
 				"bg-accent-trans-20", "backdrop-blur-sm", "rounded-md", "rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[5px]",
 				"md:p-[20px]", "flex", "flex-col", "gap-y-3", "justify-between",
 			}
 		>
-			for idx, res := range results {
-				<div
-					class={
-						"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "p-[12px]", "flex", "justify-between",
-						"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10",
-					}
-				>
-					<!-- thumbnail and duration -->
+			if len(results) == 0 {
+				<p class={ "md:w-[50dvh]", "text-center", "text-secondary", "text-xl" }>No results were found...</p>
+			} else {
+				for idx, res := range results {
 					<div
-						class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]" }
+						class={
+							"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "p-[12px]", "flex", "justify-between",
+							"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10",
+						}
 					>
+						<!-- thumbnail and duration -->
 						<div
-							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative", "cursor-pointer" }
-							onClick={ playSong(res) }
+							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]" }
 						>
-							<img
-								class={ "w-full", "h-full", "rounded-lg" }
-								loading="lazy"
-								src={ res.ThumbnailUrl }
-								alt="Video Thumbnail"
-							/>
-							<div class={ "absolute", "right-0", "bottom-0", "text-secondary", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-accent-trans-30", "rounded-sm" }>
-								<p class={ "leading-3", "font-Ubuntu" }>
-									{ res.Duration }
-								</p>
-							</div>
-						</div>
-					</div>
-					<!-- title, channel title, and description -->
-					<div class={ "w-[150px]", "md:w-[250px]", "lg:min-w-[300px]", "xl:min-w-[400px]" }>
-						<div class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-secondary" }>
-							<h3
-								class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
-								title={ res.Title }
+							<div
+								class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative", "cursor-pointer" }
 								onClick={ playSong(res) }
 							>
-								{ res.Title }
-							</h3>
-							<p class={ "w-full", "text-sm", "font-normal" }>{ res.Artist }</p>
+								<img
+									class={ "w-full", "h-full", "rounded-lg" }
+									loading="lazy"
+									src={ res.ThumbnailUrl }
+									alt="Video Thumbnail"
+								/>
+								<div class={ "absolute", "right-0", "bottom-0", "text-secondary", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-accent-trans-30", "rounded-sm" }>
+									<p class={ "leading-3", "font-Ubuntu" }>
+										{ res.Duration }
+									</p>
+								</div>
+							</div>
+						</div>
+						<!-- title, channel title, and description -->
+						<div class={ "w-[150px]", "md:w-[250px]", "lg:min-w-[300px]", "xl:min-w-[400px]" }>
+							<div class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-secondary" }>
+								<h3
+									class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
+									title={ res.Title }
+									onClick={ playSong(res) }
+								>
+									{ res.Title }
+								</h3>
+								<p class={ "w-full", "text-sm", "font-normal" }>{ res.Artist }</p>
+							</div>
+						</div>
+						<!-- actions -->
+						<div class={ "w-[30px]", "h-[30px]", "relative" }>
+							@playlist.PlaylistsPopover(idx, res.YtId, playlists, songsInPlaylists)
 						</div>
 					</div>
-					<!-- actions -->
-					<div class={ "w-[30px]", "h-[30px]", "relative" }>
-						@playlist.PlaylistsPopover(idx, res.YtId, playlists, songsInPlaylists)
-					</div>
-				</div>
+				}
 			}
 		</section>
 	</main>

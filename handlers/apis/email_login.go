@@ -119,7 +119,18 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	}
 
 	sessionToken, err := e.service.VerifyOtp(verificationToken.Value, reqBody)
-	// TODO: specify errors further suka
+	if errors.Is(err, login.ErrExpiredVerificationCode) {
+		status.
+			GenericError("Expired verification code!").
+			Render(context.Background(), w)
+		return
+	}
+	if errors.Is(err, login.ErrInvalidVerificationCode) {
+		status.
+			GenericError("Invalid verification code!").
+			Render(context.Background(), w)
+		return
+	}
 	if err != nil {
 		log.Error(err)
 		// w.WriteHeader(http.StatusInternalServerError)
