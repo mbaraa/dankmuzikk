@@ -147,6 +147,7 @@ script removeSongFromPlaylist(songId, playlistId string) {
     .then((res) => {
         if (res.ok) {
             document.getElementById("song-" + songId).remove();
+            Player.removeSongFromPlaylist(songId);
         } else {
             window.alert("Oopsie something went wrong!");
         }

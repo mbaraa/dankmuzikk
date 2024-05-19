@@ -125,6 +125,16 @@ class PlaylistPlayer {
     this.setSongPlayingStyle();
   }
 
+  removeSong(songYtId) {
+    const songIndex = this.#currentPlaylist.songs.findIndex(
+      (song) => song.yt_id === songYtId,
+    );
+    if (songIndex < 0) {
+      return;
+    }
+    this.#currentPlaylist.songs.splice(songIndex, 1);
+  }
+
   setSongPlayingStyle() {
     document.getElementById(
       "song-" + this.#currentPlaylist.songs[this.#currentSongIndex].yt_id,
@@ -173,6 +183,16 @@ class PlaylistPlayer {
       },
     ).catch((err) => console.error(err));
   }
+}
+
+/**
+ * @param {string} songYtId
+ */
+function removeSongFromPlaylist(songYtId) {
+  if (!currentPlaylistPlayer) {
+    return;
+  }
+  currentPlaylistPlayer.removeSong(songYtId);
 }
 
 /**
@@ -463,4 +483,5 @@ window.Player = {
   playPlaylist,
   playSongFromPlaylist,
   playNewSong,
+  removeSongFromPlaylist,
 };
