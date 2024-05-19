@@ -2,11 +2,12 @@
 
 const searchFormEl = document.getElementById("search-form"),
   searchInputEl = document.getElementById("search-input"),
-    searchSugEl = document.getElementById("search-suggestions-container");
+  searchSugEl = document.getElementById("search-suggestions-container");
 
 let focusedSuggestionIndex = 0;
 
 function searchNoReload(searchQuery) {
+  searchSugEl.innerText = "";
   searchFormEl.blur();
   searchInputEl.blur();
   const query = encodeURIComponent(searchQuery);
@@ -15,7 +16,6 @@ function searchNoReload(searchQuery) {
   );
   window.location.prevPath = prevPath;
   window.history.pushState({}, "", `/search?query=${query}`);
-  searchSugEl.innerText = "";
 }
 
 searchFormEl.addEventListener("submit", (e) => {
