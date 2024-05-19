@@ -2,7 +2,7 @@ package player
 
 templ PlayerSticky() {
 	<div id="muzikk" class="hidden">
-		if ctx.Value("is-mobile").(bool) {
+		if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
 			@mobilePlayer()
 		} else {
 			@desktopPlayer()
