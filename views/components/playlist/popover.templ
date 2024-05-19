@@ -11,7 +11,7 @@ templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, 
 }
 
 templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]string) {
-	<div class={ "min-w-[250px]" }>
+	<div class={ "min-w-[250px]", "bg-accent-trans-30", "backdrop-blur-md", "p-3", "rounded-[10px]", "text-secondary" }>
 		<h2 class={ "text-lg" }>Save this song to...</h2>
 		<div class={ "my-2" }></div>
 		<ul class={ "flex", "flex-col", "gap-y-2" }>

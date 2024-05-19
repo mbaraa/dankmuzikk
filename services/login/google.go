@@ -41,14 +41,14 @@ type GoogleLoginService struct {
 	accountRepo db.CRUDRepo[models.Account]
 	profileRepo db.CRUDRepo[models.Profile]
 	otpRepo     db.CRUDRepo[models.EmailVerificationCode]
-	jwtUtil     jwt.Manager[any]
+	jwtUtil     jwt.Manager[jwt.Json]
 }
 
 func NewGoogleLoginService(
 	accountRepo db.CRUDRepo[models.Account],
 	profileRepo db.CRUDRepo[models.Profile],
 	otpRepo db.CRUDRepo[models.EmailVerificationCode],
-	jwtUtil jwt.Manager[any],
+	jwtUtil jwt.Manager[jwt.Json],
 ) *GoogleLoginService {
 	return &GoogleLoginService{
 		accountRepo: accountRepo,
@@ -79,7 +79,7 @@ func (g *GoogleLoginService) Login(state, code string) (string, error) {
 	profile[0].Account = account[0]
 	profile[0].AccountId = account[0].Id
 
-	verificationToken, err := g.jwtUtil.Sign(map[string]string{
+	verificationToken, err := g.jwtUtil.Sign(jwt.Json{
 		"name":     profile[0].Name,
 		"email":    profile[0].Account.Email,
 		"username": profile[0].Username,
@@ -107,7 +107,7 @@ func (g *GoogleLoginService) Signup(googleUser oauthUserInfo) (string, error) {
 		return "", err
 	}
 
-	verificationToken, err := g.jwtUtil.Sign(map[string]string{
+	verificationToken, err := g.jwtUtil.Sign(jwt.Json{
 		"name":     profile.Name,
 		"email":    profile.Account.Email,
 		"username": profile.Username,

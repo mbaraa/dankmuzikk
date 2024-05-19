@@ -2,6 +2,7 @@ package apis
 
 import (
 	"dankmuzikk/entities"
+	"dankmuzikk/handlers"
 	"dankmuzikk/log"
 	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
@@ -20,6 +21,11 @@ func NewDownloadHandler(service *download.Service, songsService *songs.Service) 
 }
 
 func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
 	songId := r.URL.Query().Get("song-id")
 	if songId == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -31,7 +37,7 @@ func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.Response
 		return
 	}
 
-	err := s.songsService.IncrementSongPlays(songId, playlistId)
+	err := s.songsService.IncrementSongPlays(songId, playlistId, profileId)
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
