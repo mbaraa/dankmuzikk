@@ -42,7 +42,7 @@ func StartServer(staticFS embed.FS) error {
 	playlistSongsRepo := db.NewBaseDB[models.PlaylistSong](dbConn)
 
 	downloadService := download.New(songRepo)
-	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongsRepo, downloadService)
+	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongsRepo)
 	songsService := songs.New(playlistSongsRepo, playlistOwnersRepo, songRepo, playlistRepo, downloadService)
 
 	jwtUtil := jwt.NewJWTImpl()
@@ -67,7 +67,7 @@ func StartServer(staticFS embed.FS) error {
 	})
 	pagesHandler.Handle("/music/", http.StripPrefix("/music", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
-	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil, &search.ScraperSearch{})
+	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil, &search.ScraperSearch{}, downloadService)
 	pagesHandler.HandleFunc("/", gHandler.OptionalAuthPage(pagesRouter.HandleHomePage))
 	pagesHandler.HandleFunc("/signup", gHandler.AuthPage(pagesRouter.HandleSignupPage))
 	pagesHandler.HandleFunc("/login", gHandler.AuthPage(pagesRouter.HandleLoginPage))

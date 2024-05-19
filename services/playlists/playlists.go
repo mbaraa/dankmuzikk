@@ -4,7 +4,6 @@ import (
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
 	"dankmuzikk/models"
-	"dankmuzikk/services/youtube/download"
 	"fmt"
 	"strings"
 	"time"
@@ -18,7 +17,6 @@ type Service struct {
 	repo               db.UnsafeCRUDRepo[models.Playlist]
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner]
 	playlistSongsRepo  db.UnsafeCRUDRepo[models.PlaylistSong]
-	downloadService    *download.Service
 }
 
 // New accepts a playlist repo, a playlist pwners, and returns a new instance to the playlists service.
@@ -26,9 +24,8 @@ func New(
 	repo db.UnsafeCRUDRepo[models.Playlist],
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner],
 	playlistSongsRepo db.UnsafeCRUDRepo[models.PlaylistSong],
-	downloadService *download.Service,
 ) *Service {
-	return &Service{repo, playlistOwnersRepo, playlistSongsRepo, downloadService}
+	return &Service{repo, playlistOwnersRepo, playlistSongsRepo}
 }
 
 // CreatePlaylist creates a new playlist with with provided details for the given account's profile.
@@ -217,8 +214,6 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 
 // TODO: fix this weird ass 3 return values
 func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) ([]entities.Playlist, map[string]string, error) {
-	_ = p.downloadService.DownloadYoutubeSongsMetadata(songs)
-
 	var dbPlaylists []models.Playlist
 	err := p.
 		repo.
@@ -238,6 +233,14 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 		return nil, nil, ErrUnauthorizedToSeePlaylist
 	}
 
+	gigaQuery := `SELECT song.yt_id, ps.song_id
+		FROM
+			playlist_songs ps
+		JOIN
+			songs song ON ps.song_id = song.id
+		WHERE ps.playlist_id = ?;`
+
+	_ = gigaQuery
 	mappedPlaylists := make(map[string]string)
 	usedPlaylists := make(map[string]bool)
 	for _, playlist := range dbPlaylists {

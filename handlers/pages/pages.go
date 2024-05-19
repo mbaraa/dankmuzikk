@@ -9,6 +9,7 @@ import (
 	"dankmuzikk/models"
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/playlists"
+	"dankmuzikk/services/youtube/download"
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/pages"
@@ -26,6 +27,7 @@ type pagesHandler struct {
 	playlistsService *playlists.Service
 	jwtUtil          jwt.Manager[jwt.Json]
 	ytSearch         search.Service
+	downloadService  *download.Service
 }
 
 func NewPagesHandler(
@@ -33,6 +35,7 @@ func NewPagesHandler(
 	playlistsService *playlists.Service,
 	jwtUtil jwt.Manager[jwt.Json],
 	ytSearch search.Service,
+	downloadService *download.Service,
 ) *pagesHandler {
 	return &pagesHandler{
 		profileRepo:      profileRepo,
@@ -150,6 +153,9 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		log.Errorln(err)
 		return
 	}
+
+	// TODO: move this call out of here
+	_ = p.downloadService.DownloadYoutubeSongsMetadata(results)
 
 	var songsInPlaylists map[string]string
 	var playlists []entities.Playlist
