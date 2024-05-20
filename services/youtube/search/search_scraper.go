@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -49,6 +50,18 @@ func (y *ScraperSearch) Search(query string) (results []entities.Song, err error
 		duration := strings.Split(res.Video.Duration, ":")
 		if len(duration[0]) == 1 {
 			duration[0] = "0" + duration[0]
+		}
+		if len(duration) == 3 {
+			durationNum, err := strconv.Atoi(duration[0])
+			if err != nil {
+				continue
+			}
+			if durationNum > 2 {
+				continue
+			}
+		}
+		if len(duration) > 3 {
+			continue
 		}
 
 		results = append(results, entities.Song{
