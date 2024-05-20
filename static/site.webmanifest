@@ -40,5 +40,7 @@
   ],
   "launch_handler": {
     "client_mode": "auto"
-  }
+  },
+  "lang": "en",
+  "dir": "auto"
 }
