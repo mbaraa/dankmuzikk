@@ -9,6 +9,7 @@ import (
 	"dankmuzikk/models"
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/playlists"
+	"dankmuzikk/services/youtube/download"
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/pages"
@@ -26,6 +27,7 @@ type pagesHandler struct {
 	playlistsService *playlists.Service
 	jwtUtil          jwt.Manager[jwt.Json]
 	ytSearch         search.Service
+	downloadService  *download.Service
 }
 
 func NewPagesHandler(
@@ -33,12 +35,14 @@ func NewPagesHandler(
 	playlistsService *playlists.Service,
 	jwtUtil jwt.Manager[jwt.Json],
 	ytSearch search.Service,
+	downloadService *download.Service,
 ) *pagesHandler {
 	return &pagesHandler{
 		profileRepo:      profileRepo,
 		playlistsService: playlistsService,
 		jwtUtil:          jwtUtil,
 		ytSearch:         ytSearch,
+		downloadService:  downloadService,
 	}
 }
 
@@ -151,11 +155,15 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	var songsInPlaylists map[string]string
+	if len(results) != 0 {
+		// TODO: move this call out of here
+		log.Info("downloading songs' meta data from search")
+		_ = p.downloadService.DownloadYoutubeSongsMetadata(results)
+	}
+	var songsInPlaylists map[string]bool
 	var playlists []entities.Playlist
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if profileIdCorrect {
-		log.Info("downloading songs' meta data from search")
 		playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(results, profileId)
 	}
 

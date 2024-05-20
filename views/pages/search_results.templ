@@ -5,7 +5,7 @@ import (
 	"dankmuzikk/entities"
 )
 
-templ SearchResults(results []entities.Song, playlists []entities.Playlist, songsInPlaylists map[string]string) {
+templ SearchResults(results []entities.Song, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
 	<main class={ "w-full", "h-full", "flex", "justify-center" }>
 		<section
 			class={

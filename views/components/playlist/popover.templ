@@ -6,11 +6,11 @@ import (
 	"dankmuzikk/views/components/popover"
 )
 
-templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]string) {
+templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
 	@popover.Popover(fmt.Sprint(index), "Add to playlist", popoverButton(), playlistsSelector(songId, playlists, songsInPlaylists))
 }
 
-templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]string) {
+templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
 	<div class={ "min-w-[250px]", "bg-accent-trans-30", "backdrop-blur-md", "p-3", "rounded-[10px]", "text-secondary" }>
 		<h2 class={ "text-lg" }>Save this song to...</h2>
 		<div class={ "my-2" }></div>
@@ -25,34 +25,32 @@ templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPla
 						class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
 						hx-put={
 							fmt.Sprintf(
-								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
+								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s",
 								songId,
 								playlist.PublicId,
-								playlist.PublicId == songsInPlaylists[songId],
 							),
 						}
 						hx-swap="innerHTML"
-						hx-target={ fmt.Sprintf("#song-in-playlist-%s", playlist.PublicId) }
+						hx-target={ fmt.Sprintf("#song-in-playlist-%s-%s", playlist.PublicId, songId) }
 						hx-trigger="click"
 						data-loading-target="#loading"
 						data-loading-class-remove="hidden"
 						data-loading-path={
 							fmt.Sprintf(
-								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
+								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s",
 								songId,
 								playlist.PublicId,
-								playlist.PublicId == songsInPlaylists[songId],
 							),
 						}
 					>
 						<div
-							id={ fmt.Sprintf("song-in-playlist-%s", playlist.PublicId) }
+							id={ fmt.Sprintf("song-in-playlist-%s-%s", playlist.PublicId, songId) }
 						>
 							<div
 								class={
 									"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-secondary",
 									map[string]bool{
-										"bg-secondary": playlist.PublicId == songsInPlaylists[songId],
+										"bg-secondary": songsInPlaylists[songId+"-"+playlist.PublicId],
 									},
 								}
 							></div>

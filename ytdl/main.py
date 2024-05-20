@@ -166,7 +166,7 @@ def download_songs_in_background(interval=1):
         time.sleep(interval)
 
 
-download_thread = Thread(target=download_songs_in_background, args=(5,))
+download_thread = Thread(target=download_songs_in_background, args=(1,))
 
 ## FastAPI Stuff
 
@@ -186,12 +186,10 @@ def on_startup():
 @app.on_event("shutdown")
 def on_shutdown():
     print("Stopping background download thread...")
-    global background_download_list
     background_download_list.release()
-    global download_thread
+    to_be_downloaded.release()
     download_thread.join()
     print("Closing MariaDB's connection...")
-    global conn
     conn.close()
 
 

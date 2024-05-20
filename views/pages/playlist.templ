@@ -66,17 +66,23 @@ templ Playlist(pl entities.Playlist) {
 												class={ "cursor-pointer", "flex", "flex-col", "lg:gap-2" }
 												onClick={ playSongFromPlaylist(song.YtId, pl) }
 											>
-												<p class={ "text-lg", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
-												<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Artist }</p>
-												<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
-												if song.PlayTimes == 1 {
-													<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
-												} else if song.PlayTimes > 1 {
-													<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
+												<p class={ "text-lg", "max-w-[200px]", "md:max-w-[300px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
+												<p class={ "text-md", "max-w-[200px]", "md:max-w-[300px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Artist }</p>
+												if isMobile, ok := ctx.Value("is-mobile").(bool); ok && !isMobile {
+													<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
+													if song.PlayTimes == 1 {
+														<p class={ "text-md", "max-w-[200px]", "md:max-w-[300px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
+													} else if song.PlayTimes > 1 {
+														<p class={ "text-md", "max-w-[200px]", "md:max-w-[300px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
+													}
 												}
 											</div>
 											<div>
-												@popover.Popover(song.YtId, "Options", songOptionsToggle(), songOptions(song, pl.PublicId))
+												if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+													@popover.Popover(song.YtId, "Options", songOptionsToggle(), songOptionsMobile(song, pl.PublicId))
+												} else {
+													@popover.Popover(song.YtId, "Options", songOptionsToggle(), songOptions(song, pl.PublicId))
+												}
 											</div>
 										</div>
 									</div>
@@ -98,23 +104,50 @@ templ songOptionsToggle() {
 	</svg>
 }
 
+//if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
 templ songOptions(song entities.Song, playlistId string) {
 	<div
 		class={
-			"w-full", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
-			"flex", "flex-col", "gap-y-2",
+			"w-[250px]", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
+			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
 		}
 	>
-		<h3>Song's options</h3>
+		<h3 class={ "text-lg", "font-medium" }>Options</h3>
 		<button
 			class={
 				"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
-				"rounded-[5px]", "py-[5px]", "px-[60px]", "w-full",
+				"rounded-[5px]", "py-[5px]", "px-[10px]", "w-full",
 			}
 			title={ "Remove " + song.Title + "!" }
 			type="button"
 			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
-		>Remove</button>
+		>Remove from playlist</button>
+	</div>
+}
+
+templ songOptionsMobile(song entities.Song, playlistId string) {
+	<div
+		class={
+			"w-[250px]", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
+			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
+		}
+	>
+		<h3 class={ "text-lg", "font-medium" }>Details and options</h3>
+		<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
+		if song.PlayTimes == 1 {
+			<p class={ "text-md", "max-w-[200px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
+		} else if song.PlayTimes > 1 {
+			<p class={ "text-md", "max-w-[200px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
+		}
+		<button
+			class={
+				"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
+				"rounded-[5px]", "py-[10px]", "px-[30px]", "w-full",
+			}
+			title={ "Remove " + song.Title + "!" }
+			type="button"
+			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+		>Remove from playlist</button>
 	</div>
 }
 

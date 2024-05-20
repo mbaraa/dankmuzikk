@@ -44,7 +44,7 @@ func SeedDb() error {
 	playlistSongsRepo = db.NewBaseDB[models.PlaylistSong](dbConn)
 	playlistOwnerRepo = db.NewBaseDB[models.PlaylistOwner](dbConn)
 
-	playlistService := playlistspkg.New(playlistRepo, playlistOwnerRepo, nil, nil)
+	playlistService := playlistspkg.New(playlistRepo, playlistOwnerRepo, nil)
 
 	pl, err := playlistService.GetAll(400)
 	if err != nil {
