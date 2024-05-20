@@ -16,6 +16,7 @@
   "theme_color": "#4C8C36",
   "background_color": "#4C8C36",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "description": "Create, Share and Play Music Playlists."
