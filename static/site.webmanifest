@@ -37,5 +37,8 @@
       "name": "Playlists",
       "url": "/playlists"
     }
-  ]
+  ],
+  "launch_handler": {
+    "client_mode": "auto"
+  }
 }
