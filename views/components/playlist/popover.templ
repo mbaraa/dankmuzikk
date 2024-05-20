@@ -25,10 +25,9 @@ templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPla
 						class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
 						hx-put={
 							fmt.Sprintf(
-								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
+								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s",
 								songId,
 								playlist.PublicId,
-								songsInPlaylists[songId+"-"+playlist.PublicId],
 							),
 						}
 						hx-swap="innerHTML"
@@ -38,10 +37,9 @@ templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPla
 						data-loading-class-remove="hidden"
 						data-loading-path={
 							fmt.Sprintf(
-								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s&remove=%v",
+								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s",
 								songId,
 								playlist.PublicId,
-								songsInPlaylists[songId+"-"+playlist.PublicId],
 							),
 						}
 					>

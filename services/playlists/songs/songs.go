@@ -4,6 +4,7 @@ import (
 	"dankmuzikk/db"
 	"dankmuzikk/models"
 	"dankmuzikk/services/youtube/download"
+	"errors"
 )
 
 // Service represents songs in platlists management service,
@@ -33,38 +34,41 @@ func New(
 	}
 }
 
-// AddSongToPlaylist adds a given song to the given playlist,
-// checks if the actual song and playlist exist then adds the song to the given playlist,
+// ToggleSongInPlaylist adds/removes a given song to/from the given playlist,
+// checks if the actual song and playlist exist then adds/removes the song to/from the given playlist,
 // and returns an occurring error.
-// TODO: check playlist's owner :)
-func (s *Service) AddSongToPlaylist(songId, playlistPubId string, ownerId uint) error {
+func (s *Service) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {
 	playlist, err := s.playlistRepo.GetByConds("public_id = ?", playlistPubId)
 	if err != nil {
-		return err
+		return
 	}
 	_, err = s.playlistOwnerRepo.GetByConds("profile_id = ? AND playlist_id = ?", ownerId, playlist[0].Id)
 	if err != nil {
-		return err
+		return
 	}
 	song, err := s.songRepo.GetByConds("yt_id = ?", songId)
 	if err != nil {
-		return err
+		return
 	}
-
-	err = s.playlistSongRepo.Add(&models.PlaylistSong{
-		PlaylistId: playlist[0].Id,
-		SongId:     song[0].Id,
-	})
-	if err != nil {
-		return err
+	_, err = s.playlistSongRepo.GetByConds("playlist_id = ? AND song_id = ?", playlist[0].Id, song[0].Id)
+	if errors.Is(err, db.ErrRecordNotFound) {
+		err = s.playlistSongRepo.Add(&models.PlaylistSong{
+			PlaylistId: playlist[0].Id,
+			SongId:     song[0].Id,
+		})
+		if err != nil {
+			return
+		}
+		return true, s.downloadService.DownloadYoutubeSongQueue(songId)
+	} else {
+		return false, s.
+			playlistSongRepo.
+			Delete("playlist_id = ? AND song_id = ?", playlist[0].Id, song[0].Id)
 	}
-
-	return s.downloadService.DownloadYoutubeSongQueue(songId)
 }
 
 // IncrementSongPlays increases the song's play times in the given playlist.
 // Checks for the song and playlist first, yada yada...
-// TODO: check playlist's owner :)
 func (s *Service) IncrementSongPlays(songId, playlistPubId string, ownerId uint) error {
 	var playlist models.Playlist
 	err := s.
@@ -117,27 +121,4 @@ func (s *Service) IncrementSongPlays(songId, playlistPubId string, ownerId uint)
 		Where("playlist_id = ? AND song_id = ?", playlist.Id, song.Id).
 		Update("play_times", ps.PlayTimes+1).
 		Error
-}
-
-// RemoveSongFromPlaylist removes a given song from the given playlist,
-// checks if the actual song and playlist exist then removes the song to the given playlist,
-// and returns an occurring error.
-// TODO: check playlist's owner :)
-func (s *Service) RemoveSongFromPlaylist(songId, playlistPubId string, ownerId uint) error {
-	playlist, err := s.playlistRepo.GetByConds("public_id = ?", playlistPubId)
-	if err != nil {
-		return err
-	}
-	_, err = s.playlistOwnerRepo.GetByConds("profile_id = ? AND playlist_id = ?", ownerId, playlist[0].Id)
-	if err != nil {
-		return err
-	}
-	song, err := s.songRepo.GetByConds("yt_id = ?", songId)
-	if err != nil {
-		return err
-	}
-
-	return s.
-		playlistSongRepo.
-		Delete("playlist_id = ? AND song_id = ?", playlist[0].Id, song[0].Id)
 }

@@ -69,31 +69,17 @@ func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	removeSongFromPlaylist := r.URL.Query().Get("remove")
-	if removeSongFromPlaylist != "true" && removeSongFromPlaylist != "false" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 
-	var err error
-	switch removeSongFromPlaylist {
-	case "false":
-		err = p.songService.AddSongToPlaylist(songId, playlistId, profileId)
-	case "true":
-		err = p.songService.RemoveSongFromPlaylist(songId, playlistId, profileId)
-	}
-
+	added, err := p.songService.ToggleSongInPlaylist(songId, playlistId, profileId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
 		return
 	}
 
-	// TODO: idk, this is ugly, but it works lol
-	switch removeSongFromPlaylist {
-	case "false":
-		w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary bg-secondary\"></div>"))
-	case "true":
-		w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary\"></div>"))
+	if added {
+		_, _ = w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary bg-secondary\"></div>"))
+	} else {
+		_, _ = w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary\"></div>"))
 	}
 }
