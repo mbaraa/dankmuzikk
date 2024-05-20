@@ -21,5 +21,19 @@
   "orientation": "portrait",
   "description": "Create, Share and Play Music Playlists.",
   "id": "com.mbaraa.dankmuzikk",
-  "categories": ["music"]
+  "categories": ["music"],
+  "shortcuts": [
+    {
+      "name": "Home",
+      "url": "/"
+    },
+    {
+      "name": "About",
+      "url": "/about"
+    },
+    {
+      "name": "Playlists",
+      "url": "/playlists"
+    }
+  ]
 }
