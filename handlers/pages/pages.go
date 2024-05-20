@@ -42,6 +42,7 @@ func NewPagesHandler(
 		playlistsService: playlistsService,
 		jwtUtil:          jwtUtil,
 		ytSearch:         ytSearch,
+		downloadService:  downloadService,
 	}
 }
 
@@ -154,14 +155,15 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// TODO: move this call out of here
-	_ = p.downloadService.DownloadYoutubeSongsMetadata(results)
-
-	var songsInPlaylists map[string]string
+	if len(results) != 0 {
+		// TODO: move this call out of here
+		log.Info("downloading songs' meta data from search")
+		_ = p.downloadService.DownloadYoutubeSongsMetadata(results)
+	}
+	var songsInPlaylists map[string]bool
 	var playlists []entities.Playlist
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if profileIdCorrect {
-		log.Info("downloading songs' meta data from search")
 		playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(results, profileId)
 	}
 

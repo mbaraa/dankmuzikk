@@ -213,7 +213,7 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 }
 
 // TODO: fix this weird ass 3 return values
-func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) ([]entities.Playlist, map[string]string, error) {
+func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) ([]entities.Playlist, map[string]bool, error) {
 	var dbPlaylists []models.Playlist
 	err := p.
 		repo.
@@ -233,27 +233,19 @@ func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint)
 		return nil, nil, ErrUnauthorizedToSeePlaylist
 	}
 
-	gigaQuery := `SELECT song.yt_id, ps.song_id
-		FROM
-			playlist_songs ps
-		JOIN
-			songs song ON ps.song_id = song.id
-		WHERE ps.playlist_id = ?;`
-
-	_ = gigaQuery
-	mappedPlaylists := make(map[string]string)
-	usedPlaylists := make(map[string]bool)
+	mappedPlaylists := make(map[string]bool)
 	for _, playlist := range dbPlaylists {
 		for _, song := range playlist.Songs {
-			mappedPlaylists[song.YtId] = playlist.PublicId
-			usedPlaylists[playlist.PublicId] = true
+			mappedPlaylists[song.YtId+"-"+playlist.PublicId] = true
 		}
 	}
-	for i := 0; i < len(dbPlaylists); i++ {
-		if usedPlaylists[dbPlaylists[i].PublicId] {
-			continue
+	for i, playlist := range dbPlaylists {
+		for _, song := range playlist.Songs {
+			if mappedPlaylists[song.YtId+"-"+dbPlaylists[0].PublicId] {
+				continue
+			}
+			mappedPlaylists[fmt.Sprintf("unmapped-%d", i)] = false
 		}
-		mappedPlaylists[fmt.Sprintf("unmapped-%d", i)] = dbPlaylists[i].PublicId
 	}
 
 	playlists := make([]entities.Playlist, len(dbPlaylists))
