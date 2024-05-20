@@ -19,5 +19,7 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "description": "Create, Share and Play Music Playlists."
+  "description": "Create, Share and Play Music Playlists.",
+  "id": "com.mbaraa.dankmuzikk",
+  "categories": ["music"]
 }
