@@ -37,6 +37,10 @@ let currentLoopIdx = 0;
  * @type{PlaylistPlayer}
  */
 let currentPlaylistPlayer;
+/**
+ * @type{PlayerUI}
+ */
+let ui;
 
 /**
  * @typedef {object} Song
@@ -56,6 +60,122 @@ let currentPlaylistPlayer;
  * @property {string} songs_count
  * @property {Song[]} songs
  */
+
+class PlayerUI {
+  show() {
+    muzikkContainerEl.style.display = "block";
+  }
+
+  hide() {
+    muzikkContainerEl.style.display = "none";
+  }
+
+  expand() {
+    throw new Error("not implemented!");
+  }
+
+  collapse() {
+    throw new Error("not implemented!");
+  }
+
+  /**
+   * @param {boolean} isPlay
+   */
+  setPlay(isPlay = false) {
+    if (isPlay) {
+      playPauseToggleEl.innerHTML = playerButtonsIcons.pause;
+    } else {
+      playPauseToggleEl.innerHTML = playerButtonsIcons.play;
+    }
+  }
+
+  /**
+   * @param {boolean} isShuffle
+   */
+  setShuffle(isShuffle = false) {
+    if (isShuffle) {
+      shuffleEl.innerHTML = playerButtonsIcons.shuffleOff;
+    } else {
+      shuffleEl.innerHTML = playerButtonsIcons.shuffle;
+    }
+  }
+
+  /**
+   * @param {boolean} loading
+   * @param {string} fallback is used when loading is false, that is to reset the loading thingy
+   */
+  setLoading(loading, fallback) {
+    if (loading) {
+      playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
+      document.body.style.cursor = "progress";
+      return;
+    }
+    if (fallback) {
+      playPauseToggleEl.innerHTML = fallback;
+    }
+    document.body.style.cursor = "auto";
+  }
+
+  /**
+   * @param {Song} song
+   */
+  setDetails(song) {
+    if (song.title) {
+      songNameEl.innerHTML = song.title;
+      songNameEl.title = song.title;
+      if (song.title.length > Utils.getTextWidth()) {
+        songNameEl.parentElement.classList.add("marquee");
+      } else {
+        songNameEl.parentElement.classList.remove("marquee");
+      }
+    }
+    if (song.artist) {
+      artistNameEl.innerHTML = song.artist;
+      artistNameEl.title = song.artist;
+      if (song.artist.length > Utils.getTextWidth()) {
+        artistNameEl.parentElement.classList.add("marquee");
+      } else {
+        artistNameEl.parentElement.classList.remove("marquee");
+      }
+    }
+    songImageEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
+  }
+
+  /**
+   * @param {number} time
+   */
+  setCurrentTime(time) {
+    const currentTime = Math.floor(time);
+    if (songCurrentTimeEl) {
+      songCurrentTimeEl.innerHTML = Utils.formatTime(currentTime);
+    }
+    if (songSeekBarEl) {
+      songSeekBarEl.value = Math.ceil(currentTime);
+    }
+  }
+
+  /**
+   * @param {number} duration
+   */
+  setDuration(duration) {
+    if (isNaN(duration)) {
+      duration = 0;
+    }
+    songSeekBarEl.max = Math.ceil(duration);
+    songSeekBarEl.value = 0;
+    if (songDurationEl) {
+      songDurationEl.innerHTML = Utils.formatTime(duration);
+    }
+  }
+
+  hideElement(id) {
+    throw new Error("not implemented!");
+  }
+
+  showElement(id) {
+    throw new Error("not implemented!");
+  }
+}
 
 class PlaylistPlayer {
   #currentPlaylist;
@@ -148,29 +268,6 @@ class PlaylistPlayer {
       document.getElementById("song-" + song.yt_id).style.backgroundColor =
         "var(--secondary-color-20)";
     }
-  }
-
-  /**
-   * nextSong returns the next song if applicable
-   * @returns{Song}
-   */
-  nextSong(shuffle = false, loop = false) {
-    if (
-      !loop &&
-      !shuffle &&
-      this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
-    ) {
-      stopMuzikk();
-      return;
-    }
-
-    const nextIndex = shuffle
-      ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
-      : loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
-        ? 0
-        : this.#currentSongIndex + 1;
-
-    return this.#currentPlaylist.songs[nextIndex];
   }
 
   async #updateSongPlays() {
@@ -310,12 +407,12 @@ function previousMuzikk() {
 
 function playMuzikk() {
   audioPlayerEl.play();
-  playPauseToggleEl.innerHTML = playerButtonsIcons.pause;
+  ui.setPlay(true);
 }
 
 function pauseMuzikk() {
   audioPlayerEl.pause();
-  playPauseToggleEl.innerHTML = playerButtonsIcons.play;
+  ui.setPlay(false);
 }
 
 function stopMuzikk() {
@@ -336,11 +433,7 @@ function toggleShuffle() {
     window.alert("Shuffling can't be enabled for a single song!");
     return;
   }
-  if (shuffleSongs) {
-    shuffleEl.innerHTML = playerButtonsIcons.shuffleOff;
-  } else {
-    shuffleEl.innerHTML = playerButtonsIcons.shuffle;
-  }
+  ui.setShuffle(shuffleSongs);
   shuffleSongs = !shuffleSongs;
 }
 
@@ -357,9 +450,8 @@ async function downloadSong(songYtId) {
  * @param {Song} song
  */
 async function playNewSong(song) {
-  playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
-  document.body.style.cursor = "progress";
-  Utils.showLoading();
+  ui.setLoading(true);
+  ui.show();
 
   await downloadSong(song.yt_id).then(() => {
     stopMuzikk();
@@ -367,30 +459,9 @@ async function playNewSong(song) {
     audioPlayerEl.load();
   });
 
+  ui.setDetails(song);
   setMediaSession(song);
-  showPlayer();
-
-  if (song.title) {
-    songNameEl.innerHTML = song.title;
-    songNameEl.title = song.title;
-    if (song.title.length > Utils.getTextWidth()) {
-      songNameEl.parentElement.classList.add("marquee");
-    } else {
-      songNameEl.parentElement.classList.remove("marquee");
-    }
-  }
-  if (song.artist) {
-    artistNameEl.innerHTML = song.artist;
-    artistNameEl.title = song.artist;
-    if (song.artist.length > Utils.getTextWidth()) {
-      artistNameEl.parentElement.classList.add("marquee");
-    } else {
-      artistNameEl.parentElement.classList.remove("marquee");
-    }
-  }
-
   playMuzikk();
-  songImageEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
 }
 
 function showPlayer() {
@@ -408,7 +479,11 @@ prevEl.addEventListener("click", previousMuzikk);
 shuffleEl.addEventListener("click", toggleShuffle);
 
 loopEl.addEventListener("click", (event) => {
-  currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
+  if (!currentPlaylistPlayer) {
+    currentLoopIdx = currentLoopIdx === 0 ? 1 : 0;
+  } else {
+    currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
+  }
   event.target.src = "/static/icons/" + loopModes[currentLoopIdx].icon;
 });
 
@@ -424,18 +499,8 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
   prevEl.disabled = null;
   loopEl.disabled = null;
 
-  const duration = Math.ceil(
-    Number.isNaN(event.target.duration) ? 0 : event.target.duration,
-  );
-  songSeekBarEl.max = Math.ceil(duration);
-  songSeekBarEl.value = 0;
-  if (songDurationEl) {
-    songDurationEl.innerHTML = Utils.formatTime(duration);
-  }
-
-  playPauseToggleEl.innerHTML = playerButtonsIcons.pause;
-  document.body.style.cursor = "auto";
-  Utils.hideLoading();
+  ui.setDuration(event.target.duration);
+  ui.setLoading(false, playerButtonsIcons.pause);
 });
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
@@ -474,6 +539,12 @@ audioPlayerEl.addEventListener("ended", () => {
 audioPlayerEl.addEventListener("progress", () => {
   console.log("downloading...");
 });
+
+function init() {
+  ui = new PlayerUI();
+}
+
+init();
 
 window.Player = {
   showPlayer,
