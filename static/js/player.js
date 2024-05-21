@@ -449,11 +449,10 @@ audioPlayerEl.addEventListener("timeupdate", (event) => {
 audioPlayerEl.addEventListener("ended", () => {
   switch (loopModes[currentLoopIdx].mode) {
     case "OFF":
+      stopMuzikk();
       if (currentPlaylistPlayer) {
         currentPlaylistPlayer.next(shuffleSongs, false);
-        return;
       }
-      stopMuzikk();
       break;
     case "ONCE":
       stopMuzikk();
