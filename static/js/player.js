@@ -136,14 +136,11 @@ class PlaylistPlayer {
   }
 
   setSongPlayingStyle() {
-    document.getElementById(
+    const songEl = document.getElementById(
       "song-" + this.#currentPlaylist.songs[this.#currentSongIndex].yt_id,
-    ).style.backgroundColor = "var(--accent-color-30)";
-
-    // duplicate due to webkit shitty bug
-    window.location.href = "#";
-    window.location.href =
-      "#song-" + this.#currentPlaylist.songs[this.#currentSongIndex].yt_id;
+    );
+    songEl.style.backgroundColor = "var(--accent-color-30)";
+    songEl.scrollIntoView();
   }
 
   setSongNotPlayingStyle() {
