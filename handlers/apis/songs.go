@@ -1,14 +1,11 @@
 package apis
 
 import (
-	"dankmuzikk/entities"
 	"dankmuzikk/handlers"
 	"dankmuzikk/log"
 	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
-	"errors"
 	"net/http"
-	"net/url"
 )
 
 type songDownloadHandler struct {
@@ -45,50 +42,18 @@ func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.Response
 	}
 }
 
-func (s *songDownloadHandler) HandleDownloadSong(w http.ResponseWriter, r *http.Request) {
-	song, err := s.extractSongFromQuery(r.URL.Query())
-	if err != nil {
+func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		log.Errorln(err)
+		w.Write([]byte("missing song's yt id"))
 		return
 	}
 
-	err = s.service.DownloadYoutubeSong(song)
+	err := s.service.DownloadYoutubeSong(id)
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-}
-
-func (s *songDownloadHandler) extractSongFromQuery(query url.Values) (entities.Song, error) {
-	id := query.Get("yt_id")
-	if id == "" {
-		return entities.Song{}, errors.New("missing song's yt_id")
-	}
-	thumbnailUrl := query.Get("thumbnail_url")
-	if thumbnailUrl == "" {
-		return entities.Song{}, errors.New("missing song's thumbnail_url")
-	}
-	title := query.Get("title")
-	if title == "" {
-		return entities.Song{}, errors.New("missing song's title")
-	}
-	artist := query.Get("artist")
-	if artist == "" {
-		return entities.Song{}, errors.New("missing song's artist name")
-	}
-	duration := query.Get("duration")
-	if duration == "" {
-		return entities.Song{}, errors.New("missing song's duration")
-	}
-
-	return entities.Song{
-		YtId:         id,
-		Title:        title,
-		Artist:       artist,
-		ThumbnailUrl: thumbnailUrl,
-		Duration:     duration,
-	}, nil
 }
