@@ -1,6 +1,10 @@
 package themeswitch
 
-import "dankmuzikk/views/components/popover"
+import (
+	"dankmuzikk/views/components/popover"
+	"fmt"
+	"math/rand"
+)
 
 var themes = []struct {
 	displayName string
@@ -21,7 +25,7 @@ var themes = []struct {
 }
 
 templ ThemeSwitch() {
-	@popover.Popover("theme-switcher", "Change theme", themeSwitchButton(), themeSwitch())
+	@popover.Popover("theme-switcher"+fmt.Sprint(rand.Int()%20), "Change theme", themeSwitchButton(), themeSwitch())
 }
 
 templ themeSwitch() {
