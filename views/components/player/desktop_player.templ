@@ -16,13 +16,15 @@ templ desktopPlayer() {
 					"w-[60px]", "h-[60px]", "rounded-md", "bg-primary", "bg-[url('/static/icons/dankground.svg')]",
 					"bg-repeat", "bg-cover", "bg-center",
 				}
-			></div>
+			>
+				<div class="loader !h-[50px] !w-[50px]"></div>
+			</div>
 			<div class={ "flex", "flex-col", "justify-center", "w-[275px]" }>
 				<p class={ "font-Ubuntu", "w-full" }>
-					<span id="song-name">Song's Title</span>
+					<span id="song-name">Loading...</span>
 				</p>
 				<p class={ "font-Ubuntu", "w-full" }>
-					<span id="artist-name">Artist's Name</span>
+					<span id="artist-name"></span>
 				</p>
 			</div>
 		</div>
@@ -36,6 +38,7 @@ templ desktopPlayer() {
 				id="song-seek-bar"
 				type="range"
 				min="0"
+				value="0"
 				class={ "my-2" }
 			/>
 		</div>
@@ -48,7 +51,7 @@ templ desktopPlayer() {
 				<img src="/static/icons/previous-icon.svg" alt="Previous"/>
 			</button>
 			<button id="play" type="button" title="Play/Pause" disabled>
-				<div id="loading" class="loader !h-10 !w-10"></div>
+				<div class="loader !h-10 !w-10"></div>
 			</button>
 			<button id="next" type="button" title="Next song" disabled>
 				<img src="/static/icons/next-icon.svg" alt="Next"/>

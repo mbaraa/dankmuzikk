@@ -8,7 +8,7 @@ const playerButtonsIcons = {
   loopOff: `<img class="w-[40px]" src="/static/icons/loop-off-icon.svg" alt="Loop Off"/>`,
   shuffle: `<img src="/static/icons/shuffle-icon.svg" alt="Shuffle"/>`,
   shuffleOff: `<img src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>`,
-  loading: `<div class="loader !h-10 !w-10"></div>`,
+  loading: `<div class="loader !h-[50px] !w-[50px]"></div>`,
 };
 
 const loopModes = [
@@ -108,6 +108,7 @@ class PlayerUI {
     if (loading) {
       playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
       document.body.style.cursor = "progress";
+      songImageEl.innerHTML = playerButtonsIcons.loading;
       return;
     }
     if (fallback) {
@@ -139,6 +140,7 @@ class PlayerUI {
       }
     }
     songImageEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
+    songImageEl.innerHTML = "";
   }
 
   /**

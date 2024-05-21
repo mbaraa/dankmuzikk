@@ -15,7 +15,9 @@ templ mobilePlayer() {
 					"w-[80px]", "h-[80px]", "rounded-md", "bg-primary", "bg-[url('/static/icons/dankground.svg')]",
 					"bg-repeat", "bg-cover", "bg-center",
 				}
-			></div>
+			>
+				<div class="loader !h-[50px] !w-[50px]"></div>
+			</div>
 		</div>
 		<div class={ "flex", "flex-col", "min-w-[300px]", "w-full", "p-5" }>
 			<!-- seeker and time -->
@@ -24,6 +26,7 @@ templ mobilePlayer() {
 					id="song-seek-bar"
 					type="range"
 					min="0"
+					value="0"
 					class={ "my-2" }
 				/>
 				<span id="song-current-time">00:00</span>
@@ -32,10 +35,10 @@ templ mobilePlayer() {
 				<!-- details -->
 				<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[120px]" }>
 					<p class={ "font-Ubuntu", "w-full" }>
-						<span id="song-name">Song's Title</span>
+						<span id="song-name">Loading...</span>
 					</p>
 					<p class={ "font-Ubuntu", "w-full" }>
-						<span id="artist-name">Artist's Name</span>
+						<span id="artist-name"></span>
 					</p>
 				</div>
 				<!-- player controls -->
