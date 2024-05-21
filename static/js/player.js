@@ -361,7 +361,7 @@ async function playNewSong(song) {
 
   await downloadSong(song.yt_id).then(() => {
     stopMuzikk();
-    audioPlayerEl.src = `/music/${song.yt_id}.mp3`;
+    audioPlayerEl.src = `/muzikkx/${song.yt_id}.mp3`;
     audioPlayerEl.load();
   });
 
