@@ -49,14 +49,6 @@ let ui;
  * @property {string} added_at
  */
 
-/**
- * @typedef {object} Playlist
- * @property {string} public_id
- * @property {string} title
- * @property {string} songs_count
- * @property {Song[]} songs
- */
-
 class PlayerUI {
   show() {
     muzikkContainerEl.style.display = "block";

@@ -4,30 +4,49 @@ const shuffleEl1 = document.getElementById("shuffle"),
   nextEl1 = document.getElementById("next"),
   prevEl1 = document.getElementById("prev");
 
+/**
+ * @typedef {object} Song
+ * @property {string} title
+ * @property {string} artist
+ * @property {string} duration
+ * @property {string} thumbnail_url
+ * @property {string} yt_id
+ * @property {number} play_times
+ * @property {string} added_at
+ */
+
+/**
+ * @typedef {object} Playlist
+ * @property {string} public_id
+ * @property {string} title
+ * @property {string} songs_count
+ * @property {Song[]} songs
+ */
+
 class PlaylistPlayer {
-  #currentPlaylist;
+  #playlist;
   #currentSongIndex;
 
   /**
    * @param {Playlist} playlist
    */
   constructor(playlist) {
-    this.#currentPlaylist = playlist;
+    this.#playlist = playlist;
     this.#currentSongIndex = 0;
   }
 
   /**
-   * @param {string} songYtIt
+   * @param {string} songYtId
    */
-  play(songYtIt = "") {
+  play(songYtId = "") {
     this.setSongNotPlayingStyle();
-    this.#currentSongIndex = this.#currentPlaylist.songs.findIndex(
-      (song) => song.yt_id === songYtIt,
+    this.#currentSongIndex = this.#playlist.songs.findIndex(
+      (song) => song.yt_id === songYtId,
     );
     if (this.#currentSongIndex < 0) {
       this.#currentSongIndex = 0;
     }
-    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
+    const songToPlay = this.#playlist.songs[this.#currentSongIndex];
     Player.playSong(songToPlay, true);
     nextEl1.style.display = "block";
     prevEl1.style.display = "block";
@@ -41,17 +60,17 @@ class PlaylistPlayer {
     if (
       !loop &&
       !shuffle &&
-      this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+      this.#currentSongIndex + 1 >= this.#playlist.songs.length
     ) {
       Player.stopMuzikk();
       return;
     }
     this.#currentSongIndex = shuffle
-      ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
-      : loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
+      ? Math.floor(Math.random() * this.#playlist.songs.length)
+      : loop && this.#currentSongIndex + 1 >= this.#playlist.songs.length
         ? 0
         : this.#currentSongIndex + 1;
-    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
+    const songToPlay = this.#playlist.songs[this.#currentSongIndex];
     Player.playSong(songToPlay, true);
     this.#updateSongPlays();
     this.setSongPlayingStyle();
@@ -64,37 +83,37 @@ class PlaylistPlayer {
       return;
     }
     this.#currentSongIndex = shuffle
-      ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
+      ? Math.floor(Math.random() * this.#playlist.songs.length)
       : loop && this.#currentSongIndex - 1 < 0
-        ? this.#currentPlaylist.songs.length - 1
+        ? this.#playlist.songs.length - 1
         : this.#currentSongIndex - 1;
     this.setSongNotPlayingStyle();
-    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
+    const songToPlay = this.#playlist.songs[this.#currentSongIndex];
     Player.playSong(songToPlay, true);
     this.#updateSongPlays();
     this.setSongPlayingStyle();
   }
 
   removeSong(songYtId) {
-    const songIndex = this.#currentPlaylist.songs.findIndex(
+    const songIndex = this.#playlist.songs.findIndex(
       (song) => song.yt_id === songYtId,
     );
     if (songIndex < 0) {
       return;
     }
-    this.#currentPlaylist.songs.splice(songIndex, 1);
+    this.#playlist.songs.splice(songIndex, 1);
   }
 
   setSongPlayingStyle() {
     const songEl = document.getElementById(
-      "song-" + this.#currentPlaylist.songs[this.#currentSongIndex].yt_id,
+      "song-" + this.#playlist.songs[this.#currentSongIndex].yt_id,
     );
     songEl.style.backgroundColor = "var(--accent-color-30)";
     songEl.scrollIntoView();
   }
 
   setSongNotPlayingStyle() {
-    for (const song of this.#currentPlaylist.songs) {
+    for (const song of this.#playlist.songs) {
       document.getElementById("song-" + song.yt_id).style.backgroundColor =
         "var(--secondary-color-20)";
     }
@@ -104,8 +123,8 @@ class PlaylistPlayer {
     await fetch(
       "/api/increment-song-plays?" +
         new URLSearchParams({
-          "song-id": this.#currentPlaylist.songs[this.#currentSongIndex].yt_id,
-          "playlist-id": this.#currentPlaylist.public_id,
+          "song-id": this.#playlist.songs[this.#currentSongIndex].yt_id,
+          "playlist-id": this.#playlist.public_id,
         }).toString(),
       {
         method: "PUT",
