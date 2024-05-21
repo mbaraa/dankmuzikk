@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body,
+div,
+ul,
+table {
+  scroll-behavior: smooth;
+}
+
 .loader {
   height: 100%;
   width: 100%;
