@@ -10,6 +10,25 @@ table {
   scroll-behavior: smooth;
 }
 
+* {
+  --animation-duration: 0.4s;
+  -webkit-transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -moz-transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -o-transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -ms-transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+}
+
 .loader {
   height: 100%;
   width: 100%;
