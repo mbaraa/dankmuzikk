@@ -164,7 +164,7 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 	var playlists []entities.Playlist
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if profileIdCorrect {
-		playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(results, profileId)
+		playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(profileId)
 	}
 
 	if handlers.IsNoLayoutPage(r) {

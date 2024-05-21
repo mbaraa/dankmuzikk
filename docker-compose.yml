@@ -18,24 +18,8 @@ services:
     networks:
       - danknetwork
     depends_on:
-      - dank-db
       - yt-scraper
       - yt-dl
-
-  dank-db:
-    image: "mariadb:10.8"
-    container_name: "dank-db"
-    restart: "always"
-    environment:
-      MARIADB_ROOT_PASSWORD: "previetcomrade"
-      MARIADB_DATABASE: "dankabase"
-    ports:
-      - 3306
-    volumes:
-      - db-config:/etc/mysql
-      - db-data:/var/lib/mysql
-    networks:
-      - danknetwork
 
   yt-scraper:
     container_name: "yt-scraper"
@@ -65,7 +49,8 @@ services:
       - danknetwork
 
 networks:
-  danknetwork: {}
+  danknetwork:
+    external: true
 
 volumes:
   dankuploads-dir:
@@ -74,15 +59,3 @@ volumes:
       type: none
       o: bind
       device: ./_serve/
-  db-config:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./_db/etc/
-  db-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./_db/var/

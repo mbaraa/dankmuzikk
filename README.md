@@ -58,10 +58,10 @@ git clone https://github.com/mbaraa/dankmuzikk
 cp .env.example .env.docker
 ```
 
-3. Run it with compose.
+3. Run it with docker compose.
 
 ```bash
-docker compose up
+docker compose up -f docker-compose-dev.yml
 ```
 
 3. Visit http://localhost:20250

@@ -343,15 +343,12 @@ function toggleShuffle() {
 }
 
 /**
- * @param {Song} song
+ * @param {string} songYtId
  */
-async function downloadSong(song) {
-  if (!song) {
-    return;
-  }
-  return await fetch(
-    "/api/song/download?" + new URLSearchParams(song).toString(),
-  ).catch((err) => console.error(err));
+async function downloadSong(songYtId) {
+  return await fetch("/api/song?id=" + songYtId).catch((err) =>
+    console.error(err),
+  );
 }
 
 /**
@@ -362,9 +359,9 @@ async function playNewSong(song) {
   document.body.style.cursor = "progress";
   Utils.showLoading();
 
-  await downloadSong(song).then(() => {
+  await downloadSong(song.yt_id).then(() => {
     stopMuzikk();
-    audioPlayerEl.src = `/music/${song.yt_id}.mp3`;
+    audioPlayerEl.src = `/muzikkx/${song.yt_id}.mp3`;
     audioPlayerEl.load();
   });
 

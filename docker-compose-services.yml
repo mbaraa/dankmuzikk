@@ -1,27 +1,6 @@
 version: "3.8"
 
 services:
-  app:
-    container_name: "dankmuzikk"
-    build:
-      context: .
-    image: "dankmuzikk-app"
-    restart: "always"
-    ports:
-      - "20250:3000"
-    stdin_open: true
-    env_file:
-      - .env.docker
-    volumes:
-      - ./google-service-account.json:/app/google-service-account.json
-      - dankuploads-dir:/app/_serve
-    networks:
-      - danknetwork
-    depends_on:
-      - dank-db
-      - yt-scraper
-      - yt-dl
-
   dank-db:
     image: "mariadb:10.8"
     container_name: "dank-db"
@@ -30,12 +9,10 @@ services:
       MARIADB_ROOT_PASSWORD: "previetcomrade"
       MARIADB_DATABASE: "dankabase"
     ports:
-      - 3306
+      - 3307:3306
     volumes:
       - db-config:/etc/mysql
       - db-data:/var/lib/mysql
-    networks:
-      - danknetwork
 
   yt-scraper:
     container_name: "yt-scraper"
@@ -44,28 +21,20 @@ services:
     image: "yt-scraper"
     restart: "always"
     ports:
-      - 8080
-    networks:
-      - danknetwork
+      - "1234:8080"
 
   yt-dl:
-    container_name: "ytdl"
+    container_name: "yt-dl"
     build:
       context: ./ytdl
     image: "ytdl"
     restart: "always"
     ports:
-      - 8000
-    stdin_open: true
+      - "4321:8000"
     env_file:
       - .env.docker
     volumes:
       - dankuploads-dir:/app/_serve
-    networks:
-      - danknetwork
-
-networks:
-  danknetwork: {}
 
 volumes:
   dankuploads-dir:

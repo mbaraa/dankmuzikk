@@ -213,7 +213,7 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 }
 
 // TODO: fix this weird ass 3 return values
-func (p *Service) GetAllMappedForAddPopover(songs []entities.Song, ownerId uint) ([]entities.Playlist, map[string]bool, error) {
+func (p *Service) GetAllMappedForAddPopover(ownerId uint) ([]entities.Playlist, map[string]bool, error) {
 	var dbPlaylists []models.Playlist
 	err := p.
 		repo.
