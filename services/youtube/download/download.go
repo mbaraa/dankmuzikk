@@ -30,23 +30,23 @@ func New(repo db.CRUDRepo[models.Song]) *Service {
 //
 // Used when playing a new song (usually from search).
 // TODO: optimize select query, maybe?
-func (d *Service) DownloadYoutubeSong(req entities.Song) error {
-	song, err := d.repo.GetByConds("yt_id = ?", req.YtId)
+func (d *Service) DownloadYoutubeSong(songYtId string) error {
+	song, err := d.repo.GetByConds("yt_id = ?", songYtId)
 	if err == nil && len(song) != 0 && song[0].FullyDownloaded {
-		log.Infof("The song with id %s is already downloaded\n", req.YtId)
+		log.Infof("The song with id %s is already downloaded\n", songYtId)
 		return nil
 	}
 
-	err = d.DownloadYoutubeSongQueue(req.YtId)
+	err = d.DownloadYoutubeSongQueue(songYtId)
 	if err != nil {
 		return err
 	}
-	resp, err := http.Get(fmt.Sprintf("%s/download/%s", config.Env().YouTube.DownloaderUrl, req.YtId))
+	resp, err := http.Get(fmt.Sprintf("%s/download/%s", config.Env().YouTube.DownloaderUrl, songYtId))
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("something went wrong when downloading a song; id: " + req.YtId)
+		return errors.New("something went wrong when downloading a song; id: " + songYtId)
 	}
 
 	return nil
