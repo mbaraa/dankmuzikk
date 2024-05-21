@@ -34,10 +34,6 @@ const playPauseToggleEl = document.getElementById("play"),
 let shuffleSongs = false;
 let currentLoopIdx = 0;
 /**
- * @type{PlaylistPlayer}
- */
-let currentPlaylistPlayer;
-/**
  * @type{PlayerUI}
  */
 let ui;
@@ -169,148 +165,6 @@ class PlayerUI {
       songDurationEl.innerHTML = Utils.formatTime(duration);
     }
   }
-
-  hideElement(id) {
-    throw new Error("not implemented!");
-  }
-
-  showElement(id) {
-    throw new Error("not implemented!");
-  }
-}
-
-class PlaylistPlayer {
-  #currentPlaylist;
-  #currentSongIndex;
-
-  /**
-   * @param {Playlist} playlist
-   */
-  constructor(playlist) {
-    this.#currentPlaylist = playlist;
-    this.#currentSongIndex = 0;
-  }
-
-  /**
-   * @param {string} songYtIt
-   */
-  play(songYtIt = "") {
-    this.setSongNotPlayingStyle();
-    this.#currentSongIndex = this.#currentPlaylist.songs.findIndex(
-      (song) => song.yt_id === songYtIt,
-    );
-    if (this.#currentSongIndex < 0) {
-      this.#currentSongIndex = 0;
-    }
-    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playNewSong(songToPlay);
-    this.#updateSongPlays();
-    this.setSongPlayingStyle();
-  }
-
-  next(shuffle = false, loop = false) {
-    this.setSongNotPlayingStyle();
-    if (
-      !loop &&
-      !shuffle &&
-      this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
-    ) {
-      stopMuzikk();
-      return;
-    }
-    this.#currentSongIndex = shuffle
-      ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
-      : loop && this.#currentSongIndex + 1 >= this.#currentPlaylist.songs.length
-        ? 0
-        : this.#currentSongIndex + 1;
-    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playNewSong(songToPlay);
-    this.#updateSongPlays();
-    this.setSongPlayingStyle();
-  }
-
-  previous(shuffle = false, loop = false) {
-    this.setSongNotPlayingStyle();
-    if (!loop && !shuffle && this.#currentSongIndex - 1 < 0) {
-      stopMuzikk();
-      return;
-    }
-    this.#currentSongIndex = shuffle
-      ? Math.floor(Math.random() * this.#currentPlaylist.songs.length)
-      : loop && this.#currentSongIndex - 1 < 0
-        ? this.#currentPlaylist.songs.length - 1
-        : this.#currentSongIndex - 1;
-    this.setSongNotPlayingStyle();
-    const songToPlay = this.#currentPlaylist.songs[this.#currentSongIndex];
-    playNewSong(songToPlay);
-    this.#updateSongPlays();
-    this.setSongPlayingStyle();
-  }
-
-  removeSong(songYtId) {
-    const songIndex = this.#currentPlaylist.songs.findIndex(
-      (song) => song.yt_id === songYtId,
-    );
-    if (songIndex < 0) {
-      return;
-    }
-    this.#currentPlaylist.songs.splice(songIndex, 1);
-  }
-
-  setSongPlayingStyle() {
-    const songEl = document.getElementById(
-      "song-" + this.#currentPlaylist.songs[this.#currentSongIndex].yt_id,
-    );
-    songEl.style.backgroundColor = "var(--accent-color-30)";
-    songEl.scrollIntoView();
-  }
-
-  setSongNotPlayingStyle() {
-    for (const song of this.#currentPlaylist.songs) {
-      document.getElementById("song-" + song.yt_id).style.backgroundColor =
-        "var(--secondary-color-20)";
-    }
-  }
-
-  async #updateSongPlays() {
-    await fetch(
-      "/api/increment-song-plays?" +
-        new URLSearchParams({
-          "song-id": this.#currentPlaylist.songs[this.#currentSongIndex].yt_id,
-          "playlist-id": this.#currentPlaylist.public_id,
-        }).toString(),
-      {
-        method: "PUT",
-      },
-    ).catch((err) => console.error(err));
-  }
-}
-
-/**
- * @param {string} songYtId
- */
-function removeSongFromPlaylist(songYtId) {
-  if (!currentPlaylistPlayer) {
-    return;
-  }
-  currentPlaylistPlayer.removeSong(songYtId);
-}
-
-/**
- * @param {Playlist} playlist
- */
-function playPlaylist(playlist) {
-  currentPlaylistPlayer = new PlaylistPlayer(playlist);
-  currentPlaylistPlayer.play();
-}
-
-/**
- * @param {string} songId
- * @param {Playlist} playlist
- */
-function playSongFromPlaylist(songId, playlist) {
-  currentPlaylistPlayer = new PlaylistPlayer(playlist);
-  currentPlaylistPlayer.play(songId);
 }
 
 /**
@@ -388,20 +242,20 @@ function setMediaSession(song) {
 }
 
 function nexMuzikk() {
-  if (!currentPlaylistPlayer) {
+  if (!Player.playlistPlayer) {
     return;
   }
-  currentPlaylistPlayer.next(
+  Player.playlistPlayer.next(
     shuffleSongs,
     loopModes[currentLoopIdx].mode === "ALL",
   );
 }
 
 function previousMuzikk() {
-  if (!currentPlaylistPlayer) {
+  if (!Player.playlistPlayer) {
     return;
   }
-  currentPlaylistPlayer.previous(
+  Player.playlistPlayer.previous(
     shuffleSongs,
     loopModes[currentLoopIdx].mode === "ALL",
   );
@@ -431,8 +285,8 @@ function playPauseToggle() {
 }
 
 function toggleShuffle() {
-  if (!currentPlaylistPlayer) {
-    window.alert("Shuffling can't be enabled for a single song!");
+  if (!Player.playlistPlayer) {
+    alert("Shuffling can't be enabled for a single song!");
     return;
   }
   ui.setShuffle(shuffleSongs);
@@ -450,8 +304,20 @@ async function downloadSong(songYtId) {
 
 /**
  * @param {Song} song
+ * @param {boolean} inPlaylist
  */
-async function playNewSong(song) {
+async function playSong(song, inPlaylist) {
+  if (!inPlaylist) {
+    Player.playlistPlayer = null;
+    nextEl.style.display = "none";
+    prevEl.style.display = "none";
+    shuffleEl.style.display = "none";
+    if (currentLoopIdx > 1) {
+      currentLoopIdx = 0;
+      loopEl.children[0].src =
+        "/static/icons/" + loopModes[currentLoopIdx].icon;
+    }
+  }
   ui.setLoading(true);
   ui.show();
 
@@ -481,7 +347,7 @@ prevEl.addEventListener("click", previousMuzikk);
 shuffleEl.addEventListener("click", toggleShuffle);
 
 loopEl.addEventListener("click", (event) => {
-  if (!currentPlaylistPlayer) {
+  if (!Player.playlistPlayer) {
     currentLoopIdx = currentLoopIdx === 0 ? 1 : 0;
   } else {
     currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
@@ -506,21 +372,15 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
 });
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
-  const currentTime = Math.floor(event.target.currentTime);
-  if (songCurrentTimeEl) {
-    songCurrentTimeEl.innerHTML = Utils.formatTime(currentTime);
-  }
-  if (songSeekBarEl) {
-    songSeekBarEl.value = Math.ceil(currentTime);
-  }
+  ui.setCurrentTime(event.target.currentTime);
 });
 
 audioPlayerEl.addEventListener("ended", () => {
   switch (loopModes[currentLoopIdx].mode) {
     case "OFF":
       stopMuzikk();
-      if (currentPlaylistPlayer) {
-        currentPlaylistPlayer.next(shuffleSongs, false);
+      if (Player.playlistPlayer) {
+        Player.playlistPlayer.next(shuffleSongs, false);
       }
       break;
     case "ONCE":
@@ -528,12 +388,10 @@ audioPlayerEl.addEventListener("ended", () => {
       playMuzikk();
       break;
     case "ALL":
-      if (currentPlaylistPlayer) {
-        currentPlaylistPlayer.next(shuffleSongs, true);
+      if (Player.playlistPlayer) {
+        Player.playlistPlayer.next(shuffleSongs, true);
         return;
       }
-      stopMuzikk();
-      playMuzikk();
       break;
   }
 });
@@ -548,11 +406,8 @@ function init() {
 
 init();
 
-window.Player = {
-  showPlayer,
-  hidePlayer,
-  playPlaylist,
-  playSongFromPlaylist,
-  playNewSong,
-  removeSongFromPlaylist,
-};
+window.Player = {};
+window.Player.showPlayer = showPlayer;
+window.Player.hidePlayer = hidePlayer;
+window.Player.playSong = playSong;
+window.Player.stopMuzikk = stopMuzikk;
