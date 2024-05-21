@@ -29,7 +29,8 @@ const playPauseToggleEl = document.getElementById("play"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
   audioPlayerEl = document.getElementById("audio-player"),
-  muzikkContainerEl = document.getElementById("muzikk");
+  muzikkContainerEl = document.getElementById("muzikk"),
+  zePlayerEl = document.getElementById("ze-player");
 
 let shuffleSongs = false;
 let currentLoopIdx = 0;
@@ -58,12 +59,10 @@ class PlayerUI {
     muzikkContainerEl.style.display = "none";
   }
 
-  expand() {
-    throw new Error("not implemented!");
-  }
-
-  collapse() {
-    throw new Error("not implemented!");
+  toggleExpand() {
+    if (!zePlayerEl.classList.contains("exapnded")) {
+      zePlayerEl.classList.toggle("exapnded");
+    }
   }
 
   /**
@@ -118,7 +117,7 @@ class PlayerUI {
         songNameEl.parentElement.classList.remove("marquee");
       }
     }
-    if (song.artist) {
+    if (song.artist && !!artistNameEl) {
       artistNameEl.innerHTML = song.artist;
       artistNameEl.title = song.artist;
       if (song.artist.length > Utils.getTextWidth()) {
@@ -333,12 +332,19 @@ function hidePlayer() {
   audioPlayerEl.stopMuzikk();
 }
 
-playPauseToggleEl.addEventListener("click", playPauseToggle);
-nextEl.addEventListener("click", nexMuzikk);
-prevEl.addEventListener("click", previousMuzikk);
-shuffleEl.addEventListener("click", toggleShuffle);
+playPauseToggleEl.addEventListener("click", (event) => {
+  event.stopImmediatePropagation();
+  event.preventDefault();
+  playPauseToggle();
+});
 
-loopEl.addEventListener("click", (event) => {
+nextEl?.addEventListener("click", nexMuzikk);
+prevEl?.addEventListener("click", previousMuzikk);
+shuffleEl?.addEventListener("click", toggleShuffle);
+
+loopEl?.addEventListener("click", (event) => {
+  event.stopImmediatePropagation();
+  event.preventDefault();
   if (!Player.playlistPlayer) {
     currentLoopIdx = currentLoopIdx === 0 ? 1 : 0;
   } else {
@@ -348,8 +354,15 @@ loopEl.addEventListener("click", (event) => {
 });
 
 songSeekBarEl.addEventListener("change", (event) => {
+  event.stopImmediatePropagation();
+  event.preventDefault();
   const seekTime = Number(event.target.value);
   audioPlayerEl.currentTime = seekTime;
+});
+
+songSeekBarEl.addEventListener("click", (event) => {
+  event.stopImmediatePropagation();
+  event.preventDefault();
 });
 
 audioPlayerEl.addEventListener("loadeddata", (event) => {
@@ -403,3 +416,4 @@ window.Player.showPlayer = showPlayer;
 window.Player.hidePlayer = hidePlayer;
 window.Player.playSong = playSong;
 window.Player.stopMuzikk = stopMuzikk;
+window.Player.toggleExpand = () => ui.toggleExpand();

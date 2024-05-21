@@ -2,55 +2,60 @@ package player
 
 templ mobilePlayer() {
 	<div
-		class={
-			"fixed", "bottom-[80px]", "w-screen", "h-[120px]", "bg-primary", "rounded-[30px]",
-			"font-Ubuntu", "flex", "items-center", "justify-between", "gap-x-1", "p-[10px]",
-			"text-secondary",
-		}
+		class={ "fixed", "bottom-[65px]", "left-0", "h-auto", "w-full" }
+		onClick={ toggleExpand() }
 	>
-		<div class={ "flex", "items-center", "w-[80px]" }>
-			<div
-				id="song-image"
-				class={
-					"w-[80px]", "h-[80px]", "rounded-md", "bg-primary",
-					"bg-repeat", "bg-cover", "bg-center",
-				}
-			>
-				<div class="loader !h-[50px] !w-[50px]"></div>
-			</div>
-		</div>
-		<div class={ "flex", "flex-col", "min-w-[300px]", "w-full", "p-5" }>
-			<!-- seeker and time -->
-			<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
-				<input
-					id="song-seek-bar"
-					type="range"
-					min="0"
-					value="0"
-					class={ "my-2" }
-				/>
-				<span id="song-current-time">00:00</span>
-			</div>
-			<div class={ "flex", "flex-row", "justify-between" }>
-				<!-- details -->
-				<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[120px]" }>
-					<p class={ "font-Ubuntu", "w-full" }>
-						<span id="song-name">Loading...</span>
-					</p>
-					<p class={ "font-Ubuntu", "w-full" }>
-						<span id="artist-name"></span>
-					</p>
+		<div
+			id="ze-player"
+			class={
+				"mx-[5px]", "bg-primary", "rounded-[15px]",
+				"flex", "justify-between", "items-center", "gap-x-1", "p-[10px]",
+				"text-secondary", "collapsed",
+			}
+		>
+			<div class={ "flex", "flex-col", "w-11/12" }>
+				<!-- seeker and time -->
+				<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
+					<input
+						id="song-seek-bar"
+						type="range"
+						min="0"
+						value="0"
+						class={ "my-2", "w-full" }
+					/>
+					<span id="song-current-time">00:00</span>
 				</div>
-				<!-- player controls -->
-				<div class={ "flex", "items-center", "gap-x-1" }>
+				<div class={ "flex", "items-center", "justify-between", "min-w-[250px]", "w-full", }>
+					<div class={ "flex", "items-center", "gap-x-2" }>
+						<div
+							id="song-image"
+							class={
+								"w-[35px]", "h-[35px]", "rounded-[3px]", "bg-primary",
+								"bg-repeat", "bg-cover", "bg-center",
+							}
+						>
+							<div class="loader !h-[30px] !w-[30px]"></div>
+						</div>
+						<!-- details -->
+						<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[250px]" }>
+							<p class={ "font-Ubuntu", "w-full" }>
+								<span id="song-name">Loading...</span>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- player controls -->
+			<div class={ "flex", "items-center", "gap-x-1", "" }>
+				<button id="play" type="button" title="Play/Pause" disabled>
+					<div id="loading" class="loader !h-10 !w-10"></div>
+				</button>
+				<div class="hidden">
 					<button id="shuffle" type="button" title="Shuffle" disabled>
 						<img src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>
 					</button>
 					<button id="prev" type="button" title="Previous song" disabled>
 						<img src="/static/icons/previous-icon.svg" alt="Previous"/>
-					</button>
-					<button id="play" type="button" title="Play/Pause" disabled>
-						<div id="loading" class="loader !h-10 !w-10"></div>
 					</button>
 					<button id="next" type="button" title="Next song" disabled>
 						<img src="/static/icons/next-icon.svg" alt="Next"/>
@@ -62,4 +67,19 @@ templ mobilePlayer() {
 			</div>
 		</div>
 	</div>
+	<style>
+        .collapsed {
+            height: 85px;
+            max-height: 85px;
+            transition: max-height .5s;
+        }
+        .exapnded {
+            height: 500px;
+            max-height: 500px;
+        }
+    </style>
+}
+
+script toggleExpand() {
+    Player.toggleExpand();
 }
