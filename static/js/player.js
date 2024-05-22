@@ -30,6 +30,7 @@ const playPauseToggleEl = document.getElementById("play"),
   songSeekBarEl = document.getElementById("song-seek-bar"),
   songSeekBarExpandedEl = document.getElementById("song-seek-bar-expanded"),
   songDurationEl = document.getElementById("song-duration"),
+  songDurationExpandedEl = document.getElementById("song-duration-expanded"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songCurrentTimeExpandedEl = document.getElementById(
     "song-current-time-expanded",
@@ -209,8 +210,16 @@ class PlayerUI {
     }
     songSeekBarEl.max = Math.ceil(duration);
     songSeekBarEl.value = 0;
+    if (songSeekBarExpandedEl) {
+      songSeekBarExpandedEl.max = Math.ceil(duration);
+      songSeekBarExpandedEl.value = 0;
+    }
+    console.log("duration", songDurationEl);
     if (songDurationEl) {
       songDurationEl.innerHTML = Utils.formatTime(duration);
+    }
+    if (songDurationExpandedEl) {
+      songDurationExpandedEl.innerHTML = Utils.formatTime(duration);
     }
   }
 }
