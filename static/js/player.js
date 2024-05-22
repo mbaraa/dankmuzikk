@@ -499,6 +499,7 @@ function init() {
 init();
 
 window.Player = {};
+window.Player.downloadSong = downloadSong;
 window.Player.showPlayer = showPlayer;
 window.Player.hidePlayer = hidePlayer;
 window.Player.playSong = playSong;
