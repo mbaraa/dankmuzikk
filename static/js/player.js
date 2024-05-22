@@ -1,14 +1,14 @@
 "use strict";
 
 const playerButtonsIcons = {
-  play: `<img class="w-[50px] h-[50px]" src="/static/icons/play-icon.svg" alt="Play"/>`,
-  pause: `<img class="w-[50px] h-[50px]" src="/static/icons/pause-icon.svg" alt="Pause"/>`,
-  loop: `<img class="w-[40px]" src="/static/icons/loop-icon.svg" alt="Loop"/>`,
-  loopOnce: `<img class="w-[40px]" src="/static/icons/loop-once-icon.svg" alt="Loop Once"/>`,
-  loopOff: `<img class="w-[40px]" src="/static/icons/loop-off-icon.svg" alt="Loop Off"/>`,
-  shuffle: `<img src="/static/icons/shuffle-icon.svg" alt="Shuffle"/>`,
-  shuffleOff: `<img src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>`,
-  loading: `<div class="loader !h-[50px] !w-[50px]"></div>`,
+  play: `<img style="width: 75px;" src="/static/icons/play-icon.svg" alt="Play"/>`,
+  pause: `<img style="width: 75px;" src="/static/icons/pause-icon.svg" alt="Pause"/>`,
+  loop: `<img style="width: 30px;" src="/static/icons/loop-icon.svg" alt="Loop"/>`,
+  loopOnce: `<img style="width: 30px;" src="/static/icons/loop-once-icon.svg" alt="Loop Once"/>`,
+  loopOff: `<img style="width: 30px;" src="/static/icons/loop-off-icon.svg" alt="Loop Off"/>`,
+  shuffle: `<img style="width: 30px;" src="/static/icons/shuffle-icon.svg" alt="Shuffle"/>`,
+  shuffleOff: `<img style="width: 30px;" src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>`,
+  loading: `<div style="width: 50px; height: 50px;" class="loader"></div>`,
 };
 
 const loopModes = [
@@ -18,19 +18,31 @@ const loopModes = [
 ];
 
 const playPauseToggleEl = document.getElementById("play"),
+  playPauseToggleExapndedEl = document.getElementById("play-expand"),
   shuffleEl = document.getElementById("shuffle"),
   nextEl = document.getElementById("next"),
   prevEl = document.getElementById("prev"),
   loopEl = document.getElementById("loop"),
   songNameEl = document.getElementById("song-name"),
+  songNameExpandedEl = document.getElementById("song-name-expanded"),
   artistNameEl = document.getElementById("artist-name"),
+  artistNameExpandedEl = document.getElementById("artist-name-expanded"),
   songSeekBarEl = document.getElementById("song-seek-bar"),
+  songSeekBarExpandedEl = document.getElementById("song-seek-bar-expanded"),
   songDurationEl = document.getElementById("song-duration"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
+  songCurrentTimeExpandedEl = document.getElementById(
+    "song-current-time-expanded",
+  ),
   songImageEl = document.getElementById("song-image"),
+  songImageExpandedEl = document.getElementById("song-image-expanded"),
   audioPlayerEl = document.getElementById("audio-player"),
   muzikkContainerEl = document.getElementById("muzikk"),
-  zePlayerEl = document.getElementById("ze-player");
+  zePlayerEl = document.getElementById("ze-player"),
+  zeCollapsedMobilePlayer = document.getElementById(
+    "ze-collapsed-mobile-player",
+  ),
+  zeExpandedMobilePlayer = document.getElementById("ze-expanded-mobile-player");
 
 let shuffleSongs = false;
 let currentLoopIdx = 0;
@@ -59,9 +71,19 @@ class PlayerUI {
     muzikkContainerEl.style.display = "none";
   }
 
-  toggleExpand() {
+  expand() {
     if (!zePlayerEl.classList.contains("exapnded")) {
-      zePlayerEl.classList.toggle("exapnded");
+      zePlayerEl.classList.add("exapnded");
+      zeCollapsedMobilePlayer.classList.add("hidden");
+      zeExpandedMobilePlayer.classList.remove("hidden");
+    }
+  }
+
+  collapse() {
+    if (zePlayerEl.classList.contains("exapnded")) {
+      zePlayerEl.classList.remove("exapnded");
+      zeExpandedMobilePlayer.classList.add("hidden");
+      zeCollapsedMobilePlayer.classList.remove("hidden");
     }
   }
 
@@ -71,8 +93,14 @@ class PlayerUI {
   setPlay(isPlay = false) {
     if (isPlay) {
       playPauseToggleEl.innerHTML = playerButtonsIcons.pause;
+      if (!!playPauseToggleExapndedEl) {
+        playPauseToggleExapndedEl.innerHTML = playerButtonsIcons.pause;
+      }
     } else {
       playPauseToggleEl.innerHTML = playerButtonsIcons.play;
+      if (!!playPauseToggleExapndedEl) {
+        playPauseToggleExapndedEl.innerHTML = playerButtonsIcons.play;
+      }
     }
   }
 
@@ -89,17 +117,23 @@ class PlayerUI {
 
   /**
    * @param {boolean} loading
-   * @param {string} fallback is used when loading is false, that is to reset the loading thingy
+   * @param {string} fallback is used when loading is false, that is to reset
+   *     the loading thingy
    */
   setLoading(loading, fallback) {
     if (loading) {
       playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
+      if (!!playPauseToggleExapndedEl) {
+        playPauseToggleExapndedEl.innerHTML = playerButtonsIcons.loading;
+      }
       document.body.style.cursor = "progress";
-      songImageEl.innerHTML = playerButtonsIcons.loading;
       return;
     }
     if (fallback) {
       playPauseToggleEl.innerHTML = fallback;
+      if (!!playPauseToggleExapndedEl) {
+        playPauseToggleExapndedEl.innerHTML = fallback;
+      }
     }
     document.body.style.cursor = "auto";
   }
@@ -116,18 +150,35 @@ class PlayerUI {
       } else {
         songNameEl.parentElement.classList.remove("marquee");
       }
+
+      if (songNameExpandedEl) {
+        songNameExpandedEl.innerHTML = song.title;
+        songNameExpandedEl.title = song.title;
+        if (song.title.length > Utils.getTextWidth()) {
+          songNameExpandedEl.parentElement.classList.add("marquee");
+        } else {
+          songNameExpandedEl.parentElement.classList.remove("marquee");
+        }
+      }
     }
-    if (song.artist && !!artistNameEl) {
-      artistNameEl.innerHTML = song.artist;
-      artistNameEl.title = song.artist;
-      if (song.artist.length > Utils.getTextWidth()) {
-        artistNameEl.parentElement.classList.add("marquee");
-      } else {
-        artistNameEl.parentElement.classList.remove("marquee");
+    if (song.artist) {
+      if (!!artistNameEl) {
+        artistNameEl.innerHTML = song.artist;
+        artistNameEl.title = song.artist;
+      }
+
+      if (artistNameExpandedEl) {
+        artistNameExpandedEl.innerHTML = song.artist;
+        artistNameExpandedEl.title = song.artist;
       }
     }
     songImageEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
     songImageEl.innerHTML = "";
+
+    if (songImageExpandedEl) {
+      songImageExpandedEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
+      songImageExpandedEl.innerHTML = "";
+    }
   }
 
   /**
@@ -138,8 +189,14 @@ class PlayerUI {
     if (songCurrentTimeEl) {
       songCurrentTimeEl.innerHTML = Utils.formatTime(currentTime);
     }
+    if (songCurrentTimeExpandedEl) {
+      songCurrentTimeExpandedEl.innerHTML = Utils.formatTime(currentTime);
+    }
     if (songSeekBarEl) {
       songSeekBarEl.value = Math.ceil(currentTime);
+    }
+    if (songSeekBarExpandedEl) {
+      songSeekBarExpandedEl.value = Math.ceil(currentTime);
     }
   }
 
@@ -338,6 +395,12 @@ playPauseToggleEl.addEventListener("click", (event) => {
   playPauseToggle();
 });
 
+playPauseToggleExapndedEl?.addEventListener("click", (event) => {
+  event.stopImmediatePropagation();
+  event.preventDefault();
+  playPauseToggle();
+});
+
 nextEl?.addEventListener("click", nexMuzikk);
 prevEl?.addEventListener("click", previousMuzikk);
 shuffleEl?.addEventListener("click", toggleShuffle);
@@ -367,6 +430,9 @@ songSeekBarEl.addEventListener("click", (event) => {
 
 audioPlayerEl.addEventListener("loadeddata", (event) => {
   playPauseToggleEl.disabled = null;
+  if (playPauseToggleExapndedEl) {
+    playPauseToggleExapndedEl.disabled = null;
+  }
   shuffleEl.disabled = null;
   nextEl.disabled = null;
   prevEl.disabled = null;
@@ -405,6 +471,14 @@ audioPlayerEl.addEventListener("progress", () => {
   console.log("downloading...");
 });
 
+document
+  .getElementById("collapse-player-button")
+  ?.addEventListener("click", (event) => {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+    ui.collapse();
+  });
+
 function init() {
   ui = new PlayerUI();
 }
@@ -416,4 +490,5 @@ window.Player.showPlayer = showPlayer;
 window.Player.hidePlayer = hidePlayer;
 window.Player.playSong = playSong;
 window.Player.stopMuzikk = stopMuzikk;
-window.Player.toggleExpand = () => ui.toggleExpand();
+window.Player.expand = () => ui.expand();
+window.Player.collapse = () => ui.collapse();
