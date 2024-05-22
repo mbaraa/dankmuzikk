@@ -360,6 +360,31 @@ async function downloadSong(songYtId) {
 }
 
 /**
+ * @param {string} songYtId
+ * @param {string} songTitle
+ */
+async function downloadSongToDevice(songYtId, songTitle) {
+  Utils.showLoading();
+  await downloadSong(songYtId)
+    .then(() => {
+      const a = document.createElement("a");
+      a.href = `/muzikkx/${songYtId}.mp3`;
+      a.download = `${songTitle}.mp3`;
+      a.click();
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+}
+
+/**
+ * @param {string} songYtId
+ */
+async function downloadToApp() {
+  throw new Error("not implemented!");
+}
+
+/**
  * @param {Song} song
  * @param {boolean} inPlaylist
  */
@@ -499,7 +524,7 @@ function init() {
 init();
 
 window.Player = {};
-window.Player.downloadSong = downloadSong;
+window.Player.downloadSongToDevice = downloadSongToDevice;
 window.Player.showPlayer = showPlayer;
 window.Player.hidePlayer = hidePlayer;
 window.Player.playSong = playSong;

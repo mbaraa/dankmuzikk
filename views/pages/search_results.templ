@@ -85,13 +85,5 @@ script playSong(song entities.Song) {
 }
 
 script downloadSong(songYtId, songTitle string) {
-    Utils.showLoading();
-    downloadSong(songYtId)
-    .then(() => {
-        Utils.hideLoading();
-        const a = document.createElement("a");
-        a.href = `/muzikkx/${songYtId}.mp3`;
-        a.download = `${songTitle}.mp3`;
-        a.click();
-    });
+    Player.downloadSongToDevice(songYtId, songTitle)
 }
