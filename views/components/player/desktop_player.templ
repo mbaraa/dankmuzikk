@@ -45,19 +45,19 @@ templ desktopPlayer() {
 		<!-- player controls -->
 		<div class={ "float-right", "flex", "items-center", "gap-x-1" }>
 			<button id="shuffle" type="button" title="Shuffle" disabled>
-				<img src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>
+				<img class={ "w-[30px]" } src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>
 			</button>
 			<button id="prev" type="button" title="Previous song" disabled>
-				<img src="/static/icons/previous-icon.svg" alt="Previous"/>
+				<img class={ "w-[50px]" } src="/static/icons/previous-icon.svg" alt="Previous"/>
 			</button>
 			<button id="play" type="button" title="Play/Pause" disabled>
 				<div class="loader !h-10 !w-10"></div>
 			</button>
 			<button id="next" type="button" title="Next song" disabled>
-				<img src="/static/icons/next-icon.svg" alt="Next"/>
+				<img class={ "w-[50px]" } src="/static/icons/next-icon.svg" alt="Next"/>
 			</button>
 			<button id="loop" type="button" title="Loop" disabled>
-				<img src="/static/icons/loop-off-icon.svg" alt="Loop"/>
+				<img class={ "w-[30px]" } src="/static/icons/loop-off-icon.svg" alt="Loop"/>
 			</button>
 		</div>
 	</div>
