@@ -374,6 +374,11 @@ async function playSong(song, inPlaylist) {
       loopEl.children[0].src =
         "/static/icons/" + loopModes[currentLoopIdx].icon;
     }
+    loopEl.children[0].style.height = "60px";
+    loopEl.children[0].style.width = "55px";
+  } else {
+    loopEl.children[0].style.height = "30px";
+    loopEl.children[0].style.width = "30px";
   }
   ui.setLoading(true);
   ui.show();
