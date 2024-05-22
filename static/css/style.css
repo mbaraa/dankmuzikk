@@ -2,13 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body,
+div,
+ul,
+table {
+  scroll-behavior: smooth;
+}
+
+* {
+  --animation-duration: 0.4s;
+  -webkit-transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -moz-transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -o-transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -ms-transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  transition:
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+}
+
 .loader {
   height: 100%;
   width: 100%;
   aspect-ratio: 1 / 1;
   border-width: 6px;
   border-style: solid;
-  border-color: #dedede;
+  border-color: var(--secondary-color);
   border-top-color: transparent;
   border-top-width: 2px;
   border-radius: 50%;

@@ -1,4 +1,6 @@
-name: rex-deploy
+name: Deployment
+
+concurrency: development
 
 on:
   push:
@@ -11,8 +13,9 @@ on:
       - "**.md"
 
 jobs:
-  rex-deploy:
+  deployment:
     runs-on: ubuntu-latest
+    environment: development
     steps:
       - name: rex-7567-e27
         uses: mbaraa/rex-action@v1.6

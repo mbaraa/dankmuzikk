@@ -2,61 +2,149 @@ package player
 
 templ mobilePlayer() {
 	<div
-		class={
-			"fixed", "bottom-[80px]", "w-screen", "h-[120px]", "bg-primary", "rounded-[30px]",
-			"font-Ubuntu", "flex", "items-center", "justify-between", "gap-x-1", "p-[10px]",
-			"text-secondary",
-		}
+		class={ "fixed", "bottom-[65px]", "left-0", "h-auto", "w-full" }
+		onClick={ expand() }
 	>
-		<div class={ "flex", "items-center", "w-[80px]" }>
-			<div
-				id="song-image"
-				class={
-					"w-[80px]", "h-[80px]", "rounded-md", "bg-primary", "bg-[url('/static/icons/dankground.svg')]",
-					"bg-repeat", "bg-cover", "bg-center",
-				}
-			></div>
+		<div
+			id="ze-player"
+			class={
+				"mx-[5px]", "bg-primary", "rounded-[15px]",
+				"text-secondary", "collapsed",
+			}
+		>
+			<div class={ "contents" } id="ze-collapsed-mobile-player">
+				@collapsedMobilePlayer()
+			</div>
+			<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
+				@expandedMobilePlayer()
+			</div>
 		</div>
-		<div class={ "flex", "flex-col", "min-w-[300px]", "w-full", "p-5" }>
+	</div>
+	<style>
+        .collapsed {
+            height: 90px;
+            max-height: 90px;
+            transition: max-height .5s;
+        }
+        .exapnded {
+            height: 500px;
+            max-height: 500px;
+        }
+    </style>
+}
+
+templ collapsedMobilePlayer() {
+	<div
+		class={ "flex", "justify-between", "items-center", "gap-x-1", "p-[10px]", }
+	>
+		<div class={ "flex", "flex-col", "w-11/12" }>
 			<!-- seeker and time -->
 			<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
 				<input
 					id="song-seek-bar"
 					type="range"
 					min="0"
-					class={ "my-2" }
+					value="0"
+					class={ "my-2", "w-full" }
 				/>
 				<span id="song-current-time">00:00</span>
 			</div>
-			<div class={ "flex", "flex-row", "justify-between" }>
-				<!-- details -->
-				<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[120px]" }>
-					<p class={ "font-Ubuntu", "w-full" }>
-						<span id="song-name">Song's Title</span>
-					</p>
-					<p class={ "font-Ubuntu", "w-full" }>
-						<span id="artist-name">Artist's Name</span>
-					</p>
-				</div>
-				<!-- player controls -->
-				<div class={ "flex", "items-center", "gap-x-0", "min-w-[200px]" }>
-					<button id="shuffle" type="button" title="Shuffle" disabled>
-						<img src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>
-					</button>
-					<button id="prev" type="button" title="Previous song" disabled>
-						<img src="/static/icons/previous-icon.svg" alt="Previous"/>
-					</button>
-					<button id="play" type="button" title="Play/Pause" disabled>
-						<div id="loading" class="loader !h-10 !w-10"></div>
-					</button>
-					<button id="next" type="button" title="Next song" disabled>
-						<img src="/static/icons/next-icon.svg" alt="Next"/>
-					</button>
-					<button id="loop" type="button" title="Loop" disabled>
-						<img src="/static/icons/loop-off-icon.svg" alt="Loop"/>
-					</button>
+			<div class={ "flex", "items-center", "justify-between", "min-w-[250px]", "w-full", }>
+				<div class={ "flex", "items-center", "gap-x-2" }>
+					<div
+						id="song-image"
+						class={
+							"w-[35px]", "h-[35px]", "rounded-[3px]", "bg-primary",
+							"bg-repeat", "bg-cover", "bg-center",
+						}
+					>
+						<div class="loader !h-[25px] !w-[25px]"></div>
+					</div>
+					<!-- details -->
+					<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[250px]" }>
+						<p class={ "font-Ubuntu", "w-full" }>
+							<span id="song-name">Loading...</span>
+						</p>
+					</div>
 				</div>
 			</div>
 		</div>
+		<!-- player controls -->
+		<div class={ "flex", "items-center", "gap-x-1", "" }>
+			<button id="play" type="button" title="Play/Pause" disabled>
+				<div id="loading" class="loader !h-10 !w-10"></div>
+			</button>
+		</div>
 	</div>
+}
+
+templ expandedMobilePlayer() {
+	<div class={ "flex", "flex-col", "justify-center", "gap-y-[20px]", "p-[20px]" }>
+		<!-- collapse button -->
+		<div class={ "flex", "justify-between" }>
+			<div></div>
+			<button
+				id="collapse-player-button"
+				title="Collapse player"
+			>
+				<svg width="39" height="34" viewBox="0 0 39 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M25.1608 26.3201C23.2837 29.3237 22.3451 30.8253 21.1433 31.3403C20.094 31.7901 18.906 31.7901 17.8565 31.3403C16.6549 30.8253 15.7164 29.3237 13.8391 26.3201L5.0224 12.2135C2.93902 8.88005 1.89722 7.2133 2.008 5.83785C2.10437 4.63893 2.7133 3.53992 3.67896 2.82276C4.78668 2 6.75219 2 10.6832 2L19.4381 15.862L28.3166 2C32.2476 2 34.2131 2 35.3209 2.82276C36.2865 3.53992 36.8956 4.63893 36.992 5.83785C37.1026 7.2133 36.0609 8.88005 33.9775 12.2135L25.1608 26.3201Z" stroke="var(--secondary-color)" stroke-width="3" stroke-linejoin="round"></path>
+				</svg>
+			</button>
+		</div>
+		<!-- foto -->
+		<div class={ "flex", "justify-center", "items-center" }>
+			<div
+				id="song-image-expanded"
+				class={
+					"w-[200px]", "h-[200px]", "rounded-[3px]", "bg-primary",
+					"bg-repeat", "bg-cover", "bg-center",
+				}
+			>
+				<div class="loader !h-[30px] !w-[30px]"></div>
+			</div>
+		</div>
+		<!-- details -->
+		<div class={ "flex", "justify-center", "items-center" }>
+			<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[250px]" }>
+				<p class={ "font-Ubuntu", "w-full", "text-center" }>
+					<span id="song-name-expanded">Loading...</span>
+				</p>
+				<p id="artist-name-expanded" class={ "w-full", "text-center" }></p>
+			</div>
+		</div>
+		<!-- controls -->
+		<div class={ "flex", "justify-center", "items-center", "w-full" }>
+			<button id="shuffle" type="button" title="Shuffle" disabled>
+				<img class={ "w-[30px]" } src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>
+			</button>
+			<button id="prev" type="button" title="Previous song" disabled>
+				<img class={ "w-[50px]" } src="/static/icons/previous-icon.svg" alt="Previous"/>
+			</button>
+			<button id="play-expand" type="button" title="Play/Pause" disabled>
+				<div id="loading" class="loader !h-10 !w-10"></div>
+			</button>
+			<button id="next" type="button" title="Next song" disabled>
+				<img class={ "w-[50px]" } src="/static/icons/next-icon.svg" alt="Next"/>
+			</button>
+			<button id="loop" type="button" title="Loop" disabled>
+				<img class={ "w-[30px]" } src="/static/icons/loop-off-icon.svg" alt="Loop"/>
+			</button>
+		</div>
+		<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
+			<span id="song-current-time-expanded">00:00</span>
+			<input
+				id="song-seek-bar-expanded"
+				type="range"
+				min="0"
+				value="0"
+				class={ "my-2", "w-full" }
+			/>
+			<span id="song-duration-expanded">00:00</span>
+		</div>
+	</div>
+}
+
+script expand() {
+    Player.expand();
 }
