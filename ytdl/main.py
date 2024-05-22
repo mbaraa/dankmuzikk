@@ -39,16 +39,22 @@ def open_db_conn():
 
 
 def update_song_status(id: str):
-    cur = conn.cursor()
-    cur.execute("UPDATE songs SET fully_downloaded=1 WHERE yt_id=?", (id,))
-    conn.commit()
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE songs SET fully_downloaded=1 WHERE yt_id=?", (id,))
+        conn.commit()
+    finally:
+        cur.close()
 
 
 def song_exists(id: str) -> bool:
-    cur = conn.cursor()
-    cur.execute("SELECT id FROM songs WHERE yt_id=? AND fully_downloaded=1", (id,))
-    result = cur.fetchone()
-    return result[0] if result else False
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM songs WHERE yt_id=? AND fully_downloaded=1", (id,))
+        result = cur.fetchone()
+        return result[0] if result else False
+    finally:
+        cur.close()
 
 ## Download Video stuff
 

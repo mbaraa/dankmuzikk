@@ -1,16 +1,5 @@
 "use strict";
 
-const playerButtonsIcons = {
-  play: `<img style="width: 75px;" src="/static/icons/play-icon.svg" alt="Play"/>`,
-  pause: `<img style="width: 75px;" src="/static/icons/pause-icon.svg" alt="Pause"/>`,
-  loop: `<img style="width: 30px;" src="/static/icons/loop-icon.svg" alt="Loop"/>`,
-  loopOnce: `<img style="width: 30px;" src="/static/icons/loop-once-icon.svg" alt="Loop Once"/>`,
-  loopOff: `<img style="width: 30px;" src="/static/icons/loop-off-icon.svg" alt="Loop Off"/>`,
-  shuffle: `<img style="width: 30px;" src="/static/icons/shuffle-icon.svg" alt="Shuffle"/>`,
-  shuffleOff: `<img style="width: 30px;" src="/static/icons/shuffle-off-icon.svg" alt="Shuffle"/>`,
-  loading: `<div style="width: 50px; height: 50px;" class="loader"></div>`,
-};
-
 const loopModes = [
   { icon: "loop-off-icon.svg", mode: "OFF" },
   { icon: "loop-once-icon.svg", mode: "ONCE" },
@@ -93,14 +82,14 @@ class PlayerUI {
    */
   setPlay(isPlay = false) {
     if (isPlay) {
-      playPauseToggleEl.innerHTML = playerButtonsIcons.pause;
+      playPauseToggleEl.innerHTML = Player.icons.pause;
       if (!!playPauseToggleExapndedEl) {
-        playPauseToggleExapndedEl.innerHTML = playerButtonsIcons.pause;
+        playPauseToggleExapndedEl.innerHTML = Player.icons.pause;
       }
     } else {
-      playPauseToggleEl.innerHTML = playerButtonsIcons.play;
+      playPauseToggleEl.innerHTML = Player.icons.play;
       if (!!playPauseToggleExapndedEl) {
-        playPauseToggleExapndedEl.innerHTML = playerButtonsIcons.play;
+        playPauseToggleExapndedEl.innerHTML = Player.icons.play;
       }
     }
   }
@@ -110,9 +99,9 @@ class PlayerUI {
    */
   setShuffle(isShuffle = false) {
     if (isShuffle) {
-      shuffleEl.innerHTML = playerButtonsIcons.shuffleOff;
+      shuffleEl.innerHTML = Player.icons.shuffleOff;
     } else {
-      shuffleEl.innerHTML = playerButtonsIcons.shuffle;
+      shuffleEl.innerHTML = Player.icons.shuffle;
     }
   }
 
@@ -123,9 +112,9 @@ class PlayerUI {
    */
   setLoading(loading, fallback) {
     if (loading) {
-      playPauseToggleEl.innerHTML = playerButtonsIcons.loading;
+      playPauseToggleEl.innerHTML = Player.icons.loading;
       if (!!playPauseToggleExapndedEl) {
-        playPauseToggleExapndedEl.innerHTML = playerButtonsIcons.loading;
+        playPauseToggleExapndedEl.innerHTML = Player.icons.loading;
       }
       document.body.style.cursor = "progress";
       return;
@@ -220,6 +209,17 @@ class PlayerUI {
     }
     if (songDurationExpandedEl) {
       songDurationExpandedEl.innerHTML = Utils.formatTime(duration);
+    }
+  }
+
+  loopIcon() {
+    switch (loopModes[currentLoopIdx].mode) {
+      case "OFF":
+        return Player.icons.loopOff;
+      case "ONCE":
+        return Player.icons.loopOnce;
+      case "ALL":
+        return Player.icons.loop;
     }
   }
 }
@@ -371,9 +371,13 @@ async function playSong(song, inPlaylist) {
     shuffleEl.style.display = "none";
     if (currentLoopIdx > 1) {
       currentLoopIdx = 0;
-      loopEl.children[0].src =
-        "/static/icons/" + loopModes[currentLoopIdx].icon;
+      loopEl.innerHTML = ui.loopIcon();
     }
+    loopEl.children[0].style.height = "60px";
+    loopEl.children[0].style.width = "55px";
+  } else {
+    loopEl.children[0].style.height = "30px";
+    loopEl.children[0].style.width = "30px";
   }
   ui.setLoading(true);
   ui.show();
@@ -422,7 +426,7 @@ loopEl?.addEventListener("click", (event) => {
   } else {
     currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
   }
-  event.target.src = "/static/icons/" + loopModes[currentLoopIdx].icon;
+  loopEl.innerHTML = ui.loopIcon();
 });
 
 songSeekBarEl.addEventListener("change", (event) => {
@@ -448,7 +452,7 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
   loopEl.disabled = null;
 
   ui.setDuration(event.target.duration);
-  ui.setLoading(false, playerButtonsIcons.pause);
+  ui.setLoading(false, Player.icons.pause);
 });
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
