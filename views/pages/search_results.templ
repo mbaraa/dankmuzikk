@@ -85,8 +85,13 @@ script playSong(song entities.Song) {
 }
 
 script downloadSong(songYtId, songTitle string) {
-    const a = document.createElement("a");
-    a.href = `/muzikkx/${songYtId}.mp3`;
-    a.download = `${songTitle}.mp3`;
-    a.click();
+    Utils.showLoading();
+    downloadSong(songYtId)
+    .then(() => {
+        Utils.hideLoading();
+        const a = document.createElement("a");
+        a.href = `/muzikkx/${songYtId}.mp3`;
+        a.download = `${songTitle}.mp3`;
+        a.click();
+    });
 }
