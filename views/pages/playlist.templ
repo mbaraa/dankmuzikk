@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"dankmuzikk/views/components/navlink"
 	"dankmuzikk/views/components/popover"
+	"dankmuzikk/models"
 )
 
 templ Playlist(pl entities.Playlist) {
@@ -19,10 +20,10 @@ templ Playlist(pl entities.Playlist) {
 			>
 				<div class={ "mb-4", "flex", "justify-between", "items-center" }>
 					@navlink.LinkContainer("/playlists", "Playlists", backButton())
-					if isOwner, ok := ctx.Value("is-playlist-owner").(bool); ok && isOwner {
+					if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
 						@publicPlaylistToggle(pl.PublicId, pl.IsPublic)
 					} else {
-						@joinLeavePlaylist(pl.PublicId)
+						@joinLeavePlaylist(pl.PublicId, perm)
 					}
 				</div>
 				<div
@@ -127,7 +128,7 @@ templ songOptions(song entities.Song, playlistId string) {
 			type="button"
 			onClick={ downloadSong(song.YtId, song.Title) }
 		>Download song</button>
-		if isOwner, ok := ctx.Value("is-playlist-owner").(bool); ok && isOwner {
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.WritePermission) != 0 {
 			<button
 				class={
 					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
@@ -163,7 +164,7 @@ templ songOptionsMobile(song entities.Song, playlistId string) {
 			type="button"
 			onClick={ downloadSong(song.YtId, song.Title) }
 		>Download song</button>
-		if isOwner, ok := ctx.Value("is-playlist-owner").(bool); ok && isOwner {
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.WritePermission) != 0 {
 			<button
 				class={
 					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
@@ -223,7 +224,43 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 	</div>
 }
 
-templ joinLeavePlaylist(publicId string) {
+templ joinLeavePlaylist(publicId string, perm models.PlaylistPermissions) {
+	<div
+		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
+		hx-put={
+			fmt.Sprintf(
+				"/api/playlist/join?playlist-id=%s",
+				publicId,
+			),
+		}
+		hx-swap="innerHTML"
+		hx-target={ fmt.Sprintf("#join-playlist-%s", publicId) }
+		hx-trigger="click"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={
+			fmt.Sprintf(
+				"/api/playlist/join?playlist-id=%s", publicId,
+			),
+		}
+	>
+		<p class={ "max-w-[300px]", "text-secondary", "font-medium" }>
+			<button
+				class={
+					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+					"flex", "justify-center", "items-center",
+				}
+				type="submit"
+				id={ fmt.Sprintf("join-playlist-%s", publicId) }
+			>
+				if (perm & models.WritePermission) != 0 {
+					Leave playlist
+				} else {
+					Join playlist
+				}
+			</button>
+		</p>
+	</div>
 }
 
 css songThumb(url string) {

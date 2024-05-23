@@ -110,3 +110,30 @@ func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.
 		_, _ = w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary\"></div>"))
 	}
 }
+
+func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	joined, err := p.service.ToggleProfileInPlaylist(playlistId, profileId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Errorln(err)
+		return
+	}
+
+	if joined {
+		_, _ = w.Write([]byte("Leave playlist"))
+	} else {
+		_, _ = w.Write([]byte("Join playlist"))
+	}
+}

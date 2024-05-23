@@ -112,4 +112,5 @@ const (
 	ReadPermission PlaylistPermissions = 1 << iota
 	WritePermission
 	OwnerPermission
+	NonePermission
 )

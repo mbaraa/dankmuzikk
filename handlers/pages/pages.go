@@ -114,7 +114,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	playlist, forOwner, err := p.playlistsService.Get(playlistPubId, profileId)
+	playlist, permission, err := p.playlistsService.Get(playlistPubId, profileId)
 	switch {
 	case errors.Is(err, playlists.ErrUnauthorizedToSeePlaylist):
 		log.Errorln(err)
@@ -127,7 +127,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 			return
 		}
 	}
-	ctx := context.WithValue(r.Context(), handlers.IsPlaylistOwner, forOwner)
+	ctx := context.WithValue(r.Context(), handlers.PlaylistPermission, permission)
 
 	if handlers.IsNoLayoutPage(r) {
 		pages.Playlist(playlist).Render(ctx, w)
