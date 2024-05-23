@@ -127,15 +127,17 @@ templ songOptions(song entities.Song, playlistId string) {
 			type="button"
 			onClick={ downloadSong(song.YtId, song.Title) }
 		>Download song</button>
-		<button
-			class={
-				"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
-				"rounded-[5px]", "py-[5px]", "px-[10px]", "w-full",
-			}
-			title={ "Remove " + song.Title + "!" }
-			type="button"
-			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
-		>Remove from playlist</button>
+		if isOwner, ok := ctx.Value("is-playlist-owner").(bool); ok && isOwner {
+			<button
+				class={
+					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
+					"rounded-[5px]", "py-[5px]", "px-[10px]", "w-full",
+				}
+				title={ "Remove " + song.Title + "!" }
+				type="button"
+				onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+			>Remove from playlist</button>
+		}
 	</div>
 }
 
@@ -161,14 +163,16 @@ templ songOptionsMobile(song entities.Song, playlistId string) {
 			type="button"
 			onClick={ downloadSong(song.YtId, song.Title) }
 		>Download song</button>
-		<button
-			class={
-				"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
-				"rounded-[5px]", "py-[10px]", "px-[30px]", "w-full",
-			}
-			type="button"
-			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
-		>Remove from playlist</button>
+		if isOwner, ok := ctx.Value("is-playlist-owner").(bool); ok && isOwner {
+			<button
+				class={
+					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
+					"rounded-[5px]", "py-[10px]", "px-[30px]", "w-full",
+				}
+				type="button"
+				onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+			>Remove from playlist</button>
+		}
 	</div>
 }
 
