@@ -8,6 +8,7 @@ import (
 	"dankmuzikk/handlers/pages"
 	"dankmuzikk/log"
 	"dankmuzikk/models"
+	"dankmuzikk/services/history"
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/login"
 	"dankmuzikk/services/playlists"
@@ -40,10 +41,12 @@ func StartServer(staticFS embed.FS) error {
 	playlistRepo := db.NewBaseDB[models.Playlist](dbConn)
 	playlistOwnersRepo := db.NewBaseDB[models.PlaylistOwner](dbConn)
 	playlistSongsRepo := db.NewBaseDB[models.PlaylistSong](dbConn)
+	historyRepo := db.NewBaseDB[models.History](dbConn)
 
 	downloadService := download.New(songRepo)
 	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongsRepo)
 	songsService := songs.New(playlistSongsRepo, playlistOwnersRepo, songRepo, playlistRepo, downloadService)
+	historyService := history.New(historyRepo, songRepo)
 
 	jwtUtil := jwt.NewJWTImpl()
 
@@ -82,7 +85,7 @@ func StartServer(staticFS embed.FS) error {
 
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
-	songDownloadApi := apis.NewDownloadHandler(downloadService, songsService)
+	songDownloadApi := apis.NewDownloadHandler(downloadService, songsService, historyService)
 	playlistsApi := apis.NewPlaylistApi(playlistsService, songsService)
 
 	apisHandler := http.NewServeMux()
@@ -94,7 +97,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
-	apisHandler.HandleFunc("GET /song", songDownloadApi.HandlePlaySong)
+	apisHandler.HandleFunc("GET /song", gHandler.OptionalAuthApi(songDownloadApi.HandlePlaySong))
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
 	apisHandler.HandleFunc("PUT /toggle-song-in-playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 	apisHandler.HandleFunc("PUT /increment-song-plays", gHandler.AuthApi(songDownloadApi.HandleIncrementSongPlaysInPlaylist))

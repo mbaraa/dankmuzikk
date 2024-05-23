@@ -3,13 +3,12 @@ package models
 import "time"
 
 type History struct {
-	SongId    uint `gorm:"primaryKey"`
-	ProfileId uint `gorm:"primaryKey"`
-
+	Id        uint `gorm:"primaryKey;autoIncrement"`
+	SongId    uint
+	ProfileId uint
 	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 func (h History) GetId() uint {
-	return h.ProfileId | h.SongId
+	return h.Id
 }

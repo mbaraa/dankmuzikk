@@ -3,18 +3,28 @@ package apis
 import (
 	"dankmuzikk/handlers"
 	"dankmuzikk/log"
+	"dankmuzikk/services/history"
 	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
 	"net/http"
 )
 
 type songDownloadHandler struct {
-	service      *download.Service
-	songsService *songs.Service
+	service        *download.Service
+	songsService   *songs.Service
+	historyService *history.Service
 }
 
-func NewDownloadHandler(service *download.Service, songsService *songs.Service) *songDownloadHandler {
-	return &songDownloadHandler{service, songsService}
+func NewDownloadHandler(
+	service *download.Service,
+	songsService *songs.Service,
+	historyService *history.Service,
+) *songDownloadHandler {
+	return &songDownloadHandler{
+		service:        service,
+		songsService:   songsService,
+		historyService: historyService,
+	}
 }
 
 func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
@@ -54,6 +64,17 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		log.Errorln("pashi nahui")
+		return
+	}
+	err = s.historyService.AddSongToHistory(id, profileId)
+	if err != nil {
+		log.Errorln(err)
 		return
 	}
 }

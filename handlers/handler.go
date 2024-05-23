@@ -78,6 +78,20 @@ func (a *Handler) NoAuthPage(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// OptionalAuthApi authenticates a page's handler optionally (without 401).
+func (a *Handler) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		profile, err := a.authenticate(r)
+		if err != nil {
+			h(w, r)
+			return
+		}
+		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx = context.WithValue(ctx, FullNameKey, profile.Name)
+		h(w, r.WithContext(ctx))
+	}
+}
+
 // AuthApi authenticates an API's handler.
 func (a *Handler) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
