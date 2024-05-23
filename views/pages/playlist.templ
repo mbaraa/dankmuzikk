@@ -29,7 +29,7 @@ templ Playlist(pl entities.Playlist) {
 							}
 							title="Copy link to this playlist"
 							type="button"
-							onClick={ copyLink(pl.PublicId) }
+							onClick={ copyLink(pl.PublicId, pl.IsPublic) }
 						><img class={ "max-w-[25px]", "h-[20px]", "md:h-[25px]" } src="/static/icons/share-icon.svg" alt="Share"/> </button>
 						if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
 							@playlist.PlaylistsOptionsPopover(pl)
@@ -271,7 +271,7 @@ script removeSongFromPlaylist(songId, playlistId string) {
     });
 }
 
-script copyLink(pubId string) {
+script copyLink(pubId string, isPublic bool) {
     const textArea = document.getElementById("clipboard-text-blyat");
     textArea.hidden = false;
     textArea.value = location.href;
@@ -279,5 +279,9 @@ script copyLink(pubId string) {
     textArea.setSelectionRange(0, 300);
     document.execCommand("copy");
     textArea.hidden = true;
-    alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
+    if (isPublic) {
+        alert("Playlist's links was copied!");
+    } else {
+        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
+    }
 }
