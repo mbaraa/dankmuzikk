@@ -137,3 +137,26 @@ func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Re
 		_, _ = w.Write([]byte("Join playlist"))
 	}
 }
+
+func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err := p.service.DeletePlaylist(playlistId, profileId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Errorln(err)
+		return
+	}
+
+	w.Header().Set("HX-Redirect", "/playlists")
+}

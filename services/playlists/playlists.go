@@ -45,7 +45,7 @@ func (p *Service) CreatePlaylist(playlist entities.Playlist, ownerId uint) error
 	err = p.playlistOwnersRepo.Add(&models.PlaylistOwner{
 		PlaylistId:  dbPlaylist.Id,
 		ProfileId:   ownerId,
-		Permissions: models.OwnerPermission | models.WritePermission | models.ReadPermission,
+		Permissions: models.OwnerPermission | models.JoinerPermission | models.VisitorPermission,
 	})
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (p *Service) ToggleProfileInPlaylist(playlistPubId string, profileId uint) 
 		err = p.playlistOwnersRepo.Add(&models.PlaylistOwner{
 			ProfileId:   profileId,
 			PlaylistId:  playlist[0].Id,
-			Permissions: models.WritePermission,
+			Permissions: models.JoinerPermission,
 		})
 		if err != nil {
 			return false, err
@@ -127,9 +127,9 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (playlist entities.Pla
 	if err == nil && len(po) > 0 {
 		permission = po[0].Permissions
 	} else {
-		permission = models.ReadPermission
+		permission = models.VisitorPermission
 	}
-	if !dbPlaylists[0].IsPublic && (permission&models.WritePermission) == 0 {
+	if !dbPlaylists[0].IsPublic && (permission&models.JoinerPermission) == 0 {
 		return entities.Playlist{}, models.NonePermission, ErrUnauthorizedToSeePlaylist
 	}
 

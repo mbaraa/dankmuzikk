@@ -116,7 +116,7 @@ func addPlaylistsToProfiles() error {
 		_ = playlistOwnerRepo.Add(&models.PlaylistOwner{
 			ProfileId:   profiles[i%len(profiles)].Id,
 			PlaylistId:  playlists[random.Intn(len(playlists))].Id,
-			Permissions: models.WritePermission,
+			Permissions: models.JoinerPermission,
 		})
 		random.Seed(time.Now().UnixNano())
 	}

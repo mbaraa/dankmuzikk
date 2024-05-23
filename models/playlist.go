@@ -109,8 +109,8 @@ func (p PlaylistOwner) GetId() uint {
 type PlaylistPermissions int8
 
 const (
-	NonePermission PlaylistPermissions = 0
-	ReadPermission PlaylistPermissions = 1 << iota
-	WritePermission
+	VisitorPermission PlaylistPermissions = 1 << iota
+	JoinerPermission
 	OwnerPermission
+	NonePermission PlaylistPermissions = 0
 )

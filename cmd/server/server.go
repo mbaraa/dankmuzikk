@@ -101,6 +101,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
 	apisHandler.HandleFunc("PUT /playlist/public", gHandler.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
 	apisHandler.HandleFunc("PUT /playlist/join", gHandler.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
+	apisHandler.HandleFunc("DELETE /playlist", gHandler.AuthApi(playlistsApi.HandleDeletePlaylist))
 	apisHandler.HandleFunc("PUT /toggle-song-in-playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 	apisHandler.HandleFunc("PUT /increment-song-plays", gHandler.AuthApi(songDownloadApi.HandleIncrementSongPlaysInPlaylist))
 
