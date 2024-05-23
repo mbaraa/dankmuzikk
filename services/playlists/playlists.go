@@ -55,7 +55,7 @@ func (p *Service) CreatePlaylist(playlist entities.Playlist, ownerId uint) error
 
 // JoinPlaylist creates a relation between profiles and playlists with write permission.
 // Where only non-owners can do this, an owner literally creates the playlist ffs.
-func (p *Service) JoinPlaylist(playlistPubId string, ownerId uint) error {
+func (p *Service) JoinPlaylist(playlistPubId string, profileId uint) error {
 	dbPlaylist, err := p.repo.GetByConds("public_id = ?", playlistPubId)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func (p *Service) JoinPlaylist(playlistPubId string, ownerId uint) error {
 
 	err = p.playlistOwnersRepo.Add(&models.PlaylistOwner{
 		PlaylistId:  dbPlaylist[0].Id,
-		ProfileId:   ownerId,
+		ProfileId:   profileId,
 		Permissions: models.WritePermission,
 	})
 	if err != nil {
@@ -71,6 +71,32 @@ func (p *Service) JoinPlaylist(playlistPubId string, ownerId uint) error {
 	}
 
 	return nil
+}
+
+// LeavePlaylist removes the relation between the given profile and the provided playlist.
+// Where only non-owners can do this, since the owner can just delete the playlist, and kick everyone out :)
+func (p *Service) LeavePlaylist(playlistPubId string, profileId uint) error {
+	var dbPlaylists []models.Playlist
+	err := p.
+		repo.
+		GetDB().
+		Model(&models.Profile{
+			Id: profileId,
+		}).
+		Where("public_id = ?", playlistPubId).
+		Select("id").
+		Association("Playlist").
+		Find(&dbPlaylists)
+	if err != nil {
+		return err
+	}
+	if len(dbPlaylists) == 0 {
+		return ErrNonOwnerCantDeletePlaylists
+	}
+
+	return p.
+		playlistOwnersRepo.
+		Delete("playlist_id = ? AND profile_id = ?", dbPlaylists[0].Id, profileId)
 }
 
 // DeletePlaylist deletes a playlist and every relation with it, that is contained songs and shared owners.
@@ -99,62 +125,41 @@ func (p *Service) DeletePlaylist(playlistPubId string, ownerId uint) error {
 		Delete("id = ?", dbPlaylists[0].Id)
 }
 
-// LeavePlaylist removes the relation between the given profile and the provided playlist.
-// Where only non-owners can do this, since the owner can just delete the playlist, and kick everyone out :)
-func (p *Service) LeavePlaylist(playlistPubId string, ownerId uint) error {
-	var dbPlaylists []models.Playlist
-	err := p.
-		repo.
-		GetDB().
-		Model(&models.Profile{
-			Id: ownerId,
-		}).
-		Where("public_id = ?", playlistPubId).
-		Select("id").
-		Association("Playlist").
-		Find(&dbPlaylists)
-	if err != nil {
-		return err
-	}
-	if len(dbPlaylists) == 0 {
-		return ErrNonOwnerCantDeletePlaylists
-	}
-
-	return p.
-		playlistOwnersRepo.
-		Delete("playlist_id = ? AND profile_id = ?", dbPlaylists[0].Id, ownerId)
-}
-
 // Get returns a full playlist (with songs) for a given profile, and an occurring error.
 func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, error) {
 	var dbPlaylists []models.Playlist
 	err := p.
 		repo.
 		GetDB().
-		Model(&models.Profile{
-			Id: ownerId,
-		}).
+		Model(new(models.Playlist)).
+		Select("id", "is_public", "songs_count", "title", "public_id").
 		Where("public_id = ?", playlistPubId).
-		Association("Playlist").
-		Find(&dbPlaylists)
+		Find(&dbPlaylists).
+		Error
 	if err != nil {
 		return entities.Playlist{}, err
 	}
 	if len(dbPlaylists) == 0 {
 		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
 	}
+	if !dbPlaylists[0].IsPublic {
+		_, err = p.playlistOwnersRepo.GetByConds("playlist_id = ? AND profile_id = ?", dbPlaylists[0].Id, ownerId)
+		if err != nil {
+			return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
+		}
+	}
 
 	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, ps.created_at, ps.play_times
 		FROM
-			playlist_owners po JOIN playlist_songs ps ON po.playlist_id = ps.playlist_id
+			playlist_songs ps
 		JOIN songs
 			ON ps.song_id = songs.id
-		WHERE ps.playlist_id = ? AND po.profile_id = ?
+		WHERE ps.playlist_id = ?
 		ORDER BY ps.created_at;`
 
 	rows, err := p.repo.
 		GetDB().
-		Raw(gigaQuery, dbPlaylists[0].Id, ownerId).
+		Raw(gigaQuery, dbPlaylists[0].Id).
 		Rows()
 	if err != nil {
 		return entities.Playlist{}, err
