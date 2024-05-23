@@ -21,11 +21,22 @@ templ Playlist(pl entities.Playlist) {
 			>
 				<div class={ "mb-4", "flex", "justify-between", "items-center" }>
 					@navlink.LinkContainer("/playlists", "Playlists", backButton())
-					if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
-						@playlist.PlaylistsOptionsPopover(pl)
-					} else {
-						@joinLeavePlaylist(pl.PublicId, perm)
-					}
+					<div class={ "flex", "gap-x-2", "items-center" }>
+						<button
+							class={
+								"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+								"flex", "justify-center", "items-center",
+							}
+							title="Copy link to this playlist"
+							type="button"
+							onClick={ copyLink(pl.PublicId) }
+						><img class={ "max-w-[25px]", "h-[20px]", "md:h-[25px]" } src="/static/icons/share-icon.svg" alt="Share"/> </button>
+						if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
+							@playlist.PlaylistsOptionsPopover(pl)
+						} else {
+							@joinLeavePlaylist(pl.PublicId, perm)
+						}
+					</div>
 				</div>
 				<div
 					class={ "flex", "flex-col", "gap-y-4", "lg:gap-y-0", }
@@ -101,6 +112,8 @@ templ Playlist(pl entities.Playlist) {
 			</section>
 		</div>
 	</main>
+	<input id="clipboard-text-blyat" type="text" hidden/>
+	//	<div class={ "hidden" }><textarea id="clipboard-text-blyat"></textarea></div>
 }
 
 templ songOptionsToggle() {
@@ -256,4 +269,15 @@ script removeSongFromPlaylist(songId, playlistId string) {
     .finally(() => {
         Utils.hideLoading();
     });
+}
+
+script copyLink(pubId string) {
+    const textArea = document.getElementById("clipboard-text-blyat");
+    textArea.hidden = false;
+    textArea.value = location.href;
+    textArea.select();
+    textArea.setSelectionRange(0, 300);
+    document.execCommand("copy");
+    textArea.hidden = true;
+    alert("Copied!")
 }
