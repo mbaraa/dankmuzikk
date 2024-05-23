@@ -15,7 +15,7 @@ templ playlistOptions(playlist entities.Playlist) {
 	<div
 		class={
 			"w-[250px]", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
-			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
+			"flex", "flex-col", "gap-y-4", "backdrop-blur-lg",
 		}
 	>
 		<h3 class={ "text-lg", "font-medium" }>Options</h3>
@@ -89,7 +89,7 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 				}
 			></div>
 		</div>
-		<p class={ "max-w-[300px]", "text-secondary", "font-medium" }>
+		<p class={ "max-w-[300px]", "text-secondary", "text-lg" }>
 			Public
 		</p>
 	</div>
