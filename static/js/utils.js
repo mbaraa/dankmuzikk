@@ -40,12 +40,6 @@ function getTextWidth() {
   return window.innerWidth > 768 ? 35 : 15;
 }
 
-window.addEventListener("popstate", (e) => {
-  e.stopImmediatePropagation();
-  e.preventDefault();
-  window.open(window.location.prevPath, "_self");
-});
-
 window.Utils = {
   showLoading,
   hideLoading,

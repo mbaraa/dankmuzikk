@@ -2,9 +2,10 @@ package navlink
 
 templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 	<a
+		id={ path }
 		href={ templ.SafeURL(path) }
 		title={ title }
-		class={ "inline-block" }
+		class={ "inline-block", "rounded-md", "p-1" }
 		hx-get={ path + "?no_layout=true" }
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
@@ -39,7 +40,12 @@ templ LinkContainer(path, title string, child templ.Component) {
 		hx-trigger="click,submit"
 		onClick={ updateHref(path) }
 	>
-		@child
+		<div
+			id={ path }
+			class={ "p-1", "rounded-md" }
+		>
+			@child
+		</div>
 	</a>
 }
 
@@ -47,4 +53,5 @@ script updateHref(path string) {
     const prevPath = window.location.href.substring((window.location.protocol+"//"+window.location.host).length);
     window.location.prevPath = prevPath;
     window.history.pushState({}, "", path)
+    Router.updateActiveNavLink();
 }
