@@ -14,6 +14,7 @@ import (
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/pages"
+	"errors"
 	"net/http"
 
 	_ "github.com/a-h/templ"
@@ -113,12 +114,14 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	}
 
 	playlist, err := p.playlistsService.Get(playlistPubId, profileId)
-	switch err {
-	case playlists.ErrUnauthorizedToSeePlaylist:
+	switch {
+	case errors.Is(err, playlists.ErrUnauthorizedToSeePlaylist):
+		log.Errorln(err)
 		w.Write([]byte(notFoundMessage))
 		return
-	default:
+	case err != nil:
 		if playlist.Title == "" {
+			log.Errorln(err)
 			w.Write([]byte(notFoundMessage))
 			return
 		}
