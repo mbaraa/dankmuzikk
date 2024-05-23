@@ -1,11 +1,13 @@
 name: Deployment
 
-concurrency: development
+concurrency: beta
 
 on:
   push:
     branches:
       - dev
+    paths-ignore:
+      - "**.md"
   pull_request:
     branches:
       - non-existent
@@ -15,7 +17,7 @@ on:
 jobs:
   deployment:
     runs-on: ubuntu-latest
-    environment: development
+    environment: beta
     steps:
       - name: rex-7567-e27
         uses: mbaraa/rex-action@v1.6
