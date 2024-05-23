@@ -1,0 +1,96 @@
+package playlist
+
+import (
+	"fmt"
+	"dankmuzikk/entities"
+	"dankmuzikk/views/components/popover"
+	"dankmuzikk/models"
+)
+
+templ PlaylistsOptionsPopover(playlist entities.Playlist) {
+	@popover.Popover("playlist-"+playlist.PublicId, "Playlist options", playlistOptionsButton(), playlistOptions(playlist))
+}
+
+templ playlistOptions(playlist entities.Playlist) {
+	<div
+		class={
+			"w-[250px]", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
+			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
+		}
+	>
+		<h3 class={ "text-lg", "font-medium" }>Options</h3>
+		@publicPlaylistToggle(playlist.PublicId, playlist.IsPublic)
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
+			<button
+				class={
+					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
+					"rounded-[5px]", "py-[5px]", "px-[10px]", "w-full",
+				}
+				title={ "Remove " + playlist.Title + "!" }
+				type="button"
+				hx-delete={
+					fmt.Sprintf(
+						"/api/playlist?playlist-id=%s",
+						playlist.PublicId,
+					),
+				}
+				hx-trigger="click"
+				data-loading-target="#loading"
+				data-loading-class-remove="hidden"
+				data-loading-path={
+					fmt.Sprintf(
+						"/api/playlist?playlist-id=%s",
+						playlist.PublicId,
+					),
+				}
+			>Delete playlist</button>
+		}
+	</div>
+}
+
+templ playlistOptionsButton() {
+	<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<circle cx="10.5" cy="2.5" r="2.5" fill="var(--secondary-color)"></circle>
+		<circle cx="10.5" cy="10.5" r="2.5" fill="var(--secondary-color)"></circle>
+		<circle cx="10.5" cy="18.5" r="2.5" fill="var(--secondary-color)"></circle>
+	</svg>
+}
+
+templ publicPlaylistToggle(publicId string, isPublic bool) {
+	<div
+		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
+		hx-put={
+			fmt.Sprintf(
+				"/api/playlist/public?playlist-id=%s",
+				publicId,
+			),
+		}
+		hx-swap="innerHTML"
+		hx-target={ fmt.Sprintf("#public-playlist-%s", publicId) }
+		hx-trigger="click"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={
+			fmt.Sprintf(
+				"/api/playlist/public?playlist-id=%s", publicId,
+			),
+		}
+		title="Toggeling this will change the playlist's visibility!"
+	>
+		<div
+			id={ fmt.Sprintf("public-playlist-%s", publicId) }
+		>
+			<div
+				class={
+					"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-secondary",
+					map[string]bool{
+						"bg-secondary": isPublic,
+					},
+				}
+			></div>
+		</div>
+		<p class={ "max-w-[300px]", "text-secondary", "font-medium" }>
+			Public
+		</p>
+	</div>
+}
