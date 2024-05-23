@@ -27,8 +27,15 @@ templ mobileHeader() {
 			@themeswitch.ThemeSwitch()
 		</div>
 		<div class={ "flex", "flex-col", "justify-between", "gap-y-3" }>
-			<div class={ "font-Ubuntu", "text-secondary" }>
-				@navlink.LinkContainer("/", "Home", homeLinkContainer())
+			<div class={ "flex", "justify-center", "items-center", "flex-col", "md:flex-row", "gap-1", "h-min", "text-secondary" }>
+				<img
+					width="55"
+					height="55"
+					src="/static/images/logo.webp"
+					alt="DankMuzikk Logo"
+					class={ "w-[55px]", "rounded-md" }
+				/>
+				<h1 class={ "text-3xl", }>DankMuzikk</h1>
 			</div>
 			<div>
 				<p class={ "text-secondary", "font-Ubuntu", "text-xl" }>
@@ -57,12 +64,6 @@ templ desktopHeader() {
 		<div class={ "flex", "justify-center", "items-center", "gap-x-7" }>
 			<nav>
 				<ul class={ "m-0", "list-none", "flex", "gap-x-5" }>
-					<!-- kept for SEO -->
-					<div class="hidden">
-						<li><a href="/about">About</a></li>
-						<li><a href="/playlists">Playlists</a></li>
-						<li><a href="/profile">Profile</a></li>
-					</div>
 					<li>
 						@navlink.NavLink("About", "", "/about")
 					</li>

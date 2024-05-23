@@ -10,6 +10,10 @@ dev() {
     go run . serve
 }
 
+beta() {
+    ./dankmuzikk serve
+}
+
 prod() {
     ./dankmuzikk migrate
     ./dankmuzikk serve
@@ -17,6 +21,10 @@ prod() {
 
 if [ $1 == "dev" ]; then
     dev
+fi
+
+if [ $1 == "beta" ]; then
+    beta
 fi
 
 if [ $1 == "prod" ]; then
