@@ -83,3 +83,30 @@ func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.
 		_, _ = w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary\"></div>"))
 	}
 }
+
+func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	madePublic, err := p.service.TogglePublic(playlistId, profileId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Errorln(err)
+		return
+	}
+
+	if madePublic {
+		_, _ = w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary bg-secondary\"></div>"))
+	} else {
+		_, _ = w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary\"></div>"))
+	}
+}

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"dankmuzikk/config"
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
@@ -113,7 +114,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	playlist, err := p.playlistsService.Get(playlistPubId, profileId)
+	playlist, forOwner, err := p.playlistsService.Get(playlistPubId, profileId)
 	switch {
 	case errors.Is(err, playlists.ErrUnauthorizedToSeePlaylist):
 		log.Errorln(err)
@@ -126,12 +127,13 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 			return
 		}
 	}
+	ctx := context.WithValue(r.Context(), handlers.IsPlaylistOwner, forOwner)
 
 	if handlers.IsNoLayoutPage(r) {
-		pages.Playlist(playlist).Render(r.Context(), w)
+		pages.Playlist(playlist).Render(ctx, w)
 		return
 	}
-	layouts.Default(pages.Playlist(playlist)).Render(r.Context(), w)
+	layouts.Default(pages.Playlist(playlist)).Render(ctx, w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {

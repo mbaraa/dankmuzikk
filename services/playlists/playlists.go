@@ -126,9 +126,10 @@ func (p *Service) DeletePlaylist(playlistPubId string, ownerId uint) error {
 }
 
 // Get returns a full playlist (with songs) for a given profile, and an occurring error.
-func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, error) {
+func (p *Service) Get(playlistPubId string, ownerId uint) (playlist entities.Playlist, forOwner bool, err error) {
+	forOwner = true
 	var dbPlaylists []models.Playlist
-	err := p.
+	err = p.
 		repo.
 		GetDB().
 		Model(new(models.Playlist)).
@@ -137,16 +138,17 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		Find(&dbPlaylists).
 		Error
 	if err != nil {
-		return entities.Playlist{}, err
+		return
 	}
 	if len(dbPlaylists) == 0 {
-		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
+		return entities.Playlist{}, false, ErrUnauthorizedToSeePlaylist
 	}
-	if !dbPlaylists[0].IsPublic {
-		_, err = p.playlistOwnersRepo.GetByConds("playlist_id = ? AND profile_id = ?", dbPlaylists[0].Id, ownerId)
-		if err != nil {
-			return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
-		}
+	_, err = p.playlistOwnersRepo.GetByConds("playlist_id = ? AND profile_id = ?", dbPlaylists[0].Id, ownerId)
+	if err != nil {
+		forOwner = false
+	}
+	if !dbPlaylists[0].IsPublic && !forOwner {
+		return entities.Playlist{}, false, ErrUnauthorizedToSeePlaylist
 	}
 
 	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, ps.created_at, ps.play_times
@@ -162,7 +164,7 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		Raw(gigaQuery, dbPlaylists[0].Id).
 		Rows()
 	if err != nil {
-		return entities.Playlist{}, err
+		return entities.Playlist{}, false, err
 	}
 	defer rows.Close()
 
@@ -182,8 +184,49 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		PublicId:   dbPlaylists[0].PublicId,
 		Title:      dbPlaylists[0].Title,
 		SongsCount: dbPlaylists[0].SongsCount,
+		IsPublic:   dbPlaylists[0].IsPublic,
 		Songs:      songs,
-	}, nil
+	}, forOwner, nil
+}
+
+// TogglePublic returns a full playlist (with songs) for a given profile, and an occurring error.
+func (p *Service) TogglePublic(playlistPubId string, ownerId uint) (madePublic bool, err error) {
+	var dbPlaylists []models.Playlist
+	err = p.
+		repo.
+		GetDB().
+		Model(&models.Profile{
+			Id: ownerId,
+		}).
+		Select("id", "is_public").
+		Where("public_id = ?", playlistPubId).
+		Association("Playlist").
+		Find(&dbPlaylists)
+	if err != nil {
+		return
+	}
+
+	if dbPlaylists[0].IsPublic {
+		err = p.
+			repo.
+			GetDB().
+			Model(new(models.Playlist)).
+			Where("id = ?", dbPlaylists[0].Id).
+			Update("is_public", false).
+			Error
+
+		return false, err
+	} else {
+		err = p.
+			repo.
+			GetDB().
+			Model(new(models.Playlist)).
+			Where("id = ?", dbPlaylists[0].Id).
+			Update("is_public", true).
+			Error
+
+		return true, err
+	}
 }
 
 // GetAll returns all playlists of a profile with only meta-data (no songs), and an occurring error.
@@ -211,6 +254,7 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 			PublicId:   dbPlaylist.PublicId,
 			Title:      dbPlaylist.Title,
 			SongsCount: dbPlaylist.SongsCount,
+			IsPublic:   dbPlaylist.IsPublic,
 		}
 	}
 
