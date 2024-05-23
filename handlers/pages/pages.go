@@ -7,6 +7,7 @@ import (
 	"dankmuzikk/handlers"
 	"dankmuzikk/log"
 	"dankmuzikk/models"
+	"dankmuzikk/services/history"
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/youtube/download"
@@ -28,6 +29,7 @@ type pagesHandler struct {
 	jwtUtil          jwt.Manager[jwt.Json]
 	ytSearch         search.Service
 	downloadService  *download.Service
+	historyService   *history.Service
 }
 
 func NewPagesHandler(
@@ -36,6 +38,7 @@ func NewPagesHandler(
 	jwtUtil jwt.Manager[jwt.Json],
 	ytSearch search.Service,
 	downloadService *download.Service,
+	historyService *history.Service,
 ) *pagesHandler {
 	return &pagesHandler{
 		profileRepo:      profileRepo,
@@ -43,15 +46,26 @@ func NewPagesHandler(
 		jwtUtil:          jwtUtil,
 		ytSearch:         ytSearch,
 		downloadService:  downloadService,
+		historyService:   historyService,
 	}
 }
 
 func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
+	var recentPlays []entities.Song
+	var err error
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if profileIdCorrect {
+		recentPlays, err = p.historyService.Get(profileId)
+		if err != nil {
+			log.Errorln(err)
+		}
+	}
+
 	if handlers.IsNoLayoutPage(r) {
-		pages.Index().Render(r.Context(), w)
+		pages.Index(recentPlays).Render(r.Context(), w)
 		return
 	}
-	layouts.Default(pages.Index()).Render(r.Context(), w)
+	layouts.Default(pages.Index(recentPlays)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {

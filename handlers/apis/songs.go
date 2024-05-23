@@ -60,21 +60,18 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if profileIdCorrect {
+		err := s.historyService.AddSongToHistory(id, profileId)
+		if err != nil {
+			log.Errorln(err)
+		}
+	}
+
 	err := s.service.DownloadYoutubeSong(id)
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		log.Errorln("pashi nahui")
-		return
-	}
-	err = s.historyService.AddSongToHistory(id, profileId)
-	if err != nil {
-		log.Errorln(err)
 		return
 	}
 }

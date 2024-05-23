@@ -70,7 +70,7 @@ func StartServer(staticFS embed.FS) error {
 	})
 	pagesHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
-	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil, &search.ScraperSearch{}, downloadService)
+	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil, &search.ScraperSearch{}, downloadService, historyService)
 	pagesHandler.HandleFunc("/", gHandler.OptionalAuthPage(pagesRouter.HandleHomePage))
 	pagesHandler.HandleFunc("/signup", gHandler.AuthPage(pagesRouter.HandleSignupPage))
 	pagesHandler.HandleFunc("/login", gHandler.AuthPage(pagesRouter.HandleLoginPage))

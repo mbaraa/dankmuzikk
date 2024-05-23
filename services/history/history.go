@@ -4,7 +4,7 @@ import (
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
 	"dankmuzikk/models"
-	"errors"
+	"time"
 )
 
 type Service struct {
@@ -31,6 +31,51 @@ func (h *Service) AddSongToHistory(songYtId string, profileId uint) error {
 	})
 }
 
-func (h *Service) Get() ([]entities.Song, error) {
-	return nil, errors.New("not implemented")
+func (h *Service) Get(profileId uint) ([]entities.Song, error) {
+	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, h.created_at
+		FROM
+			histories h JOIN songs
+		ON
+				songs.id = h.song_id
+		WHERE h.profile_id = ?
+		ORDER BY h.created_at DESC;`
+
+	rows, err := h.repo.
+		GetDB().
+		Raw(gigaQuery, profileId).
+		Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	songs := make([]entities.Song, 0)
+	for rows.Next() {
+		var song entities.Song
+		var addedAt time.Time
+		err = rows.Scan(&song.YtId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.Duration, &addedAt)
+		if err != nil {
+			continue
+		}
+		song.AddedAt = whenDidItHappen(addedAt)
+		songs = append(songs, song)
+	}
+
+	return songs, nil
+}
+
+func whenDidItHappen(t time.Time) string {
+	now := time.Now().UTC()
+	switch {
+	case t.Day() == now.Day() && t.Month() == now.Month() && t.Year() == now.Year():
+		return "today"
+	case t.Day()+1 == now.Day() && t.Month() == now.Month() && t.Year() == now.Year():
+		return "yesterday"
+	case t.Day()+5 < now.Day() && t.Month() == now.Month() && t.Year() == now.Year():
+		return "last week"
+	case t.Day() == now.Day() && t.Month()+1 == now.Month() && t.Year() == now.Year():
+		return "last month"
+	default:
+		return t.Format("2, January, 2006")
+	}
 }
