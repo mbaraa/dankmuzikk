@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"dankmuzikk/views/components/navlink"
 	"dankmuzikk/views/components/popover"
+	"dankmuzikk/models"
 )
 
 templ Playlist(pl entities.Playlist) {
@@ -17,8 +18,13 @@ templ Playlist(pl entities.Playlist) {
 					"mb-[170px]", "lg:mb-0",
 				}
 			>
-				<div class={ "mb-4" }>
+				<div class={ "mb-4", "flex", "justify-between", "items-center" }>
 					@navlink.LinkContainer("/playlists", "Playlists", backButton())
+					if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
+						@publicPlaylistToggle(pl.PublicId, pl.IsPublic)
+					} else {
+						@joinLeavePlaylist(pl.PublicId, perm)
+					}
 				</div>
 				<div
 					class={ "flex", "flex-col", "gap-y-4", "lg:gap-y-0", }
@@ -122,15 +128,17 @@ templ songOptions(song entities.Song, playlistId string) {
 			type="button"
 			onClick={ downloadSong(song.YtId, song.Title) }
 		>Download song</button>
-		<button
-			class={
-				"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
-				"rounded-[5px]", "py-[5px]", "px-[10px]", "w-full",
-			}
-			title={ "Remove " + song.Title + "!" }
-			type="button"
-			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
-		>Remove from playlist</button>
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.WritePermission) != 0 {
+			<button
+				class={
+					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
+					"rounded-[5px]", "py-[5px]", "px-[10px]", "w-full",
+				}
+				title={ "Remove " + song.Title + "!" }
+				type="button"
+				onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+			>Remove from playlist</button>
+		}
 	</div>
 }
 
@@ -156,14 +164,16 @@ templ songOptionsMobile(song entities.Song, playlistId string) {
 			type="button"
 			onClick={ downloadSong(song.YtId, song.Title) }
 		>Download song</button>
-		<button
-			class={
-				"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
-				"rounded-[5px]", "py-[10px]", "px-[30px]", "w-full",
-			}
-			type="button"
-			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
-		>Remove from playlist</button>
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.WritePermission) != 0 {
+			<button
+				class={
+					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
+					"rounded-[5px]", "py-[10px]", "px-[30px]", "w-full",
+				}
+				type="button"
+				onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+			>Remove from playlist</button>
+		}
 	</div>
 }
 
@@ -173,6 +183,83 @@ templ backButton() {
 			<path d="M3.78462 12.9782C2.16532 11.9662 1.35578 11.4603 1.0781 10.8123C0.835619 10.2466 0.835619 9.60613 1.0781 9.04031C1.35578 8.3925 2.16532 7.88651 3.78462 6.87442L11.3899 2.12111C13.187 0.997903 14.0856 0.436243 14.8272 0.495963C15.4735 0.547923 16.066 0.876214 16.4527 1.39682C16.8962 1.99402 16.8962 3.05369 16.8962 5.17301L9.42289 9.89298L16.8962 14.6797C16.8962 16.799 16.8962 17.8586 16.4527 18.4558C16.066 18.9764 15.4735 19.3048 14.8272 19.3568C14.0856 19.4164 13.187 18.8548 11.3899 17.7316L3.78462 12.9782Z" stroke="var(--secondary-color)" stroke-linejoin="round"></path>
 		</svg>
 		<span>Playlists</span>
+	</div>
+}
+
+templ publicPlaylistToggle(publicId string, isPublic bool) {
+	<div
+		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
+		hx-put={
+			fmt.Sprintf(
+				"/api/playlist/public?playlist-id=%s",
+				publicId,
+			),
+		}
+		hx-swap="innerHTML"
+		hx-target={ fmt.Sprintf("#public-playlist-%s", publicId) }
+		hx-trigger="click"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={
+			fmt.Sprintf(
+				"/api/playlist/public?playlist-id=%s", publicId,
+			),
+		}
+	>
+		<div
+			id={ fmt.Sprintf("public-playlist-%s", publicId) }
+		>
+			<div
+				class={
+					"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-secondary",
+					map[string]bool{
+						"bg-secondary": isPublic,
+					},
+				}
+			></div>
+		</div>
+		<p class={ "max-w-[300px]", "text-secondary", "font-medium" }>
+			Public
+		</p>
+	</div>
+}
+
+templ joinLeavePlaylist(publicId string, perm models.PlaylistPermissions) {
+	<div
+		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
+		hx-put={
+			fmt.Sprintf(
+				"/api/playlist/join?playlist-id=%s",
+				publicId,
+			),
+		}
+		hx-swap="innerHTML"
+		hx-target={ fmt.Sprintf("#join-playlist-%s", publicId) }
+		hx-trigger="click"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={
+			fmt.Sprintf(
+				"/api/playlist/join?playlist-id=%s", publicId,
+			),
+		}
+	>
+		<p class={ "max-w-[300px]", "text-secondary", "font-medium" }>
+			<button
+				class={
+					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+					"flex", "justify-center", "items-center",
+				}
+				type="submit"
+				id={ fmt.Sprintf("join-playlist-%s", publicId) }
+			>
+				if (perm & models.WritePermission) != 0 {
+					Leave playlist
+				} else {
+					Join playlist
+				}
+			</button>
+		</p>
 	</div>
 }
 

@@ -4,6 +4,7 @@ import (
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
 	"dankmuzikk/models"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -44,7 +45,7 @@ func (p *Service) CreatePlaylist(playlist entities.Playlist, ownerId uint) error
 	err = p.playlistOwnersRepo.Add(&models.PlaylistOwner{
 		PlaylistId:  dbPlaylist.Id,
 		ProfileId:   ownerId,
-		Permissions: models.OwnerPermission,
+		Permissions: models.OwnerPermission | models.WritePermission | models.ReadPermission,
 	})
 	if err != nil {
 		return err
@@ -53,24 +54,29 @@ func (p *Service) CreatePlaylist(playlist entities.Playlist, ownerId uint) error
 	return nil
 }
 
-// JoinPlaylist creates a relation between profiles and playlists with write permission.
-// Where only non-owners can do this, an owner literally creates the playlist ffs.
-func (p *Service) JoinPlaylist(playlistPubId string, ownerId uint) error {
-	dbPlaylist, err := p.repo.GetByConds("public_id = ?", playlistPubId)
+func (p *Service) ToggleProfileInPlaylist(playlistPubId string, profileId uint) (joined bool, err error) {
+	playlist, err := p.repo.GetByConds("public_id = ?", playlistPubId)
 	if err != nil {
-		return err
+		return
 	}
-
-	err = p.playlistOwnersRepo.Add(&models.PlaylistOwner{
-		PlaylistId:  dbPlaylist[0].Id,
-		ProfileId:   ownerId,
-		Permissions: models.WritePermission,
-	})
-	if err != nil {
-		return err
+	_, err = p.playlistOwnersRepo.GetByConds("profile_id = ? AND playlist_id = ?", profileId, playlist[0].Id)
+	if errors.Is(err, db.ErrRecordNotFound) {
+		err = p.playlistOwnersRepo.Add(&models.PlaylistOwner{
+			ProfileId:   profileId,
+			PlaylistId:  playlist[0].Id,
+			Permissions: models.WritePermission,
+		})
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	} else {
+		err = p.playlistOwnersRepo.Delete("profile_id = ? AND playlist_id = ?", profileId, playlist[0].Id)
+		if err != nil {
+			return false, err
+		}
+		return false, nil
 	}
-
-	return nil
 }
 
 // DeletePlaylist deletes a playlist and every relation with it, that is contained songs and shared owners.
@@ -99,65 +105,48 @@ func (p *Service) DeletePlaylist(playlistPubId string, ownerId uint) error {
 		Delete("id = ?", dbPlaylists[0].Id)
 }
 
-// LeavePlaylist removes the relation between the given profile and the provided playlist.
-// Where only non-owners can do this, since the owner can just delete the playlist, and kick everyone out :)
-func (p *Service) LeavePlaylist(playlistPubId string, ownerId uint) error {
-	var dbPlaylists []models.Playlist
-	err := p.
-		repo.
-		GetDB().
-		Model(&models.Profile{
-			Id: ownerId,
-		}).
-		Where("public_id = ?", playlistPubId).
-		Select("id").
-		Association("Playlist").
-		Find(&dbPlaylists)
-	if err != nil {
-		return err
-	}
-	if len(dbPlaylists) == 0 {
-		return ErrNonOwnerCantDeletePlaylists
-	}
-
-	return p.
-		playlistOwnersRepo.
-		Delete("playlist_id = ? AND profile_id = ?", dbPlaylists[0].Id, ownerId)
-}
-
 // Get returns a full playlist (with songs) for a given profile, and an occurring error.
-func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, error) {
+func (p *Service) Get(playlistPubId string, ownerId uint) (playlist entities.Playlist, permission models.PlaylistPermissions, err error) {
+	permission = models.OwnerPermission
 	var dbPlaylists []models.Playlist
-	err := p.
+	err = p.
 		repo.
 		GetDB().
-		Model(&models.Profile{
-			Id: ownerId,
-		}).
+		Model(new(models.Playlist)).
+		Select("id", "is_public", "songs_count", "title", "public_id").
 		Where("public_id = ?", playlistPubId).
-		Association("Playlist").
-		Find(&dbPlaylists)
+		Find(&dbPlaylists).
+		Error
 	if err != nil {
-		return entities.Playlist{}, err
+		return
 	}
 	if len(dbPlaylists) == 0 {
-		return entities.Playlist{}, ErrUnauthorizedToSeePlaylist
+		return entities.Playlist{}, models.NonePermission, ErrUnauthorizedToSeePlaylist
+	}
+	po, err := p.playlistOwnersRepo.GetByConds("playlist_id = ? AND profile_id = ?", dbPlaylists[0].Id, ownerId)
+	if err == nil && len(po) > 0 {
+		permission = po[0].Permissions
+	} else {
+		permission = models.ReadPermission
+	}
+	if !dbPlaylists[0].IsPublic && (permission&models.WritePermission) == 0 {
+		return entities.Playlist{}, models.NonePermission, ErrUnauthorizedToSeePlaylist
 	}
 
 	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, ps.created_at, ps.play_times
 		FROM
-			playlist_owners po JOIN playlist_songs ps ON po.playlist_id = ps.playlist_id
+			playlist_songs ps
 		JOIN songs
 			ON ps.song_id = songs.id
-		WHERE ps.playlist_id = ? AND po.profile_id = ?
+		WHERE ps.playlist_id = ?
 		ORDER BY ps.created_at;`
 
 	rows, err := p.repo.
 		GetDB().
-		Raw(gigaQuery, dbPlaylists[0].Id, ownerId).
+		Raw(gigaQuery, dbPlaylists[0].Id).
 		Rows()
 	if err != nil {
-		return entities.Playlist{}, err
+		return entities.Playlist{}, models.NonePermission, err
 	}
 	defer rows.Close()
 
@@ -177,8 +166,49 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (entities.Playlist, er
 		PublicId:   dbPlaylists[0].PublicId,
 		Title:      dbPlaylists[0].Title,
 		SongsCount: dbPlaylists[0].SongsCount,
+		IsPublic:   dbPlaylists[0].IsPublic,
 		Songs:      songs,
-	}, nil
+	}, permission, nil
+}
+
+// TogglePublic returns a full playlist (with songs) for a given profile, and an occurring error.
+func (p *Service) TogglePublic(playlistPubId string, ownerId uint) (madePublic bool, err error) {
+	var dbPlaylists []models.Playlist
+	err = p.
+		repo.
+		GetDB().
+		Model(&models.Profile{
+			Id: ownerId,
+		}).
+		Select("id", "is_public").
+		Where("public_id = ?", playlistPubId).
+		Association("Playlist").
+		Find(&dbPlaylists)
+	if err != nil {
+		return
+	}
+
+	if dbPlaylists[0].IsPublic {
+		err = p.
+			repo.
+			GetDB().
+			Model(new(models.Playlist)).
+			Where("id = ?", dbPlaylists[0].Id).
+			Update("is_public", false).
+			Error
+
+		return false, err
+	} else {
+		err = p.
+			repo.
+			GetDB().
+			Model(new(models.Playlist)).
+			Where("id = ?", dbPlaylists[0].Id).
+			Update("is_public", true).
+			Error
+
+		return true, err
+	}
 }
 
 // GetAll returns all playlists of a profile with only meta-data (no songs), and an occurring error.
@@ -206,6 +236,7 @@ func (p *Service) GetAll(ownerId uint) ([]entities.Playlist, error) {
 			PublicId:   dbPlaylist.PublicId,
 			Title:      dbPlaylist.Title,
 			SongsCount: dbPlaylist.SongsCount,
+			IsPublic:   dbPlaylist.IsPublic,
 		}
 	}
 

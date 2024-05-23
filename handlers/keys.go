@@ -9,8 +9,9 @@ const (
 
 // Context keys
 const (
-	ProfileIdKey = "profile-id"
-	ThemeKey     = "theme-name"
-	IsMobileKey  = "is-mobile"
-	FullNameKey  = "full-name"
+	ProfileIdKey       = "profile-id"
+	ThemeKey           = "theme-name"
+	IsMobileKey        = "is-mobile"
+	FullNameKey        = "full-name"
+	PlaylistPermission = "playlist-permission"
 )
