@@ -4,12 +4,10 @@ import (
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
 	"dankmuzikk/models"
+	"dankmuzikk/services/nanoid"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // Service represents the platlist management service,
@@ -33,7 +31,7 @@ func New(
 // This creates a relation between profiles and playlists with the owner permission.
 func (p *Service) CreatePlaylist(playlist entities.Playlist, ownerId uint) error {
 	dbPlaylist := models.Playlist{
-		PublicId: strings.ReplaceAll(uuid.NewString(), "-", ""),
+		PublicId: nanoid.Generate(),
 		Title:    playlist.Title,
 		IsPublic: false,
 	}

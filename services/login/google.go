@@ -7,24 +7,23 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/models"
 	"dankmuzikk/services/jwt"
+	"dankmuzikk/services/nanoid"
 	"encoding/json"
 	"errors"
 
 	"net/http"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var (
-	randomState = uuid.NewString()
+	randomState = nanoid.GenerateWithLength(32)
 )
 
 func init() {
 	timer := time.NewTicker(time.Hour / 2)
 	go func() {
 		for range timer.C {
-			randomState = uuid.NewString()
+			randomState = nanoid.GenerateWithLength(32)
 		}
 	}()
 
