@@ -182,6 +182,7 @@ def download_song(id: str) -> int:
             currently_downloading_queue.add(id)
             res = download_yt_song(id)
             currently_downloading_queue.remove(id)
+            update_song_status(id)
             if res != 0:
                 print(f"error: {YT_ERROR[res]} when downloading {id}")
                 return res
