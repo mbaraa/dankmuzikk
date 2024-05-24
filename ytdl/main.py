@@ -1,21 +1,41 @@
+from flask import Flask
+import mariadb
+import os
+import os.path
+from pytube import YouTube, exceptions as pytube_exceptions
+import signal
+import sys
+import threading
+import time
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
-from fastapi import FastAPI, status, Response
-from fastapi.requests import Request
-import os.path
-from threading import Lock, Thread
-import time
-import signal
-import mariadb
-import sys
 
-DOWNLOAD_PATH = os.environ.get("YOUTUBE_MUSIC_DOWNLOAD_PATH")
-DB_NAME     = os.environ.get("DB_NAME")
-DB_HOST     = os.environ.get("DB_HOST")
-DB_USERNAME = os.environ.get("DB_USERNAME")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
 
-## DB stuff
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+## Envirnmental variables
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+
+def get_env(key) -> str:
+    val = os.environ.get(key)
+    if val is None or val == "":
+        print(f"Missing {val} suka")
+        exit(1)
+    return val
+
+DB_NAME       = get_env("DB_NAME")
+DB_HOST       = get_env("DB_HOST")
+DB_USERNAME   = get_env("DB_USERNAME")
+DB_PASSWORD   = get_env("DB_PASSWORD")
+DOWNLOAD_PATH = get_env("YOUTUBE_MUSIC_DOWNLOAD_PATH")
+
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+## DB
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+
 conn = None
 
 def open_db_conn():
@@ -53,62 +73,93 @@ def song_exists(id: str) -> bool:
         cur.execute("SELECT id FROM songs WHERE yt_id=? AND fully_downloaded=1", (id,))
         result = cur.fetchone()
         return result[0] if result else False
+    except:
+        cur.close()
+        return False
     finally:
         cur.close()
-
-## Download Video stuff
-
-class MutexArray:
-    def __init__(self, initial_array: []):
-        self._lock = Lock()
-        self._array = initial_array.copy()
-
-    def exists(self, item) -> bool:
-        with self._lock:
-            return item in self._array
-
-    def get(self, index):
-        with self._lock:
-            return self._array[index]
-
-    def set(self, index, value):
-        with self._lock:
-            self._array[index] = value
-
-    def append(self, value):
-        with self._lock:
-            self._array.append(value)
-
-    def remove(self, value):
-        with self._lock:
-            self._array.remove(value)
-
-    def get_array_and_clear(self):
-        with self._lock:
-            clone = self._array.copy()
-            self._array.clear()
-            return clone
-
-    def length(self):
-        with self._lock:
-            return len(self._array)
-
-    def release(self):
-        self._lock.release()
-
-background_download_list = MutexArray([])
-to_be_downloaded = MutexArray([])
+    return False
 
 
-ytdl = YoutubeDL({
-    "format": "bestaudio/best",
-    "postprocessors": [{
-        "key": "FFmpegExtractAudio",
-        "preferredcodec": "mp3",
-        "preferredquality": "192",
-    }],
-    "outtmpl": f"{DOWNLOAD_PATH}/%(id)s.%(ext)s"
-})
+open_db_conn()
+
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+## Downloader
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+
+YT_ERROR = {
+    0: "none",
+    1: "age restiction",
+    2: "video unavailble",
+    3: "other youtube error",
+}
+
+def download_yt_song(id) -> int:
+    try:
+        YouTube("https://www.youtube.com/watch?v="+id) \
+            .streams.filter(only_audio=True).first() \
+            .download(output_path=DOWNLOAD_PATH, filename=id+".mp3")
+    except pytube_exceptions.AgeRestrictedError:
+        try:
+            print(f"song with id {id} is age resticted, trying yt_dlp...")
+            ytdl = YoutubeDL({
+                "format": "bestaudio/mp3",
+                "postprocessors": [{
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "192",
+                }],
+                "outtmpl": f"{DOWNLOAD_PATH}/%(id)s.%(ext)s"
+            })
+            ytdl.download("https://www.youtube.com/watch?v="+id)
+        except:
+            return 1
+    except pytube_exceptions.VideoUnavailable:
+        return 2
+    except pytube_exceptions.RegexMatchError:
+        return 3
+    except:
+        return 3
+
+    return 0
+
+##############################################################################################################################################################################################################################
+
+to_download_lock = threading.Lock()
+to_download_stop_event = threading.Event()
+to_download_queue = set([])
+
+currently_downloading_lock = threading.Lock()
+currently_downloading_stop_event = threading.Event()
+currently_downloading_queue = set([])
+
+
+def background_task():
+    while not to_download_stop_event.is_set():
+        with to_download_lock:
+            if to_download_queue:
+                id = to_download_queue.pop()
+                print(f"Downloading {id} from the queue.")
+                res = download_song(id)
+                if res != 0:
+                    print(f"Error downloading {id}, error: {YT_ERROR[res]}")
+        time.sleep(0.5)
+
+
+def add_song_to_queue(id: str) -> int:
+    """
+        add_song_to_queue adds a song's id to the download queue.
+    """
+    with to_download_lock:
+        if song_exists(id):
+            print(f"The song with id {id} was already downloaded 😬")
+            return 0
+
+        to_download_queue.add(id)
+        print(f"Added song {id} to the download queue.")
+    return 0
 
 
 def download_song(id: str) -> int:
@@ -116,111 +167,71 @@ def download_song(id: str) -> int:
         download_song downloads the given song's ids using yt_dlp,
         and returns the operation's status code.
     """
-    try:
-        if id is None or len(id) == 0:
-            return
-
-        ## wait list
-        while to_be_downloaded.exists(id):
-            time.sleep(1)
-            pass
-
-        ## download the stuff
-        if song_exists(id):
-            to_be_downloaded.remove(id)
-            return 0
-
-        to_be_downloaded.append(id)
-        ytdl.download(f"https://www.youtube.com/watch?v={id}")
-        to_be_downloaded.remove(id)
-        update_song_status(id)
-
+    if song_exists(id):
+        print(f"The song with id {id} was already downloaded 😬")
         return 0
-    except DownloadError:
-        return 1
-    except Exception:
-        return 2
+
+    if not currently_downloading_stop_event.is_set():
+        with currently_downloading_lock:
+            print(f"Downloading song with id {id} ...")
+            while id in currently_downloading_queue:
+                print("waiting suka")
+                time.sleep(0.5)
+                pass
+
+            currently_downloading_queue.add(id)
+            res = download_yt_song(id)
+            currently_downloading_queue.remove(id)
+            if res != 0:
+                print(f"error: {YT_ERROR[res]} when downloading {id}")
+                return res
+            print("Successfully downloaded " + id)
+            return 0
+    return 3
+
+thread = threading.Thread(target=background_task)
+thread.start()
+
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+##############################################################################################################################################################################################################################
+
+app = Flask(__name__)
 
 
-def download_songs_from_queue():
-    """
-        download_songs_from_queue fetches the current songs in the download queue,
-        and starts the download process.
-    """
-    if background_download_list.length() == 0:
-        return
-    for id in background_download_list.get_array_and_clear():
-        download_song(id)
+@app.route("/download/queue/<id>")
+def handle_add_download_song_to_queue(id):
+    res = add_song_to_queue(id)
+    if res != 0:
+        return {"error": YT_ERROR[res]}
+    return {"msg": "woohoo"}
 
 
-def add_song_to_queue(id: str):
-    """
-        add_song_to_queue adds a song's id to the download queue.
-    """
-    background_download_list.append(id)
+@app.route("/download/<id>")
+def handle_download_song(id):
+    res = download_song(id)
+    if res != 0:
+        return {"error": YT_ERROR[res]}
+    return {"msg": "woohoo"}
 
 
-## BG downloader thread
-
-def download_songs_in_background(interval=1):
-    """
-        download_songs_in_background runs every given interval time in seconds (default is 1),
-        and downloads the songs in the queue in the background.
-    """
-    while True:
-        download_songs_from_queue()
-        time.sleep(interval)
-
-
-download_thread = Thread(target=download_songs_in_background, args=(1,))
-
-## FastAPI Stuff
-
-app = FastAPI(
-    title="DankMuzikk's YouTube Downloader",
-    description="Apparently the CLI's overhead and limitation has got the best of me.",
-)
-
-
-@app.on_event("startup")
-def on_startup():
-    open_db_conn()
-    global download_thread
-    download_thread.start()
-
-
-@app.on_event("shutdown")
-def on_shutdown():
+def close_server(arg1, arg2):
+    print("signal shit", arg1, arg2)
     print("Stopping background download thread...")
-    background_download_list.release()
-    to_be_downloaded.release()
-    download_thread.join()
+    global to_download_stop_event
+    to_download_stop_event.set()
+    global currently_downloading_stop_event
+    currently_downloading_stop_event.set()
+    global thread
+    thread.join()
     print("Closing MariaDB's connection...")
+    global conn
     conn.close()
+    exit(0)
 
+signal.signal(signal.SIGINT, close_server)
+signal.signal(signal.SIGTERM, close_server)
 
-@app.get("/download/queue/{id}", status_code=status.HTTP_200_OK)
-def handle_add_download_song_to_queue(id: str, response: Response):
-    add_song_to_queue(id)
-
-
-@app.get("/download/{id}", status_code=status.HTTP_200_OK)
-def handle_download_song(id: str, response: Response):
-    err = download_song(id)
-    if err != 0:
-        response.status_code = status.HTTP_400_BAD_REQUEST
-
-
-@app.get("/download/multi/{ids}",  status_code=status.HTTP_200_OK)
-def handle_download_songs(ids: str, response: Response):
-    for id in ids.split(","):
-        err = download_song(id)
-        if err != 0:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-
-
-@app.get("/download/queue/multi/{ids}",  status_code=status.HTTP_200_OK)
-def handle_add_download_songs_to_queue(ids: str, response: Response):
-    for id in ids.split(","):
-        add_song_to_queue(id)
-
+if __name__ == '__main__':
+    app.run(port=4321)
