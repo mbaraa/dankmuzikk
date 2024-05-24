@@ -7,6 +7,8 @@ import signal
 import sys
 import threading
 import time
+from yt_dlp import YoutubeDL
+from yt_dlp.utils import DownloadError
 
 
 ##############################################################################################################################################################################################################################
@@ -71,8 +73,13 @@ def song_exists(id: str) -> bool:
         cur.execute("SELECT id FROM songs WHERE yt_id=? AND fully_downloaded=1", (id,))
         result = cur.fetchone()
         return result[0] if result else False
+    except:
+        cur.close()
+        return False
     finally:
         cur.close()
+    return False
+
 
 open_db_conn()
 
@@ -90,16 +97,30 @@ YT_ERROR = {
 }
 
 def download_yt_song(id) -> int:
-    audio_stream = None
     try:
         YouTube("https://www.youtube.com/watch?v="+id) \
             .streams.filter(only_audio=True).first() \
             .download(output_path=DOWNLOAD_PATH, filename=id+".mp3")
     except pytube_exceptions.AgeRestrictedError:
-        return 1
+        try:
+            print(f"song with id {id} is age resticted, trying yt_dlp...")
+            ytdl = YoutubeDL({
+                "format": "bestaudio/mp3",
+                "postprocessors": [{
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "192",
+                }],
+                "outtmpl": f"{DOWNLOAD_PATH}/%(id)s.%(ext)s"
+            })
+            ytdl.download("https://www.youtube.com/watch?v="+id)
+        except:
+            return 1
     except pytube_exceptions.VideoUnavailable:
         return 2
     except pytube_exceptions.RegexMatchError:
+        return 3
+    except:
         return 3
 
     return 0
@@ -121,8 +142,9 @@ def background_task():
             if to_download_queue:
                 id = to_download_queue.pop()
                 print(f"Downloading {id} from the queue.")
-                download_song(id)
-
+                res = download_song(id)
+                if res != 0:
+                    print(f"Error downloading {id}, error: {YT_ERROR[res]}")
         time.sleep(0.5)
 
 
@@ -131,8 +153,12 @@ def add_song_to_queue(id: str) -> int:
         add_song_to_queue adds a song's id to the download queue.
     """
     with to_download_lock:
+        if song_exists(id):
+            print(f"The song with id {id} was already downloaded 😬")
+            return 0
+
         to_download_queue.add(id)
-        print(f"Appended {id} to the array.")
+        print(f"Added song {id} to the download queue.")
     return 0
 
 
@@ -141,16 +167,16 @@ def download_song(id: str) -> int:
         download_song downloads the given song's ids using yt_dlp,
         and returns the operation's status code.
     """
+    if song_exists(id):
+        print(f"The song with id {id} was already downloaded 😬")
+        return 0
+
     if not currently_downloading_stop_event.is_set():
         with currently_downloading_lock:
             print(f"Downloading song with id {id} ...")
-            with to_download_lock:
-                if song_exists(id):
-                    to_download_queue.remove(id)
-                    print(f"The song with id {id} is already downloaded 😬")
-                    return 0
-
             while id in currently_downloading_queue:
+                print("waiting suka")
+                time.sleep(0.5)
                 pass
 
             currently_downloading_queue.add(id)
@@ -193,10 +219,14 @@ def handle_download_song(id):
 def close_server(arg1, arg2):
     print("signal shit", arg1, arg2)
     print("Stopping background download thread...")
+    global to_download_stop_event
     to_download_stop_event.set()
-    currently_downloading_queue.set()
+    global currently_downloading_stop_event
+    currently_downloading_stop_event.set()
+    global thread
     thread.join()
     print("Closing MariaDB's connection...")
+    global conn
     conn.close()
     exit(0)
 
