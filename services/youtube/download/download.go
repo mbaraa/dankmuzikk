@@ -100,12 +100,5 @@ func (d *Service) DownloadYoutubeSongsMetadata(songs []entities.Song) error {
 		}
 	}
 
-	for i := 0; i < int(math.Min(float64(len(songs)), 5)); i++ {
-		err := d.DownloadYoutubeSongQueue(songs[i].YtId)
-		if err != nil {
-			log.Errorln(err)
-		}
-	}
-
 	return nil
 }
