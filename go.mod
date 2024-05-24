@@ -6,7 +6,6 @@ require (
 	github.com/a-h/templ v0.2.663
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/google/uuid v1.6.0
 	github.com/tdewolff/minify/v2 v2.20.24
 	golang.org/x/crypto v0.22.0
 	golang.org/x/oauth2 v0.19.0
@@ -26,6 +25,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect

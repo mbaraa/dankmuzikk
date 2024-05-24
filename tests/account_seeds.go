@@ -2,10 +2,9 @@ package tests
 
 import (
 	"dankmuzikk/models"
+	"dankmuzikk/services/nanoid"
 	"fmt"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var accounts = []models.Account{}
@@ -13,7 +12,7 @@ var accounts = []models.Account{}
 func initAccounts() {
 	for i := 0; i < 50; i++ {
 		accounts = append(accounts, models.Account{
-			Email: fmt.Sprintf("%s@example.com", uuid.NewString()),
+			Email: fmt.Sprintf("%s@example.com", nanoid.Generate()),
 		})
 	}
 }

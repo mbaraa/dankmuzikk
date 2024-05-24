@@ -2,9 +2,8 @@ package tests
 
 import (
 	"dankmuzikk/models"
+	"dankmuzikk/services/nanoid"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var songs = []models.Song{
@@ -47,7 +46,7 @@ var songs = []models.Song{
 
 func RandomSong() models.Song {
 	song := songs[random.Intn(len(songs))]
-	song.YtId = uuid.NewString()
+	song.YtId = nanoid.Generate()
 	return song
 }
 

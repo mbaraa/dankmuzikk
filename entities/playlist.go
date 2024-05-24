@@ -5,4 +5,5 @@ type Playlist struct {
 	Title      string `json:"title"`
 	SongsCount int    `json:"songs_count"`
 	Songs      []Song `json:"songs"`
+	IsPublic   bool   `json:"is_public"`
 }

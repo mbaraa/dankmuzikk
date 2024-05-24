@@ -2,9 +2,8 @@ package tests
 
 import (
 	"dankmuzikk/models"
+	"dankmuzikk/services/nanoid"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var playlists = []models.Playlist{
@@ -24,7 +23,7 @@ func initPlaylists() {
 	for i := range playlists {
 		playlists[i].Songs = RandomSongs(random.Intn(6))
 		playlists[i].SongsCount = len(playlists[i].Songs)
-		playlists[i].PublicId = uuid.NewString()
+		playlists[i].PublicId = nanoid.Generate()
 		playlists[i].IsPublic = random.Int()%2 == 0
 	}
 }
