@@ -108,14 +108,20 @@ class PlaylistPlayer {
     const songEl = document.getElementById(
       "song-" + this.#playlist.songs[this.#currentSongIndex].yt_id,
     );
+    if (!songEl) {
+      return;
+    }
     songEl.style.backgroundColor = "var(--accent-color-30)";
     songEl.scrollIntoView();
   }
 
   setSongNotPlayingStyle() {
     for (const song of this.#playlist.songs) {
-      document.getElementById("song-" + song.yt_id).style.backgroundColor =
-        "var(--secondary-color-20)";
+      const songEl = document.getElementById("song-" + song.yt_id);
+      if (!songEl) {
+        return;
+      }
+      songEl.style.backgroundColor = "var(--secondary-color-20)";
     }
   }
 
