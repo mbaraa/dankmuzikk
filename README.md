@@ -29,20 +29,22 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - [x] Audio player
 - [x] Accounts and Profiles
 - [x] Playlists
-- [ ] Share playlists
+- [x] Share playlists
 - [ ] Vote songs in playlists
-- [ ] Write a better YouTube scraper (or try to fix the quota thing)
+- [x] Songs queue
 - [ ] Refactor the code (never gonna happen)
 
 ## Technologies used
 
 - **[Go](https://golang.org)**: Main programming language.
+- **[JavaScript](https://developer.mozilla.org/en-US/docs/Web/javascript)**: Dynamic client logic.
+- **[Python](https://python.org)**: Used for the YouTube download service.
 - **[templ](https://templ.guide)**: The better [html/template](https://pkg.go.dev/html/template).
 - **[htmx](https://htmx.org)**: The front-end library of peace.
 - **[GORM](https://gorm.io)**: The fantastic ORM library for Golang.
 - **[MariaDB](https://mariadb.org)**: Relational database.
-- **[Python](https://python.org)**: Used for the YouTube download service.
 - **[yt-dlp](https://github.com/yt-dlp/yt-dlp)**: YouTube download helper.
+- **[pytube](https://github.com/pytube/pytube)**: YouTube download helper.
 - **[minify](https://github.com/tdewolff/minify)**: Minify static text files.
 
 ## Run locally
