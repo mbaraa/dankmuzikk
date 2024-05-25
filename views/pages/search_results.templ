@@ -19,7 +19,7 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 				<p class={ "md:w-[50dvh]", "text-center", "text-secondary", "text-xl" }>No results were found...</p>
 			} else {
 				for idx, res := range results {
-					@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)})
+					@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, playSong(res))
 				}
 			}
 		</section>

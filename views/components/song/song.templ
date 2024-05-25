@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, onClick ...templ.ComponentScript) {
+templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, onClick templ.ComponentScript) {
 	<div
 		id={ "song-" + s.YtId }
 		class={
@@ -19,11 +19,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			<!-- thumbnail and duration -->
 			<div
 				class={ "w-[80px]",  "h-[80px]", "md:w-[120px]", "md:h-[120px]", "relative", "cursor-pointer" }
-				if onClick != nil && len(onClick) > 0 {
-					onClick={ onClick[0] }
-				} else {
-					onClick={ playSong(s) }
-				}
+				onClick={ onClick }
 			>
 				<div
 					class={
@@ -43,7 +39,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 					<h3
 						class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
 						title={ s.Title }
-						onClick={ playSong(s) }
+						onClick={ onClick }
 					>
 						{ s.Title }
 					</h3>
@@ -100,10 +96,6 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 
 css songThumb(url string) {
 	background-image: { url };
-}
-
-script playSong(song entities.Song) {
-    window.Player.playSingleSong(song);
 }
 
 script downloadSong(songYtId, songTitle string) {
