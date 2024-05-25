@@ -7,9 +7,11 @@ import (
 	"fmt"
 )
 
-templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, onClick templ.ComponentScript) {
+templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, onClick templ.ComponentScript, hideId ...bool) {
 	<div
-		id={ "song-" + s.YtId }
+		if hideId != nil && len(hideId) == 1 && !hideId[0] {
+			id={ "song-" + s.YtId }
+		}
 		class={
 			"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "flex", "justify-between",
 			"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10", "p-2",

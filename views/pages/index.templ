@@ -24,7 +24,7 @@ templ Index(recentPlays []entities.Song) {
 					}
 				>
 					for _, s := range recentPlays {
-						@song.Song(s, nil, nil, playSong(s))
+						@song.Song(s, nil, nil, playSong(s), true)
 					}
 				</div>
 			} else {

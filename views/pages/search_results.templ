@@ -20,7 +20,7 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 			} else {
 				<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Search results</h1>
 				for idx, res := range results {
-					@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, playSong(res))
+					@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, playSong(res), true)
 				}
 			}
 		</section>
