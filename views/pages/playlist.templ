@@ -50,7 +50,7 @@ templ Playlist(pl entities.Playlist) {
 							<button
 								type="button"
 								title="Play playlist"
-								onClick={ playPlaylist(pl) }
+								onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
 							><img src="/static/icons/play-playlist-icon.svg" alt="Play"/></button>
 						}
 					</div>
@@ -240,10 +240,6 @@ templ joinLeavePlaylist(publicId string, perm models.PlaylistPermissions) {
 
 css songThumb(url string) {
 	background-image: { url };
-}
-
-script playPlaylist(playlist entities.Playlist) {
-    window.Player.playPlaylist(playlist)
 }
 
 script playSongFromPlaylist(songId string, playlist entities.Playlist) {

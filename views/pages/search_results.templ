@@ -81,7 +81,7 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 }
 
 script playSong(song entities.Song) {
-    window.Player.playSong(song, false);
+    window.Player.playSingleSong(song);
 }
 
 script downloadSong(songYtId, songTitle string) {
