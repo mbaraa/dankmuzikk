@@ -60,7 +60,7 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 						</div>
 						<!-- actions -->
 						<div class={ "w-[30px]", "h-auto", "relative" }>
-							@playlist.PlaylistsPopover(idx, res.YtId, playlists, songsInPlaylists)
+							@playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)
 							<button
 								class={
 									"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
