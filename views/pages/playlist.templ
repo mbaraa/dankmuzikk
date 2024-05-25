@@ -247,24 +247,7 @@ script playSongFromPlaylist(songId string, playlist entities.Playlist) {
 }
 
 script removeSongFromPlaylist(songId, playlistId string) {
-    Utils.showLoading();
-    fetch("/api/toggle-song-in-playlist?song-id=" + songId + "&playlist-id=" + playlistId + "&remove=true", {
-        method: "PUT",
-    })
-    .then((res) => {
-        if (res.ok) {
-            document.getElementById("song-" + songId).remove();
-            Player.removeSongFromPlaylist(songId);
-        } else {
-            window.alert("Oopsie something went wrong!");
-        }
-    })
-    .catch((err) => {
-        window.alert("Oopsie something went wrong!\n", err);
-    })
-    .finally(() => {
-        Utils.hideLoading();
-    });
+    Player.removeSongFromPlaylist(songId, playlistId);
 }
 
 script copyLink(pubId string, isPublic bool) {

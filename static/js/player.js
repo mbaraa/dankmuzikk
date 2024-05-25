@@ -325,14 +325,41 @@ function playlister(state) {
     __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
-  const __remove = (songYtId) => {
+  const __remove = (songYtId, playlistId) => {
     const songIndex = state.playlist.songs.findIndex(
       (song) => song.yt_id === songYtId,
     );
-    if (songIndex < 0) {
-      return;
+    if (songIndex >= 0) {
+      state.playlist.songs.splice(songIndex, 1);
     }
-    state.playlist.songs.splice(songIndex, 1);
+
+    Utils.showLoading();
+    fetch(
+      "/api/toggle-song-in-playlist?song-id=" +
+        songYtId +
+        "&playlist-id=" +
+        playlistId +
+        "&remove=true",
+      {
+        method: "PUT",
+      },
+    )
+      .then((res) => {
+        if (res.ok) {
+          const songEl = document.getElementById("song-" + songYtId);
+          if (!!songEl) {
+            songEl.remove();
+          }
+        } else {
+          window.alert("Oopsie something went wrong!");
+        }
+      })
+      .catch((err) => {
+        window.alert("Oopsie something went wrong!\n", err);
+      })
+      .finally(() => {
+        Utils.hideLoading();
+      });
   };
 
   return [__next, __prev, __remove, __setSongInPlaylistStyle];
