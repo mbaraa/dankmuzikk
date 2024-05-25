@@ -52,11 +52,15 @@ func (y *ScraperSearch) Search(query string) (results []entities.Song, err error
 			duration[0] = "0" + duration[0]
 		}
 		if len(duration) == 3 {
-			durationNum, err := strconv.Atoi(duration[0])
+			hoursNum, err := strconv.Atoi(duration[0])
 			if err != nil {
 				continue
 			}
-			if durationNum > 2 {
+			minsNum, err := strconv.Atoi(duration[1])
+			if err != nil {
+				continue
+			}
+			if hoursNum >= 1 && minsNum > 30 {
 				continue
 			}
 		}

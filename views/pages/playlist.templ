@@ -50,7 +50,7 @@ templ Playlist(pl entities.Playlist) {
 							<button
 								type="button"
 								title="Play playlist"
-								onClick={ playPlaylist(pl) }
+								onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
 							><img src="/static/icons/play-playlist-icon.svg" alt="Play"/></button>
 						}
 					</div>
@@ -242,33 +242,12 @@ css songThumb(url string) {
 	background-image: { url };
 }
 
-script playPlaylist(playlist entities.Playlist) {
-    window.Player.playPlaylist(playlist)
-}
-
 script playSongFromPlaylist(songId string, playlist entities.Playlist) {
     window.Player.playSongFromPlaylist(songId, playlist)
 }
 
 script removeSongFromPlaylist(songId, playlistId string) {
-    Utils.showLoading();
-    fetch("/api/toggle-song-in-playlist?song-id=" + songId + "&playlist-id=" + playlistId + "&remove=true", {
-        method: "PUT",
-    })
-    .then((res) => {
-        if (res.ok) {
-            document.getElementById("song-" + songId).remove();
-            Player.removeSongFromPlaylist(songId);
-        } else {
-            window.alert("Oopsie something went wrong!");
-        }
-    })
-    .catch((err) => {
-        window.alert("Oopsie something went wrong!\n", err);
-    })
-    .finally(() => {
-        Utils.hideLoading();
-    });
+    Player.removeSongFromPlaylist(songId, playlistId);
 }
 
 script copyLink(pubId string, isPublic bool) {

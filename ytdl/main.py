@@ -1,14 +1,13 @@
+import pytube
 from flask import Flask
 import mariadb
 import os
 import os.path
 from pytube import YouTube, exceptions as pytube_exceptions
 import signal
-import sys
 import threading
 import time
 from yt_dlp import YoutubeDL
-from yt_dlp.utils import DownloadError
 
 
 ##############################################################################################################################################################################################################################
@@ -20,14 +19,15 @@ from yt_dlp.utils import DownloadError
 def get_env(key) -> str:
     val = os.environ.get(key)
     if val is None or val == "":
-        print(f"Missing {val} suka")
+        print(f"Missing {key} suka")
         exit(1)
     return val
 
-DB_NAME       = get_env("DB_NAME")
-DB_HOST       = get_env("DB_HOST")
-DB_USERNAME   = get_env("DB_USERNAME")
-DB_PASSWORD   = get_env("DB_PASSWORD")
+
+DB_NAME = get_env("DB_NAME")
+DB_HOST = get_env("DB_HOST")
+DB_USERNAME = get_env("DB_USERNAME")
+DB_PASSWORD = get_env("DB_PASSWORD")
 DOWNLOAD_PATH = get_env("YOUTUBE_MUSIC_DOWNLOAD_PATH")
 
 ##############################################################################################################################################################################################################################
@@ -38,13 +38,14 @@ DOWNLOAD_PATH = get_env("YOUTUBE_MUSIC_DOWNLOAD_PATH")
 
 conn = None
 
+
 def open_db_conn():
     try:
         db_host = DB_HOST
         db_port = 3306
         if ":" in db_host:
             db_host = DB_HOST[:DB_HOST.index(":")]
-            db_port = int(DB_HOST[DB_HOST.index(":")+1:])
+            db_port = int(DB_HOST[DB_HOST.index(":") + 1:])
         global conn
         conn = mariadb.connect(
             user=DB_USERNAME,
@@ -67,10 +68,10 @@ def update_song_status(id: str):
         cur.close()
 
 
-def song_exists(id: str) -> bool:
+def song_exists(song_yt_id: str) -> bool:
     try:
         cur = conn.cursor()
-        cur.execute("SELECT id FROM songs WHERE yt_id=? AND fully_downloaded=1", (id,))
+        cur.execute("SELECT id FROM songs WHERE yt_id=? AND fully_downloaded=1", (song_yt_id,))
         result = cur.fetchone()
         return result[0] if result else False
     except:
@@ -96,11 +97,14 @@ YT_ERROR = {
     3: "other youtube error",
 }
 
-def download_yt_song(id) -> int:
+
+
+
+def download_yt_song(id: str) -> int:
     try:
-        YouTube("https://www.youtube.com/watch?v="+id) \
+        YouTube("https://www.youtube.com/watch?v=" + id) \
             .streams.filter(only_audio=True).first() \
-            .download(output_path=DOWNLOAD_PATH, filename=id+".mp3")
+            .download(output_path=DOWNLOAD_PATH, filename=id + ".mp3")
     except pytube_exceptions.AgeRestrictedError:
         try:
             print(f"song with id {id} is age resticted, trying yt_dlp...")
@@ -113,7 +117,7 @@ def download_yt_song(id) -> int:
                 }],
                 "outtmpl": f"{DOWNLOAD_PATH}/%(id)s.%(ext)s"
             })
-            ytdl.download("https://www.youtube.com/watch?v="+id)
+            ytdl.download("https://www.youtube.com/watch?v=" + id)
         except:
             return 1
     except pytube_exceptions.VideoUnavailable:
@@ -124,6 +128,7 @@ def download_yt_song(id) -> int:
         return 3
 
     return 0
+
 
 ##############################################################################################################################################################################################################################
 
@@ -140,55 +145,56 @@ def background_task():
     while not to_download_stop_event.is_set():
         with to_download_lock:
             if to_download_queue:
-                id = to_download_queue.pop()
-                print(f"Downloading {id} from the queue.")
-                res = download_song(id)
+                song_yt_id = to_download_queue.pop()
+                print(f"Downloading {song_yt_id} from the queue.")
+                res = download_song(song_yt_id)
                 if res != 0:
-                    print(f"Error downloading {id}, error: {YT_ERROR[res]}")
+                    print(f"Error downloading {song_yt_id}, error: {YT_ERROR[res]}")
         time.sleep(0.5)
 
 
-def add_song_to_queue(id: str) -> int:
+def add_song_to_queue(song_yt_id: str) -> int:
     """
         add_song_to_queue adds a song's id to the download queue.
     """
     with to_download_lock:
-        if song_exists(id):
-            print(f"The song with id {id} was already downloaded 😬")
+        if song_exists(song_yt_id):
+            print(f"The song with id {song_yt_id} was already downloaded 😬")
             return 0
 
-        to_download_queue.add(id)
-        print(f"Added song {id} to the download queue.")
+        to_download_queue.add(song_yt_id)
+        print(f"Added song {song_yt_id} to the download queue.")
     return 0
 
 
-def download_song(id: str) -> int:
+def download_song(song_yt_id: str) -> int:
     """
         download_song downloads the given song's ids using yt_dlp,
         and returns the operation's status code.
     """
-    if song_exists(id):
-        print(f"The song with id {id} was already downloaded 😬")
+    if song_exists(song_yt_id):
+        print(f"The song with id {song_yt_id} was already downloaded 😬")
         return 0
 
     if not currently_downloading_stop_event.is_set():
         with currently_downloading_lock:
-            print(f"Downloading song with id {id} ...")
-            while id in currently_downloading_queue:
+            print(f"Downloading song with id {song_yt_id} ...")
+            while song_yt_id in currently_downloading_queue:
                 print("waiting suka")
                 time.sleep(0.5)
                 pass
 
-            currently_downloading_queue.add(id)
-            res = download_yt_song(id)
-            currently_downloading_queue.remove(id)
-            update_song_status(id)
+            currently_downloading_queue.add(song_yt_id)
+            res = download_yt_song(song_yt_id)
+            currently_downloading_queue.remove(song_yt_id)
+            update_song_status(song_yt_id)
             if res != 0:
-                print(f"error: {YT_ERROR[res]} when downloading {id}")
+                print(f"error: {YT_ERROR[res]} when downloading {song_yt_id}")
                 return res
-            print("Successfully downloaded " + id)
+            print("Successfully downloaded " + song_yt_id)
             return 0
     return 3
+
 
 thread = threading.Thread(target=background_task)
 thread.start()
@@ -230,6 +236,7 @@ def close_server(arg1, arg2):
     global conn
     conn.close()
     exit(0)
+
 
 signal.signal(signal.SIGINT, close_server)
 signal.signal(signal.SIGTERM, close_server)
