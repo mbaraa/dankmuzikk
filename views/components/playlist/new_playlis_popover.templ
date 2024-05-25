@@ -24,6 +24,7 @@ templ newPlaylistPopover() {
 			name="title"
 			placeholder="Enter the playlist's title"
 			autofocus
+			required
 		/>
 		<button
 			class={
@@ -31,16 +32,10 @@ templ newPlaylistPopover() {
 				"px-[60px]", "w-full",
 			}
 			type="submit"
-			onClick={ hideNewPlayListPopover() }
 		>Create playlist</button>
 	</form>
 }
 
 templ newPlaylistPopoverButton() {
 	New playlist
-}
-
-script hideNewPlayListPopover() {
-    document.getElementById("popover-new-playlist")
-        .style.display = "none";
 }

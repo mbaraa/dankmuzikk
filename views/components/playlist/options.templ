@@ -5,10 +5,11 @@ import (
 	"dankmuzikk/entities"
 	"dankmuzikk/views/components/popover"
 	"dankmuzikk/models"
+	"dankmuzikk/views/icons"
 )
 
 templ PlaylistsOptionsPopover(playlist entities.Playlist) {
-	@popover.Popover("playlist-"+playlist.PublicId, "Playlist options", playlistOptionsButton(), playlistOptions(playlist))
+	@popover.Popover("playlist-"+playlist.PublicId, "Playlist options", icons.Options(), playlistOptions(playlist))
 }
 
 templ playlistOptions(playlist entities.Playlist) {
@@ -48,14 +49,6 @@ templ playlistOptions(playlist entities.Playlist) {
 	</div>
 }
 
-templ playlistOptionsButton() {
-	<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<circle cx="10.5" cy="2.5" r="2.5" fill="var(--secondary-color)"></circle>
-		<circle cx="10.5" cy="10.5" r="2.5" fill="var(--secondary-color)"></circle>
-		<circle cx="10.5" cy="18.5" r="2.5" fill="var(--secondary-color)"></circle>
-	</svg>
-}
-
 templ publicPlaylistToggle(publicId string, isPublic bool) {
 	<div
 		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
@@ -75,7 +68,7 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 				"/api/playlist/public?playlist-id=%s", publicId,
 			),
 		}
-		title="Toggeling this will change the playlist's visibility!"
+		title="Toggling this will change the playlist's visibility!"
 	>
 		<div
 			id={ fmt.Sprintf("public-playlist-%s", publicId) }

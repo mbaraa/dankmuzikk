@@ -3,16 +3,21 @@ package playlist
 import (
 	"fmt"
 	"dankmuzikk/entities"
-	"dankmuzikk/views/components/popover"
+	"dankmuzikk/views/components/popup"
 )
 
-templ PlaylistsPopover(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
-	@popover.Popover(fmt.Sprint(index), "Add to playlist", popoverButton(), playlistsSelector(songId, playlists, songsInPlaylists))
+templ PlaylistsPopup(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
+	@popup.Popup(fmt.Sprint(index), "Add to playlist", popoverButton(), playlistsSelector(songId, playlists, songsInPlaylists))
 }
 
 templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
-	<div class={ "min-w-[250px]", "bg-accent-trans-30", "backdrop-blur-md", "p-3", "rounded-[10px]", "text-secondary" }>
-		<h2 class={ "text-lg" }>Save this song to...</h2>
+	<div
+		class={
+			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-md", "p-3", "text-secondary",
+			"rounded-b-[10px]", "rounded-l-[10px]",
+		}
+	>
+		<h2 class={ "text-xl", "font-bold" }>Save this song to...</h2>
 		<div class={ "my-2" }></div>
 		<ul class={ "flex", "flex-col", "gap-y-2" }>
 			if playlists == nil || len(playlists) == 0 {
