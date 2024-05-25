@@ -11,13 +11,14 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 		<section
 			class={
 				"w-full", "md:w-3/4", "overflow-y-scroll", "max-h-[50vh]", "md:max-h-[75vh]",
-				"bg-accent-trans-20", "backdrop-blur-sm", "rounded-md", "rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[5px]",
+				"bg-accent-trans-20", "backdrop-blur-sm", "rounded-xl", "rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[5px]",
 				"md:p-[20px]", "flex", "flex-col", "gap-y-3", "justify-between",
 			}
 		>
 			if len(results) == 0 {
 				<p class={ "md:w-[50dvh]", "text-center", "text-secondary", "text-xl" }>No results were found...</p>
 			} else {
+				<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Search results</h1>
 				for idx, res := range results {
 					@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, playSong(res))
 				}
@@ -28,12 +29,4 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 
 script playSong(song entities.Song) {
     window.Player.playSingleSong(song);
-}
-
-script downloadSong(songYtId, songTitle string) {
-    Player.downloadSongToDevice(songYtId, songTitle)
-}
-
-script addSongToQueue(song entities.Song) {
-    window.Player.addSongToQueue(song);
 }
