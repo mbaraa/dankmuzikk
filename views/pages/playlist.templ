@@ -4,10 +4,9 @@ import (
 	"dankmuzikk/entities"
 	"fmt"
 	"dankmuzikk/views/components/navlink"
-	"dankmuzikk/views/components/popover"
 	"dankmuzikk/models"
 	"dankmuzikk/views/components/playlist"
-	"dankmuzikk/views/icons"
+	"dankmuzikk/views/components/song"
 )
 
 templ Playlist(pl entities.Playlist) {
@@ -15,7 +14,7 @@ templ Playlist(pl entities.Playlist) {
 		<div class={ "flex", "justify-center" }>
 			<section
 				class={
-					"w-full", "md:w-2/3", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
+					"w-full", "md:w-3/4", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
 					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]",
 					"mb-[170px]", "lg:mb-0",
 				}
@@ -65,46 +64,23 @@ templ Playlist(pl entities.Playlist) {
 									"flex", "flex-col", "gap-5", "lg:my-10",
 								}
 							>
-								for _, song := range pl.Songs {
-									<div
-										class={
-											"bg-secondary-trans-20", "rounded-[10px]", "p-2", "lg:p-5",
-											"flex", "flex-row", "items-center", "gap-5", "justify-between",
-										}
-										id={ "song-" + song.YtId }
-									>
-										<div
-											class={
-												"w-[80px]", "h-[80px]", "lg:w-[125px]", "lg:h-[125px]", "rounded-md", "bg-accent", "cursor-pointer",
-												songThumb(fmt.Sprintf("url(\"%s\")", song.ThumbnailUrl)), "bg-repeat", "bg-cover", "bg-center",
-											}
-											onClick={ playSongFromPlaylist(song.YtId, pl) }
-										></div>
-										<div class={ "w-11/12", "flex", "justify-between", "items-center" }>
-											<div
-												class={ "cursor-pointer", "flex", "flex-col", "lg:gap-2" }
-												onClick={ playSongFromPlaylist(song.YtId, pl) }
-											>
-												<p class={ "text-lg", "max-w-[200px]", "md:max-w-[300px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Title }</p>
-												<p class={ "text-md", "max-w-[200px]", "md:max-w-[300px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ song.Artist }</p>
-												if isMobile, ok := ctx.Value("is-mobile").(bool); ok && !isMobile {
-													<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
-													if song.PlayTimes == 1 {
-														<p class={ "text-md", "max-w-[200px]", "md:max-w-[300px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
-													} else if song.PlayTimes > 1 {
-														<p class={ "text-md", "max-w-[200px]", "md:max-w-[300px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
-													}
-												}
-											</div>
-											<div>
-												if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
-													@popover.Popover(song.YtId, "Options", icons.Options(), songOptionsMobile(song, pl.PublicId))
-												} else {
-													@popover.Popover(song.YtId, "Options", icons.Options(), songOptions(song, pl.PublicId))
-												}
-											</div>
-										</div>
-									</div>
+								for _, s := range pl.Songs {
+									if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+										@song.Song(s, []string{}, []templ.Component{songOptionsMobile(s, pl.PublicId)}, playSongFromPlaylist(s.YtId, pl))
+									} else {
+										@song.Song(
+											s,
+											[]string{
+												playedTimes(s.PlayTimes),
+												"Added on " + s.AddedAt,
+											},
+											[]templ.Component{
+												removeSong(s, pl.PublicId),
+											},
+											playSongFromPlaylist(s.YtId, pl),
+											false,
+										)
+									}
 								}
 							</div>
 						}
@@ -116,43 +92,23 @@ templ Playlist(pl entities.Playlist) {
 	<input id="clipboard-text-blyat" type="text" hidden/>
 }
 
-templ songOptions(song entities.Song, playlistId string) {
-	<div
-		class={
-			"w-[250px]", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
-			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
-		}
-	>
-		<h3 class={ "text-lg", "font-medium" }>Options</h3>
+templ removeSong(song entities.Song, playlistId string) {
+	if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
 		<button
 			class={
-				"bg-primary", "hover:bg-secondary", "text-secondary", "hover:text-primary",
+				"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
 				"rounded-[5px]", "py-[5px]", "px-[10px]", "w-full",
 			}
-			title={ "Download " + song.Title + "!" }
+			title={ "Remove " + song.Title + "!" }
 			type="button"
-			onClick={ downloadSong(song.YtId, song.Title) }
-		>Download song</button>
-		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
-			<button
-				class={
-					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
-					"rounded-[5px]", "py-[5px]", "px-[10px]", "w-full",
-				}
-				title={ "Remove " + song.Title + "!" }
-				type="button"
-				onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
-			>Remove from playlist</button>
-		}
-	</div>
+			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+		>Remove from playlist</button>
+	}
 }
 
 templ songOptionsMobile(song entities.Song, playlistId string) {
 	<div
-		class={
-			"w-[250px]", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
-			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
-		}
+		class={ "w-[250px]", "h-full", "flex", "flex-col", "gap-y-2", }
 	>
 		<h3 class={ "text-lg", "font-medium" }>Details and options</h3>
 		<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
@@ -161,24 +117,7 @@ templ songOptionsMobile(song entities.Song, playlistId string) {
 		} else if song.PlayTimes > 1 {
 			<p class={ "text-md", "max-w-[200px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
 		}
-		<button
-			class={
-				"bg-primary", "hover:bg-secondary", "text-secondary", "hover:text-primary",
-				"rounded-[5px]", "py-[10px]", "px-[30px]", "w-full",
-			}
-			type="button"
-			onClick={ downloadSong(song.YtId, song.Title) }
-		>Download song</button>
-		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
-			<button
-				class={
-					"bg-[#DE3333]", "hover:bg-secondary", "text-secondary", "hover:text-[#DE3333]",
-					"rounded-[5px]", "py-[10px]", "px-[30px]", "w-full",
-				}
-				type="button"
-				onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
-			>Remove from playlist</button>
-		}
+		@removeSong(song, playlistId)
 	</div>
 }
 
@@ -232,6 +171,14 @@ templ joinLeavePlaylist(publicId string, perm models.PlaylistPermissions) {
 
 css songThumb(url string) {
 	background-image: { url };
+}
+
+func playedTimes(times int) string {
+	if times == 1 {
+		return "Played once"
+	} else {
+		return fmt.Sprintf("Played %d times", times)
+	}
 }
 
 script playSongFromPlaylist(songId string, playlist entities.Playlist) {
