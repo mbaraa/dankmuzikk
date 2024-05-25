@@ -203,7 +203,6 @@ class PlayerUI {
       songSeekBarExpandedEl.max = Math.ceil(duration);
       songSeekBarExpandedEl.value = 0;
     }
-    console.log("duration", songDurationEl);
     if (songDurationEl) {
       songDurationEl.innerHTML = Utils.formatTime(duration);
     }
