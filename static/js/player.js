@@ -514,6 +514,24 @@ function playSongFromPlaylist(songYtId, playlist) {
 /**
  * @param {Song} song
  */
+function appendSongToCurrentQueue(song) {
+  if (
+    playerState.playlist.songs.findIndex((s) => s.yt_id === song.yt_id) !== -1
+  ) {
+    alert(`${song.title} exists in the queue!`);
+    return;
+  }
+  playerState.playlist.songs.push(song);
+  alert(`Added ${song.title} to the queue!`);
+}
+
+function addSongToPlaylist() {
+  throw new Error("not implemented!");
+}
+
+/**
+ * @param {Song} song
+ */
 function setMediaSessionMetadata(song) {
   if (!("mediaSession" in navigator)) {
     console.error("Browser doesn't support mediaSession");
@@ -711,6 +729,7 @@ window.Player.hidePlayer = hide;
 window.Player.playSingleSong = playSingleSong;
 window.Player.playSongFromPlaylist = playSongFromPlaylist;
 window.Player.removeSongFromPlaylist = removeSongFromPlaylist;
+window.Player.addSongToQueue = appendSongToCurrentQueue;
 window.Player.stopMuzikk = stopMuzikk;
 window.Player.expand = () => expand();
 window.Player.collapse = () => collapse();
