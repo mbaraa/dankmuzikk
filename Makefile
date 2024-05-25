@@ -6,19 +6,16 @@ BINARY_NAME=dankmuzikk
 build:
 	npm i && \
 	go mod tidy && \
-	templ generate && \
 	go generate && \
 	go build -ldflags="-w -s" -o ${BINARY_NAME}
 
 generate:
-	go generate && \
-    templ generate
+	go generate
 
 init:
 	npm i && \
 	go get && \
 	go generate && \
-	templ generate && \
     go run main.go migrate
 
 seed:
@@ -27,7 +24,7 @@ seed:
 # dev runs the development server where it builds the tailwind css sheet,
 # and compiles the project whenever a file is changed.
 dev:
-	templ generate --watch --cmd="./run.sh dev"
+	go run github.com/cosmtrek/air@v1.51.0
 
 clean:
 	go clean
