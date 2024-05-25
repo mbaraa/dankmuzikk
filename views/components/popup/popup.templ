@@ -37,6 +37,17 @@ templ Popup(id, title string, button, child templ.Component) {
 }
 
 script toggleTheThing(id string) {
-    document.getElementById(`popup-${id}`)
-        .showModal();
+    const popup = document.getElementById(`popup-${id}`);
+    popup.showModal();
+    popup.addEventListener("click", e => {
+    const rect = popup.getBoundingClientRect()
+        if (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        ) {
+          popup.close()
+        }
+    })
 }
