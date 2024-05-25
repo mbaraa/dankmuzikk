@@ -13,7 +13,7 @@ templ PlaylistsPopup(index int, songId string, playlists []entities.Playlist, so
 templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
 	<div
 		class={
-			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-md", "p-3", "text-secondary",
+			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-xl", "p-3", "text-secondary",
 			"rounded-b-[10px]", "rounded-l-[10px]",
 		}
 	>
@@ -72,4 +72,5 @@ templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPla
 
 templ popoverButton() {
 	<img class={ "max-w-[30px]", "h-[20px]", "md:h-[30px]" } src="/static/icons/add-to-playlist.svg" alt="Add to playlist"/>
+	<span>Add to queue</span>
 }
