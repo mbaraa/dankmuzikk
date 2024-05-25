@@ -14,10 +14,8 @@ const playPauseToggleEl = document.getElementById("play"),
   songImageEl = document.getElementById("song-image"),
   audioPlayerEl = document.getElementById("audio-player"),
   muzikkContainerEl = document.getElementById("muzikk"),
-  zePlayerEl = document.getElementById("ze-player"),
-  zeCollapsedMobilePlayer = document.getElementById(
-    "ze-collapsed-mobile-player",
-  );
+  playerEl = document.getElementById("ze-player"),
+  collapsedMobilePlayer = document.getElementById("ze-collapsed-mobile-player");
 
 // expanded player's elements
 const playPauseToggleExapndedEl = document.getElementById("play-expand"),
@@ -29,7 +27,7 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
     "song-current-time-expanded",
   ),
   songImageExpandedEl = document.getElementById("song-image-expanded"),
-  zeExpandedMobilePlayer = document.getElementById("ze-expanded-mobile-player");
+  expandedMobilePlayer = document.getElementById("ze-expanded-mobile-player");
 
 /**
  * @typedef {object} Song
@@ -373,18 +371,18 @@ function hide() {
 }
 
 function expand() {
-  if (!zePlayerEl.classList.contains("exapnded")) {
-    zePlayerEl.classList.add("exapnded");
-    zeCollapsedMobilePlayer.classList.add("hidden");
-    zeExpandedMobilePlayer.classList.remove("hidden");
+  if (!playerEl.classList.contains("exapnded")) {
+    playerEl.classList.add("exapnded");
+    collapsedMobilePlayer.classList.add("hidden");
+    expandedMobilePlayer.classList.remove("hidden");
   }
 }
 
 function collapse() {
-  if (zePlayerEl.classList.contains("exapnded")) {
-    zePlayerEl.classList.remove("exapnded");
-    zeExpandedMobilePlayer.classList.add("hidden");
-    zeCollapsedMobilePlayer.classList.remove("hidden");
+  if (playerEl.classList.contains("exapnded")) {
+    playerEl.classList.remove("exapnded");
+    expandedMobilePlayer.classList.add("hidden");
+    collapsedMobilePlayer.classList.remove("hidden");
   }
 }
 
@@ -441,7 +439,7 @@ async function playSong(song) {
       songImageExpandedEl.innerHTML = "";
     }
   }
-  setMediaSession(song);
+  setMediaSessionMetadata(song);
   playMuzikk();
 }
 
@@ -479,11 +477,12 @@ function playSongFromPlaylist(songYtId, playlist) {
 /**
  * @param {Song} song
  */
-function setMediaSession(song) {
+function setMediaSessionMetadata(song) {
   if (!("mediaSession" in navigator)) {
     console.error("Browser doesn't support mediaSession");
     return;
   }
+
   navigator.mediaSession.metadata = new MediaMetadata({
     title: song.title,
     artist: song.artist,
@@ -502,51 +501,6 @@ function setMediaSession(song) {
         type: "image/png",
       };
     }),
-  });
-
-  navigator.mediaSession.setActionHandler("play", () => {
-    playMuzikk();
-  });
-
-  navigator.mediaSession.setActionHandler("pause", () => {
-    pauseMuzikk();
-  });
-
-  navigator.mediaSession.setActionHandler("stop", () => {
-    stopMuzikk();
-  });
-
-  navigator.mediaSession.setActionHandler("seekbackward", () => {
-    let seekTo = -10;
-    if (audioPlayerEl.currentTime + seekTo < 0) {
-      seekTo = 0;
-    }
-    audioPlayerEl.currentTime += seekTo;
-  });
-
-  navigator.mediaSession.setActionHandler("seekforward", () => {
-    let seekTo = +10;
-    if (audioPlayerEl.currentTime + seekTo > audioPlayerEl.duration) {
-      seekTo = 0;
-    }
-    audioPlayerEl.currentTime += seekTo;
-  });
-
-  navigator.mediaSession.setActionHandler("seekto", (a) => {
-    const seekTime = Number(a.seekTime);
-    audioPlayerEl.currentTime = seekTime;
-  });
-
-  navigator.mediaSession.setActionHandler("previoustrack", () => {
-    previousMuzikk();
-  });
-
-  navigator.mediaSession.setActionHandler("nexttrack", () => {
-    nextMuzikk();
-  });
-
-  navigator.mediaSession.setActionHandler("stop", () => {
-    stopMuzikk();
   });
 }
 
@@ -660,6 +614,58 @@ document
     event.preventDefault();
     collapse();
   });
+
+(() => {
+  if (!("mediaSession" in navigator)) {
+    console.error("Browser doesn't support mediaSession");
+    return;
+  }
+
+  navigator.mediaSession.setActionHandler("play", () => {
+    playMuzikk();
+  });
+
+  navigator.mediaSession.setActionHandler("pause", () => {
+    pauseMuzikk();
+  });
+
+  navigator.mediaSession.setActionHandler("stop", () => {
+    stopMuzikk();
+  });
+
+  navigator.mediaSession.setActionHandler("seekbackward", () => {
+    let seekTo = -10;
+    if (audioPlayerEl.currentTime + seekTo < 0) {
+      seekTo = 0;
+    }
+    audioPlayerEl.currentTime += seekTo;
+  });
+
+  navigator.mediaSession.setActionHandler("seekforward", () => {
+    let seekTo = +10;
+    if (audioPlayerEl.currentTime + seekTo > audioPlayerEl.duration) {
+      seekTo = 0;
+    }
+    audioPlayerEl.currentTime += seekTo;
+  });
+
+  navigator.mediaSession.setActionHandler("seekto", (a) => {
+    const seekTime = Number(a.seekTime);
+    audioPlayerEl.currentTime = seekTime;
+  });
+
+  navigator.mediaSession.setActionHandler("previoustrack", () => {
+    previousMuzikk();
+  });
+
+  navigator.mediaSession.setActionHandler("nexttrack", () => {
+    nextMuzikk();
+  });
+
+  navigator.mediaSession.setActionHandler("stop", () => {
+    stopMuzikk();
+  });
+})();
 
 window.Player = {};
 window.Player.downloadSongToDevice = downloadSongToDevice;
