@@ -275,6 +275,11 @@ function playlister(state) {
   };
 
   const __next = () => {
+    if (checkLoop(LOOP_MODES.ONCE)) {
+      stopMuzikk();
+      playMuzikk();
+      return;
+    }
     if (
       !checkLoop(LOOP_MODES.ALL) &&
       !state.shuffled &&
@@ -296,6 +301,11 @@ function playlister(state) {
   };
 
   const __prev = () => {
+    if (checkLoop(LOOP_MODES.ONCE)) {
+      stopMuzikk();
+      playMuzikk();
+      return;
+    }
     if (
       !checkLoop(LOOP_MODES.ALL) &&
       !state.shuffled &&
