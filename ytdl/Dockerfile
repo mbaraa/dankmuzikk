@@ -1,29 +1,17 @@
-FROM python:3.11-slim-bookworm AS build
-
-WORKDIR /app
-
-ADD requirements.txt /tmp
-RUN apt-get update -y && \
-    apt-get install -y gcc libmariadb-dev mariadb-client && \
-    pip install --upgrade pip && \
-    pip install --no-cache-dir -r /tmp/requirements.txt
-
-COPY . /app
-
-
 FROM python:3.11-alpine
 
-FROM python:3.11-slim-bookworm
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-RUN apt-get update -y && \
-    apt-get install -y mariadb-client ffmpeg
+RUN apk update && \
+    apk add --no-cache mariadb-dev build-base gcc musl-dev linux-headers
 
+COPY requirements.txt /app/requirements.txt
+RUN pip install --upgrade pip && \
+    pip install -r /app/requirements.txt
+
+COPY . /app
 WORKDIR /app
 
-COPY --from=build /usr/local/lib/python3.11/site-packages  /usr/local/lib/python3.11/site-packages
-COPY --from=build /usr/local/bin/ /usr/local/bin/
-COPY --from=build /app .
-
 EXPOSE 8000
-CMD [ "gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "main:app" ]
-
+CMD [ "gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "main:app" ]

@@ -66,6 +66,17 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 									"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
 									"flex", "justify-center", "items-center",
 								}
+								title="Add song to queue"
+								type="button"
+								onClick={ addSongToQueue(res) }
+							>
+								<img class={ "max-w-[30px]", "h-[25px]", "md:h-[30px]" } src="/static/icons/add-to-queue.svg" alt="Add song to queue"/>
+							</button>
+							<button
+								class={
+									"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+									"flex", "justify-center", "items-center",
+								}
 								title="Download song"
 								type="button"
 								onClick={ downloadSong(res.YtId, res.Title) }
@@ -81,9 +92,13 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 }
 
 script playSong(song entities.Song) {
-    window.Player.playSong(song, false);
+    window.Player.playSingleSong(song);
 }
 
 script downloadSong(songYtId, songTitle string) {
     Player.downloadSongToDevice(songYtId, songTitle)
+}
+
+script addSongToQueue(song entities.Song) {
+    window.Player.addSongToQueue(song);
 }

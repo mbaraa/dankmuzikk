@@ -8,7 +8,6 @@ import (
 	"dankmuzikk/models"
 	"errors"
 	"fmt"
-	"math"
 	"net/http"
 	"os"
 )
@@ -97,13 +96,6 @@ func (d *Service) DownloadYoutubeSongsMetadata(songs []entities.Song) error {
 			log.Warningln(err)
 		} else if err != nil {
 			return err
-		}
-	}
-
-	for i := 0; i < int(math.Min(float64(len(songs)), 5)); i++ {
-		err := d.DownloadYoutubeSongQueue(songs[i].YtId)
-		if err != nil {
-			log.Errorln(err)
 		}
 	}
 
