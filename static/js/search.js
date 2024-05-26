@@ -10,12 +10,7 @@ function searchNoReload(searchQuery) {
   searchSugEl.innerText = "";
   searchFormEl.blur();
   searchInputEl.blur();
-  const query = encodeURIComponent(searchQuery);
-  const prevPath = window.location.href.substring(
-    (window.location.protocol + "//" + window.location.host).length,
-  );
-  window.location.prevPath = prevPath;
-  window.history.pushState({}, "", `/search?query=${query}`);
+  searchInputEl.value = searchQuery;
 }
 
 searchFormEl.addEventListener("submit", (e) => {

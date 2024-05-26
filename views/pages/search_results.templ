@@ -3,102 +3,35 @@ package pages
 import (
 	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/entities"
+	"dankmuzikk/views/components/song"
+	"dankmuzikk/views/components/page"
 )
 
 templ SearchResults(results []entities.Song, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
-	<main class={ "w-full", "h-full", "flex", "justify-center" }>
-		<section
-			class={
-				"w-full", "md:w-auto", "overflow-y-scroll", "", "max-h-[50vh]", "md:max-h-[75vh]",
-				"bg-accent-trans-20", "backdrop-blur-sm", "rounded-md", "rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[5px]",
-				"md:p-[20px]", "flex", "flex-col", "gap-y-3", "justify-between",
-			}
-		>
-			if len(results) == 0 {
-				<p class={ "md:w-[50dvh]", "text-center", "text-secondary", "text-xl" }>No results were found...</p>
-			} else {
-				for idx, res := range results {
-					<div
-						class={
-							"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "p-[12px]", "flex", "justify-between",
-							"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10",
-						}
-					>
-						<!-- thumbnail and duration -->
-						<div
-							class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]" }
-						>
-							<div
-								class={ "w-[120px]",  "h-[80px]", "md:w-[300px]", "md:h-[170px]", "relative", "cursor-pointer" }
-								onClick={ playSong(res) }
-							>
-								<img
-									class={ "w-full", "h-full", "rounded-lg" }
-									loading="lazy"
-									src={ res.ThumbnailUrl }
-									alt="Video Thumbnail"
-								/>
-								<div class={ "absolute", "right-0", "bottom-0", "text-secondary", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-accent-trans-30", "rounded-sm" }>
-									<p class={ "leading-3", "font-Ubuntu" }>
-										{ res.Duration }
-									</p>
-								</div>
-							</div>
-						</div>
-						<!-- title, channel title, and description -->
-						<div class={ "w-[150px]", "md:w-[250px]", "lg:min-w-[300px]", "xl:min-w-[400px]" }>
-							<div class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-secondary" }>
-								<h3
-									class={ "w-full", "text-md", "md:text-lg", "font-bold", "cursor-pointer", "overflow-hidden", "text-nowrap", "text-ellipsis" }
-									title={ res.Title }
-									onClick={ playSong(res) }
-								>
-									{ res.Title }
-								</h3>
-								<p class={ "w-full", "text-sm", "font-normal" }>{ res.Artist }</p>
-							</div>
-						</div>
-						<!-- actions -->
-						<div class={ "w-[30px]", "h-auto", "relative" }>
-							@playlist.PlaylistsPopover(idx, res.YtId, playlists, songsInPlaylists)
-							<button
-								class={
-									"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
-									"flex", "justify-center", "items-center",
-								}
-								title="Add song to queue"
-								type="button"
-								onClick={ addSongToQueue(res) }
-							>
-								<img class={ "max-w-[30px]", "h-[25px]", "md:h-[30px]" } src="/static/icons/add-to-queue.svg" alt="Add song to queue"/>
-							</button>
-							<button
-								class={
-									"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
-									"flex", "justify-center", "items-center",
-								}
-								title="Download song"
-								type="button"
-								onClick={ downloadSong(res.YtId, res.Title) }
-							>
-								<img class={ "max-w-[30px]", "h-[25px]", "md:h-[30px]" } src="/static/icons/download-icon.svg" alt="Download song"/>
-							</button>
-						</div>
-					</div>
-				}
-			}
-		</section>
-	</main>
+	if len(results) == 0 {
+		@page.Container(templ.NopComponent, noResultsHeader())
+	} else {
+		@page.Container(searchHeader(), searchContent(results, playlists, songsInPlaylists))
+	}
 }
 
-script playSong(song entities.Song) {
-    window.Player.playSingleSong(song);
+templ noResultsHeader() {
+	<p class={ "w-full", "text-center", "text-secondary", "text-xl" }>No results were found...</p>
 }
 
-script downloadSong(songYtId, songTitle string) {
-    Player.downloadSongToDevice(songYtId, songTitle)
+templ searchHeader() {
+	<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl", "mb-4" }>Search results</h1>
 }
 
-script addSongToQueue(song entities.Song) {
-    window.Player.addSongToQueue(song);
+templ searchContent(results []entities.Song, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
+	<div
+		class={
+			"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
+			"flex", "flex-col", "gap-5", "lg:mb-5",
+		}
+	>
+		for idx, res := range results {
+			@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, entities.Playlist{})
+		}
+	</div>
 }

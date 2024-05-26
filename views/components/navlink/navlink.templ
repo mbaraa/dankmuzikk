@@ -5,12 +5,15 @@ templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 		id={ path }
 		href={ templ.SafeURL(path) }
 		title={ title }
-		class={ "inline-block", "rounded-md", "p-1" }
+		class={ "inline-block", "rounded-md", "p-1", "nav-link" }
 		hx-get={ path + "?no_layout=true" }
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
-		onClick={ updateHref(path) }
+		hx-on::after-request={ updateStyle() }
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={ path + "?no_layout=true" }
 	>
 		if imageUrl != "" {
 			<div class={ "flex", "gap-x-3", "items-center" }>
@@ -31,6 +34,12 @@ templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 }
 
 templ LinkContainer(path, title string, child templ.Component) {
+	<div class={ "nav-link" }>
+		@JustLink(path, title, child)
+	</div>
+}
+
+templ JustLink(path, title string, child templ.Component) {
 	<a
 		href={ templ.SafeURL(path) }
 		title={ title }
@@ -38,7 +47,10 @@ templ LinkContainer(path, title string, child templ.Component) {
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
-		onClick={ updateHref(path) }
+		hx-on::after-request={ updateStyle() }
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={ path + "?no_layout=true" }
 	>
 		<div
 			id={ path }
@@ -49,9 +61,6 @@ templ LinkContainer(path, title string, child templ.Component) {
 	</a>
 }
 
-script updateHref(path string) {
-    const prevPath = window.location.href.substring((window.location.protocol+"//"+window.location.host).length);
-    window.location.prevPath = prevPath;
-    window.history.pushState({}, "", path)
+script updateStyle() {
     Router.updateActiveNavLink();
 }

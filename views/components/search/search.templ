@@ -1,5 +1,7 @@
 package search
 
+import "dankmuzikk/views/icons"
+
 templ Search() {
 	<div class={ "!text-primary", "!font-Ubuntu", "w-full", "md:w-[300px]", "xl:w-[500px]" }>
 		<form
@@ -13,10 +15,13 @@ templ Search() {
 			data-loading-class-remove="hidden"
 			data-loading-path="/search?no_layout=true"
 		>
-			<div class={ "flex", "bg-white", "rounded-[8px]", "border", "border-b-[3px]", "border-accent" }>
+			<div class={ "flex", "bg-secondary", "rounded-[8px]", "border", "border-b-[3px]", "border-accent" }>
 				<input
 					id="search-input"
-					class={ "w-full", "p-[10px]", "ps-[15px]", "rounded-l-[8px]", "font-Ubuntu", "bg-white", "text-[#4c8c36]" }
+					class={
+						"w-full", "p-[10px]", "ps-[15px]", "rounded-l-[8px]",
+						"bg-secondary", "text-primary",
+					}
 					type="search"
 					name="query"
 					autofocus
@@ -30,12 +35,9 @@ templ Search() {
 				<button
 					type="submit"
 					id="search-icon"
+					class={ "rounded-r-[8px]", "px-[10px]", "bg-secondary" }
 				>
-					<img
-						class={ "w-[44px]", "h-[44px]", "rounded-r-[8px]", "pe-[10px]", "bg-white" }
-						src="/static/icons/search-icon.svg"
-						alt="search"
-					/>
+					@icons.Search()
 				</button>
 			</div>
 		</form>

@@ -4,6 +4,7 @@ import (
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
 	"dankmuzikk/models"
+	"fmt"
 	"time"
 )
 
@@ -31,14 +32,18 @@ func (h *Service) AddSongToHistory(songYtId string, profileId uint) error {
 	})
 }
 
-func (h *Service) Get(profileId uint) ([]entities.Song, error) {
-	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, h.created_at
+func (h *Service) Get(profileId, page uint) ([]entities.Song, error) {
+	gigaQuery := fmt.Sprintf(
+		`SELECT yt_id, title, artist, thumbnail_url, duration, h.created_at
 		FROM
 			histories h JOIN songs
 		ON
 				songs.id = h.song_id
 		WHERE h.profile_id = ?
-		ORDER BY h.created_at DESC;`
+		ORDER BY h.created_at DESC
+		LIMIT %d,%d;`,
+		(page-1)*20, page*20,
+	)
 
 	rows, err := h.repo.
 		GetDB().

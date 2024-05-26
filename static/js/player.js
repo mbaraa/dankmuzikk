@@ -9,6 +9,7 @@ const playPauseToggleEl = document.getElementById("play"),
   songNameEl = document.getElementById("song-name"),
   artistNameEl = document.getElementById("artist-name"),
   songSeekBarEl = document.getElementById("song-seek-bar"),
+  volumeSeekBarEl = document.getElementById("volume-seek-bar"),
   songDurationEl = document.getElementById("song-duration"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
@@ -22,6 +23,7 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
   songNameExpandedEl = document.getElementById("song-name-expanded"),
   artistNameExpandedEl = document.getElementById("artist-name-expanded"),
   songSeekBarExpandedEl = document.getElementById("song-seek-bar-expanded"),
+  volumeSeekBarExpandedEl = document.getElementById("volume-seek-bar-expanded"),
   songDurationExpandedEl = document.getElementById("song-duration-expanded"),
   songCurrentTimeExpandedEl = document.getElementById(
     "song-current-time-expanded",
@@ -253,7 +255,7 @@ function playlister(state) {
         songEl.style.backgroundColor = "var(--accent-color-30)";
         songEl.scrollIntoView();
       } else {
-        songEl.style.backgroundColor = "var(--secondary-color-20)";
+        songEl.style.backgroundColor = "#ffffff00";
       }
     }
   };
@@ -602,6 +604,19 @@ loopEl?.addEventListener("click", (event) => {
   for (const event of ["change", "click"]) {
     songSeekBarEl?.addEventListener(event, __handler);
     songSeekBarExpandedEl?.addEventListener(event, __handler);
+  }
+})();
+
+(() => {
+  const __handler = (e) => {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    const volume = Number(e.target.value) * 0.01;
+    audioPlayerEl.volume = volume;
+  };
+  for (const event of ["change", "click"]) {
+    volumeSeekBarEl?.addEventListener(event, __handler);
+    volumeSeekBarExpandedEl?.addEventListener(event, __handler);
   }
 })();
 

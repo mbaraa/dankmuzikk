@@ -83,10 +83,12 @@ h6 {
   font-family: "Ubuntu";
 }
 
-a {
+div.nav-link a,
+.nav-link {
   text-decoration: underline;
 }
 
-a:hover {
+div.nav-link a:hover,
+.nav-link:hover {
   text-decoration: none;
 }

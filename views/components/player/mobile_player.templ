@@ -8,7 +8,7 @@ templ mobilePlayer() {
 		<div
 			id="ze-player"
 			class={
-				"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-md", "shadow-accent",
+				"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
 				"mx-[5px]", "rounded-[15px]", "text-secondary", "collapsed",
 			}
 		>
@@ -27,8 +27,8 @@ templ mobilePlayer() {
             transition: max-height .5s;
         }
         .exapnded {
-            height: 500px;
-            max-height: 500px;
+            height: 550px;
+            max-height: 550px;
         }
     </style>
 }
@@ -163,16 +163,31 @@ templ expandedMobilePlayer() {
 				</svg>
 			</button>
 		</div>
-		<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
-			<span id="song-current-time-expanded">00:00</span>
-			<input
-				id="song-seek-bar-expanded"
-				type="range"
-				min="0"
-				value="0"
-				class={ "my-2", "w-full" }
-			/>
-			<span id="song-duration-expanded">00:00</span>
+		<div class={ "w-full", "flex", "flex-col", "items-center", "gap-y-3" }>
+			<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
+				<span id="song-current-time-expanded">00:00</span>
+				<input
+					id="song-seek-bar-expanded"
+					type="range"
+					min="0"
+					value="0"
+					class={ "my-2", "w-full" }
+				/>
+				<span id="song-duration-expanded">00:00</span>
+			</div>
+			<div class={ "w-2/3", "flex", "items-center", "gap-x-3" }>
+				<svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M15.0408 7.0289C15.6748 7.87954 16.0505 8.9369 16.0505 10.0827C16.0505 11.2284 15.6748 12.2858 15.0408 13.1364M17.0606 3.25413C18.9204 4.93162 20.0909 7.3694 20.0909 10.0827C20.0909 12.7959 18.9204 15.2336 17.0606 16.9112M3.52522 7.0289H4.43552C4.99202 7.0289 5.27026 7.0289 5.5281 6.95899C5.75656 6.89705 5.97244 6.79516 6.16592 6.65794C6.38428 6.50309 6.5624 6.28767 6.91866 5.85686L9.57108 2.64929C10.0112 2.11711 10.2312 1.85101 10.4234 1.82331C10.5899 1.79933 10.7572 1.86041 10.8699 1.98621C11 2.13149 11 2.47787 11 3.17062V16.9946C11 17.6874 11 18.0338 10.8699 18.1791C10.7572 18.3049 10.5899 18.366 10.4234 18.342C10.2313 18.3143 10.0112 18.0482 9.57108 17.516L6.91866 14.3085C6.5624 13.8777 6.38428 13.6622 6.16592 13.5074C5.97244 13.3701 5.75656 13.2682 5.5281 13.2064C5.27026 13.1364 4.99202 13.1364 4.43552 13.1364H3.52522C2.95951 13.1364 2.67665 13.1364 2.46058 13.0255C2.27052 12.9279 2.116 12.7721 2.01915 12.5806C1.90906 12.3629 1.90906 12.0778 1.90906 11.5078V8.65758C1.90906 8.08745 1.90906 7.80244 2.01915 7.58469C2.116 7.39315 2.27052 7.23743 2.46058 7.13985C2.67665 7.0289 2.95951 7.0289 3.52522 7.0289Z" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+				</svg>
+				<input
+					id="volume-seek-bar-expanded"
+					type="range"
+					min="0"
+					max="100"
+					value="100"
+					class={ "my-2", "w-full" }
+				/>
+			</div>
 		</div>
 	</div>
 }

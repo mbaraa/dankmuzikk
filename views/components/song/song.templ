@@ -1,0 +1,127 @@
+package song
+
+import (
+	"dankmuzikk/entities"
+	"dankmuzikk/views/components/popover"
+	"dankmuzikk/views/icons"
+	"fmt"
+)
+
+templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, playlist entities.Playlist) {
+	<div
+		if playlist.PublicId != "" {
+			id={ "song-" + s.YtId }
+		}
+		class={
+			"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "flex", "justify-between",
+			"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10", "p-2",
+		}
+	>
+		<div class={ "w-full", "flex", "gap-x-4", "md:gap-x-6" }>
+			<!-- thumbnail and duration -->
+			<div
+				class={ "w-[80px]",  "h-[80px]", "md:w-[120px]", "md:h-[120px]", "relative", "cursor-pointer" }
+				if playlist.PublicId != "" {
+					onClick={ playSongFromPlaylist(s.YtId, playlist) }
+				} else {
+					onClick={ playSong(s) }
+				}
+			>
+				<div
+					class={
+						"w-[80px]", "h-[80px]", "md:w-[120px]", "md:h-[120px]", "rounded-md", "bg-primary",
+						"bg-repeat", "bg-cover", "bg-center", songThumb(fmt.Sprintf("url(\"%s\")", s.ThumbnailUrl)),
+					}
+				></div>
+				<div class={ "absolute", "right-0", "bottom-0", "text-secondary", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-accent-trans-30", "rounded-sm" }>
+					<p class={ "leading-3", "font-Ubuntu" }>
+						{ s.Duration }
+					</p>
+				</div>
+			</div>
+			<!-- title, channel title, and description -->
+			<div class={ "w-[165px]", "md:w-[330px]", "lg:min-w-[450px]", "xl:min-w-[650px]" }>
+				<div
+					class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
+					if playlist.PublicId != "" {
+						onClick={ playSongFromPlaylist(s.YtId, playlist) }
+					} else {
+						onClick={ playSong(s) }
+					}
+				>
+					<h3
+						class={ "w-full", "text-lg", "md:text-xl", "font-bold", "overflow-hidden", "text-nowrap", "text-ellipsis" }
+						title={ s.Title }
+					>
+						{ s.Title }
+					</h3>
+					<p class={ "w-full", "text-sm", "font-normal" }>{ s.Artist }</p>
+					for _, info := range additionalData {
+						<p class={ "w-full", "text-sm", "font-normal" }>{ info }</p>
+					}
+				</div>
+			</div>
+		</div>
+		<!-- actions -->
+		<div class={ "lg:me-3", "flex", "items-center" }>
+			@popover.Popover(s.YtId, "Song options", icons.Options(), options(s, additionalOptions))
+		</div>
+	</div>
+}
+
+templ options(song entities.Song, additionalOptions []templ.Component) {
+	<div
+		class={
+			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md",
+			"bg-primary", "min-w-[250px]", "shadow-sm", "shadow-accent",
+		}
+	>
+		for _, option := range additionalOptions {
+			@option
+		}
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Add song to queue"
+			type="button"
+			onClick={ addSongToQueue(song) }
+		>
+			@icons.AddToQueue()
+			<span>Add to queue</span>
+		</button>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Download song"
+			type="button"
+			onClick={ downloadSong(song.YtId, song.Title) }
+		>
+			@icons.Download()
+			<span>Download to device</span>
+		</button>
+	</div>
+}
+
+css songThumb(url string) {
+	background-image: { url };
+}
+
+script downloadSong(songYtId, songTitle string) {
+    Player.downloadSongToDevice(songYtId, songTitle)
+}
+
+script addSongToQueue(song entities.Song) {
+    window.Player.addSongToQueue(song);
+}
+
+script playSong(song entities.Song) {
+    window.Player.playSingleSong(song);
+}
+
+script playSongFromPlaylist(songId string, playlist entities.Playlist) {
+    window.Player.playSongFromPlaylist(songId, playlist)
+}
