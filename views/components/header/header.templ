@@ -21,25 +21,28 @@ templ homeLinkContainer() {
 }
 
 templ mobileHeader() {
-	<div class={ "md:hidden" }>
+	<div class={ "md:hidden", "flex", "flex-col", "justify-between", "gap-y-5" }>
 		<div class={ "w-full", "flex", "justify-between", "items-center" }>
 			@navlink.LinkContainer("/about", "About", icons.About())
-			@themeswitch.ThemeSwitch()
-		</div>
-		<div class={ "flex", "flex-col", "justify-between", "gap-y-3" }>
-			<div class={ "flex", "justify-center", "items-center", "flex-col", "md:flex-row", "gap-1", "h-min", "text-secondary" }>
+			<div
+				class={
+					"flex", "justify-center", "items-center", "flex-row",
+					"gap-3", "h-min", "text-secondary",
+				}
+			>
 				<img
-					width="55"
-					height="55"
+					width="50"
+					height="50"
 					src="/static/images/logo.webp"
 					alt="DankMuzikk Logo"
-					class={ "w-[55px]", "rounded-md" }
+					class={ "w-[50px]", "rounded-md" }
 				/>
 				<h1 class={ "text-3xl", }>DankMuzikk</h1>
 			</div>
-			<div>
-				@search.Search()
-			</div>
+			@themeswitch.ThemeSwitch()
+		</div>
+		<div>
+			@search.Search()
 		</div>
 	</div>
 }
