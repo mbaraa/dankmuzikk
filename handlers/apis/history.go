@@ -2,6 +2,7 @@ package apis
 
 import (
 	"bytes"
+	"dankmuzikk/entities"
 	"dankmuzikk/handlers"
 	"dankmuzikk/log"
 	"dankmuzikk/services/history"
@@ -9,8 +10,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-
-	"github.com/a-h/templ"
 )
 
 type historyApi struct {
@@ -41,11 +40,7 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 
 	outBuf := bytes.NewBuffer([]byte{})
 	for _, s := range recentPlays {
-		playSong := templ.ComponentScript{
-			Name:       "__templ_playSong" + s.YtId,
-			CallInline: fmt.Sprintf(`window.Player.playSingleSong("%s");`, s.YtId),
-		}
-		song.Song(s, []string{"Played " + s.AddedAt}, nil, playSong, true).
+		song.Song(s, []string{"Played " + s.AddedAt}, nil, entities.Playlist{}).
 			Render(r.Context(), outBuf)
 	}
 

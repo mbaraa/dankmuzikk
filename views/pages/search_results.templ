@@ -31,11 +31,7 @@ templ searchContent(results []entities.Song, playlists []entities.Playlist, song
 		}
 	>
 		for idx, res := range results {
-			@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, playSong(res), true)
+			@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, entities.Playlist{})
 		}
 	</div>
-}
-
-script playSong(song entities.Song) {
-    window.Player.playSingleSong(song);
 }

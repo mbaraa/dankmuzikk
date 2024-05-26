@@ -7,9 +7,9 @@ import (
 	"fmt"
 )
 
-templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, onClick templ.ComponentScript, hideId ...bool) {
+templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, playlist entities.Playlist) {
 	<div
-		if hideId != nil && len(hideId) == 1 && !hideId[0] {
+		if playlist.PublicId != "" {
 			id={ "song-" + s.YtId }
 		}
 		class={
@@ -21,7 +21,11 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			<!-- thumbnail and duration -->
 			<div
 				class={ "w-[80px]",  "h-[80px]", "md:w-[120px]", "md:h-[120px]", "relative", "cursor-pointer" }
-				onClick={ onClick }
+				if playlist.PublicId != "" {
+					onClick={ playSongFromPlaylist(s.YtId, playlist) }
+				} else {
+					onClick={ playSong(s) }
+				}
 			>
 				<div
 					class={
@@ -39,7 +43,11 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			<div class={ "w-[165px]", "md:w-[330px]", "lg:min-w-[450px]", "xl:min-w-[650px]" }>
 				<div
 					class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
-					onClick={ onClick }
+					if playlist.PublicId != "" {
+						onClick={ playSongFromPlaylist(s.YtId, playlist) }
+					} else {
+						onClick={ playSong(s) }
+					}
 				>
 					<h3
 						class={ "w-full", "text-lg", "md:text-xl", "font-bold", "overflow-hidden", "text-nowrap", "text-ellipsis" }
@@ -108,4 +116,12 @@ script downloadSong(songYtId, songTitle string) {
 
 script addSongToQueue(song entities.Song) {
     window.Player.addSongToQueue(song);
+}
+
+script playSong(song entities.Song) {
+    window.Player.playSingleSong(song);
+}
+
+script playSongFromPlaylist(songId string, playlist entities.Playlist) {
+    window.Player.playSongFromPlaylist(songId, playlist)
 }

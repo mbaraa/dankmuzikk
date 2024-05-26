@@ -46,7 +46,7 @@ templ historyContent(recentPlays []entities.Song) {
 		}
 	>
 		for _, s := range recentPlays {
-			@song.Song(s, []string{"Played " + s.AddedAt}, nil, playSong(s), true)
+			@song.Song(s, []string{"Played " + s.AddedAt}, nil, entities.Playlist{})
 		}
 		<div
 			class={ "h-[10px]", "mb-[20px]" }
