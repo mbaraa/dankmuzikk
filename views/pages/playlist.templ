@@ -63,7 +63,13 @@ templ playlistContent(pl entities.Playlist) {
 			>
 				for _, s := range pl.Songs {
 					if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
-						@song.Song(s, []string{}, []templ.Component{songOptionsMobile(s, pl.PublicId)}, playSongFromPlaylist(s.YtId, pl))
+						@song.Song(
+							s,
+							[]string{},
+							[]templ.Component{songOptionsMobile(s, pl.PublicId)},
+							playSongFromPlaylist(s.YtId, pl),
+							false,
+						)
 					} else {
 						@song.Song(
 							s,
@@ -71,9 +77,7 @@ templ playlistContent(pl entities.Playlist) {
 								playedTimes(s.PlayTimes),
 								"Added on " + s.AddedAt,
 							},
-							[]templ.Component{
-								removeSong(s, pl.PublicId),
-							},
+							[]templ.Component{removeSong(s, pl.PublicId)},
 							playSongFromPlaylist(s.YtId, pl),
 							false,
 						)
