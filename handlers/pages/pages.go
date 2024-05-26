@@ -57,7 +57,7 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 	var err error
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if profileIdCorrect {
-		recentPlays, err = p.historyService.Get(profileId)
+		recentPlays, err = p.historyService.Get(profileId, 1)
 		if err != nil {
 			log.Errorln(err)
 		}
