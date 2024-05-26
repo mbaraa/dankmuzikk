@@ -4,46 +4,49 @@ import (
 	"dankmuzikk/views/components/navlink"
 	"dankmuzikk/entities"
 	"dankmuzikk/views/components/song"
+	"dankmuzikk/views/components/page"
 )
 
 templ Index(recentPlays []entities.Song) {
-	<main class={ "w-full", "h-auto", "lg:h-auto" }>
-		<div class={ "flex", "justify-center" }>
-			<section
-				class={
-					"w-full", "md:w-3/4", "bg-accent-trans-20", "backdrop-blur-lg", "rounded-xl",
-					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
-					"text-secondary", "mb-[170px]", "lg:mb-0",
-				}
-			>
-				if recentPlays != nil && len(recentPlays) != 0 {
-					<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Recent plays</h1>
-					<div
-						class={
-							"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
-							"flex", "flex-col", "gap-5", "lg:mb-5",
-						}
-					>
-						for _, s := range recentPlays {
-							@song.Song(s, []string{"Played " + s.AddedAt}, nil, playSong(s), true)
-						}
-					</div>
-				} else {
-					<h2 class={ "text-xl" }>What should you expect?</h2>
-					<p>
-						DankMuzikk is music player that plays music from YouTube but without actually using YouTube, start by typing a song's name into the search bar (song's first load time is slow ~10s).
-						<br/>
-						More details&nbsp;
-						@navlink.NavLink("in about page", "", "/about")
-						<br/>
-						<br/>
-						And you can check the beta features here <a href="https://beta.dankmuzikk.com">beta.dankmuzikk.com</a>
-						<br/>
-						<br/>
-						Happy danking 🎉✨
-					</p>
-				}
-			</section>
-		</div>
-	</main>
+	if recentPlays != nil && len(recentPlays) != 0 {
+		@page.Container(historyHeader(), historyContent(recentPlays))
+	} else {
+		@page.Container(noListensHeader(), noListensContent())
+	}
+}
+
+templ noListensHeader() {
+	<h2 class={ "text-xl" }>What should you expect?</h2>
+}
+
+templ noListensContent() {
+	<p>
+		DankMuzikk is music player that plays music from YouTube but without actually using YouTube, start by typing a song's name into the search bar (song's first load time is slow ~10s).
+		<br/>
+		More details&nbsp;
+		@navlink.NavLink("in about page", "", "/about")
+		<br/>
+		<br/>
+		And you can check the beta features here <a href="https://beta.dankmuzikk.com">beta.dankmuzikk.com</a>
+		<br/>
+		<br/>
+		Happy danking 🎉✨
+	</p>
+}
+
+templ historyHeader() {
+	<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Recent plays</h1>
+}
+
+templ historyContent(recentPlays []entities.Song) {
+	<div
+		class={
+			"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
+			"flex", "flex-col", "gap-5", "lg:mb-5",
+		}
+	>
+		for _, s := range recentPlays {
+			@song.Song(s, []string{"Played " + s.AddedAt}, nil, playSong(s), true)
+		}
+	</div>
 }

@@ -5,32 +5,28 @@ import (
 	"dankmuzikk/views/components/playlist"
 	"fmt"
 	"dankmuzikk/views/components/navlink"
+	"dankmuzikk/views/components/page"
 )
 
 templ Playlists(pls []entities.Playlist) {
-	<main class={ "w-full", "h-auto", "lg:h-auto" }>
-		<div class={ "flex", "justify-center" }>
-			<section
-				class={
-					"w-full", "md:w-3/4", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
-					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]", "flex", "flex-col", "gap-y-6",
-					"mb-[170px]", "lg:mb-0",
-				}
-			>
-				<div class={ "flex", "justify-between", "items-center", "w-full" }>
-					<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Playlists</h1>
-					@playlist.NewPlaylistPopover()
-				</div>
-				<div id="playlists-listing">
-					if pls == nil || len(pls) == 0 {
-						<p>Hmm... You don't have any playlists yet, you can create from the button above!</p>
-					} else {
-						@JustPlaylists(pls)
-					}
-				</div>
-			</section>
-		</div>
-	</main>
+	@page.Container(playlistsHeader(), playlistsContent(pls))
+}
+
+templ playlistsHeader() {
+	<div class={ "flex", "justify-between", "items-center", "w-full" }>
+		<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Playlists</h1>
+		@playlist.NewPlaylistPopover()
+	</div>
+}
+
+templ playlistsContent(pls []entities.Playlist) {
+	<div id="playlists-listing">
+		if pls == nil || len(pls) == 0 {
+			<p>Hmm... You don't have any playlists yet, you can create from the button above!</p>
+		} else {
+			@JustPlaylists(pls)
+		}
+	</div>
 }
 
 templ JustPlaylists(pls []entities.Playlist) {

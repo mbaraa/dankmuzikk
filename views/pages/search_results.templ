@@ -4,29 +4,32 @@ import (
 	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/entities"
 	"dankmuzikk/views/components/song"
+	"dankmuzikk/views/components/page"
 )
 
 templ SearchResults(results []entities.Song, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
-	<main class={ "w-full", "h-auto", "lg:h-auto" }>
-		<div class={ "flex", "justify-center" }>
-			<section
-				class={
-					"w-full", "md:w-3/4", "overflow-y-scroll", "max-h-[50vh]", "md:max-h-[75vh]",
-					"bg-accent-trans-20", "backdrop-blur-sm", "rounded-xl", "rounded-[10px]", "m-[10px]", "md:m-[20px]",
-					"md:p-[20px]", "flex", "flex-col", "gap-y-3", "justify-between", "p-[20px]", "md:p-[40px]",
-				}
-			>
-				if len(results) == 0 {
-					<p class={ "w-full", "text-center", "text-secondary", "text-xl" }>No results were found...</p>
-				} else {
-					<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl", "mb-4" }>Search results</h1>
-					for idx, res := range results {
-						@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, playSong(res), true)
-					}
-				}
-			</section>
-		</div>
-	</main>
+	if len(results) == 0 {
+		@page.Container(noResultsHeader(), empty())
+	} else {
+		@page.Container(searchHeader(), searchContent(results, playlists, songsInPlaylists))
+	}
+}
+
+templ noResultsHeader() {
+	<p class={ "w-full", "text-center", "text-secondary", "text-xl" }>No results were found...</p>
+}
+
+templ empty() {
+}
+
+templ searchHeader() {
+	<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl", "mb-4" }>Search results</h1>
+}
+
+templ searchContent(results []entities.Song, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
+	for idx, res := range results {
+		@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId, playlists, songsInPlaylists)}, playSong(res), true)
+	}
 }
 
 script playSong(song entities.Song) {

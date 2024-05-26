@@ -7,89 +7,81 @@ import (
 	"dankmuzikk/models"
 	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/views/components/song"
+	"dankmuzikk/views/components/page"
 )
 
 templ Playlist(pl entities.Playlist) {
-	<main class={ "w-full", "h-full", "lg:h-auto" }>
-		<div class={ "flex", "justify-center" }>
-			<section
+	@page.Container(playlistHeader(pl), playlistContent(pl))
+	<input id="clipboard-text-blyat" type="text" hidden/>
+}
+
+templ playlistHeader(pl entities.Playlist) {
+	<div class={ "mb-4", "flex", "justify-between", "items-center" }>
+		@navlink.LinkContainer("/playlists", "Playlists", backButton())
+		<div class={ "flex", "gap-x-2", "items-center" }>
+			<button
 				class={
-					"w-full", "md:w-3/4", "bg-primary-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
-					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]",
-					"mb-[170px]", "lg:mb-0",
+					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+					"flex", "justify-center", "items-center",
+				}
+				title="Copy link to this playlist"
+				type="button"
+				onClick={ copyLink(pl.PublicId, pl.IsPublic) }
+			><img class={ "max-w-[25px]", "h-[20px]", "md:h-[25px]" } src="/static/icons/share-icon.svg" alt="Share"/> </button>
+			if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
+				@playlist.PlaylistsOptionsPopover(pl)
+			} else {
+				@joinLeavePlaylist(pl.PublicId, perm)
+			}
+		</div>
+	</div>
+	<div class={ "flex", "justify-between", "items-center", "w-full" }>
+		<div class={ "flex", "flex-col", "gap-y-1" }>
+			<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
+			<p class={ "text-secondary", "text-md" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+		</div>
+		if pl.Songs != nil && len(pl.Songs) > 0 {
+			<button
+				type="button"
+				title="Play playlist"
+				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
+			><img src="/static/icons/play-playlist-icon.svg" alt="Play"/></button>
+		}
+	</div>
+}
+
+templ playlistContent(pl entities.Playlist) {
+	<div id="playlists-listing">
+		if pl.Songs == nil || len(pl.Songs) == 0 {
+			<p>Hmm... This playlist looks empty, you can add songs from the search!</p>
+		} else {
+			<div
+				class={
+					"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
+					"flex", "flex-col", "gap-y-1", "lg:gap-y-4",
 				}
 			>
-				<div class={ "mb-4", "flex", "justify-between", "items-center" }>
-					@navlink.LinkContainer("/playlists", "Playlists", backButton())
-					<div class={ "flex", "gap-x-2", "items-center" }>
-						<button
-							class={
-								"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
-								"flex", "justify-center", "items-center",
-							}
-							title="Copy link to this playlist"
-							type="button"
-							onClick={ copyLink(pl.PublicId, pl.IsPublic) }
-						><img class={ "max-w-[25px]", "h-[20px]", "md:h-[25px]" } src="/static/icons/share-icon.svg" alt="Share"/> </button>
-						if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
-							@playlist.PlaylistsOptionsPopover(pl)
-						} else {
-							@joinLeavePlaylist(pl.PublicId, perm)
-						}
-					</div>
-				</div>
-				<div
-					class={ "flex", "flex-col", "gap-y-4", "lg:gap-y-0", }
-				>
-					<div class={ "flex", "justify-between", "items-center", "w-full" }>
-						<div class={ "flex", "flex-col", "gap-y-1" }>
-							<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>{ pl.Title }</h1>
-							<p class={ "text-secondary", "text-md" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
-						</div>
-						if pl.Songs != nil && len(pl.Songs) > 0 {
-							<button
-								type="button"
-								title="Play playlist"
-								onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
-							><img src="/static/icons/play-playlist-icon.svg" alt="Play"/></button>
-						}
-					</div>
-					<div id="playlists-listing">
-						if pl.Songs == nil || len(pl.Songs) == 0 {
-							<p>Hmm... This playlist looks empty, you can add songs from the search!</p>
-						} else {
-							<div
-								class={
-									"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
-									"flex", "flex-col", "gap-y-1", "lg:gap-y-4", "lg:my-10",
-								}
-							>
-								for _, s := range pl.Songs {
-									if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
-										@song.Song(s, []string{}, []templ.Component{songOptionsMobile(s, pl.PublicId)}, playSongFromPlaylist(s.YtId, pl))
-									} else {
-										@song.Song(
-											s,
-											[]string{
-												playedTimes(s.PlayTimes),
-												"Added on " + s.AddedAt,
-											},
-											[]templ.Component{
-												removeSong(s, pl.PublicId),
-											},
-											playSongFromPlaylist(s.YtId, pl),
-											false,
-										)
-									}
-								}
-							</div>
-						}
-					</div>
-				</div>
-			</section>
-		</div>
-	</main>
-	<input id="clipboard-text-blyat" type="text" hidden/>
+				for _, s := range pl.Songs {
+					if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+						@song.Song(s, []string{}, []templ.Component{songOptionsMobile(s, pl.PublicId)}, playSongFromPlaylist(s.YtId, pl))
+					} else {
+						@song.Song(
+							s,
+							[]string{
+								playedTimes(s.PlayTimes),
+								"Added on " + s.AddedAt,
+							},
+							[]templ.Component{
+								removeSong(s, pl.PublicId),
+							},
+							playSongFromPlaylist(s.YtId, pl),
+							false,
+						)
+					}
+				}
+			</div>
+		}
+	</div>
 }
 
 templ removeSong(song entities.Song, playlistId string) {
