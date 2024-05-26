@@ -28,7 +28,12 @@ window.addEventListener("load", () => {
 });
 
 document.addEventListener("htmx:afterRequest", function (e) {
-  console.log("lol", e);
+  if (!!e.detail && !!e.detail.xhr) {
+    const newTitle = e.detail.xhr.getResponseHeader("HX-Title");
+    if (newTitle) {
+      document.title = newTitle + " - DankMuzikk";
+    }
+  }
 });
 
 window.Router = { updateActiveNavLink };
