@@ -10,7 +10,7 @@ templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
-		onClick={ updateHref(path) }
+		hx-on::after-request={ updateHref(path) }
 	>
 		if imageUrl != "" {
 			<div class={ "flex", "gap-x-3", "items-center" }>
@@ -44,7 +44,7 @@ templ JustLink(path, title string, child templ.Component) {
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
-		onClick={ updateHref(path) }
+		hx-on::after-request={ updateHref(path) }
 	>
 		<div
 			id={ path }
