@@ -1,0 +1,20 @@
+package page
+
+templ Container(header, content templ.Component) {
+	<main class={ "w-full", "h-full", "lg:h-auto" }>
+		<div class={ "flex", "justify-center" }>
+			<section
+				class={
+					"w-full", "md:w-3/4", "bg-accent-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
+					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]",
+					"mb-[170px]", "lg:mb-0",
+				}
+			>
+				@header
+				<div class={ "lg:my-10" }>
+					@content
+				</div>
+			</section>
+		</div>
+	</main>
+}
