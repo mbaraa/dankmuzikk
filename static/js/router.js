@@ -27,10 +27,13 @@ window.addEventListener("load", () => {
   updateActiveNavLink();
 });
 
-window.addEventListener("popstate", (e) => {
-  e.stopImmediatePropagation();
-  e.preventDefault();
-  window.open(window.location.prevPath, "_self");
+document.addEventListener("htmx:afterRequest", function (e) {
+  if (!!e.detail && !!e.detail.xhr) {
+    const newTitle = e.detail.xhr.getResponseHeader("HX-Title");
+    if (newTitle) {
+      document.title = newTitle + " - DankMuzikk";
+    }
+  }
 });
 
 window.Router = { updateActiveNavLink };

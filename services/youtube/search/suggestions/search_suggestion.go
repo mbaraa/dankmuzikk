@@ -10,7 +10,7 @@ func SearchSuggestions(query string) (suggestions []string, err error) {
 	resp, err := http.Get("https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=" +
 		url.QueryEscape(query))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var results []any

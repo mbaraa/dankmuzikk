@@ -11,12 +11,6 @@ function searchNoReload(searchQuery) {
   searchFormEl.blur();
   searchInputEl.blur();
   searchInputEl.value = searchQuery;
-  const query = encodeURIComponent(searchQuery);
-  const prevPath = window.location.href.substring(
-    (window.location.protocol + "//" + window.location.host).length,
-  );
-  window.location.prevPath = prevPath;
-  window.history.pushState({}, "", `/search?query=${query}`);
 }
 
 searchFormEl.addEventListener("submit", (e) => {
@@ -71,8 +65,6 @@ function moveToSuggestions() {
   searchSuggestionsEl.focus();
   searchSuggestionsEl.addEventListener("keydown", moveToNextSuggestion);
 }
-
-document.addEventListener("htmx:afterRequest", function (e) {});
 
 window.Search = {
   searchNoReload,
