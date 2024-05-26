@@ -48,8 +48,9 @@ templ playlistHeader(pl entities.Playlist) {
 				type="button"
 				title="Play playlist"
 				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
-			>@icons.PlayPlaylist()
-</button>
+			>
+				@icons.PlayPlaylist()
+			</button>
 		}
 	</div>
 }
@@ -70,7 +71,7 @@ templ playlistContent(pl entities.Playlist) {
 						@song.Song(
 							s,
 							[]string{},
-							[]templ.Component{songOptionsMobile(s, pl.PublicId)},
+							[]templ.Component{songOptionsMobile(s), removeSong(s, pl.PublicId)},
 							playSongFromPlaylist(s.YtId, pl),
 							false,
 						)
@@ -96,14 +97,14 @@ templ removeSong(song entities.Song, playlistId string) {
 	if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
 		<button
 			class={
-				"popover-trigger", "p-2", "rounded-md", "hover:bg-[#DE3333]", "text-secondary",
+				"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",
 				"flex", "items-center", "gap-x-2", "w-full",
 			}
 			title={ "Remove " + song.Title + "!" }
 			type="button"
 			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
 		>
-			<svg width="30" height="34" viewBox="0 0 30 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<svg class={ "hover:stroke-white" } width="30" height="34" viewBox="0 0 30 34" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path d="M11.6129 14.8387V24.5161" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
 				<path d="M18.0647 14.8387V24.5161" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
 				<path d="M1.93555 8.38712H27.742" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -115,9 +116,9 @@ templ removeSong(song entities.Song, playlistId string) {
 	}
 }
 
-templ songOptionsMobile(song entities.Song, playlistId string) {
+templ songOptionsMobile(song entities.Song) {
 	<div
-		class={ "w-[250px]", "h-full", "flex", "flex-col", "gap-y-2", }
+		class={ "w-[250px]", "h-full", "flex", "flex-col", "gap-y-2", "p-2" }
 	>
 		<h3 class={ "text-lg", "font-medium" }>Details and options</h3>
 		<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
@@ -126,7 +127,6 @@ templ songOptionsMobile(song entities.Song, playlistId string) {
 		} else if song.PlayTimes > 1 {
 			<p class={ "text-md", "max-w-[200px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
 		}
-		@removeSong(song, playlistId)
 	</div>
 }
 
