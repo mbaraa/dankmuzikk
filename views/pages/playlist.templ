@@ -72,8 +72,7 @@ templ playlistContent(pl entities.Playlist) {
 							s,
 							[]string{},
 							[]templ.Component{songOptionsMobile(s), removeSong(s, pl.PublicId)},
-							playSongFromPlaylist(s.YtId, pl),
-							false,
+							pl,
 						)
 					} else {
 						@song.Song(
@@ -83,8 +82,7 @@ templ playlistContent(pl entities.Playlist) {
 								"Added on " + s.AddedAt,
 							},
 							[]templ.Component{removeSong(s, pl.PublicId)},
-							playSongFromPlaylist(s.YtId, pl),
-							false,
+							pl,
 						)
 					}
 				}
@@ -190,10 +188,6 @@ func playedTimes(times int) string {
 	}
 }
 
-script playSongFromPlaylist(songId string, playlist entities.Playlist) {
-    window.Player.playSongFromPlaylist(songId, playlist)
-}
-
 script removeSongFromPlaylist(songId, playlistId string) {
     Player.removeSongFromPlaylist(songId, playlistId);
 }
@@ -211,4 +205,8 @@ script copyLink(pubId string, isPublic bool) {
     } else {
         alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
     }
+}
+
+script playSongFromPlaylist(songId string, playlist entities.Playlist) {
+    window.Player.playSongFromPlaylist(songId, playlist)
 }

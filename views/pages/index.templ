@@ -46,7 +46,20 @@ templ historyContent(recentPlays []entities.Song) {
 		}
 	>
 		for _, s := range recentPlays {
-			@song.Song(s, []string{"Played " + s.AddedAt}, nil, playSong(s), true)
+			@song.Song(s, []string{"Played " + s.AddedAt}, nil, entities.Playlist{})
 		}
+		<div
+			class={ "h-[10px]", "mb-[20px]" }
+			hx-get="/api/history/2"
+			hx-swap="outerHTML"
+			hx-trigger="intersect"
+			data-hx-revealed="true"
+			data-loading-target="#history-loading"
+			data-loading-class-remove="hidden"
+			data-loading-path="/api/history/2"
+		></div>
+		<div id="history-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
+			<div class={ "loader", "!h-20", "!w-20" }></div>
+		</div>
 	</div>
 }

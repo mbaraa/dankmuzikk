@@ -87,6 +87,7 @@ func StartServer(staticFS embed.FS) error {
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	songDownloadApi := apis.NewDownloadHandler(downloadService, songsService, historyService)
 	playlistsApi := apis.NewPlaylistApi(playlistsService, songsService)
+	historyApi := apis.NewHistoryApi(historyService)
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -104,6 +105,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("DELETE /playlist", gHandler.AuthApi(playlistsApi.HandleDeletePlaylist))
 	apisHandler.HandleFunc("PUT /toggle-song-in-playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 	apisHandler.HandleFunc("PUT /increment-song-plays", gHandler.AuthApi(songDownloadApi.HandleIncrementSongPlaysInPlaylist))
+	apisHandler.HandleFunc("GET /history/{page}", gHandler.AuthApi(historyApi.HandleGetMoreHistoryItems))
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)
