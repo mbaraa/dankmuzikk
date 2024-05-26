@@ -252,10 +252,10 @@ function playlister(state) {
         continue;
       }
       if (songYtId === _song.yt_id) {
-        songEl.style.backgroundColor = "none";
+        songEl.style.backgroundColor = "var(--accent-color-30)";
         songEl.scrollIntoView();
       } else {
-        songEl.style.backgroundColor = "var(--secondary-color-20)";
+        songEl.style.backgroundColor = "#ffffff00";
       }
     }
   };
