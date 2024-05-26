@@ -67,7 +67,7 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 		pages.Index(recentPlays).Render(r.Context(), w)
 		return
 	}
-	layouts.Default(pages.Index(recentPlays)).Render(r.Context(), w)
+	layouts.Default("Home", pages.Index(recentPlays)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +75,7 @@ func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 		pages.About().Render(r.Context(), w)
 		return
 	}
-	layouts.Default(pages.About()).Render(r.Context(), w)
+	layouts.Default("About", pages.About()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +98,7 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 		pages.Playlists(playlists).Render(r.Context(), w)
 		return
 	}
-	layouts.Default(pages.Playlists(playlists)).Render(r.Context(), w)
+	layouts.Default("Playlists", pages.Playlists(playlists)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
@@ -133,11 +133,11 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 		pages.Playlist(playlist).Render(ctx, w)
 		return
 	}
-	layouts.Default(pages.Playlist(playlist)).Render(ctx, w)
+	layouts.Default(playlist.Title, pages.Playlist(playlist)).Render(ctx, w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Default(pages.Privacy()).Render(r.Context(), w)
+	layouts.Default("Privacy", pages.Privacy()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
@@ -161,7 +161,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		pages.Profile(profile).Render(r.Context(), w)
 		return
 	}
-	layouts.Default(pages.Profile(profile)).Render(r.Context(), w)
+	layouts.Default("Profile", pages.Profile(profile)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Request) {
@@ -190,7 +190,7 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		pages.SearchResults(results, playlists, songsInPlaylists).Render(r.Context(), w)
 		return
 	}
-	layouts.Default(pages.SearchResults(results, playlists, songsInPlaylists)).Render(r.Context(), w)
+	layouts.Default("Results for "+query, pages.SearchResults(results, playlists, songsInPlaylists)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {
