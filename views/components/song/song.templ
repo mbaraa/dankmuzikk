@@ -55,7 +55,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			</div>
 		</div>
 		<!-- actions -->
-		<div class={ "me-3", "flex", "items-center" }>
+		<div class={ "lg:me-3", "flex", "items-center" }>
 			@popover.Popover(s.YtId, "Song options", icons.Options(), options(s, additionalOptions))
 		</div>
 	</div>
