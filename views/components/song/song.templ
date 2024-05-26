@@ -80,7 +80,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			type="button"
 			onClick={ addSongToQueue(song) }
 		>
-			<img class={ "max-w-[30px]", "h-[25px]", "md:h-[30px]" } src="/static/icons/add-to-queue.svg" alt="Add song to queue"/>
+			@icons.AddToQueue()
 			<span>Add to queue</span>
 		</button>
 		<button
@@ -92,7 +92,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			type="button"
 			onClick={ downloadSong(song.YtId, song.Title) }
 		>
-			<img class={ "max-w-[30px]", "h-[25px]", "md:h-[30px]" } src="/static/icons/download-icon.svg" alt="Download song"/>
+			@icons.Download()
 			<span>Download to device</span>
 		</button>
 	</div>

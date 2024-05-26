@@ -8,6 +8,7 @@ import (
 	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/views/components/song"
 	"dankmuzikk/views/components/page"
+	"dankmuzikk/views/icons"
 )
 
 templ Playlist(pl entities.Playlist) {
@@ -27,7 +28,9 @@ templ playlistHeader(pl entities.Playlist) {
 				title="Copy link to this playlist"
 				type="button"
 				onClick={ copyLink(pl.PublicId, pl.IsPublic) }
-			><img class={ "max-w-[25px]", "h-[20px]", "md:h-[25px]" } src="/static/icons/share-icon.svg" alt="Share"/> </button>
+			>
+				@icons.ShareLink()
+			</button>
 			if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
 				@playlist.PlaylistsOptionsPopover(pl)
 			} else {
@@ -45,7 +48,8 @@ templ playlistHeader(pl entities.Playlist) {
 				type="button"
 				title="Play playlist"
 				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
-			><img src="/static/icons/play-playlist-icon.svg" alt="Play"/></button>
+			>@icons.PlayPlaylist()
+</button>
 		}
 	</div>
 }

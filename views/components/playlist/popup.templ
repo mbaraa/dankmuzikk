@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"dankmuzikk/entities"
 	"dankmuzikk/views/components/popup"
+	"dankmuzikk/views/icons"
 )
 
 templ PlaylistsPopup(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
@@ -71,6 +72,6 @@ templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPla
 }
 
 templ popoverButton() {
-	<img class={ "max-w-[30px]", "h-[20px]", "md:h-[30px]" } src="/static/icons/add-to-playlist.svg" alt="Add to playlist"/>
+	@icons.AddToPlaytlist()
 	<span>Save to a playlist</span>
 }
