@@ -9,7 +9,7 @@ import (
 
 templ SearchResults(results []entities.Song, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
 	if len(results) == 0 {
-		@page.Container(noResultsHeader(), empty())
+		@page.Container(templ.NopComponent, noResultsHeader())
 	} else {
 		@page.Container(searchHeader(), searchContent(results, playlists, songsInPlaylists))
 	}
@@ -17,9 +17,6 @@ templ SearchResults(results []entities.Song, playlists []entities.Playlist, song
 
 templ noResultsHeader() {
 	<p class={ "w-full", "text-center", "text-secondary", "text-xl" }>No results were found...</p>
-}
-
-templ empty() {
 }
 
 templ searchHeader() {
