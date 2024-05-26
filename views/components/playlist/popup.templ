@@ -31,7 +31,7 @@ templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPla
 						class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
 						hx-put={
 							fmt.Sprintf(
-								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s",
+								"/api/song/playlist?song-id=%s&playlist-id=%s",
 								songId,
 								playlist.PublicId,
 							),
@@ -43,7 +43,7 @@ templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPla
 						data-loading-class-remove="hidden"
 						data-loading-path={
 							fmt.Sprintf(
-								"/api/toggle-song-in-playlist?song-id=%s&playlist-id=%s",
+								"/api/song/playlist?song-id=%s&playlist-id=%s",
 								songId,
 								playlist.PublicId,
 							),
