@@ -10,6 +10,7 @@ function searchNoReload(searchQuery) {
   searchSugEl.innerText = "";
   searchFormEl.blur();
   searchInputEl.blur();
+  searchInputEl.value = searchQuery;
   const query = encodeURIComponent(searchQuery);
   const prevPath = window.location.href.substring(
     (window.location.protocol + "//" + window.location.host).length,
@@ -70,6 +71,8 @@ function moveToSuggestions() {
   searchSuggestionsEl.focus();
   searchSuggestionsEl.addEventListener("keydown", moveToNextSuggestion);
 }
+
+document.addEventListener("htmx:afterRequest", function (e) {});
 
 window.Search = {
   searchNoReload,
