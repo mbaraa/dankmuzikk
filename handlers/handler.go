@@ -39,7 +39,6 @@ func (a *Handler) OptionalAuthPage(h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
-		ctx = context.WithValue(ctx, FullNameKey, profile.Name)
 		h(w, r.WithContext(ctx))
 	})
 }
@@ -51,7 +50,6 @@ func (a *Handler) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 		profile, err := a.authenticate(r)
 		authed := err == nil
 		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
-		ctx = context.WithValue(ctx, FullNameKey, profile.Name)
 
 		switch {
 		case authed && slices.Contains(noAuthPaths, r.URL.Path):
@@ -87,7 +85,6 @@ func (a *Handler) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
-		ctx = context.WithValue(ctx, FullNameKey, profile.Name)
 		h(w, r.WithContext(ctx))
 	}
 }
@@ -132,7 +129,7 @@ func (a *Handler) authenticate(r *http.Request) (entities.Profile, error) {
 		profileRepo.
 		GetDB().
 		Model(&profile).
-		Select("id", "name").
+		Select("id").
 		Where("username = ?", username).
 		First(&profile).
 		Error
