@@ -35,6 +35,9 @@ templ playlistOptions(playlist entities.Playlist) {
 						playlist.PublicId,
 					),
 				}
+				if playlist.SongsCount > 0 {
+					hx-confirm={ fmt.Sprintf("Delete %s?", playlist.Title) }
+				}
 				hx-trigger="click"
 				data-loading-target="#loading"
 				data-loading-class-remove="hidden"
