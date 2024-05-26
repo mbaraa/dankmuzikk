@@ -27,10 +27,8 @@ window.addEventListener("load", () => {
   updateActiveNavLink();
 });
 
-window.addEventListener("popstate", (e) => {
-  e.stopImmediatePropagation();
-  e.preventDefault();
-  window.open(window.location.prevPath, "_self");
+document.addEventListener("htmx:afterRequest", function (e) {
+  console.log("lol", e);
 });
 
 window.Router = { updateActiveNavLink };

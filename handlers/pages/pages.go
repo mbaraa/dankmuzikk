@@ -64,6 +64,8 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if handlers.IsNoLayoutPage(r) {
+		w.Header().Set("HX-Title", "Home")
+		w.Header().Set("HX-Push-Url", "/")
 		pages.Index(recentPlays).Render(r.Context(), w)
 		return
 	}
@@ -72,6 +74,8 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 	if handlers.IsNoLayoutPage(r) {
+		w.Header().Set("HX-Title", "About")
+		w.Header().Set("HX-Push-Url", "/about")
 		pages.About().Render(r.Context(), w)
 		return
 	}
@@ -95,6 +99,8 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	if handlers.IsNoLayoutPage(r) {
+		w.Header().Set("HX-Title", "Playlists")
+		w.Header().Set("HX-Push-Url", "/playlists")
 		pages.Playlists(playlists).Render(r.Context(), w)
 		return
 	}
@@ -130,6 +136,8 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	ctx := context.WithValue(r.Context(), handlers.PlaylistPermission, permission)
 
 	if handlers.IsNoLayoutPage(r) {
+		w.Header().Set("HX-Title", playlist.Title)
+		w.Header().Set("HX-Push-Url", "/playlist/"+playlist.PublicId)
 		pages.Playlist(playlist).Render(ctx, w)
 		return
 	}
@@ -158,6 +166,8 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		Username: dbProfile.Username,
 	}
 	if handlers.IsNoLayoutPage(r) {
+		w.Header().Set("HX-Title", "Profile")
+		w.Header().Set("HX-Push-Url", "/profile")
 		pages.Profile(profile).Render(r.Context(), w)
 		return
 	}
@@ -187,6 +197,8 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 	}
 
 	if handlers.IsNoLayoutPage(r) {
+		w.Header().Set("HX-Title", "Results for "+query)
+		w.Header().Set("HX-Push-Url", "/search?query="+query)
 		pages.SearchResults(results, playlists, songsInPlaylists).Render(r.Context(), w)
 		return
 	}

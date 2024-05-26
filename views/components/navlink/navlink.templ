@@ -10,7 +10,7 @@ templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
-		hx-on::before-request={ updateHref(path) }
+		hx-on::after-request={ updateStyle() }
 	>
 		if imageUrl != "" {
 			<div class={ "flex", "gap-x-3", "items-center" }>
@@ -44,7 +44,7 @@ templ JustLink(path, title string, child templ.Component) {
 		hx-target="#main-contents"
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
-		hx-on::before-request={ updateHref(path) }
+		hx-on::after-request={ updateStyle() }
 	>
 		<div
 			id={ path }
@@ -55,9 +55,6 @@ templ JustLink(path, title string, child templ.Component) {
 	</a>
 }
 
-script updateHref(path string) {
-    const prevPath = window.location.href.substring((window.location.protocol+"//"+window.location.host).length);
-    window.location.prevPath = prevPath;
-    window.history.pushState({}, "", path)
+script updateStyle() {
     Router.updateActiveNavLink();
 }
