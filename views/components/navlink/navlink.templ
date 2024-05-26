@@ -11,6 +11,9 @@ templ NavLink(title, imageUrl, path string, showTilte ...bool) {
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
 		hx-on::after-request={ updateStyle() }
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={ path + "?no_layout=true" }
 	>
 		if imageUrl != "" {
 			<div class={ "flex", "gap-x-3", "items-center" }>
@@ -45,6 +48,9 @@ templ JustLink(path, title string, child templ.Component) {
 		hx-swap="innerHTML"
 		hx-trigger="click,submit"
 		hx-on::after-request={ updateStyle() }
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={ path + "?no_layout=true" }
 	>
 		<div
 			id={ path }
