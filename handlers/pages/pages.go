@@ -79,7 +79,7 @@ func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Raw(pages.Login()).Render(r.Context(), w)
+	layouts.Raw("Login", pages.Login()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
@@ -194,5 +194,5 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 }
 
 func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Raw(pages.Signup()).Render(r.Context(), w)
+	layouts.Raw("Sign up", pages.Signup()).Render(r.Context(), w)
 }
