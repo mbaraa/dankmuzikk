@@ -38,17 +38,6 @@ templ mobileHeader() {
 				<h1 class={ "text-3xl", }>DankMuzikk</h1>
 			</div>
 			<div>
-				<p class={ "text-secondary", "font-Ubuntu", "text-xl" }>
-					if fullName, ok := ctx.Value("full-name").(string); ok {
-						Hi { fullName } 👋
-					} else {
-						Hiyo 👋
-					}
-					<br/>
-					Wanna play something?
-				</p>
-			</div>
-			<div>
 				@search.Search()
 			</div>
 		</div>
