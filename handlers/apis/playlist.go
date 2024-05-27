@@ -7,6 +7,7 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/playlists/songs"
+	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/views/pages"
 	"encoding/json"
 	"net/http"
@@ -159,4 +160,28 @@ func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("HX-Redirect", "/playlists")
+}
+
+func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+
+	songId := r.URL.Query().Get("song-id")
+	if songId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	playlists, songsInPlaylists, err := p.service.GetAllMappedForAddPopover(profileId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Errorln(err)
+		return
+	}
+
+	playlist.PlaylistsSelector(songId, playlists, songsInPlaylists).
+		Render(r.Context(), w)
 }
