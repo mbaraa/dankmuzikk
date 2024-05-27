@@ -34,27 +34,44 @@ func New(
 	}
 }
 
+// song-id vBHild0PiTE AND playlist-id 9d89cb71e00249cc99e1e5c54f3b0d5f
+
 // ToggleSongInPlaylist adds/removes a given song to/from the given playlist,
 // checks if the actual song and playlist exist then adds/removes the song to/from the given playlist,
 // and returns an occurring error.
 func (s *Service) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {
-	playlist, err := s.playlistRepo.GetByConds("public_id = ?", playlistPubId)
+	gigaQuery := `SELECT pl.id, s.id
+		FROM
+			playlist_owners po
+			JOIN playlists pl
+				ON po.playlist_id = pl.id
+			JOIN playlist_songs ps
+				ON ps.playlist_id = pl.id
+			JOIN songs s
+				ON ps.song_id = ps.song_id
+		WHERE
+			pl.public_id = ?
+				AND
+			s.yt_id = ?
+				AND
+			po.profile_id = ?
+		LIMIT 1;`
+
+	var songDbId, playlistDbId uint
+	err = s.songRepo.
+		GetDB().
+		Raw(gigaQuery, playlistPubId, songId, ownerId).
+		Row().
+		Scan(&playlistDbId, &songDbId)
 	if err != nil {
-		return
+		return false, err
 	}
-	_, err = s.playlistOwnerRepo.GetByConds("profile_id = ? AND playlist_id = ?", ownerId, playlist[0].Id)
-	if err != nil {
-		return
-	}
-	song, err := s.songRepo.GetByConds("yt_id = ?", songId)
-	if err != nil {
-		return
-	}
-	_, err = s.playlistSongRepo.GetByConds("playlist_id = ? AND song_id = ?", playlist[0].Id, song[0].Id)
+
+	_, err = s.playlistSongRepo.GetByConds("playlist_id = ? AND song_id = ?", playlistDbId, songDbId)
 	if errors.Is(err, db.ErrRecordNotFound) {
 		err = s.playlistSongRepo.Add(&models.PlaylistSong{
-			PlaylistId: playlist[0].Id,
-			SongId:     song[0].Id,
+			PlaylistId: playlistDbId,
+			SongId:     songDbId,
 		})
 		if err != nil {
 			return
@@ -63,62 +80,52 @@ func (s *Service) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uin
 	} else {
 		return false, s.
 			playlistSongRepo.
-			Delete("playlist_id = ? AND song_id = ?", playlist[0].Id, song[0].Id)
+			Delete("playlist_id = ? AND song_id = ?", playlistDbId, songDbId)
 	}
 }
 
 // IncrementSongPlays increases the song's play times in the given playlist.
 // Checks for the song and playlist first, yada yada...
 func (s *Service) IncrementSongPlays(songId, playlistPubId string, ownerId uint) error {
-	var playlist models.Playlist
-	err := s.
-		songRepo.
+	gigaQuery := `SELECT pl.id, s.id
+		FROM
+			playlist_owners po
+			JOIN playlists pl
+				ON po.playlist_id = pl.id
+			JOIN playlist_songs ps
+				ON ps.playlist_id = pl.id
+			JOIN songs s
+				ON ps.song_id = ps.song_id
+		WHERE
+			pl.public_id = ?
+				AND
+			s.yt_id = ?
+				AND
+			po.profile_id = ?
+		LIMIT 1;`
+
+	var songDbId, playlistDbId uint
+	err := s.songRepo.
 		GetDB().
-		Model(new(models.Playlist)).
-		Select("id").
-		Where("public_id = ?", playlistPubId).
-		First(&playlist).
+		Raw(gigaQuery, playlistPubId, songId, ownerId).
+		Row().
+		Scan(&playlistDbId, &songDbId)
+	if err != nil {
+		return err
+	}
+
+	updateQuery := `UPDATE playlist_songs
+		SET play_times = play_times + 1
+		WHERE
+			playlist_id = ? AND song_id = ?;`
+
+	err = s.songRepo.
+		GetDB().
+		Exec(updateQuery, playlistDbId, songDbId).
 		Error
 	if err != nil {
 		return err
 	}
 
-	_, err = s.playlistOwnerRepo.GetByConds("profile_id = ? AND playlist_id = ?", ownerId, playlist.Id)
-	if err != nil {
-		return err
-	}
-
-	var song models.Song
-	err = s.
-		songRepo.
-		GetDB().
-		Model(new(models.Song)).
-		Select("id").
-		Where("yt_id = ?", songId).
-		First(&song).
-		Error
-	if err != nil {
-		return err
-	}
-
-	var ps models.PlaylistSong
-	err = s.
-		playlistSongRepo.
-		GetDB().
-		Model(new(models.PlaylistSong)).
-		Select("play_times").
-		Where("playlist_id = ? AND song_id = ?", playlist.Id, song.Id).
-		First(&ps).
-		Error
-	if err != nil {
-		return err
-	}
-
-	return s.
-		playlistSongRepo.
-		GetDB().
-		Model(new(models.PlaylistSong)).
-		Where("playlist_id = ? AND song_id = ?", playlist.Id, song.Id).
-		Update("play_times", ps.PlayTimes+1).
-		Error
+	return nil
 }
