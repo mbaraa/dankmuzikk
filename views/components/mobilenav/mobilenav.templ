@@ -12,13 +12,13 @@ templ MobileNav() {
 		>
 			<ul class={ "w-full", "m-0", "p-5", "px-14", "list-none", "flex", "justify-between" }>
 				<li>
-					@navlink.LinkContainer("/", "Home", icons.Home())
+					@navlink.ImageRouteLink("/", "Home", icons.Home())
 				</li>
 				<li>
-					@navlink.LinkContainer("/playlists", "Playlists", icons.Playlist())
+					@navlink.ImageRouteLink("/playlists", "Playlists", icons.Playlist())
 				</li>
 				<li>
-					@navlink.LinkContainer("/profile", "Profile", icons.Profile())
+					@navlink.ImageRouteLink("/profile", "Profile", icons.Profile())
 				</li>
 			</ul>
 		</nav>
