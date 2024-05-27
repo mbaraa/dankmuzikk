@@ -45,6 +45,7 @@ templ playlistHeader(pl entities.Playlist) {
 		</div>
 		if pl.Songs != nil && len(pl.Songs) > 0 {
 			<button
+				id="play-playlist-button"
 				type="button"
 				title="Play playlist"
 				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
