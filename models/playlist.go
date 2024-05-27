@@ -86,10 +86,17 @@ func (p *PlaylistSong) BeforeDelete(tx *gorm.DB) error {
 		return err
 	}
 
-	return tx.
+	err = tx.
 		Model(&playlist).
 		Where("id = ?", p.PlaylistId).
 		Update("songs_count", playlist.SongsCount-1).
+		Error
+	if err != nil {
+		return err
+	}
+
+	return tx.
+		Exec("DELETE FROM playlist_song_voters WHERE playlist_id = ? AND song_id = ?", p.PlaylistId, p.SongId).
 		Error
 }
 
