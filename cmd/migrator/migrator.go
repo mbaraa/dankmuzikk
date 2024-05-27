@@ -20,6 +20,7 @@ func Migrate() error {
 		new(models.PlaylistSong),
 		new(models.PlaylistOwner),
 		new(models.History),
+		new(models.PlaylistSongVoter),
 	)
 	if err != nil {
 		return err

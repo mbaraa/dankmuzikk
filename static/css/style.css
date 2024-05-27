@@ -13,18 +13,23 @@ table {
 * {
   --animation-duration: 0.4s;
   -webkit-transition:
+    all var(--animation-duration),
     background-color var(--animation-duration),
     opacity var(--animation-duration);
   -moz-transition:
+    all var(--animation-duration),
     background-color var(--animation-duration),
     opacity var(--animation-duration);
   -o-transition:
+    all var(--animation-duration),
     background-color var(--animation-duration),
     opacity var(--animation-duration);
   -ms-transition:
+    all var(--animation-duration),
     background-color var(--animation-duration),
     opacity var(--animation-duration);
   transition:
+    all var(--animation-duration),
     background-color var(--animation-duration),
     opacity var(--animation-duration);
 }

@@ -189,20 +189,14 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		log.Info("downloading songs' meta data from search")
 		_ = p.downloadService.DownloadYoutubeSongsMetadata(results)
 	}
-	var songsInPlaylists map[string]bool
-	var playlists []entities.Playlist
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
-	if profileIdCorrect {
-		playlists, songsInPlaylists, _ = p.playlistsService.GetAllMappedForAddPopover(profileId)
-	}
 
 	if handlers.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", "Results for "+query)
 		w.Header().Set("HX-Push-Url", "/search?query="+query)
-		pages.SearchResults(results, playlists, songsInPlaylists).Render(r.Context(), w)
+		pages.SearchResults(results).Render(r.Context(), w)
 		return
 	}
-	layouts.Default("Results for "+query, pages.SearchResults(results, playlists, songsInPlaylists)).Render(r.Context(), w)
+	layouts.Default("Results for "+query, pages.SearchResults(results)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {

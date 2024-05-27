@@ -45,6 +45,7 @@ templ playlistHeader(pl entities.Playlist) {
 		</div>
 		if pl.Songs != nil && len(pl.Songs) > 0 {
 			<button
+				id="play-playlist-button"
 				type="button"
 				title="Play playlist"
 				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
@@ -66,12 +67,17 @@ templ playlistContent(pl entities.Playlist) {
 					"flex", "flex-col", "gap-y-1", "lg:gap-y-4",
 				}
 			>
-				for _, s := range pl.Songs {
+				for idx, s := range pl.Songs {
 					if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
 						@song.Song(
 							s,
 							[]string{},
-							[]templ.Component{songOptionsMobile(s), removeSong(s, pl.PublicId)},
+							[]templ.Component{
+								songOptionsMobile(s),
+								voteSong(s.YtId, pl.PublicId, s.Votes),
+								removeSong(s, pl.PublicId),
+								playlist.PlaylistsPopup(idx, s.YtId),
+							},
 							pl,
 						)
 					} else {
@@ -81,7 +87,11 @@ templ playlistContent(pl entities.Playlist) {
 								playedTimes(s.PlayTimes),
 								"Added on " + s.AddedAt,
 							},
-							[]templ.Component{removeSong(s, pl.PublicId)},
+							[]templ.Component{
+								voteSong(s.YtId, pl.PublicId, s.Votes),
+								removeSong(s, pl.PublicId),
+								playlist.PlaylistsPopup(idx, s.YtId),
+							},
 							pl,
 						)
 					}
@@ -125,6 +135,73 @@ templ songOptionsMobile(song entities.Song) {
 		} else if song.PlayTimes > 1 {
 			<p class={ "text-md", "max-w-[200px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
 		}
+	</div>
+}
+
+templ voteSong(songId, playlistId string, votes int) {
+	<h3 class={ "ps-2", "md:ps-0", "mb-2", "md:mb-0", "w-full", "text-start", "md:text-center", "text-md", "md:text-xl",  "md:font-medium" }>Votes</h3>
+	<div class={ "w-full", "flex", "gap-x-2", "justify-between" }>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full", "justify-center",
+			}
+			title="Downvote song"
+			type="button"
+			hx-put={
+				fmt.Sprintf(
+					"/api/song/playlist/downvote?song-id=%s&playlist-id=%s",
+					songId, playlistId,
+				),
+			}
+			hx-swap="innerHTML"
+			hx-target={ fmt.Sprintf("#votes-%s", songId) }
+			hx-trigger="click"
+			data-loading-target="#loading"
+			data-loading-class-remove="hidden"
+			data-loading-path={
+				fmt.Sprintf(
+					"/api/song/playlist/downvote?song-id=%s&playlist-id=%s",
+					songId, playlistId,
+				),
+			}
+		>
+			// dv
+			<svg width="32" height="28" viewBox="0 0 32 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M20.0449 21.0084C18.5824 23.3558 17.8511 24.5294 16.9148 24.9319C16.0972 25.2834 15.1716 25.2834 14.3539 24.9319C13.4177 24.5293 12.6865 23.3557 11.224 21.0082L4.35499 9.98268C2.73185 7.37729 1.92019 6.07459 2.00652 4.99958C2.08164 4.06254 2.55609 3.20359 3.30846 2.6431C4.17152 2.00008 5.70289 2.00011 8.76564 2.00019L15.5864 12.8345L22.5042 2.00051C25.5669 2.00058 27.0982 2.00062 27.9613 2.64368C28.7136 3.20421 29.1882 4.06318 29.2633 5.00023C29.3494 6.07524 28.5377 7.37791 26.9144 9.98322L20.0449 21.0084Z" stroke="white" stroke-width="4" stroke-linejoin="round"></path>
+			</svg>
+		</button>
+		<span id={ "votes-" + songId } class={ "font-bold", "text-2xl", "text-secondary","flex", "items-center", "justify-center", "w-6" }>{ fmt.Sprint(votes) }</span>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full", "justify-center",
+			}
+			title="Upvote song"
+			type="button"
+			hx-put={
+				fmt.Sprintf(
+					"/api/song/playlist/upvote?song-id=%s&playlist-id=%s",
+					songId, playlistId,
+				),
+			}
+			hx-swap="innerHTML"
+			hx-target={ fmt.Sprintf("#votes-%s", songId) }
+			hx-trigger="click"
+			data-loading-target="#loading"
+			data-loading-class-remove="hidden"
+			data-loading-path={
+				fmt.Sprintf(
+					"/api/song/playlist/upvote?song-id=%s&playlist-id=%s",
+					songId, playlistId,
+				),
+			}
+		>
+			// uv
+			<svg width="32" height="28" viewBox="0 0 32 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M11.2242 6.18728C12.6867 3.83978 13.4179 2.66619 14.3542 2.26364C15.1718 1.91212 16.0974 1.91212 16.9151 2.26364C17.8513 2.66619 18.5825 3.83978 20.0451 6.18728L26.9144 17.2126C28.5376 19.8179 29.3492 21.1206 29.2629 22.1956C29.1878 23.1327 28.7134 23.9916 27.9611 24.5521C27.098 25.1952 25.5666 25.1952 22.5039 25.1952L15.6828 14.3611L8.76537 25.1952C5.70265 25.1952 4.17131 25.1952 3.30822 24.5521C2.55589 23.9916 2.08131 23.1327 2.00621 22.1956C1.92007 21.1206 2.73168 19.8179 4.35492 17.2126L11.2242 6.18728Z" stroke="white" stroke-width="4" stroke-linejoin="round"></path>
+			</svg>
+		</button>
 	</div>
 }
 

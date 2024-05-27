@@ -86,10 +86,17 @@ func (p *PlaylistSong) BeforeDelete(tx *gorm.DB) error {
 		return err
 	}
 
-	return tx.
+	err = tx.
 		Model(&playlist).
 		Where("id = ?", p.PlaylistId).
 		Update("songs_count", playlist.SongsCount-1).
+		Error
+	if err != nil {
+		return err
+	}
+
+	return tx.
+		Exec("DELETE FROM playlist_song_voters WHERE playlist_id = ? AND song_id = ?", p.PlaylistId, p.SongId).
 		Error
 }
 
@@ -114,3 +121,18 @@ const (
 	OwnerPermission
 	NonePermission PlaylistPermissions = 0
 )
+
+// PlaylistSongVoter ensures that an account had voted only once.
+type PlaylistSongVoter struct {
+	PlaylistId uint `gorm:"primaryKey"`
+	SongId     uint `gorm:"primaryKey"`
+	ProfileId  uint `gorm:"primaryKey"`
+	VoteUp     bool
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (p PlaylistSongVoter) GetId() uint {
+	return p.SongId | p.PlaylistId | p.ProfileId
+}

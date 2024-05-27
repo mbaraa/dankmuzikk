@@ -131,7 +131,7 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (playlist entities.Pla
 		return entities.Playlist{}, models.NonePermission, ErrUnauthorizedToSeePlaylist
 	}
 
-	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, ps.created_at, ps.play_times
+	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, ps.created_at, ps.play_times, ps.votes
 		FROM
 			playlist_songs ps
 		JOIN songs
@@ -152,7 +152,7 @@ func (p *Service) Get(playlistPubId string, ownerId uint) (playlist entities.Pla
 	for rows.Next() {
 		var song entities.Song
 		var addedAt time.Time
-		err = rows.Scan(&song.YtId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.Duration, &addedAt, &song.PlayTimes)
+		err = rows.Scan(&song.YtId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.Duration, &addedAt, &song.PlayTimes, &song.Votes)
 		if err != nil {
 			continue
 		}

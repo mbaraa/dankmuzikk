@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 RUN apk update && \
-    apk add --no-cache mariadb-dev build-base gcc musl-dev linux-headers
+    apk add --no-cache mariadb-dev build-base gcc musl-dev linux-headers ffmpeg
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && \

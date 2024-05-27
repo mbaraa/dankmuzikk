@@ -50,20 +50,22 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 					}
 				>
 					<h3
-						class={ "w-full", "text-lg", "md:text-xl", "font-bold", "overflow-hidden", "text-nowrap", "text-ellipsis" }
+						class={ "w-full", "text-[16px]", "md:text-xl", "font-bold", "overflow-hidden", "text-nowrap", "text-ellipsis" }
 						title={ s.Title }
 					>
 						{ s.Title }
 					</h3>
-					<p class={ "w-full", "text-sm", "font-normal" }>{ s.Artist }</p>
-					for _, info := range additionalData {
-						<p class={ "w-full", "text-sm", "font-normal" }>{ info }</p>
-					}
+					<div class={ "flex", "flex-col", "gap-y-1", "md:gap-y-2", "justify-start", "w-full" }>
+						<p class={ "w-full", "text-sm", "font-normal" }>By { s.Artist }</p>
+						for _, info := range additionalData {
+							<p class={ "w-full", "text-sm", "font-normal" }>{ info }</p>
+						}
+					</div>
 				</div>
 			</div>
 		</div>
 		<!-- actions -->
-		<div class={ "lg:me-3", "flex", "items-center" }>
+		<div class={ "lg:me-3", "flex", "items-center", "lg:gap-x-4" }>
 			@popover.Popover(s.YtId, "Song options", icons.Options(), options(s, additionalOptions))
 		</div>
 	</div>

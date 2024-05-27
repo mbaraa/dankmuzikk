@@ -23,7 +23,7 @@ templ homeLinkContainer() {
 templ mobileHeader() {
 	<div class={ "md:hidden", "flex", "flex-col", "justify-between", "gap-y-5" }>
 		<div class={ "w-full", "flex", "justify-between", "items-center" }>
-			@navlink.LinkContainer("/about", "About", icons.About())
+			@navlink.ImageRouteLink("/about", "About", icons.About())
 			<div
 				class={
 					"flex", "justify-center", "items-center", "flex-row",
@@ -57,13 +57,13 @@ templ desktopHeader() {
 			<nav>
 				<ul class={ "m-0", "list-none", "flex", "gap-x-5" }>
 					<li>
-						@navlink.NavLink("About", "", "/about")
+						@navlink.RouteLink("About", "", "/about")
 					</li>
 					<li>
-						@navlink.NavLink("Playlists", "", "/playlists")
+						@navlink.RouteLink("Playlists", "", "/playlists")
 					</li>
 					<li>
-						@navlink.NavLink("Profile", "", "/profile")
+						@navlink.RouteLink("Profile", "", "/profile")
 					</li>
 				</ul>
 			</nav>
