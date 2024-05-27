@@ -1,5 +1,8 @@
 "use strict";
 
+/**
+ * Using YouTube's applicaple shortcuts: https://support.google.com/youtube/answer/7631406?hl=en
+ */
 const shortcuts = {
   " ": togglePP,
   k: togglePP,
