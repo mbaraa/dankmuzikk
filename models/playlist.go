@@ -114,3 +114,17 @@ const (
 	OwnerPermission
 	NonePermission PlaylistPermissions = 0
 )
+
+// PlaylistSongVoter ensures that an account had voted only once.
+type PlaylistSongVoter struct {
+	PlaylistId uint `gorm:"primaryKey"`
+	SongId     uint `gorm:"primaryKey"`
+	ProfileId  uint `gorm:"primaryKey"`
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (p PlaylistSongVoter) GetId() uint {
+	return p.SongId | p.PlaylistId | p.ProfileId
+}
