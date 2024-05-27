@@ -420,8 +420,8 @@ function expand() {
 function collapse() {
   if (playerEl.classList.contains("exapnded")) {
     playerEl.classList.remove("exapnded");
-    expandedMobilePlayer.classList.add("hidden");
     collapsedMobilePlayer.classList.remove("hidden");
+    expandedMobilePlayer.classList.add("hidden");
   }
 }
 
