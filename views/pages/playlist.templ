@@ -66,12 +66,16 @@ templ playlistContent(pl entities.Playlist) {
 					"flex", "flex-col", "gap-y-1", "lg:gap-y-4",
 				}
 			>
-				for _, s := range pl.Songs {
+				for idx, s := range pl.Songs {
 					if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
 						@song.Song(
 							s,
 							[]string{},
-							[]templ.Component{songOptionsMobile(s), removeSong(s, pl.PublicId)},
+							[]templ.Component{
+								songOptionsMobile(s),
+								removeSong(s, pl.PublicId),
+								playlist.PlaylistsPopup(idx, s.YtId),
+							},
 							pl,
 						)
 					} else {
@@ -81,7 +85,10 @@ templ playlistContent(pl entities.Playlist) {
 								playedTimes(s.PlayTimes),
 								"Added on " + s.AddedAt,
 							},
-							[]templ.Component{removeSong(s, pl.PublicId)},
+							[]templ.Component{
+								removeSong(s, pl.PublicId),
+								playlist.PlaylistsPopup(idx, s.YtId),
+							},
 							pl,
 						)
 					}
