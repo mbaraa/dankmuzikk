@@ -174,6 +174,8 @@ function setLoading(loading, fallback) {
  * @returns {[Function, Function, Function]}
  */
 function playPauser(audioEl) {
+  let startedPlaylist = false;
+
   const __play = () => {
     audioEl.play();
     const songEl = document.getElementById(
@@ -191,6 +193,12 @@ function playPauser(audioEl) {
     setPlayerButtonIcon(playPauseToggleExapndedEl, Player.icons.play);
   };
   const __toggle = () => {
+    const playPlaylistEl = document.getElementById("play-playlist-button");
+    if (!!playPlaylistEl && !startedPlaylist) {
+      playPlaylistEl.click();
+      startedPlaylist = true;
+      return;
+    }
     if (audioEl.paused) {
       __play();
     } else {
@@ -213,7 +221,7 @@ function stopper(audioEl) {
       "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
     );
     if (!!songEl) {
-      songEl.style.backgroundColor = "var(--secondary-color-20)";
+      songEl.style.backgroundColor = "#ffffff00";
     }
     setPlayerButtonIcon(playPauseToggleEl, Player.icons.play);
     setPlayerButtonIcon(playPauseToggleExapndedEl, Player.icons.play);
@@ -265,7 +273,7 @@ function playlister(state) {
       return;
     }
     await fetch(
-      "/api/playlist/plays?" +
+      "/api/song/playlist/plays?" +
         new URLSearchParams({
           "song-id": state.playlist.songs[state.currentSongIdx].yt_id,
           "playlist-id": state.playlist.public_id,
@@ -365,6 +373,36 @@ function playlister(state) {
   };
 
   return [__next, __prev, __remove, __setSongInPlaylistStyle];
+}
+
+function volumer() {
+  let lastVolume = 1;
+  const __setVolume = (level) => {
+    if (level > 1) {
+      level = 1;
+    }
+    if (level < 0) {
+      level = 0;
+    }
+    audioPlayerEl.volume = level;
+    if (volumeSeekBarEl) {
+      volumeSeekBarEl.value = Math.floor(level * 100);
+    }
+    if (volumeSeekBarExpandedEl) {
+      volumeSeekBarExpandedEl.value = Math.floor(level * 100);
+    }
+  };
+
+  const __muter = () => {
+    if (audioPlayerEl.volume === 0) {
+      __setVolume(lastVolume);
+    } else {
+      lastVolume = audioPlayerEl.volume;
+      __setVolume(0);
+    }
+  };
+
+  return [__setVolume, __muter];
 }
 
 /**
@@ -571,6 +609,7 @@ const [
   removeSongFromPlaylist,
   highlightSongInPlaylist,
 ] = playlister(playerState);
+const [setVolume, mute] = volumer();
 
 playPauseToggleEl.addEventListener("click", (event) => {
   event.stopImmediatePropagation();
