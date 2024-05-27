@@ -40,6 +40,7 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
  * @property {string} yt_id
  * @property {number} play_times
  * @property {string} added_at
+ * @property {number} votes
  */
 
 /**
@@ -260,36 +261,44 @@ function playlister(state) {
     }
   };
 
-  const __updateSongPlays = async () => {
-    if (!state.playlist.public_id) {
-      return;
-    }
-    await fetch(
-      "/api/song/playlist/plays?" +
-        new URLSearchParams({
-          "song-id": state.playlist.songs[state.currentSongIdx].yt_id,
-          "playlist-id": state.playlist.public_id,
-        }).toString(),
-      {
-        method: "PUT",
-      },
-    ).catch((err) => console.error(err));
-  };
-
-  const __next = () => {
+  const __next = async () => {
+    console.log(
+      "__next",
+      state.playlist.songs.map((s) => {
+        return { title: s.title, plays: s.plays, votes: s.votes };
+      }),
+    );
     if (checkLoop(LOOP_MODES.ONCE)) {
       stopMuzikk();
       playMuzikk();
+      await updateSongPlays();
       return;
     }
+    // chack votes to whether repeat the song or not.
+    if (state.playlist.songs[state.currentSongIdx].votes > 1) {
+      const songToPlay = state.playlist.songs[state.currentSongIdx];
+      songToPlay.votes--;
+      songToPlay.plays++;
+      playSongFromPlaylist(songToPlay.yt_id, state.playlist);
+      __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
+      return;
+    }
+
     if (
       !checkLoop(LOOP_MODES.ALL) &&
       !state.shuffled &&
       state.currentSongIdx + 1 >= state.playlist.songs.length
     ) {
       stopMuzikk();
+      // reset songs' votes
+      for (const s of state.playlist.songs) {
+        if (!!s.plays) {
+          s.votes = s.plays;
+        }
+      }
       return;
     }
+
     state.currentSongIdx = state.shuffled
       ? Math.floor(Math.random() * state.playlist.songs.length)
       : checkLoop(LOOP_MODES.ALL) &&
@@ -298,14 +307,23 @@ function playlister(state) {
         : state.currentSongIdx + 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
     playSongFromPlaylist(songToPlay.yt_id, state.playlist);
-    __updateSongPlays();
     __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
-  const __prev = () => {
+  const __prev = async () => {
     if (checkLoop(LOOP_MODES.ONCE)) {
       stopMuzikk();
       playMuzikk();
+      await updateSongPlays();
+      return;
+    }
+    // chack votes to whether repeat the song or not.
+    if (state.playlist.songs[state.currentSongIdx].votes > 1) {
+      const songToPlay = state.playlist.songs[state.currentSongIdx];
+      songToPlay.votes--;
+      songToPlay.plays++;
+      playSongFromPlaylist(songToPlay.yt_id, state.playlist);
+      __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
       return;
     }
     if (
@@ -314,6 +332,12 @@ function playlister(state) {
       state.currentSongIdx - 1 < 0
     ) {
       stopMuzikk();
+      // reset songs' votes
+      for (const s of state.playlist.songs) {
+        if (!!s.plays) {
+          s.votes = s.plays;
+        }
+      }
       return;
     }
     state.currentSongIdx = state.shuffled
@@ -323,7 +347,6 @@ function playlister(state) {
         : state.currentSongIdx - 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
     playSongFromPlaylist(songToPlay.yt_id, state.playlist);
-    __updateSongPlays();
     __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
@@ -455,6 +478,22 @@ function collapse() {
   }
 }
 
+async function updateSongPlays() {
+  if (!playerState.playlist.public_id) {
+    return;
+  }
+  await fetch(
+    "/api/song/playlist/plays?" +
+      new URLSearchParams({
+        "song-id": playerState.playlist.songs[playerState.currentSongIdx].yt_id,
+        "playlist-id": playerState.playlist.public_id,
+      }).toString(),
+    {
+      method: "PUT",
+    },
+  ).catch((err) => console.error(err));
+}
+
 /**
  * @param {Song} song
  */
@@ -510,6 +549,7 @@ async function playSong(song) {
   }
   setMediaSessionMetadata(song);
   playMuzikk();
+  await updateSongPlays();
 }
 
 /**
@@ -537,7 +577,14 @@ function playSongFromPlaylist(songYtId, playlist) {
     return;
   }
   playerState.playlist = playlist;
+  playerState.playlist.songs = playlist.songs.map((s) => {
+    return { ...s, plays: 0 };
+  });
   playerState.currentSongIdx = songIdx;
+  console.log("song index", songIdx);
+  if (playerState.playlist.songs[songIdx].votes === 0) {
+    playerState.currentSongIdx++;
+  }
   const songToPlay = playlist.songs[songIdx];
   highlightSongInPlaylist(songToPlay.yt_id, playlist);
   playSong(songToPlay);

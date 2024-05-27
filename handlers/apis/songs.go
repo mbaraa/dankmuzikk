@@ -6,6 +6,7 @@ import (
 	"dankmuzikk/services/history"
 	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
+	"fmt"
 	"net/http"
 )
 
@@ -50,6 +51,60 @@ func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.Response
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+	songId := r.URL.Query().Get("song-id")
+	if songId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	votes, err := s.songsService.UpvoteSong(songId, playlistId, profileId)
+	if err != nil {
+		log.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = w.Write([]byte(fmt.Sprint(votes)))
+}
+
+func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+	songId := r.URL.Query().Get("song-id")
+	if songId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	votes, err := s.songsService.DownvoteSong(songId, playlistId, profileId)
+	if err != nil {
+		log.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = w.Write([]byte(fmt.Sprint(votes)))
 }
 
 func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
