@@ -42,10 +42,11 @@ func StartServer(staticFS embed.FS) error {
 	playlistOwnersRepo := db.NewBaseDB[models.PlaylistOwner](dbConn)
 	playlistSongsRepo := db.NewBaseDB[models.PlaylistSong](dbConn)
 	historyRepo := db.NewBaseDB[models.History](dbConn)
+	playlistVotersRepo := db.NewBaseDB[models.PlaylistSongVoter](dbConn)
 
 	downloadService := download.New(songRepo)
 	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongsRepo)
-	songsService := songs.New(playlistSongsRepo, playlistOwnersRepo, songRepo, playlistRepo, downloadService)
+	songsService := songs.New(playlistSongsRepo, playlistOwnersRepo, songRepo, playlistRepo, playlistVotersRepo, downloadService)
 	historyService := history.New(historyRepo, songRepo)
 
 	jwtUtil := jwt.NewJWTImpl()
@@ -85,7 +86,7 @@ func StartServer(staticFS embed.FS) error {
 
 	emailLoginApi := apis.NewEmailLoginApi(login.NewEmailLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
 	googleLoginApi := apis.NewGoogleLoginApi(login.NewGoogleLoginService(accountRepo, profileRepo, otpRepo, jwtUtil))
-	songDownloadApi := apis.NewDownloadHandler(downloadService, songsService, historyService)
+	songApi := apis.NewDownloadHandler(downloadService, songsService, historyService)
 	playlistsApi := apis.NewPlaylistApi(playlistsService, songsService)
 	historyApi := apis.NewHistoryApi(historyService)
 
@@ -98,9 +99,11 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
-	apisHandler.HandleFunc("GET /song", gHandler.OptionalAuthApi(songDownloadApi.HandlePlaySong))
+	apisHandler.HandleFunc("GET /song", gHandler.OptionalAuthApi(songApi.HandlePlaySong))
 	apisHandler.HandleFunc("PUT /song/playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
-	apisHandler.HandleFunc("PUT /song/playlist/plays", gHandler.AuthApi(songDownloadApi.HandleIncrementSongPlaysInPlaylist))
+	apisHandler.HandleFunc("PUT /song/playlist/plays", gHandler.AuthApi(songApi.HandleIncrementSongPlaysInPlaylist))
+	apisHandler.HandleFunc("PUT /song/playlist/upvote", gHandler.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
+	apisHandler.HandleFunc("PUT /song/playlist/downvote", gHandler.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	apisHandler.HandleFunc("GET /playlist/all", gHandler.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
 	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
 	apisHandler.HandleFunc("PUT /playlist/public", gHandler.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
