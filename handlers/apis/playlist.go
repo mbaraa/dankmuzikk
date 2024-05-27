@@ -79,7 +79,12 @@ func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.
 	}
 
 	if added {
-		_, _ = w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary bg-secondary\"></div>"))
+		_, _ = w.Write([]byte(`<div class="w-[20px] h-[20px] rounded-sm border border-secondary bg-secondary flex justify-center items-center">
+	<svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M2 6L7.33514 12.3582" stroke="var(--primary-color)" stroke-width="3" stroke-linecap="round"></path>
+		<path d="M7.4502 12.312L16.4492 1.58739" stroke="var(--primary-color)" stroke-width="3" stroke-linecap="round"></path>
+	</svg>
+</div>`))
 	} else {
 		_, _ = w.Write([]byte("<div class=\"w-[20px] h-[20px] rounded-sm border border-secondary\"></div>"))
 	}
