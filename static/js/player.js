@@ -174,8 +174,6 @@ function setLoading(loading, fallback) {
  * @returns {[Function, Function, Function]}
  */
 function playPauser(audioEl) {
-  let startedPlaylist = false;
-
   const __play = () => {
     audioEl.play();
     const songEl = document.getElementById(
@@ -193,12 +191,6 @@ function playPauser(audioEl) {
     setPlayerButtonIcon(playPauseToggleExapndedEl, Player.icons.play);
   };
   const __toggle = () => {
-    const playPlaylistEl = document.getElementById("play-playlist-button");
-    if (!!playPlaylistEl && !startedPlaylist) {
-      playPlaylistEl.click();
-      startedPlaylist = true;
-      return;
-    }
     if (audioEl.paused) {
       __play();
     } else {
