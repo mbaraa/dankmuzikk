@@ -120,6 +120,7 @@ type PlaylistSongVoter struct {
 	PlaylistId uint `gorm:"primaryKey"`
 	SongId     uint `gorm:"primaryKey"`
 	ProfileId  uint `gorm:"primaryKey"`
+	VoteUp     bool
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
