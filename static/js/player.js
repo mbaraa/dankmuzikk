@@ -265,7 +265,7 @@ function playlister(state) {
       return;
     }
     await fetch(
-      "/api/increment-song-plays?" +
+      "/api/playlist/plays?" +
         new URLSearchParams({
           "song-id": state.playlist.songs[state.currentSongIdx].yt_id,
           "playlist-id": state.playlist.public_id,
