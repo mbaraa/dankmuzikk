@@ -10,6 +10,7 @@ const shortcuts = {
   N: previousMuzikk,
   s: stopMuzikk,
   m: mute,
+  M: mute,
   0: () => (audioPlayerEl.currentTime = 0),
   1: () => (audioPlayerEl.currentTime = audioPlayerEl.duration * 0.1),
   2: () => (audioPlayerEl.currentTime = audioPlayerEl.duration * 0.2),
