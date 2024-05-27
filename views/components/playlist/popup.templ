@@ -7,11 +7,26 @@ import (
 	"dankmuzikk/views/icons"
 )
 
-templ PlaylistsPopup(index int, songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
-	@popup.Popup(fmt.Sprint(index), "Add to playlist", popoverButton(), playlistsSelector(songId, playlists, songsInPlaylists))
+templ PlaylistsPopup(index int, songId string) {
+	@popup.Popup(fmt.Sprint(index), "Add to playlist", popupButton(songId), playlistSelector(songId))
 }
 
-templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
+templ playlistSelector(songId string) {
+	<div
+		id={ "playlists-" + songId }
+		class={
+			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-xl", "p-3", "text-secondary",
+			"rounded-b-[10px]", "rounded-l-[10px]",
+		}
+	>
+		<div id="playlist-loading" class={ "w-full", "flex", "justify-center" }>
+			<div class={ "loader", "!h-20", "!w-20" }></div>
+		</div>
+		<span class={ "text-secondary", "text-xl" }>Loading playlists...</span>
+	</div>
+}
+
+templ PlaylistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
 	<div
 		class={
 			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-xl", "p-3", "text-secondary",
@@ -71,7 +86,15 @@ templ playlistsSelector(songId string, playlists []entities.Playlist, songsInPla
 	</div>
 }
 
-templ popoverButton() {
-	@icons.AddToPlaytlist()
-	<span>Save to a playlist</span>
+templ popupButton(songId string) {
+	<div
+		class={ "flex", "gap-x-2", "items-center", "p-2", "w-full" }
+		hx-get={ "/api/playlist/all?song-id=" + songId }
+		hx-swap="outerHTML"
+		hx-trigger="click"
+		hx-target={ "#playlists-" + songId }
+	>
+		@icons.AddToPlaytlist()
+		<span>Save to a playlist</span>
+	</div>
 }

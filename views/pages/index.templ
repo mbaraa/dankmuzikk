@@ -5,6 +5,7 @@ import (
 	"dankmuzikk/entities"
 	"dankmuzikk/views/components/song"
 	"dankmuzikk/views/components/page"
+	"dankmuzikk/views/components/playlist"
 )
 
 templ Index(recentPlays []entities.Song) {
@@ -45,8 +46,8 @@ templ historyContent(recentPlays []entities.Song) {
 			"flex", "flex-col", "gap-5", "lg:mb-5",
 		}
 	>
-		for _, s := range recentPlays {
-			@song.Song(s, []string{"Played " + s.AddedAt}, nil, entities.Playlist{})
+		for idx, s := range recentPlays {
+			@song.Song(s, []string{"Played " + s.AddedAt}, []templ.Component{playlist.PlaylistsPopup(idx, s.YtId)}, entities.Playlist{})
 		}
 		<div
 			class={ "h-[10px]", "mb-[20px]" }
