@@ -260,26 +260,11 @@ function playlister(state) {
     }
   };
 
-  const __updateSongPlays = async () => {
-    if (!state.playlist.public_id) {
-      return;
-    }
-    await fetch(
-      "/api/song/playlist/plays?" +
-        new URLSearchParams({
-          "song-id": state.playlist.songs[state.currentSongIdx].yt_id,
-          "playlist-id": state.playlist.public_id,
-        }).toString(),
-      {
-        method: "PUT",
-      },
-    ).catch((err) => console.error(err));
-  };
-
-  const __next = () => {
+  const __next = async () => {
     if (checkLoop(LOOP_MODES.ONCE)) {
       stopMuzikk();
       playMuzikk();
+      await updateSongPlays();
       return;
     }
     if (
@@ -298,14 +283,14 @@ function playlister(state) {
         : state.currentSongIdx + 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
     playSongFromPlaylist(songToPlay.yt_id, state.playlist);
-    __updateSongPlays();
     __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
-  const __prev = () => {
+  const __prev = async () => {
     if (checkLoop(LOOP_MODES.ONCE)) {
       stopMuzikk();
       playMuzikk();
+      await updateSongPlays();
       return;
     }
     if (
@@ -323,7 +308,6 @@ function playlister(state) {
         : state.currentSongIdx - 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
     playSongFromPlaylist(songToPlay.yt_id, state.playlist);
-    __updateSongPlays();
     __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
@@ -455,6 +439,22 @@ function collapse() {
   }
 }
 
+async function updateSongPlays() {
+  if (!playerState.playlist.public_id) {
+    return;
+  }
+  await fetch(
+    "/api/song/playlist/plays?" +
+      new URLSearchParams({
+        "song-id": playerState.playlist.songs[playerState.currentSongIdx].yt_id,
+        "playlist-id": playerState.playlist.public_id,
+      }).toString(),
+    {
+      method: "PUT",
+    },
+  ).catch((err) => console.error(err));
+}
+
 /**
  * @param {Song} song
  */
@@ -510,6 +510,7 @@ async function playSong(song) {
   }
   setMediaSessionMetadata(song);
   playMuzikk();
+  await updateSongPlays();
 }
 
 /**
