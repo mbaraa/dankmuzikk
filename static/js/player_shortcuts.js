@@ -38,7 +38,6 @@ document.addEventListener("keyup", (e) => {
   if (
     [searchFormEl, searchInputEl, searchSugEl].includes(document.activeElement)
   ) {
-    console.log("search suka");
     return;
   }
   const action = shortcuts[e.key];
@@ -47,7 +46,6 @@ document.addEventListener("keyup", (e) => {
     e.preventDefault();
     action();
   }
-  console.log(e.key);
 });
 
 /**
