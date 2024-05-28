@@ -13,7 +13,6 @@ RUN apk add --no-cache make
 
 WORKDIR /app
 COPY --from=build /app/dankmuzikk ./dankmuzikk
-COPY --from=build /app/run.sh ./run.sh
 
 EXPOSE 8080
 
