@@ -37,9 +37,7 @@ const shortcuts = {
  * @param {KeyboardEvent} e
  */
 document.addEventListener("keyup", (e) => {
-  if (
-    [searchFormEl, searchInputEl, searchSugEl].includes(document.activeElement)
-  ) {
+  if (document.activeElement.tagName === "INPUT") {
     return;
   }
   const action = shortcuts[e.key];
@@ -54,9 +52,7 @@ document.addEventListener("keyup", (e) => {
  * @param {KeyboardEvent} e
  */
 document.addEventListener("keydown", (e) => {
-  if (
-    [searchFormEl, searchInputEl, searchSugEl].includes(document.activeElement)
-  ) {
+  if (document.activeElement.tagName === "INPUT") {
     return;
   }
   const action = shortcuts[e.key];
