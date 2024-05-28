@@ -4,7 +4,7 @@ services:
   app:
     container_name: "dankmuzikk"
     build:
-      context: .
+      context: ./app
     image: "dankmuzikk-app"
     restart: "always"
     ports:
