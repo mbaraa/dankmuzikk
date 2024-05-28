@@ -16,7 +16,7 @@
 
 **DankMuzikk** is a music player designed for colloborative playlists, where a playlist's collaborators can add and vote for music in a playlist, and the other music player stuff.
 
-_Note: this is a fling side-project that will die in a while so don't get your hopes up._
+_Note: this is a fling side-project that could die anytime so don't get your hopes up._
 
 ## Contributing
 
@@ -30,8 +30,21 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - [x] Accounts and Profiles
 - [x] Playlists
 - [x] Share playlists
-- [ ] Vote songs in playlists
-- [x] Songs queue
+- [x] Vote songs in playlists
+- [ ] Songs queue
+  - [x] Add songs to queue
+  - [ ] View/Edit queue
+- [ ] Expandable player
+  - [x] Mobile
+  - [ ] Desktop 
+- [ ] Share songs
+- [ ] Player's menu
+- [ ] Import **public** playlists from YouTube
+- [ ] Update profile
+- [ ] Cross device control
+- [ ] Offline support
+- [ ] Songs' metadata fixer
+- [ ] Lyrics
 - [ ] Refactor the code (never gonna happen)
 
 ## Technologies used
