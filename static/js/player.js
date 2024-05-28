@@ -262,12 +262,6 @@ function playlister(state) {
   };
 
   const __next = async () => {
-    console.log(
-      "__next",
-      state.playlist.songs.map((s) => {
-        return { title: s.title, plays: s.plays, votes: s.votes };
-      }),
-    );
     if (checkLoop(LOOP_MODES.ONCE)) {
       stopMuzikk();
       playMuzikk();
@@ -581,7 +575,6 @@ function playSongFromPlaylist(songYtId, playlist) {
     return { ...s, plays: 0 };
   });
   playerState.currentSongIdx = songIdx;
-  console.log("song index", songIdx);
   if (playerState.playlist.songs[songIdx].votes === 0) {
     playerState.currentSongIdx++;
   }
