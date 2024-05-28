@@ -41,6 +41,7 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
  * @property {number} play_times
  * @property {string} added_at
  * @property {number} votes
+ * @property {number} order
  */
 
 /**
@@ -55,6 +56,7 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
  * @typedef {object} PlayerState
  * @property {LoopMode} loopMode
  * @property {boolean} shuffled
+ * @property {string} shuffledPlaylist
  * @property {Playlist} playlist
  * @property {number} currentSongIdx
  */
@@ -74,6 +76,7 @@ const LOOP_MODES = Object.freeze({
 const playerState = {
   loopMode: LOOP_MODES.OFF,
   shuffled: false,
+  shuffledPlaylist: "",
   currentSongIdx: 0,
   playlist: {
     title: "Queue",
@@ -227,13 +230,84 @@ function stopper(audioEl) {
  * @returns {Function}
  */
 function shuffler(state) {
-  return () => {
+  // using Fisher–Yates shuffling algorithm https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+  const __shuffleArray = (a) => {
+    let currIdx = a.length;
+    while (currIdx != 0) {
+      let randIdx = Math.floor(Math.random() * currIdx);
+      currIdx--;
+      [a[currIdx], a[randIdx]] = [a[randIdx], a[currIdx]];
+    }
+  };
+
+  /**
+   * @param {string} songYtId
+   */
+  const __shuffle = (songYtId) => {
+    if (isSingleSong()) {
+      return;
+    }
+    state.shuffledPlaylist = state.playlist.public_id;
+    const extraSongs = [];
+    state.playlist.songs.forEach((s) => {
+      for (let i = 0; i < s.votes - 1; i++) {
+        extraSongs.push(s);
+      }
+    });
+    state.playlist.songs.push(...extraSongs);
+    __shuffleArray(state.playlist.songs);
+    let sIdx = 0;
+    if (!!audioPlayerEl.src) {
+      sIdx = state.playlist.songs.findIndex((s) => s.yt_id === songYtId);
+      if (sIdx !== -1) {
+        [state.playlist.songs[sIdx], state.playlist.songs[0]] = [
+          state.playlist.songs[0],
+          state.playlist.songs[sIdx],
+        ];
+      }
+    }
+    state.currentSongIdx = 0;
+  };
+
+  const __toggleShuffle = () => {
     state.shuffled = !state.shuffled;
+    if (state.shuffled) {
+      shuffle(
+        audioPlayerEl.src.substring(
+          audioPlayerEl.src.lastIndexOf("/") + 1,
+          audioPlayerEl.src.length - 4,
+        ),
+      );
+    } else {
+      const tmp = state.playlist.songs.sort((si, sj) => si.order - sj.order);
+      state.playlist.songs = [];
+      for (let i = 0; i < tmp.length - 1; i++) {
+        if (tmp[i].yt_id === tmp[i + 1].yt_id) {
+          continue;
+        }
+        state.playlist.songs.push(tmp[i]);
+      }
+      if (tmp[tmp.length - 1].yt_id !== tmp[tmp.length - 2]) {
+        state.playlist.songs.push(tmp[tmp.length - 1]);
+      }
+      if (!!audioPlayerEl.src) {
+        state.currentSongIdx = state.playlist.songs.findIndex(
+          (s) =>
+            s.yt_id ===
+            audioPlayerEl.src.substring(
+              audioPlayerEl.src.lastIndexOf("/") + 1,
+              audioPlayerEl.src.length - 4,
+            ),
+        );
+      }
+    }
     setPlayerButtonIcon(
       shuffleEl,
       state.shuffled ? Player.icons.shuffle : Player.icons.shuffleOff,
     );
   };
+
+  return [__shuffle, __toggleShuffle];
 }
 
 /**
@@ -269,7 +343,10 @@ function playlister(state) {
       return;
     }
     // chack votes to whether repeat the song or not.
-    if (state.playlist.songs[state.currentSongIdx].votes > 1) {
+    if (
+      state.playlist.songs[state.currentSongIdx].votes > 1 &&
+      !state.shuffled
+    ) {
       const songToPlay = state.playlist.songs[state.currentSongIdx];
       songToPlay.votes--;
       songToPlay.plays++;
@@ -280,7 +357,6 @@ function playlister(state) {
 
     if (
       !checkLoop(LOOP_MODES.ALL) &&
-      !state.shuffled &&
       state.currentSongIdx + 1 >= state.playlist.songs.length
     ) {
       stopMuzikk();
@@ -288,15 +364,15 @@ function playlister(state) {
       for (const s of state.playlist.songs) {
         if (!!s.plays) {
           s.votes = s.plays;
+          s.plays = 0;
         }
       }
       return;
     }
 
-    state.currentSongIdx = state.shuffled
-      ? Math.floor(Math.random() * state.playlist.songs.length)
-      : checkLoop(LOOP_MODES.ALL) &&
-          state.currentSongIdx + 1 >= state.playlist.songs.length
+    state.currentSongIdx =
+      checkLoop(LOOP_MODES.ALL) &&
+      state.currentSongIdx + 1 >= state.playlist.songs.length
         ? 0
         : state.currentSongIdx + 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
@@ -312,7 +388,10 @@ function playlister(state) {
       return;
     }
     // chack votes to whether repeat the song or not.
-    if (state.playlist.songs[state.currentSongIdx].votes > 1) {
+    if (
+      state.playlist.songs[state.currentSongIdx].votes > 1 &&
+      !state.shuffled
+    ) {
       const songToPlay = state.playlist.songs[state.currentSongIdx];
       songToPlay.votes--;
       songToPlay.plays++;
@@ -320,23 +399,19 @@ function playlister(state) {
       __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
       return;
     }
-    if (
-      !checkLoop(LOOP_MODES.ALL) &&
-      !state.shuffled &&
-      state.currentSongIdx - 1 < 0
-    ) {
+    if (!checkLoop(LOOP_MODES.ALL) && state.currentSongIdx - 1 < 0) {
       stopMuzikk();
       // reset songs' votes
       for (const s of state.playlist.songs) {
         if (!!s.plays) {
           s.votes = s.plays;
+          s.plays = 0;
         }
       }
       return;
     }
-    state.currentSongIdx = state.shuffled
-      ? Math.floor(Math.random() * state.playlist.songs.length)
-      : checkLoop(LOOP_MODES.ALL) && state.currentSongIdx - 1 < 0
+    state.currentSongIdx =
+      checkLoop(LOOP_MODES.ALL) && state.currentSongIdx - 1 < 0
         ? state.playlist.songs.length - 1
         : state.currentSongIdx - 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
@@ -565,20 +640,29 @@ function playSingleSong(song) {
  * @param {Playlist} playlist
  */
 function playSongFromPlaylist(songYtId, playlist) {
+  if (
+    playerState.shuffled &&
+    playerState.shuffledPlaylist !== playlist.public_id
+  ) {
+    playerState.playlist = playlist;
+    shuffle(songYtId);
+  }
   const songIdx = playlist.songs.findIndex((s) => s.yt_id === songYtId);
   if (songIdx < 0) {
     alert("Invalid song!");
     return;
   }
-  playerState.playlist = playlist;
-  playerState.playlist.songs = playlist.songs.map((s) => {
-    return { ...s, plays: 0 };
-  });
+  if (!playerState.shuffled) {
+    playerState.playlist = playlist;
+    playerState.playlist.songs = playlist.songs.map((s, idx) => {
+      return { ...s, plays: 0, order: idx };
+    });
+  }
   playerState.currentSongIdx = songIdx;
   if (playerState.playlist.songs[songIdx].votes === 0) {
     playerState.currentSongIdx++;
   }
-  const songToPlay = playlist.songs[songIdx];
+  const songToPlay = playlist.songs[playerState.currentSongIdx];
   highlightSongInPlaylist(songToPlay.yt_id, playlist);
   playSong(songToPlay);
 }
@@ -634,7 +718,7 @@ function setMediaSessionMetadata(song) {
 const [toggleLoop, handleLoop, checkLoop] = looper();
 const [playMuzikk, pauseMuzikk, togglePP] = playPauser(audioPlayerEl);
 const stopMuzikk = stopper(audioPlayerEl);
-const toggleShuffle = shuffler(playerState);
+const [shuffle, toggleShuffle] = shuffler(playerState);
 const [
   nextMuzikk,
   previousMuzikk,
