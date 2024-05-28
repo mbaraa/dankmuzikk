@@ -2,7 +2,6 @@
 
 BINARY_NAME=dankmuzikk
 
-# build builds the tailwind css sheet, and compiles the binary into a usable thing.
 build:
 	npm i && \
 	go mod tidy && \
@@ -21,10 +20,15 @@ init:
 seed:
 	go run main.go seed
 
-# dev runs the development server where it builds the tailwind css sheet,
-# and compiles the project whenever a file is changed.
 dev:
 	go run github.com/cosmtrek/air@v1.51.0
+
+beta:
+	./${BINARY_NAME} serve
+
+prod:
+	./${BINARY_NAME} migrate
+	./${BINARY_NAME} serve
 
 clean:
 	go clean

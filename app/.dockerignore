@@ -13,5 +13,3 @@ views/**/*.txt
 docker-compose.yml
 .github
 README.md
-ytdl
-ytscraper
