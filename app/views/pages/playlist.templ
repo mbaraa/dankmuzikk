@@ -258,10 +258,13 @@ css songThumb(url string) {
 }
 
 func playedTimes(times int) string {
-	if times == 1 {
+	switch {
+	case times == 1:
 		return "Played once"
-	} else {
+	case times > 1:
 		return fmt.Sprintf("Played %d times", times)
+	default:
+		return ""
 	}
 }
 

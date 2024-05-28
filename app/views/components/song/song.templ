@@ -58,7 +58,9 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 					<div class={ "flex", "flex-col", "gap-y-1", "md:gap-y-2", "justify-start", "w-full" }>
 						<p class={ "w-full", "text-sm", "font-normal" }>By { s.Artist }</p>
 						for _, info := range additionalData {
-							<p class={ "w-full", "text-sm", "font-normal" }>{ info }</p>
+							if info != "" {
+								<p class={ "w-full", "text-sm", "font-normal" }>{ info }</p>
+							}
 						}
 					</div>
 				</div>
