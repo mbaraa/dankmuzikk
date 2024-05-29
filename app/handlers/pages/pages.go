@@ -13,16 +13,13 @@ import (
 	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/youtube/download"
 	"dankmuzikk/services/youtube/search"
+	"dankmuzikk/views/components/status"
 	"dankmuzikk/views/layouts"
 	"dankmuzikk/views/pages"
 	"errors"
 	"net/http"
 
 	_ "github.com/a-h/templ"
-)
-
-const (
-	notFoundMessage = "🤷‍♂️ I have no idea about what you requested!"
 )
 
 type pagesHandler struct {
@@ -89,7 +86,9 @@ func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		w.Write([]byte(notFoundMessage))
+		status.
+			BugsBunnyError("I'm not sure what you're trying to do :)").
+			Render(context.Background(), w)
 		return
 	}
 
@@ -110,27 +109,46 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		w.Write([]byte(notFoundMessage))
+		status.
+			BugsBunnyError("I'm not sure what you're trying to do :)").
+			Render(context.Background(), w)
 		return
 	}
 
 	playlistPubId := r.PathValue("playlist_id")
 	if playlistPubId == "" {
-		w.Write([]byte(notFoundMessage))
+		status.
+			BugsBunnyError("You need to provide a playlist id!").
+			Render(context.Background(), w)
 		return
 	}
 
 	playlist, permission, err := p.playlistsService.Get(playlistPubId, profileId)
+	htmxReq := handlers.IsNoLayoutPage(r)
 	switch {
 	case errors.Is(err, playlists.ErrUnauthorizedToSeePlaylist):
 		log.Errorln(err)
-		w.Write([]byte(notFoundMessage))
+		if htmxReq {
+			status.
+				BugsBunnyError("You can't see this playlist! <br/> (don't snoop around other people's stuff or else!)").
+				Render(context.Background(), w)
+		} else {
+			layouts.Default("Error",
+				status.
+					BugsBunnyError("You can't see this playlist! <br/> (don't snoop around other people's stuff or else!)")).
+				Render(r.Context(), w)
+		}
 		return
 	case err != nil:
-		if playlist.Title == "" {
-			log.Errorln(err)
-			w.Write([]byte(notFoundMessage))
-			return
+		if htmxReq {
+			status.
+				BugsBunnyError("You can't see this playlist! <br/> (it might be John Cena)").
+				Render(context.Background(), w)
+		} else {
+			layouts.Default("Error",
+				status.
+					BugsBunnyError("You can't see this playlist! <br/> (it might be John Cena)")).
+				Render(r.Context(), w)
 		}
 	}
 	ctx := context.WithValue(r.Context(), handlers.PlaylistPermission, permission)

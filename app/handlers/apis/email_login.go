@@ -37,7 +37,7 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
 		// w.WriteHeader(http.StatusInternalServerError)
 		status.
-			GenericError(fmt.Sprintf("No account associated with the email \"%s\" was found", reqBody.Email)).
+			BugsBunnyError(fmt.Sprintf("No account associated with the email \"%s\" was found", reqBody.Email)).
 			Render(context.Background(), w)
 		return
 	}
@@ -66,7 +66,7 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 		log.Errorf("[EMAIL LOGIN API]: Failed to sign up a new user: %+v, error: %s\n", reqBody, err.Error())
 		// w.WriteHeader(http.StatusConflict)
 		status.
-			GenericError(fmt.Sprintf("An account associated with the email \"%s\" already exists", reqBody.Email)).
+			BugsBunnyError(fmt.Sprintf("An account associated with the email \"%s\" already exists", reqBody.Email)).
 			Render(context.Background(), w)
 		return
 	}
@@ -95,14 +95,14 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	if err != nil {
 		// w.Write([]byte("Invalid verification token"))
 		status.
-			GenericError("Invalid verification token").
+			BugsBunnyError("Invalid verification token").
 			Render(context.Background(), w)
 		return
 	}
 	if verificationToken.Expires.After(time.Now().UTC()) {
 		// w.Write([]byte("Expired verification token"))
 		status.
-			GenericError("Expired verification token").
+			BugsBunnyError("Expired verification token").
 			Render(context.Background(), w)
 		return
 	}
@@ -113,7 +113,7 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 		log.Error(err)
 		// w.WriteHeader(http.StatusBadRequest)
 		status.
-			GenericError("Invalid verification token").
+			BugsBunnyError("Invalid verification token").
 			Render(context.Background(), w)
 		return
 	}
@@ -121,13 +121,13 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	sessionToken, err := e.service.VerifyOtp(verificationToken.Value, reqBody)
 	if errors.Is(err, login.ErrExpiredVerificationCode) {
 		status.
-			GenericError("Expired verification code!").
+			BugsBunnyError("Expired verification code!").
 			Render(context.Background(), w)
 		return
 	}
 	if errors.Is(err, login.ErrInvalidVerificationCode) {
 		status.
-			GenericError("Invalid verification code!").
+			BugsBunnyError("Invalid verification code!").
 			Render(context.Background(), w)
 		return
 	}
@@ -135,7 +135,7 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 		log.Error(err)
 		// w.WriteHeader(http.StatusInternalServerError)
 		status.
-			GenericError("Something went wrong...").
+			BugsBunnyError("Something went wrong...").
 			Render(context.Background(), w)
 		return
 	}

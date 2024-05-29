@@ -16,6 +16,5 @@
 }
 
 body {
-  background-image: url("/static/images/dankground-dark.svg");
-  background-color: var(--primary-color);
+  background-color: #131313;
 }

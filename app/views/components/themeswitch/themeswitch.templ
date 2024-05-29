@@ -64,7 +64,7 @@ script changeTheme(themeName string) {
             accent20: "#00000033",
             accent30: "#0000004c",
             accent69: "#000000b0",
-            bg: "/static/images/dankground.svg",
+            bg: "#305922",
         },
         black: {
             primary: "#000000",
@@ -79,7 +79,7 @@ script changeTheme(themeName string) {
             accent20: "#d3fcbf33",
             accent30: "#d3fcbf4C",
             accent69: "#d3fcbfB0",
-            bg: "/static/images/dankground-dark.svg",
+            bg: "#131313",
         },
         white: {
             primary: "#ffffff",
@@ -94,7 +94,7 @@ script changeTheme(themeName string) {
             accent20: "#d5ffc133",
             accent30: "#d5ffc14c",
             accent69: "#d5ffc1b0",
-            bg: "/static/images/dankground-light.svg",
+            bg: "#ededed",
         },
     };
 
@@ -116,7 +116,6 @@ script changeTheme(themeName string) {
     style.setProperty('--accent-color-20', theme.accent20);
     style.setProperty('--accent-color-30', theme.accent30);
     style.setProperty('--accent-color-69', theme.accent69);
-    document.body.style.backgroundImage = `url('${theme.bg}')`;
-    document.body.style.backgroundColor = theme.primary;
+    document.body.style.backgroundColor = theme.bg;
     document.getElementById("popover-theme-switcher").style.display = "none";
 }
