@@ -47,16 +47,7 @@ templ Default(title string, children ...templ.Component) {
 		</head>
 		<body
 			hx-ext="loading-states"
-			style='
-                background-repeat: repeat;
-                background-size: cover;
-                padding: 0px;
-                margin: 0px;
-                background-position: center;
-                background-attachment: fixed;
-                min-height: 100dvh;
-                font-family: "Ubuntu";
-            '
+			class={ "min-w-screen", "min-h-screen", "p-0", "m-0", "font-Ubuntu" }
 		>
 			@header.Header()
 			<div id="main-contents" style="display: contents">
