@@ -100,6 +100,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
 	apisHandler.HandleFunc("GET /song", gHandler.OptionalAuthApi(songApi.HandlePlaySong))
+	apisHandler.HandleFunc("GET /song/meta", gHandler.OptionalAuthApi(songApi.HandleGetSongMeta))
 	apisHandler.HandleFunc("PUT /song/playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 	apisHandler.HandleFunc("PUT /song/playlist/plays", gHandler.AuthApi(songApi.HandleIncrementSongPlaysInPlaylist))
 	apisHandler.HandleFunc("PUT /song/playlist/upvote", gHandler.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))

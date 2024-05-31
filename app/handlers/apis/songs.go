@@ -6,6 +6,7 @@ import (
 	"dankmuzikk/services/history"
 	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -26,6 +27,22 @@ func NewDownloadHandler(
 		songsService:   songsService,
 		historyService: historyService,
 	}
+}
+
+func (s *songDownloadHandler) HandleGetSongMeta(w http.ResponseWriter, r *http.Request) {
+	sid := r.URL.Query().Get("sid")
+	if sid == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	song, err := s.songsService.GetSong(sid)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(song)
 }
 
 func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
