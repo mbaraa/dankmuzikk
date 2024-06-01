@@ -460,7 +460,6 @@ function playlister(state) {
 }
 
 function volumer() {
-  let lastVolume = 1;
   const __setVolume = (level) => {
     if (level > 1) {
       level = 1;
@@ -478,12 +477,7 @@ function volumer() {
   };
 
   const __muter = () => {
-    if (audioPlayerEl.volume === 0) {
-      __setVolume(lastVolume);
-    } else {
-      lastVolume = audioPlayerEl.volume;
-      __setVolume(0);
-    }
+    audioPlayerEl.muted = !audioPlayerEl.muted;
   };
 
   return [__setVolume, __muter];
@@ -624,7 +618,7 @@ async function playSong(song) {
 /**
  * @param {Song} song
  */
-function playSingleSong(song) {
+async function playSingleSong(song) {
   playerState.playlist = {
     title: "Queue",
     songs_count: 1,
@@ -632,14 +626,14 @@ function playSingleSong(song) {
     songs: [song],
   };
   playerState.currentSongIdx = 0;
-  playSong(song);
+  await playSong(song);
 }
 
 /**
  * @param {string} songYtId
  * @param {Playlist} playlist
  */
-function playSongFromPlaylist(songYtId, playlist) {
+async function playSongFromPlaylist(songYtId, playlist) {
   if (
     playerState.shuffled &&
     playerState.shuffledPlaylist !== playlist.public_id
@@ -663,8 +657,8 @@ function playSongFromPlaylist(songYtId, playlist) {
     playerState.currentSongIdx++;
   }
   const songToPlay = playlist.songs[playerState.currentSongIdx];
-  highlightSongInPlaylist(songToPlay.yt_id, playlist);
-  playSong(songToPlay);
+  await highlightSongInPlaylist(songToPlay.yt_id, playlist);
+  await playSong(songToPlay);
 }
 
 /**
