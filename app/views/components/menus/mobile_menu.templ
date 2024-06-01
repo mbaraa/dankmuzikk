@@ -1,4 +1,58 @@
 package menus
 
-templ MobileMenu() {
+import "fmt"
+
+templ MobileMenu(id, title string, button, child templ.Component) {
+	<button
+		class={
+			"p-2", "rounded-md", "hover:bg-accent-trans-20",
+			"flex", "justify-center", "items-center", "gap-x-2",
+		}
+		title={ title }
+		type="button"
+		onClick={ toggleMobileMenu(id) }
+	>
+		@button
+	</button>
+	<div
+		id={ fmt.Sprintf("mobile-menu-%s", id) }
+		class={
+			"!fixed", "-left-[10px]", "w-screen", "z-[60]",
+			"overflow-y-scroll", "block", "shadow-md", "mobile-menu-collapsed",
+		}
+		style="bottom: -0"
+	>
+		<button
+			class={
+				"p-2", "rounded-lg", "text-white", "bg-[#DE3333]", "font-bold",
+				"flex", "justify-center", "items-center", "gap-x-2", "w-full",
+			}
+			title={ title }
+			type="button"
+			onClick={ toggleMobileMenu(id) }
+		>
+			Close
+		</button>
+		@child
+	</div>
+	<style>
+        .mobile-menu-collapsed {
+            height: 0;
+            max-height: 0;
+        }
+        .mobile-menu-exapnded {
+            min-height: 200px;
+            max-height: 500px;
+        }
+    </style>
+}
+
+script toggleMobileMenu(id string) {
+    const popover = document.getElementById(`mobile-menu-${id}`);
+    popover.classList.toggle("mobile-menu-exapnded");
+    const rect = popover.getBoundingClientRect();
+    popover.style.bottom = `-${(window.innerHeight-(rect.y+rect.height))-65}px`
+    popover.style.height = (
+        popover.children[0].getBoundingClientRect().height +
+        popover.children[1].getBoundingClientRect().height).toString() + "px" ;
 }
