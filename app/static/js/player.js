@@ -630,6 +630,20 @@ async function playSingleSong(song) {
 }
 
 /**
+ * @param {Song} song
+ */
+async function playSingleSongNext(song) {
+  if (playerState.playlist.songs.length === 0) {
+    playSingleSong(song);
+    return;
+  }
+  if (!song.yt_id) {
+    return;
+  }
+  playerState.playlist.songs.splice(playerState.currentSongIdx + 1, 0, song);
+}
+
+/**
  * @param {string} songYtId
  * @param {Playlist} playlist
  */
@@ -891,6 +905,7 @@ window.Player.downloadSongToDevice = downloadSongToDevice;
 window.Player.showPlayer = show;
 window.Player.hidePlayer = hide;
 window.Player.playSingleSong = playSingleSong;
+window.Player.playSingleSongNext = playSingleSongNext;
 window.Player.playSongFromPlaylist = playSongFromPlaylist;
 window.Player.removeSongFromPlaylist = removeSongFromPlaylist;
 window.Player.addSongToQueue = appendSongToCurrentQueue;

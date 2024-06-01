@@ -32,7 +32,7 @@ templ songContent(song entities.Song) {
 				class={ "p-2", "rounded-md", "hover:bg-accent-trans-20", "w-full", "font-bold", }
 				title="Play next"
 				type="button"
-				onClick={ playSong(song) }
+				onClick={ playSongNext(song) }
 			>
 				Play next
 			</button>
@@ -46,4 +46,8 @@ templ songContent(song entities.Song) {
 
 script playSong(song entities.Song) {
     Player.playSingleSong(song)
+}
+
+script playSongNext(song entities.Song) {
+    Player.playSingleSongNext(song)
 }
