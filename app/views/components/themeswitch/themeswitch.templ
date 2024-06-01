@@ -1,6 +1,6 @@
 package themeswitch
 
-import "dankmuzikk/views/components/popover"
+import "dankmuzikk/views/components/menus"
 
 var themes = []struct {
 	displayName string
@@ -21,7 +21,7 @@ var themes = []struct {
 }
 
 templ ThemeSwitch() {
-	@popover.Popover("theme-switcher", "Change theme", themeSwitchButton(), themeSwitch())
+	@menus.Popover("theme-switcher", "Change theme", themeSwitchButton(), themeSwitch())
 }
 
 templ themeSwitch() {

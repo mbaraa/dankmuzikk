@@ -2,9 +2,9 @@ package song
 
 import (
 	"dankmuzikk/entities"
-	"dankmuzikk/views/components/popover"
 	"dankmuzikk/views/icons"
 	"fmt"
+	"dankmuzikk/views/components/menus"
 )
 
 templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, playlist entities.Playlist) {
@@ -68,7 +68,11 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 		</div>
 		<!-- actions -->
 		<div class={ "lg:me-3", "flex", "items-center", "lg:gap-x-4" }>
-			@popover.Popover(s.YtId, "Song options", icons.Options(), options(s, additionalOptions))
+			if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+				@menus.MobileMenu(s.YtId, "Song's options", icons.Options(), options(s, additionalOptions))
+			} else {
+				@menus.Popover(s.YtId, "Song's options", icons.Options(), options(s, additionalOptions))
+			}
 		</div>
 	</div>
 }
@@ -76,8 +80,8 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 templ options(song entities.Song, additionalOptions []templ.Component) {
 	<div
 		class={
-			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md",
-			"bg-primary", "min-w-[250px]", "shadow-sm", "shadow-accent",
+			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md", "min-w-[250px]",
+			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
 		}
 	>
 		for _, option := range additionalOptions {
@@ -94,6 +98,18 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 		>
 			@icons.AddToQueue()
 			<span>Add to queue</span>
+		</button>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Play next"
+			type="button"
+			onClick={ playSongNext(song) }
+		>
+			@icons.AddToQueue()
+			<span>Play next</span>
 		</button>
 		<button
 			class={
@@ -128,4 +144,8 @@ script playSong(song entities.Song) {
 
 script playSongFromPlaylist(songId string, playlist entities.Playlist) {
     window.Player.playSongFromPlaylist(songId, playlist)
+}
+
+script playSongNext(song entities.Song) {
+    Player.playSingleSongNext(song)
 }

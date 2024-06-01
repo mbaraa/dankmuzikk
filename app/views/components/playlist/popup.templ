@@ -3,12 +3,12 @@ package playlist
 import (
 	"fmt"
 	"dankmuzikk/entities"
-	"dankmuzikk/views/components/popup"
 	"dankmuzikk/views/icons"
+	"dankmuzikk/views/components/menus"
 )
 
 templ PlaylistsPopup(index int, songId string) {
-	@popup.Popup(fmt.Sprint(index), "Add to playlist", popupButton(songId), playlistSelector(songId))
+	@menus.Popup(fmt.Sprint(index), "Add to playlist", popupButton(songId), playlistSelector(songId))
 }
 
 templ playlistSelector(songId string) {
