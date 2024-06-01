@@ -68,7 +68,11 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 		</div>
 		<!-- actions -->
 		<div class={ "lg:me-3", "flex", "items-center", "lg:gap-x-4" }>
-			@menus.Popover(s.YtId, "Song options", icons.Options(), options(s, additionalOptions))
+			if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+				@menus.MobileMenu(s.YtId, "Song's options", icons.Options(), options(s, additionalOptions))
+			} else {
+				@menus.Popover(s.YtId, "Song's options", icons.Options(), options(s, additionalOptions))
+			}
 		</div>
 	</div>
 }
@@ -76,8 +80,8 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 templ options(song entities.Song, additionalOptions []templ.Component) {
 	<div
 		class={
-			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md",
-			"bg-primary", "min-w-[250px]", "shadow-sm", "shadow-accent",
+			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md", "min-w-[250px]",
+			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
 		}
 	>
 		for _, option := range additionalOptions {
