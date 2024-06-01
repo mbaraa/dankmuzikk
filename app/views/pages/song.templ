@@ -1,0 +1,53 @@
+package pages
+
+import (
+	"dankmuzikk/entities"
+	"dankmuzikk/views/components/page"
+	"fmt"
+	"dankmuzikk/views/components/playlist"
+)
+
+templ Song(song entities.Song) {
+	@page.Container(templ.NopComponent, songContent(song))
+}
+
+templ songContent(song entities.Song) {
+	<div class={ "flex", "flex-col", "justify-center", "items-center", "gap-6" }>
+		<div
+			class={
+				"w-[250px]", "h-[250px]", "rounded-md", "bg-primary",
+				"bg-repeat", "bg-cover", "bg-center", songThumb(fmt.Sprintf("url(\"%s\")", song.ThumbnailUrl)),
+			}
+		></div>
+		<div class={ "w-full", "flex", "flex-col", "md:flex-row", "justify-between", "items-center", "gap-3" }>
+			<button
+				class={ "p-2", "rounded-md", "hover:bg-accent-trans-20", "w-full","font-bold", }
+				title="Play now"
+				type="button"
+				onClick={ playSong(song) }
+			>
+				Play now
+			</button>
+			<button
+				class={ "p-2", "rounded-md", "hover:bg-accent-trans-20", "w-full", "font-bold", }
+				title="Play next"
+				type="button"
+				onClick={ playSongNext(song) }
+			>
+				Play next
+			</button>
+			@playlist.PlaylistsPopup(0, song.YtId)
+		</div>
+		<h1 class={ "text-secondary", "text-xl", "lg:text-4xl" }>{ song.Title }</h1>
+		<p class={ "text-secondary", "text-md" }>By { song.Artist }</p>
+		<p class={ "text-secondary", "text-md" }>Duration { song.Duration }</p>
+	</div>
+}
+
+script playSong(song entities.Song) {
+    Player.playSingleSong(song)
+}
+
+script playSongNext(song entities.Song) {
+    Player.playSingleSongNext(song)
+}
