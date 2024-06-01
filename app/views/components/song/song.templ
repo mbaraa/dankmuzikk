@@ -2,9 +2,9 @@ package song
 
 import (
 	"dankmuzikk/entities"
-	"dankmuzikk/views/components/popover"
 	"dankmuzikk/views/icons"
 	"fmt"
+	"dankmuzikk/views/components/menus"
 )
 
 templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, playlist entities.Playlist) {
@@ -68,7 +68,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 		</div>
 		<!-- actions -->
 		<div class={ "lg:me-3", "flex", "items-center", "lg:gap-x-4" }>
-			@popover.Popover(s.YtId, "Song options", icons.Options(), options(s, additionalOptions))
+			@menus.Popover(s.YtId, "Song options", icons.Options(), options(s, additionalOptions))
 		</div>
 	</div>
 }

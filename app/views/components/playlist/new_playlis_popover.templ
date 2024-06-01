@@ -1,9 +1,9 @@
 package playlist
 
-import "dankmuzikk/views/components/popover"
+import "dankmuzikk/views/components/menus"
 
 templ NewPlaylistPopover() {
-	@popover.Popover("new-playlist", "New playlist", newPlaylistPopoverButton(), newPlaylistPopover())
+	@menus.Popover("new-playlist", "New playlist", newPlaylistPopoverButton(), newPlaylistPopover())
 }
 
 templ newPlaylistPopover() {

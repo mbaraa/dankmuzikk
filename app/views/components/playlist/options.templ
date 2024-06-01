@@ -3,13 +3,13 @@ package playlist
 import (
 	"fmt"
 	"dankmuzikk/entities"
-	"dankmuzikk/views/components/popover"
+	"dankmuzikk/views/components/menus"
 	"dankmuzikk/models"
 	"dankmuzikk/views/icons"
 )
 
 templ PlaylistsOptionsPopover(playlist entities.Playlist) {
-	@popover.Popover("playlist-"+playlist.PublicId, "Playlist options", icons.Options(), playlistOptions(playlist))
+	@menus.Popover("playlist-"+playlist.PublicId, "Playlist options", icons.Options(), playlistOptions(playlist))
 }
 
 templ playlistOptions(playlist entities.Playlist) {

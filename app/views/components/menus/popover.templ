@@ -1,4 +1,4 @@
-package popover
+package menus
 
 import (
 	"fmt"
@@ -31,6 +31,11 @@ templ Popover(id, title string, button, child templ.Component) {
 
 script toggleTheThing(id string) {
     const popover = document.getElementById(`popover-${id}`);
+    popover.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && popover.style.display === "block") {
+            popover.style.display = "none";
+        }
+    });
 
     if (popover.style.display !== "block") {
       popover.style.display = "block";

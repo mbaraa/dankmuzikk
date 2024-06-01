@@ -1,4 +1,4 @@
-package popup
+package menus
 
 import "fmt"
 
@@ -10,7 +10,7 @@ templ Popup(id, title string, button, child templ.Component) {
 		}
 		title={ title }
 		type="button"
-		onClick={ toggleTheThing(id) }
+		onClick={ togglePopup(id) }
 	>
 		@button
 	</button>
@@ -36,18 +36,18 @@ templ Popup(id, title string, button, child templ.Component) {
 	</dialog>
 }
 
-script toggleTheThing(id string) {
+script togglePopup(id string) {
     const popup = document.getElementById(`popup-${id}`);
     popup.showModal();
     popup.addEventListener("click", e => {
-    const rect = popup.getBoundingClientRect()
+        const rect = popup.getBoundingClientRect()
         if (
           e.clientX < rect.left ||
           e.clientX > rect.right ||
           e.clientY < rect.top ||
           e.clientY > rect.bottom
         ) {
-          popup.close()
+          popup.close();
         }
-    })
+    });
 }
