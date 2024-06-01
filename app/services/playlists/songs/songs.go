@@ -49,7 +49,7 @@ func (s *Service) GetSong(songYtId string) (entities.Song, error) {
 		if err != nil {
 			return entities.Song{}, err
 		}
-		if len(res) != 0 {
+		if len(res) == 0 {
 			return entities.Song{}, errors.New("no songs were found suka")
 		}
 		for _, sng := range res {
@@ -63,9 +63,7 @@ func (s *Service) GetSong(songYtId string) (entities.Song, error) {
 					FullyDownloaded: false,
 				}
 				err = s.songRepo.Add(&ss)
-				if err != nil {
-					return entities.Song{}, err
-				}
+				log.Errorln(err)
 				song[0] = ss
 			}
 		}
