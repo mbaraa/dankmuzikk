@@ -136,6 +136,7 @@ templ songOptionsMobile(song entities.Song) {
 			<p class={ "text-md", "max-w-[200px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
 		}
 	</div>
+	<hr/>
 }
 
 templ voteSong(songId, playlistId string, votes int) {

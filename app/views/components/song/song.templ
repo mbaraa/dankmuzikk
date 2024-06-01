@@ -104,6 +104,18 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
 				"flex", "items-center", "gap-x-2", "w-full",
 			}
+			title="Play next"
+			type="button"
+			onClick={ playSongNext(song) }
+		>
+			@icons.AddToQueue()
+			<span>Play next</span>
+		</button>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
 			title="Download song"
 			type="button"
 			onClick={ downloadSong(song.YtId, song.Title) }
@@ -132,4 +144,8 @@ script playSong(song entities.Song) {
 
 script playSongFromPlaylist(songId string, playlist entities.Playlist) {
     window.Player.playSongFromPlaylist(songId, playlist)
+}
+
+script playSongNext(song entities.Song) {
+    Player.playSingleSongNext(song)
 }

@@ -17,14 +17,14 @@ templ MobileMenu(id, title string, button, child templ.Component) {
 	<div
 		id={ fmt.Sprintf("mobile-menu-%s", id) }
 		class={
-			"!fixed", "-left-[10px]", "w-screen", "z-[60]",
+			"!fixed", "-left-[10px]", "w-full", "z-[60]", "mx-[10px]",
 			"overflow-y-scroll", "block", "shadow-md", "mobile-menu-collapsed",
 		}
-		style="bottom: -0"
+		style="bottom: -0px"
 	>
 		<button
 			class={
-				"p-2", "rounded-lg", "text-white", "bg-[#DE3333]", "font-bold",
+				"p-2", "rounded-lg", "text-white", "bg-[#DE3333]", "font-bold", "mb-1",
 				"flex", "justify-center", "items-center", "gap-x-2", "w-full",
 			}
 			title={ title }
@@ -50,9 +50,20 @@ templ MobileMenu(id, title string, button, child templ.Component) {
 script toggleMobileMenu(id string) {
     const popover = document.getElementById(`mobile-menu-${id}`);
     popover.classList.toggle("mobile-menu-exapnded");
+
+    const player = document.getElementById("ze-player");
+    console.log(player.getBoundingClientRect())
+
     const rect = popover.getBoundingClientRect();
-    popover.style.bottom = `-${(window.innerHeight-(rect.y+rect.height))-65}px`
+    popover.style.bottom = `-${
+        (window.innerHeight-(rect.y+rect.height)) -
+        65 -
+        (!player.classList.contains("hidden")?
+        player.getBoundingClientRect().height + 5:
+        0)
+    }px`
     popover.style.height = (
-        popover.children[0].getBoundingClientRect().height +
-        popover.children[1].getBoundingClientRect().height).toString() + "px" ;
+        popover.children[0].getBoundingClientRect().height + 4 +
+        popover.children[1].getBoundingClientRect().height
+    ).toString() + "px" ;
 }
