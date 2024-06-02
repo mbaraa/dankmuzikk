@@ -72,7 +72,7 @@ templ playlistContent(pl entities.Playlist) {
 							s,
 							[]string{},
 							[]templ.Component{
-								songOptionsMobile(s),
+								song.DetailsMobile(s),
 								voteSong(s.YtId, pl.PublicId, s.Votes),
 								song.RemoveSong(s, pl.PublicId),
 								playlist.PlaylistsPopup(idx, s.YtId),
@@ -98,21 +98,6 @@ templ playlistContent(pl entities.Playlist) {
 			</div>
 		}
 	</div>
-}
-
-templ songOptionsMobile(song entities.Song) {
-	<div
-		class={ "w-[250px]", "h-full", "flex", "flex-col", "gap-y-2", "p-2" }
-	>
-		<h3 class={ "text-lg", "font-medium" }>Details and options</h3>
-		<p class={ "text-md", "max-w-[200px]", "lg:max-w-[600px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Added on { song.AddedAt }</p>
-		if song.PlayTimes == 1 {
-			<p class={ "text-md", "max-w-[200px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played once</p>
-		} else if song.PlayTimes > 1 {
-			<p class={ "text-md", "max-w-[200px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>Played { fmt.Sprint( song.PlayTimes) } times</p>
-		}
-	</div>
-	<hr/>
 }
 
 templ voteSong(songId, playlistId string, votes int) {
