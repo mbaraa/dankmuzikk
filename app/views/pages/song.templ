@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"dankmuzikk/views/icons"
 	"dankmuzikk/views/components/menus"
+	"math/rand"
 )
 
 templ Song(song entities.Song) {
@@ -33,9 +34,9 @@ templ songContent(song entities.Song) {
 				<span>Play now</span>
 			</button>
 			if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
-				@menus.MobileMenu(song.YtId, "Song's options", icons.Options(), options(song))
+				@menus.MobileMenu(song.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
 			} else {
-				@menus.Popover(song.YtId, "Song's options", icons.Options(), options(song))
+				@menus.Popover(song.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
 			}
 		</div>
 		<h1 class={ "text-secondary", "text-xl", "lg:text-4xl" }>{ song.Title }</h1>
