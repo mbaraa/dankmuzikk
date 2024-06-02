@@ -26,8 +26,8 @@ templ searchHeader() {
 templ searchContent(results []entities.Song) {
 	<div
 		class={
-			"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
-			"flex", "flex-col", "gap-5", "lg:mb-5",
+			"w-full", "overflow-y-scroll", "max-h-[55vh]", "md:max-h-[65vh]",
+			"flex", "flex-col", "gap-y-1", "lg:mb-5",
 		}
 	>
 		for idx, res := range results {

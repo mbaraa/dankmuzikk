@@ -11,6 +11,7 @@ import (
 	"dankmuzikk/services/history"
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/playlists"
+	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
 	"dankmuzikk/services/youtube/search"
 	"dankmuzikk/views/components/status"
@@ -29,6 +30,7 @@ type pagesHandler struct {
 	ytSearch         search.Service
 	downloadService  *download.Service
 	historyService   *history.Service
+	songsService     *songs.Service
 }
 
 func NewPagesHandler(
@@ -38,6 +40,7 @@ func NewPagesHandler(
 	ytSearch search.Service,
 	downloadService *download.Service,
 	historyService *history.Service,
+	songsService *songs.Service,
 ) *pagesHandler {
 	return &pagesHandler{
 		profileRepo:      profileRepo,
@@ -46,6 +49,7 @@ func NewPagesHandler(
 		ytSearch:         ytSearch,
 		downloadService:  downloadService,
 		historyService:   historyService,
+		songsService:     songsService,
 	}
 }
 
@@ -160,6 +164,32 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 		return
 	}
 	layouts.Default(playlist.Title, pages.Playlist(playlist)).Render(ctx, w)
+}
+
+func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Request) {
+	songId := r.PathValue("song_id")
+	if songId == "" {
+		status.
+			BugsBunnyError("You need to provide a song id!").
+			Render(context.Background(), w)
+		return
+	}
+
+	song, err := p.songsService.GetSong(songId)
+	if err != nil {
+		status.
+			BugsBunnyError("Song doesn't exist!").
+			Render(context.Background(), w)
+		return
+	}
+
+	if handlers.IsNoLayoutPage(r) {
+		w.Header().Set("HX-Title", song.Title)
+		w.Header().Set("HX-Push-Url", "/song/"+song.YtId)
+		pages.Song(song).Render(r.Context(), w)
+		return
+	}
+	layouts.Default(song.Title, pages.Song(song)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {

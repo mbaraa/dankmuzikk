@@ -2,10 +2,12 @@ package songs
 
 import (
 	"dankmuzikk/db"
+	"dankmuzikk/entities"
 	"dankmuzikk/log"
 	"dankmuzikk/models"
 	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/youtube/download"
+	"dankmuzikk/services/youtube/search"
 	"errors"
 )
 
@@ -37,6 +39,49 @@ func New(
 		playlistVotersRepo: playlistVotersRepo,
 		downloadService:    downloadService,
 	}
+}
+
+// GetSong returns a song with the provided youtube id, and an occurring error
+func (s *Service) GetSong(songYtId string) (entities.Song, error) {
+	song, err := s.songRepo.GetByConds("yt_id = ?", songYtId)
+	if err != nil && errors.Is(err, db.ErrRecordNotFound) {
+		res, err := (&search.ScraperSearch{}).Search(songYtId)
+		if err != nil {
+			return entities.Song{}, err
+		}
+		if len(res) == 0 {
+			return entities.Song{}, errors.New("no songs were found suka")
+		}
+		for _, sng := range res {
+			if sng.YtId == songYtId {
+				ss := models.Song{
+					YtId:            sng.YtId,
+					Title:           sng.Title,
+					Artist:          sng.Artist,
+					ThumbnailUrl:    sng.ThumbnailUrl,
+					Duration:        sng.Duration,
+					FullyDownloaded: false,
+				}
+				err = s.songRepo.Add(&ss)
+				log.Errorln(err)
+				song[0] = ss
+			}
+		}
+		err = s.downloadService.DownloadYoutubeSong(songYtId)
+		if err != nil {
+			return entities.Song{}, err
+		}
+	} else if err != nil {
+		return entities.Song{}, err
+	}
+
+	return entities.Song{
+		YtId:         song[0].YtId,
+		Title:        song[0].Title,
+		Artist:       song[0].Artist,
+		ThumbnailUrl: song[0].ThumbnailUrl,
+		Duration:     song[0].Duration,
+	}, nil
 }
 
 // ToggleSongInPlaylist adds/removes a given song to/from the given playlist,

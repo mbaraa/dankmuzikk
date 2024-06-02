@@ -2,9 +2,10 @@ package song
 
 import (
 	"dankmuzikk/entities"
-	"dankmuzikk/views/components/popover"
 	"dankmuzikk/views/icons"
 	"fmt"
+	"dankmuzikk/views/components/menus"
+	"math/rand"
 )
 
 templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, playlist entities.Playlist) {
@@ -20,7 +21,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 		<div class={ "w-full", "flex", "gap-x-4", "md:gap-x-6" }>
 			<!-- thumbnail and duration -->
 			<div
-				class={ "w-[80px]",  "h-[80px]", "md:w-[120px]", "md:h-[120px]", "relative", "cursor-pointer" }
+				class={ "w-[80px]",  "h-[80px]", "md:w-[70px]", "md:h-[70px]", "relative", "cursor-pointer" }
 				if playlist.PublicId != "" {
 					onClick={ playSongFromPlaylist(s.YtId, playlist) }
 				} else {
@@ -29,12 +30,19 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			>
 				<div
 					class={
-						"w-[80px]", "h-[80px]", "md:w-[120px]", "md:h-[120px]", "rounded-md", "bg-primary",
+						"w-[80px]", "h-[80px]", "md:w-[70px]", "md:h-[70px]", "rounded-md", "bg-primary",
 						"bg-repeat", "bg-cover", "bg-center", songThumb(fmt.Sprintf("url(\"%s\")", s.ThumbnailUrl)),
 					}
 				></div>
-				<div class={ "absolute", "right-0", "bottom-0", "text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-[#000000ab]", "rounded-sm" }>
-					<p class={ "leading-3", "font-Ubuntu" }>
+				<div
+					class={ "absolute", "bottom-0", "flex", "justify-center", "w-full", }
+				>
+					<p
+						class={
+							"leading-3", "bg-[#000000ab]", "rounded-sm",
+							"text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]",
+						}
+					>
 						{ s.Duration }
 					</p>
 				</div>
@@ -42,7 +50,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			<!-- title, channel title, and description -->
 			<div class={ "w-[165px]", "md:w-[330px]", "lg:min-w-[450px]", "xl:min-w-[650px]" }>
 				<div
-					class={ "w-full", "h-full", "flex", "gap-y-3", "items-center", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
+					class={ "w-full", "h-full", "flex", "gap-y-3", "items-start", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
 					if playlist.PublicId != "" {
 						onClick={ playSongFromPlaylist(s.YtId, playlist) }
 					} else {
@@ -55,11 +63,14 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 					>
 						{ s.Title }
 					</h3>
-					<div class={ "flex", "flex-col", "gap-y-1", "md:gap-y-2", "justify-start", "w-full" }>
-						<p class={ "w-full", "text-sm", "font-normal" }>By { s.Artist }</p>
-						for _, info := range additionalData {
+					<div class={ "flex", "flex-col", "lg:flex-row", "gap-x-2", "gap-y-1", "lg:gap-y-2", "w-auto", "justify-start" }>
+						<p class={ "w-fit", "text-sm", "font-normal" }>By { s.Artist }</p>
+						for i, info := range additionalData {
+							if i < len(additionalData) && info != "" {
+								<span class={ "hidden", "lg:flex", "justify-center", "items-center", "text-lg", "h-[20px]" }>•</span>
+							}
 							if info != "" {
-								<p class={ "w-full", "text-sm", "font-normal" }>{ info }</p>
+								<p class={ "w-fit", "text-sm", "font-normal" }>{ info }</p>
 							}
 						}
 					</div>
@@ -68,7 +79,11 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 		</div>
 		<!-- actions -->
 		<div class={ "lg:me-3", "flex", "items-center", "lg:gap-x-4" }>
-			@popover.Popover(s.YtId, "Song options", icons.Options(), options(s, additionalOptions))
+			if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+				@menus.MobileMenu(s.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(s, additionalOptions))
+			} else {
+				@menus.Popover(s.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(s, additionalOptions))
+			}
 		</div>
 	</div>
 }
@@ -76,13 +91,25 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 templ options(song entities.Song, additionalOptions []templ.Component) {
 	<div
 		class={
-			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md",
-			"bg-primary", "min-w-[250px]", "shadow-sm", "shadow-accent",
+			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md", "min-w-[250px]",
+			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
 		}
 	>
 		for _, option := range additionalOptions {
 			@option
 		}
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Share song"
+			type="button"
+			onClick={ shareSong(song.YtId) }
+		>
+			@icons.ShareLink()
+			<span>Share song</span>
+		</button>
 		<button
 			class={
 				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
@@ -94,6 +121,18 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 		>
 			@icons.AddToQueue()
 			<span>Add to queue</span>
+		</button>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Play next"
+			type="button"
+			onClick={ playSongNext(song) }
+		>
+			@icons.AddToQueue()
+			<span>Play next</span>
 		</button>
 		<button
 			class={
@@ -128,4 +167,13 @@ script playSong(song entities.Song) {
 
 script playSongFromPlaylist(songId string, playlist entities.Playlist) {
     window.Player.playSongFromPlaylist(songId, playlist)
+}
+
+script playSongNext(song entities.Song) {
+    Player.playSingleSongNext(song)
+}
+
+script shareSong(songYtId string) {
+    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/song/${songYtId}`)
+    alert("Song's links was copied!");
 }

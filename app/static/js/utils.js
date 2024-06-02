@@ -40,10 +40,24 @@ function getTextWidth() {
   return window.innerWidth > 768 ? 35 : 15;
 }
 
+/**
+ * @param {string} text
+ */
+function copyTextToClipboard(text) {
+  const textArea = document.getElementById("clipboard-text-blyat");
+  textArea.hidden = false;
+  textArea.value = text;
+  textArea.select();
+  textArea.setSelectionRange(0, 300);
+  document.execCommand("copy");
+  textArea.hidden = true;
+}
+
 window.Utils = {
   showLoading,
   hideLoading,
   formatTime,
   formatNumber,
   getTextWidth,
+  copyTextToClipboard,
 };

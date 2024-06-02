@@ -3,12 +3,13 @@ package playlist
 import (
 	"fmt"
 	"dankmuzikk/entities"
-	"dankmuzikk/views/components/popup"
 	"dankmuzikk/views/icons"
+	"dankmuzikk/views/components/menus"
+	"dankmuzikk/views/components/ui"
 )
 
 templ PlaylistsPopup(index int, songId string) {
-	@popup.Popup(fmt.Sprint(index), "Add to playlist", popupButton(songId), playlistSelector(songId))
+	@menus.Popup(fmt.Sprint(index), "Add to playlist", popupButton(songId), playlistSelector(songId))
 }
 
 templ playlistSelector(songId string) {
@@ -67,22 +68,11 @@ templ PlaylistsSelector(songId string, playlists []entities.Playlist, songsInPla
 						<div
 							id={ fmt.Sprintf("song-in-playlist-%s-%s", playlist.PublicId, songId) }
 						>
-							<div
-								class={
-									"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-secondary",
-									"flex", "justify-center", "items-center",
-									map[string]bool{
-										"bg-secondary": songsInPlaylists[songId+"-"+playlist.PublicId],
-									},
-								}
-							>
-								if songsInPlaylists[songId+"-"+playlist.PublicId] {
-									<svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-										<path d="M2 6L7.33514 12.3582" stroke="var(--primary-color)" stroke-width="3" stroke-linecap="round"></path>
-										<path d="M7.4502 12.312L16.4492 1.58739" stroke="var(--primary-color)" stroke-width="3" stroke-linecap="round"></path>
-									</svg>
-								}
-							</div>
+							if songsInPlaylists[songId+"-"+playlist.PublicId] {
+								@ui.CheckedCheckbox()
+							} else {
+								@ui.UncheckedCheckbox()
+							}
 						</div>
 						<p class={ "max-w-[300px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "text-secondary" }>
 							{ playlist.Title }

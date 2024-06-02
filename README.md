@@ -37,7 +37,7 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - [ ] Expandable player
   - [x] Mobile
   - [ ] Desktop
-- [ ] Share songs
+- [x] Share songs
 - [ ] Player's menu
 - [ ] Import **public** playlists from YouTube
 - [ ] Update profile
