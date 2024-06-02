@@ -85,6 +85,7 @@ func (a *Handler) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx = context.WithValue(ctx, IsMobileKey, isMobile(r))
 		h(w, r.WithContext(ctx))
 	}
 }
@@ -97,7 +98,9 @@ func (a *Handler) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		h(w, r.WithContext(context.WithValue(r.Context(), ProfileIdKey, profile.Id)))
+		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx = context.WithValue(ctx, IsMobileKey, isMobile(r))
+		h(w, r.WithContext(ctx))
 	}
 }
 
@@ -105,7 +108,7 @@ func (a *Handler) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 func (a *Handler) NoAuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		h(w, r)
+		h(w, r.WithContext(context.WithValue(r.Context(), IsMobileKey, isMobile(r))))
 	}
 }
 
