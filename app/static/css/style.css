@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 html,
+body {
+  overscroll-behavior-y: contain;
+}
+
+html,
 body,
 div,
 ul,
