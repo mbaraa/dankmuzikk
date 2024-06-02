@@ -13,7 +13,6 @@ import (
 
 templ Playlist(pl entities.Playlist) {
 	@page.Container(playlistHeader(pl), playlistContent(pl))
-	<input id="clipboard-text-blyat" type="text" hidden/>
 }
 
 templ playlistHeader(pl entities.Playlist) {
@@ -27,7 +26,7 @@ templ playlistHeader(pl entities.Playlist) {
 				}
 				title="Copy link to this playlist"
 				type="button"
-				onClick={ copyLink(pl.PublicId, pl.IsPublic) }
+				onClick={ copyLink(pl.IsPublic) }
 			>
 				@icons.ShareLink()
 			</button>
@@ -273,14 +272,8 @@ script removeSongFromPlaylist(songId, playlistId string) {
     Player.removeSongFromPlaylist(songId, playlistId);
 }
 
-script copyLink(pubId string, isPublic bool) {
-    const textArea = document.getElementById("clipboard-text-blyat");
-    textArea.hidden = false;
-    textArea.value = location.href;
-    textArea.select();
-    textArea.setSelectionRange(0, 300);
-    document.execCommand("copy");
-    textArea.hidden = true;
+script copyLink(isPublic bool) {
+    window.Utils.copyTextToClipboard(location.href)
     if (isPublic) {
         alert("Playlist's links was copied!");
     } else {
