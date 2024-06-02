@@ -74,7 +74,7 @@ templ playlistContent(pl entities.Playlist) {
 							[]templ.Component{
 								songOptionsMobile(s),
 								voteSong(s.YtId, pl.PublicId, s.Votes),
-								removeSong(s, pl.PublicId),
+								song.RemoveSong(s, pl.PublicId),
 								playlist.PlaylistsPopup(idx, s.YtId),
 							},
 							pl,
@@ -88,7 +88,7 @@ templ playlistContent(pl entities.Playlist) {
 							},
 							[]templ.Component{
 								voteSong(s.YtId, pl.PublicId, s.Votes),
-								removeSong(s, pl.PublicId),
+								song.RemoveSong(s, pl.PublicId),
 								playlist.PlaylistsPopup(idx, s.YtId),
 							},
 							pl,
@@ -98,29 +98,6 @@ templ playlistContent(pl entities.Playlist) {
 			</div>
 		}
 	</div>
-}
-
-templ removeSong(song entities.Song, playlistId string) {
-	if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
-		<button
-			class={
-				"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",
-				"flex", "items-center", "gap-x-2", "w-full",
-			}
-			title={ "Remove " + song.Title + "!" }
-			type="button"
-			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
-		>
-			<svg class={ "hover:stroke-white" } width="30" height="34" viewBox="0 0 30 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<path d="M11.6129 14.8387V24.5161" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-				<path d="M18.0647 14.8387V24.5161" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-				<path d="M1.93555 8.38712H27.742" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-				<path d="M5.16125 8.38712H14.8387H24.5161V26.129C24.5161 28.8015 22.3498 30.9678 19.6774 30.9678H9.99996C7.32763 30.9678 5.16125 28.8015 5.16125 26.129V8.38712Z" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-				<path d="M10 5.16128C10 3.37971 11.4442 1.93547 13.2258 1.93547H16.4516C18.2332 1.93547 19.6774 3.37971 19.6774 5.16128V8.38708H10V5.16128Z" stroke="var(--secondary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-			</svg>
-			<span>Remove from playlist</span>
-		</button>
-	}
 }
 
 templ songOptionsMobile(song entities.Song) {
@@ -266,10 +243,6 @@ func playedTimes(times int) string {
 	default:
 		return ""
 	}
-}
-
-script removeSongFromPlaylist(songId, playlistId string) {
-    Player.removeSongFromPlaylist(songId, playlistId);
 }
 
 script copyLink(isPublic bool) {
