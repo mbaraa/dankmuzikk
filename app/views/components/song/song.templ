@@ -21,7 +21,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 		<div class={ "w-full", "flex", "gap-x-4", "md:gap-x-6" }>
 			<!-- thumbnail and duration -->
 			<div
-				class={ "w-[80px]",  "h-[80px]", "md:w-[65px]", "md:h-[65px]", "relative", "cursor-pointer" }
+				class={ "w-[80px]",  "h-[80px]", "md:w-[70px]", "md:h-[70px]", "relative", "cursor-pointer" }
 				if playlist.PublicId != "" {
 					onClick={ playSongFromPlaylist(s.YtId, playlist) }
 				} else {
@@ -30,7 +30,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			>
 				<div
 					class={
-						"w-[80px]", "h-[80px]", "md:w-[65px]", "md:h-[65px]", "rounded-md", "bg-primary",
+						"w-[80px]", "h-[80px]", "md:w-[70px]", "md:h-[70px]", "rounded-md", "bg-primary",
 						"bg-repeat", "bg-cover", "bg-center", songThumb(fmt.Sprintf("url(\"%s\")", s.ThumbnailUrl)),
 					}
 				></div>

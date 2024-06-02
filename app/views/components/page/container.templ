@@ -5,13 +5,13 @@ templ Container(header, content templ.Component) {
 		<div class={ "flex", "justify-center" }>
 			<section
 				class={
-					"w-full", "md:w-3/4", "bg-accent-trans-20", "backdrop-blur-md", "rounded-xl", "text-secondary",
-					"rounded-[10px]", "m-[10px]", "md:m-[20px]", "p-[20px]", "md:p-[40px]",
-					"mb-[170px]", "lg:mb-0",
+					"w-full", "md:w-3/4", "md:bg-accent-trans-20", "md:backdrop-blur-md", "rounded-xl", "text-secondary",
+					"rounded-[10px]", "md:m-[20px]", "p-[15px]", "md:p-[40px]",
+					"mb-[140px]", "lg:mb-0",
 				}
 			>
 				@header
-				<div class={ "my-5", "lg:my-10" }>
+				<div class={ "mt-5", "lg:mt-10" }>
 					@content
 				</div>
 			</section>
