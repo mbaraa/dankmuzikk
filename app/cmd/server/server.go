@@ -79,7 +79,7 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.HandleFunc("GET /about", gHandler.NoAuthPage(pagesRouter.HandleAboutPage))
 	pagesHandler.HandleFunc("GET /playlists", gHandler.AuthPage(pagesRouter.HandlePlaylistsPage))
 	pagesHandler.HandleFunc("GET /playlist/{playlist_id}", gHandler.AuthPage(pagesRouter.HandleSinglePlaylistPage))
-	pagesHandler.HandleFunc("GET /song/{song_id}", gHandler.AuthPage(pagesRouter.HandleSingleSongPage))
+	pagesHandler.HandleFunc("GET /song/{song_id}", gHandler.OptionalAuthPage(pagesRouter.HandleSingleSongPage))
 	pagesHandler.HandleFunc("GET /privacy", gHandler.NoAuthPage(pagesRouter.HandlePrivacyPage))
 	pagesHandler.HandleFunc("GET /search", gHandler.OptionalAuthPage(pagesRouter.HandleSearchResultsPage))
 
