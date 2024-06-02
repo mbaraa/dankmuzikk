@@ -70,8 +70,6 @@ const LOOP_MODES = Object.freeze({
   ONCE: "ONCE",
 });
 
-const QUEUE_TITLE = new Date().getTime().toString();
-
 /**
  * @type{PlayerState}
  */
@@ -81,7 +79,7 @@ const playerState = {
   shuffledPlaylist: "",
   currentSongIdx: 0,
   playlist: {
-    title: QUEUE_TITLE,
+    title: "Queue",
     songs_count: 0,
     public_id: "",
     songs: [],
@@ -622,7 +620,7 @@ async function playSong(song) {
  */
 async function playSingleSong(song) {
   playerState.playlist = {
-    title: QUEUE_TITLE,
+    title: "Queue",
     songs_count: 1,
     public_id: "",
     songs: [song],
@@ -673,7 +671,7 @@ async function playSongFromPlaylist(songYtId, playlist) {
   playerState.currentSongIdx = songIdx;
   if (
     playerState.playlist.songs[songIdx].votes === 0 &&
-    playerState.playlist.title !== QUEUE_TITLE
+    playerState.playlist.public_id !== ""
   ) {
     playerState.currentSongIdx++;
   }
