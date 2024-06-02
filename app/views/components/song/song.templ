@@ -34,8 +34,15 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 						"bg-repeat", "bg-cover", "bg-center", songThumb(fmt.Sprintf("url(\"%s\")", s.ThumbnailUrl)),
 					}
 				></div>
-				<div class={ "absolute", "right-0", "bottom-0", "text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]", "bg-[#000000ab]", "rounded-sm" }>
-					<p class={ "leading-3", "font-Ubuntu" }>
+				<div
+					class={ "absolute", "bottom-0", "flex", "justify-center", "w-full", }
+				>
+					<p
+						class={
+							"leading-3", "bg-[#000000ab]", "rounded-sm",
+							"text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]",
+						}
+					>
 						{ s.Duration }
 					</p>
 				</div>
