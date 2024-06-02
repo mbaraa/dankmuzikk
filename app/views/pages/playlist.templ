@@ -62,8 +62,8 @@ templ playlistContent(pl entities.Playlist) {
 		} else {
 			<div
 				class={
-					"w-full", "overflow-y-scroll", "min-h-[40vh]", "max-h-[50vh]", "md:max-h-[65vh]",
-					"flex", "flex-col", "gap-y-1", "lg:gap-y-4",
+					"w-full", "overflow-y-scroll", "max-h-[50vh]", "md:max-h-[65vh]",
+					"flex", "flex-col", "gap-y-1",
 				}
 			>
 				for idx, s := range pl.Songs {
