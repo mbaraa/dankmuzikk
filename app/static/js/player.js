@@ -690,6 +690,7 @@ function appendSongToCurrentQueue(song) {
     alert(`${song.title} exists in the queue!`);
     return;
   }
+  song.votes = 1;
   playerState.playlist.songs.push(song);
   alert(`Added ${song.title} to the queue!`);
 }
