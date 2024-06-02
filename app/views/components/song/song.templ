@@ -92,6 +92,18 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
 				"flex", "items-center", "gap-x-2", "w-full",
 			}
+			title="Share song"
+			type="button"
+			onClick={ shareSong(song.YtId) }
+		>
+			@icons.ShareLink()
+			<span>Share song</span>
+		</button>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
 			title="Add song to queue"
 			type="button"
 			onClick={ addSongToQueue(song) }
@@ -148,4 +160,9 @@ script playSongFromPlaylist(songId string, playlist entities.Playlist) {
 
 script playSongNext(song entities.Song) {
     Player.playSingleSongNext(song)
+}
+
+script shareSong(songYtId string) {
+    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/song/${songYtId}`)
+    alert("Song's links was copied!");
 }
