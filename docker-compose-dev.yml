@@ -19,7 +19,6 @@ services:
       - danknetwork
     depends_on:
       - dank-db
-      - yt-scraper
       - yt-dl
 
   dank-db:
@@ -34,17 +33,6 @@ services:
     volumes:
       - db-config:/etc/mysql
       - db-data:/var/lib/mysql
-    networks:
-      - danknetwork
-
-  yt-scraper:
-    container_name: "yt-scraper"
-    build:
-      context: ./ytscraper
-    image: "yt-scraper"
-    restart: "always"
-    ports:
-      - 8080
     networks:
       - danknetwork
 

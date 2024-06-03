@@ -14,15 +14,6 @@ services:
       - db-config:/etc/mysql
       - db-data:/var/lib/mysql
 
-  yt-scraper:
-    container_name: "yt-scraper"
-    build:
-      context: ./ytscraper
-    image: "yt-scraper"
-    restart: "always"
-    ports:
-      - "1234:8080"
-
   yt-dl:
     container_name: "yt-dl"
     build:
