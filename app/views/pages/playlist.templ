@@ -31,7 +31,7 @@ templ playlistHeader(pl entities.Playlist) {
 				@icons.ShareLink()
 			</button>
 			if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
-				@playlist.PlaylistsOptionsPopover(pl)
+				@playlist.PlaylistsOptions(pl)
 			} else {
 				@joinLeavePlaylist(pl.PublicId, perm)
 			}
