@@ -44,6 +44,18 @@ templ playlistOptions(playlist entities.Playlist) {
 					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
 					"flex", "items-center", "gap-x-2", "w-full",
 				}
+				title="Add to queue"
+				type="button"
+				onClick={ addToQueue(playlist) }
+			>
+				@icons.AddToQueue()
+				<span>Add to queue</span>
+			</button>
+			<button
+				class={
+					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+					"flex", "items-center", "gap-x-2", "w-full",
+				}
 				title="Play next"
 				type="button"
 				onClick={ playPlaylistNext(playlist) }
@@ -127,6 +139,10 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 
 script playPlaylistNext(pl entities.Playlist) {
     Player.playPlaylistNext(pl)
+}
+
+script addToQueue(pl entities.Playlist) {
+    Player.appendPlaylistToCurrentQueue(pl)
 }
 
 script copyLink(isPublic bool, plPubId string) {
