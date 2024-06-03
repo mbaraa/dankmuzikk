@@ -134,7 +134,7 @@ func search(q string) ([]videoResult, error) {
 	return resSuka, nil
 }
 
-// ScraperSearch is a scrapper enabled YouTube search, using the search service under ~/ytscraper
+// ScraperSearch is a scrapper enabled YouTube search.
 type ScraperSearch struct{}
 
 func (y *ScraperSearch) Search(query string) (results []entities.Song, err error) {
