@@ -646,6 +646,23 @@ async function playSingleSongNext(song) {
 }
 
 /**
+ * @param {Playlist} playlist
+ */
+async function playPlaylistNext(playlist) {
+  if (!playlist || !playlist.songs || playlist.songs.length === 0) {
+    alert("Can't do that!");
+    return;
+  }
+  if (playerState.playlist.songs.length === 0) {
+    playSongFromPlaylist(playlist.songs[0].yt_id, playlist);
+    return;
+  }
+  playerState.playlist.songs.push(...playlist.songs);
+  playerState.playlist.title = `${playerState.playlist.title} + ${playlist.title}`;
+  alert(`Playing ${playlist.title} next!`);
+}
+
+/**
  * @param {string} songYtId
  * @param {Playlist} playlist
  */
@@ -917,6 +934,7 @@ window.Player.hidePlayer = hide;
 window.Player.playSingleSong = playSingleSong;
 window.Player.playSingleSongNext = playSingleSongNext;
 window.Player.playSongFromPlaylist = playSongFromPlaylist;
+window.Player.playPlaylistNext = playPlaylistNext;
 window.Player.removeSongFromPlaylist = removeSongFromPlaylist;
 window.Player.addSongToQueue = appendSongToCurrentQueue;
 window.Player.stopMuzikk = stopMuzikk;
