@@ -20,13 +20,20 @@ templ Popover(id, title string, button, child templ.Component) {
 		<div
 			id={ fmt.Sprintf("popover-%s", id) }
 			class={
-				"hidden", "absolute", "z-50", "top-[45px]", "right-[0px]",
-				"shadow-md", "min-w-[150px]",
+				"popover-collapsed", "absolute", "z-50", "top-[45px]", "right-[0px]",
+				"shadow-md", "overflow-y-scroll", "min-w-[150px]",
 			}
 		>
 			@child
 		</div>
 	</div>
+	<style>
+        .popover-collapsed {
+            height: 0;
+            max-height: 0;
+            min-height: 0;
+        }
+    </style>
 }
 
 script toggleTheThing(id string) {
@@ -37,10 +44,18 @@ script toggleTheThing(id string) {
         }
     });
 
-    if (popover.style.display !== "block") {
-      popover.style.display = "block";
-      popover.scrollIntoView(false);
+    if (popover.classList.contains("popover-collapsed")) {
+        popover.classList.remove("popover-collapsed")
+        const h =
+            popover.children[0].getBoundingClientRect().height + "px";
+        popover.style.height = h;
+        popover.style.maxHeight = h;
+        popover.style.minHeight = h;
+        popover.scrollIntoView({ block: "nearest" });
     } else {
-      popover.style.display = "none";
+        popover.classList.add("popover-collapsed")
+        popover.style.height = 0;
+        popover.style.maxHeight = 0;
+        popover.style.minHeight = 0;
     }
 }
