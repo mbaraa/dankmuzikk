@@ -26,6 +26,18 @@ templ playlistOptions(playlist entities.Playlist) {
 		<h3 class={ "text-lg", "font-medium" }>Playlist's Options</h3>
 		<hr/>
 		@publicPlaylistToggle(playlist.PublicId, playlist.IsPublic)
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Copy link to this playlist"
+			type="button"
+			onClick={ copyLink(playlist.IsPublic, playlist.PublicId) }
+		>
+			@icons.ShareLink()
+			<span>Share playlist</span>
+		</button>
 		if len(playlist.Songs) != 0 {
 			<button
 				class={
@@ -40,18 +52,6 @@ templ playlistOptions(playlist entities.Playlist) {
 				<span>Play next</span>
 			</button>
 		}
-		<button
-			class={
-				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
-				"flex", "items-center", "gap-x-2", "w-full",
-			}
-			title="Copy link to this playlist"
-			type="button"
-			onClick={ copyLink(playlist.IsPublic, playlist.PublicId) }
-		>
-			@icons.ShareLink()
-			<span>Share playlist</span>
-		</button>
 		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
 			<button
 				class={
