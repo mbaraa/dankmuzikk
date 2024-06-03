@@ -88,7 +88,6 @@ docker compose up -f docker-compose-dev.yml
 - **This project is not affiliated with YouTube or Google, or anyone to that matter in any sort of ways.**
 - Frank’s original image was taken from [dingusland.biz](https://dingusland.biz)
 - Colorscheme is inspired from [Dankpods](https://www.youtube.com/@DankPods)
-- youtube-scrape was used to search videos without using the actual YouTube API (small quota): MIT licenses by [Herman Fassett](https://github.com/HermanFassett)
 
 ---
 
