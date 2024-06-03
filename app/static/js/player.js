@@ -662,7 +662,7 @@ async function playPlaylistNext(playlist) {
   playerState.playlist.songs.splice(
     playerState.currentSongIdx + 1,
     0,
-    ...song.map((s) => {
+    ...playlist.songs.map((s) => {
       return { ...s, votes: 1 };
     }),
   );
