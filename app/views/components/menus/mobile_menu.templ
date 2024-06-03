@@ -52,7 +52,6 @@ script toggleMobileMenu(id string) {
     popover.classList.toggle("mobile-menu-exapnded");
 
     const player = document.getElementById("ze-player");
-    console.log(player.getBoundingClientRect())
 
     const rect = popover.getBoundingClientRect();
     popover.style.bottom = `-${
