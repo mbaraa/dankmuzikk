@@ -8,19 +8,50 @@ import (
 	"dankmuzikk/views/icons"
 )
 
-templ PlaylistsOptionsPopover(playlist entities.Playlist) {
-	@menus.Popover("playlist-"+playlist.PublicId, "Playlist options", icons.Options(), playlistOptions(playlist))
+templ PlaylistsOptions(playlist entities.Playlist) {
+	if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+		@menus.MobileMenu("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
+	} else {
+		@menus.Popover("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
+	}
 }
 
 templ playlistOptions(playlist entities.Playlist) {
 	<div
 		class={
-			"w-[250px]", "h-full", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
-			"flex", "flex-col", "gap-y-4", "backdrop-blur-lg",
+			"min-w-[250px]", "bg-accent-trans-20", "p-[15px]", "rounded-[10px]",
+			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
 		}
 	>
-		<h3 class={ "text-lg", "font-medium" }>Options</h3>
+		<h3 class={ "text-lg", "font-medium" }>Playlist's Options</h3>
+		<hr/>
 		@publicPlaylistToggle(playlist.PublicId, playlist.IsPublic)
+		if len(playlist.Songs) != 0 {
+			<button
+				class={
+					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+					"flex", "items-center", "gap-x-2", "w-full",
+				}
+				title="Play next"
+				type="button"
+				onClick={ playPlaylistNext(playlist) }
+			>
+				@icons.AddToQueue()
+				<span>Play next</span>
+			</button>
+		}
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Copy link to this playlist"
+			type="button"
+			onClick={ copyLink(playlist.IsPublic, playlist.PublicId) }
+		>
+			@icons.ShareLink()
+			<span>Share playlist</span>
+		</button>
 		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
 			<button
 				class={
@@ -54,7 +85,10 @@ templ playlistOptions(playlist entities.Playlist) {
 
 templ publicPlaylistToggle(publicId string, isPublic bool) {
 	<div
-		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
+		class={
+			"flex", "gap-x-2", "items-center", "cursor-pointer",
+			"p-2", "rounded-md", "hover:bg-accent-trans-20", "w-full",
+		}
 		hx-put={
 			fmt.Sprintf(
 				"/api/playlist/public?playlist-id=%s",
@@ -71,7 +105,7 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 				"/api/playlist/public?playlist-id=%s", publicId,
 			),
 		}
-		title="Toggling this will change the playlist's visibility!"
+		title="Toggling this will change whether if anyone can see the playlist or not."
 	>
 		<div
 			id={ fmt.Sprintf("public-playlist-%s", publicId) }
@@ -85,8 +119,21 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 				}
 			></div>
 		</div>
-		<p class={ "max-w-[300px]", "text-secondary", "text-lg" }>
-			Public
+		<p class={ "max-w-[300px]", "text-secondary", "text-md" }>
+			Sharable
 		</p>
 	</div>
+}
+
+script playPlaylistNext(pl entities.Playlist) {
+    Player.playPlaylistNext(pl)
+}
+
+script copyLink(isPublic bool, plPubId string) {
+    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/playlist/${plPubId}`)
+    if (isPublic) {
+        alert("Playlist's links was copied!");
+    } else {
+        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
+    }
 }
