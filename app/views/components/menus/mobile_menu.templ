@@ -39,30 +39,36 @@ templ MobileMenu(id, title string, button, child templ.Component) {
         .mobile-menu-collapsed {
             height: 0;
             max-height: 0;
-        }
-        .mobile-menu-exapnded {
-            min-height: 200px;
-            max-height: 500px;
+            min-height: 0;
         }
     </style>
 }
 
 script toggleMobileMenu(id string) {
     const popover = document.getElementById(`mobile-menu-${id}`);
-    popover.classList.toggle("mobile-menu-exapnded");
+    if (popover.classList.contains("mobile-menu-collapsed")) {
+        const player = document.getElementById("ze-player");
+        const rect = popover.getBoundingClientRect();
+        popover.style.bottom = `-${
+            (window.innerHeight-(rect.y+rect.height)) -
+            65 -
+            (!player.classList.contains("hidden")?
+            player.getBoundingClientRect().height + 5:
+            0)
+        }px`
+        popover.style.height = (
+            popover.children[0].getBoundingClientRect().height + 4 +
+            popover.children[1].getBoundingClientRect().height
+        ).toString() + "px" ;
+        popover.style.maxHeight = "500px";
+        popover.style.minHeight = "200px";
 
-    const player = document.getElementById("ze-player");
+        popover.classList.remove("mobile-menu-collapsed");
+    } else {
+        popover.classList.add("mobile-menu-collapsed");
+        popover.style.height = 0;
+        popover.style.maxHeight = 0;
+        popover.style.minHeight = 0;
+    }
 
-    const rect = popover.getBoundingClientRect();
-    popover.style.bottom = `-${
-        (window.innerHeight-(rect.y+rect.height)) -
-        65 -
-        (!player.classList.contains("hidden")?
-        player.getBoundingClientRect().height + 5:
-        0)
-    }px`
-    popover.style.height = (
-        popover.children[0].getBoundingClientRect().height + 4 +
-        popover.children[1].getBoundingClientRect().height
-    ).toString() + "px" ;
 }
