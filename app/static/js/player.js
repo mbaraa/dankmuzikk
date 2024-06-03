@@ -376,7 +376,8 @@ function playlister(state) {
         ? 0
         : state.currentSongIdx + 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
-    playSongFromPlaylist(songToPlay.yt_id, state.playlist);
+    await highlightSongInPlaylist(songToPlay.yt_id, state.playlist);
+    await playSong(songToPlay);
     __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
@@ -415,7 +416,8 @@ function playlister(state) {
         ? state.playlist.songs.length - 1
         : state.currentSongIdx - 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
-    playSongFromPlaylist(songToPlay.yt_id, state.playlist);
+    await highlightSongInPlaylist(songToPlay.yt_id, state.playlist);
+    await playSong(songToPlay);
     __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
@@ -663,6 +665,23 @@ async function playPlaylistNext(playlist) {
 }
 
 /**
+ * @param {Playlist} playlist
+ */
+async function playPlaylistNext(playlist) {
+  if (!playlist || !playlist.songs || playlist.songs.length === 0) {
+    alert("Can't do that!");
+    return;
+  }
+  if (playerState.playlist.songs.length === 0) {
+    playSongFromPlaylist(playlist.songs[0].yt_id, playlist);
+    return;
+  }
+  playerState.playlist.songs.push(...playlist.songs);
+  playerState.playlist.title = `${playerState.playlist.title} + ${playlist.title}`;
+  alert(`Playing ${playlist.title} next!`);
+}
+
+/**
  * @param {string} songYtId
  * @param {Playlist} playlist
  */
@@ -701,12 +720,6 @@ async function playSongFromPlaylist(songYtId, playlist) {
  * @param {Song} song
  */
 function appendSongToCurrentQueue(song) {
-  if (
-    playerState.playlist.songs.findIndex((s) => s.yt_id === song.yt_id) !== -1
-  ) {
-    alert(`${song.title} exists in the queue!`);
-    return;
-  }
   if (playerState.playlist.songs.length === 0) {
     playSingleSong(song);
     return;
