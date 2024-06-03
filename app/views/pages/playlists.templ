@@ -38,7 +38,7 @@ templ JustPlaylists(pls []entities.Playlist) {
 		}
 	>
 		for _, playlist := range pls {
-			@singlePlaylist(playlist)
+			@navlink.JustLink(fmt.Sprintf("/playlist/%s", playlist.PublicId), playlist.Title, singlePlaylist(playlist))
 		}
 	</div>
 }
@@ -46,22 +46,14 @@ templ JustPlaylists(pls []entities.Playlist) {
 templ singlePlaylist(pl entities.Playlist) {
 	<div
 		class={
-			"hover:bg-secondary-trans-30", "rounded-[10px]", "py-4",
+			"hover:bg-secondary-trans-30", "rounded-[10px]", "py-4", "pe-2",
 			"flex", "justify-between", "items-center", "gap-x-5", "lg:gap-x-0",
 		}
 	>
-		@navlink.JustLink(fmt.Sprintf("/playlist/%s", pl.PublicId), pl.Title, singlePlaylistNav(pl))
-		<div class={ "pe-2" }>
-			@playlist.PlaylistsOptions(pl)
+		<div class={ "flex", "items-center", "gap-x-4" }>
+			@icons.Playlist()
+			<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "font-bold", "text-xl" }>{ pl.Title }</p>
 		</div>
-	</div>
-}
-
-templ singlePlaylistNav(pl entities.Playlist) {
-	<div class={ "flex", "items-center", "gap-x-4" }>
-		@icons.Playlist()
-		<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "font-bold", "text-xl" }>{ pl.Title }</p>
-		<span class={ "hidden", "lg:flex", "justify-center", "items-center", "text-lg", "h-[20px]" }>•</span>
 		<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
 	</div>
 }
