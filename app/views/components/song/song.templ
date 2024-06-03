@@ -91,10 +91,12 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 templ options(song entities.Song, additionalOptions []templ.Component) {
 	<div
 		class={
-			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md", "min-w-[250px]",
-			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
+			"min-w-[250px]", "bg-accent-trans-20", "p-[15px]", "rounded-[10px]",
+			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
 		}
 	>
+		<h3 class={ "text-lg", "font-medium" }>Song's Options</h3>
+		<hr/>
 		for _, option := range additionalOptions {
 			@option
 		}
