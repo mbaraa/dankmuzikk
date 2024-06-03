@@ -18,19 +18,7 @@ services:
     networks:
       - danknetwork
     depends_on:
-      - yt-scraper
       - yt-dl
-
-  yt-scraper:
-    container_name: "yt-scraper"
-    build:
-      context: ./ytscraper
-    image: "yt-scraper"
-    restart: "always"
-    ports:
-      - 8080
-    networks:
-      - danknetwork
 
   yt-dl:
     container_name: "ytdl"
