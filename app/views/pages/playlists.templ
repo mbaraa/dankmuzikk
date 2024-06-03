@@ -52,8 +52,8 @@ templ singlePlaylist(pl entities.Playlist) {
 	>
 		<div class={ "flex", "items-center", "gap-x-4" }>
 			@icons.Playlist()
-			<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "font-bold", "text-xl" }>{ pl.Title }</p>
+			<p class={ "text-lg", "max-w-[230px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "font-bold" }>{ pl.Title }</p>
 		</div>
-		<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+		<p class={ "text-md", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
 	</div>
 }
