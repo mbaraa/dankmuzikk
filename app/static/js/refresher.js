@@ -25,7 +25,7 @@ async function simulateRefreshAction() {
   const refresher = document.querySelector(".refresher");
 
   document.body.classList.add("refreshing");
-  await sleep(2000);
+  await sleep(700);
 
   refresher.classList.add("shrink");
   await transitionEnd("transform", refresher);
