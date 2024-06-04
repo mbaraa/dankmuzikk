@@ -27,6 +27,23 @@ window.addEventListener("load", () => {
   updateActiveNavLink();
 });
 
+window.addEventListener("popstate", async (e) => {
+  const mainContentsEl = document.getElementById("main-contents");
+  if (!!mainContentsEl && !!e.target.location.pathname) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    await fetch(e.target.location.pathname + "?no_layout=true")
+      .then((res) => res.text())
+      .then((page) => {
+        mainContentsEl.innerHTML = page;
+      })
+      .catch(() => {
+        window.location.reload();
+      });
+    return;
+  }
+});
+
 document.addEventListener("htmx:afterRequest", function (e) {
   if (!!e.detail && !!e.detail.xhr) {
     const newTitle = e.detail.xhr.getResponseHeader("HX-Title");
