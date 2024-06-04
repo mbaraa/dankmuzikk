@@ -43,6 +43,7 @@ window.addEventListener("popstate", async (e) => {
       })
       .finally(() => {
         Utils.hideLoading();
+        updateActiveNavLink();
       });
     return;
   }
