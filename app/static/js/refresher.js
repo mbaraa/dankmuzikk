@@ -25,7 +25,7 @@ async function simulateRefreshAction() {
   const refresher = document.querySelector(".refresher");
 
   document.body.classList.add("refreshing");
-  await sleep(700);
+  await sleep(500);
 
   refresher.classList.add("shrink");
   await transitionEnd("transform", refresher);
@@ -37,7 +37,7 @@ async function simulateRefreshAction() {
   refresher.classList.remove("done");
 }
 
-mainContentsEl.addEventListener(
+document.body.addEventListener(
   "touchstart",
   (e) => {
     _startY = e.touches[0].pageY;
@@ -45,13 +45,13 @@ mainContentsEl.addEventListener(
   { passive: true },
 );
 
-mainContentsEl.addEventListener(
+document.body.addEventListener(
   "touchmove",
   async (e) => {
     const y = e.touches[0].pageY;
     if (
       document.scrollingElement.scrollTop === 0 &&
-      y > _startY &&
+      y > _startY + 150 &&
       !document.body.classList.contains("refreshing")
     ) {
       await simulateRefreshAction();
