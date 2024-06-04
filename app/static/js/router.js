@@ -32,6 +32,7 @@ window.addEventListener("popstate", async (e) => {
   if (!!mainContentsEl && !!e.target.location.pathname) {
     e.stopImmediatePropagation();
     e.preventDefault();
+    Utils.showLoading();
     await fetch(e.target.location.pathname + "?no_layout=true")
       .then((res) => res.text())
       .then((page) => {
@@ -39,6 +40,9 @@ window.addEventListener("popstate", async (e) => {
       })
       .catch(() => {
         window.location.reload();
+      })
+      .finally(() => {
+        Utils.hideLoading();
       });
     return;
   }
