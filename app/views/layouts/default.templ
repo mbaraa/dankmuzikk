@@ -39,6 +39,7 @@ templ Default(title string, children ...templ.Component) {
 				type="text/css"
 				href="/static/css/ubuntu-font.css"
 			/>
+			<link defer href="/static/css/refresher.css" rel="stylesheet"/>
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
 			<link href={ fmt.Sprintf("/static/css/themes/%s.css", ctx.Value("theme-name").(string)) } rel="stylesheet"/>
 			<script src="/static/js/htmx/htmx.min.js"></script>
@@ -50,7 +51,13 @@ templ Default(title string, children ...templ.Component) {
 			class={ "min-w-screen", "min-h-screen", "p-0", "m-0", "font-Ubuntu" }
 		>
 			@header.Header()
-			<div id="main-contents" style="display: contents">
+			<div class="refresher">
+				<div class="loading-bar"></div>
+				<div class="loading-bar"></div>
+				<div class="loading-bar"></div>
+				<div class="loading-bar"></div>
+			</div>
+			<div id="main-contents" class={ "contents" }>
 				for _, child := range children {
 					@child
 				}
@@ -71,6 +78,7 @@ templ Default(title string, children ...templ.Component) {
 			//
 			<script src="/static/js/utils.js"></script>
 			<script src="/static/js/router.js"></script>
+			<script src="/static/js/refresher.js"></script>
 			<script type="module">
 			    function registerServiceWorkers() {
 			    	if (!("serviceWorker" in navigator)) {
