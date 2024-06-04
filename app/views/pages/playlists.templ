@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"dankmuzikk/views/components/navlink"
 	"dankmuzikk/views/components/page"
+	"dankmuzikk/views/icons"
 )
 
 templ Playlists(pls []entities.Playlist) {
@@ -33,8 +34,7 @@ templ JustPlaylists(pls []entities.Playlist) {
 	<div
 		class={
 			"w-full", "overflow-y-scroll", "max-h-[55vh]", "md:max-h-[65vh]",
-			"grid", "grid-cols-1", "md:grid-cols-2", "lg:grid-cols-3", "xl:grid-cols-4", "2xl:grid-cols-5",
-			"gap-x-5", "gap-y-2", "lg:my-10",
+			"flex", "flex-col", "gap-x-5", "gap-y-2", "lg:mt-10",
 		}
 	>
 		for _, playlist := range pls {
@@ -46,19 +46,14 @@ templ JustPlaylists(pls []entities.Playlist) {
 templ singlePlaylist(pl entities.Playlist) {
 	<div
 		class={
-			"lg:w-[200px]", "lg:h-[200px]", "bg-secondary-trans-20", "hover:bg-secondary-trans-30", "rounded-[10px]", "px-5", "py-2",
-			"flex", "flex-row", "lg:flex-col", "lg:justify-center", "items-center", "gap-x-5", "lg:gap-x-0",
+			"hover:bg-secondary-trans-30", "rounded-[10px]", "py-4", "pe-2",
+			"flex", "justify-between", "items-center", "gap-x-5", "lg:gap-x-0",
 		}
 	>
-		<svg class={ "w-[70px] h-[70px] lg:w-[125px]", "lg:h-[125px]" } width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M2.8125 6V54H56.8125V6H2.8125ZM4.81313 8.00063H9.81375V52.0012H4.81313V8.00063ZM54.8119 51.9994H11.8125V7.99875H54.8119V51.9994Z" fill="var(--secondary-color)"></path>
-			<path d="M33.8119 48.9994C44.3119 48.9994 52.8113 40.5 52.8113 30C52.8113 19.5 44.3119 11.0006 33.8119 11.0006C23.3119 11.0006 14.8125 19.5 14.8125 30C14.8125 40.5 23.3119 48.9994 33.8119 48.9994ZM33.8119 12.9994C43.2113 12.9994 50.8125 20.5987 50.8125 30C50.8125 39.4012 43.2131 47.0006 33.8119 47.0006C24.4125 47.0006 16.8112 39.4012 16.8112 30C16.8112 20.5987 24.4106 12.9994 33.8119 12.9994Z" fill="var(--secondary-color)"></path>
-			<path d="M33.8119 36C37.1119 36 39.8119 33.3 39.8119 30C39.8119 26.7 37.1119 24 33.8119 24C30.5119 24 27.8119 26.7 27.8119 30C27.8119 33.3 30.5119 36 33.8119 36ZM33.8119 26.0006C36.0113 26.0006 37.8113 27.8006 37.8113 30C37.8113 32.1994 36.0113 33.9994 33.8119 33.9994C31.6125 33.9994 29.8125 32.1994 29.8125 30C29.8125 27.8006 31.6125 26.0006 33.8119 26.0006Z" fill="var(--secondary-color)"></path>
-			<path d="M34.8131 30C34.8131 30.5531 34.365 30.9994 33.8138 30.9994C33.2625 30.9994 32.8144 30.5513 32.8144 30C32.8144 29.4469 33.2625 29.0006 33.8138 29.0006C34.365 29.0006 34.8131 29.4488 34.8131 30Z" fill="var(--secondary-color)"></path>
-		</svg>
-		<div class={ "lg:text-center" }>
-			<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "font-bold", "text-xl" }>{ pl.Title }</p>
-			<p class={ "text-lg", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+		<div class={ "flex", "items-center", "gap-x-4" }>
+			@icons.Playlist()
+			<p class={ "text-lg", "max-w-[230px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "font-bold" }>{ pl.Title }</p>
 		</div>
+		<p class={ "text-md", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
 	</div>
 }

@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	pat0 = regexp.MustCompile(`"innertubeApiKey":"([^"]*)`)
-	pat  = regexp.MustCompile(`ytInitialData[^{]*(.*?);\s*<\/script>`)
-	pat2 = regexp.MustCompile(`ytInitialData"[^{]*(.*);\s*window\["ytInitialPlayerResponse"\]`)
+	keyPattern   = regexp.MustCompile(`"innertubeApiKey":"([^"]*)`)
+	dataPattern  = regexp.MustCompile(`ytInitialData[^{]*(.*?);\s*<\/script>`)
+	dataPattern2 = regexp.MustCompile(`ytInitialData"[^{]*(.*);\s*window\["ytInitialPlayerResponse"\]`)
 )
 
 type videoResult struct {
@@ -95,15 +95,15 @@ func search(q string) ([]videoResult, error) {
 		Parser:  "json_format",
 		Key:     "",
 	}
-	key := pat0.FindSubmatch(respBody)
+	key := keyPattern.FindSubmatch(respBody)
 	jojo.Key = string(key[1])
 
-	matches := pat.FindSubmatch(respBody)
+	matches := dataPattern.FindSubmatch(respBody)
 	if len(matches) > 1 {
 		jojo.Parser += ".object_var"
 	} else {
 		jojo.Parser += ".original"
-		matches = pat2.FindSubmatch(respBody)
+		matches = dataPattern2.FindSubmatch(respBody)
 	}
 	data := ytSearchData{}
 	err = json.Unmarshal(matches[1], &data)
@@ -134,7 +134,7 @@ func search(q string) ([]videoResult, error) {
 	return resSuka, nil
 }
 
-// ScraperSearch is a scrapper enabled YouTube search, using the search service under ~/ytscraper
+// ScraperSearch is a scrapper enabled YouTube search.
 type ScraperSearch struct{}
 
 func (y *ScraperSearch) Search(query string) (results []entities.Song, err error) {

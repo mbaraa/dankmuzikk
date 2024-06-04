@@ -6,10 +6,13 @@ import (
 	"dankmuzikk/handlers"
 	"dankmuzikk/log"
 	"dankmuzikk/services/history"
+	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/views/components/song"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/a-h/templ"
 )
 
 type historyApi struct {
@@ -43,8 +46,12 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 	}
 
 	outBuf := bytes.NewBuffer([]byte{})
-	for _, s := range recentPlays {
-		song.Song(s, []string{"Played " + s.AddedAt}, nil, entities.Playlist{}).
+	for idx, s := range recentPlays {
+		song.Song(s, []string{"Played " + s.AddedAt},
+			[]templ.Component{
+				playlist.PlaylistsPopup((idx+1)*page, s.YtId),
+			},
+			entities.Playlist{}).
 			Render(r.Context(), outBuf)
 	}
 

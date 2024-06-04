@@ -27,6 +27,35 @@ window.addEventListener("load", () => {
   updateActiveNavLink();
 });
 
+/**
+ * @param {string} path the requested path to update.
+ */
+async function updateMainContent(path) {
+  Utils.showLoading();
+  await fetch(path + "?no_layout=true")
+    .then((res) => res.text())
+    .then((page) => {
+      mainContentsEl.innerHTML = page;
+    })
+    .catch(() => {
+      window.location.reload();
+    })
+    .finally(() => {
+      Utils.hideLoading();
+      updateActiveNavLink();
+    });
+}
+
+window.addEventListener("popstate", async (e) => {
+  const mainContentsEl = document.getElementById("main-contents");
+  if (!!mainContentsEl && !!e.target.location.pathname) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    await updateMainContent(e.target.location.pathname);
+    return;
+  }
+});
+
 document.addEventListener("htmx:afterRequest", function (e) {
   if (!!e.detail && !!e.detail.xhr) {
     const newTitle = e.detail.xhr.getResponseHeader("HX-Title");
@@ -36,4 +65,4 @@ document.addEventListener("htmx:afterRequest", function (e) {
   }
 });
 
-window.Router = { updateActiveNavLink };
+window.Router = { updateActiveNavLink, updateMainContent };

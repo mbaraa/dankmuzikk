@@ -39,6 +39,7 @@ script toggleTheThing(id string) {
 
     if (popover.style.display !== "block") {
       popover.style.display = "block";
+      popover.scrollIntoView({ block: "nearest" });
     } else {
       popover.style.display = "none";
     }

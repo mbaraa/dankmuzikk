@@ -19,20 +19,20 @@ templ playlistHeader(pl entities.Playlist) {
 	<div class={ "mb-4", "flex", "justify-between", "items-center" }>
 		@navlink.LinkContainer("/playlists", "Playlists", backButton())
 		<div class={ "flex", "gap-x-2", "items-center" }>
-			<button
-				class={
-					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
-					"flex", "justify-center", "items-center",
-				}
-				title="Copy link to this playlist"
-				type="button"
-				onClick={ copyLink(pl.IsPublic) }
-			>
-				@icons.ShareLink()
-			</button>
 			if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
-				@playlist.PlaylistsOptionsPopover(pl)
+				@playlist.PlaylistsOptions(pl)
 			} else {
+				<button
+					class={
+						"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+						"flex", "justify-center", "items-center",
+					}
+					title="Copy link to this playlist"
+					type="button"
+					onClick={ copyLink(pl.IsPublic) }
+				>
+					@icons.ShareLink()
+				</button>
 				@joinLeavePlaylist(pl.PublicId, perm)
 			}
 		</div>
