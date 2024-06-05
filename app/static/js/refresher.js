@@ -54,7 +54,7 @@ document.body.addEventListener(
       y <=
         headerEl.getBoundingClientRect().y +
           headerEl.getBoundingClientRect().height &&
-      y > _startY + 75 &&
+      y > _startY + 50 &&
       !document.body.classList.contains("refreshing")
     ) {
       await simulateRefreshAction();
