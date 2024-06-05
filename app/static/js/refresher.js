@@ -2,7 +2,7 @@
 
 "use strict";
 
-const mainContentsEl = document.getElementById("main-contents");
+const headerEl = document.getElementById("dank-header");
 let _startY = 0;
 
 async function simulateRefreshAction() {
@@ -51,11 +51,14 @@ document.body.addEventListener(
     const y = e.touches[0].pageY;
     if (
       document.scrollingElement.scrollTop === 0 &&
-      y > _startY + 150 &&
+      y <=
+        headerEl.getBoundingClientRect().y +
+          headerEl.getBoundingClientRect().height &&
+      y > _startY + 75 &&
       !document.body.classList.contains("refreshing")
     ) {
       await simulateRefreshAction();
-      await updateMainContent(window.location.pathname);
+      await Router.updateMainContent(window.location.pathname);
     }
   },
   { passive: true },
