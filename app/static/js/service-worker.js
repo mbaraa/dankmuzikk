@@ -25,7 +25,7 @@ self.addEventListener("message", (event) => {
 
 self.addEventListener("install", async (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.add(offlineFallbackPage)),
+    caches.open(CACHE_NAME).then((cache) => cache.add(offlineFallbackPage)),
   );
 });
 
@@ -33,7 +33,7 @@ self.addEventListener("fetch", (event) => {
   if (event.request.mode === "navigate") {
     event.respondWith(
       (async () => {
-        const cache = await caches.open(CACHE);
+        const cache = await caches.open(CACHE_NAME);
         const cachedResp = await cache.match(offlineFallbackPage);
         return cachedResp;
       })(),

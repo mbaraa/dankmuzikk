@@ -1,6 +1,7 @@
 package search
 
 import "fmt"
+import "strings"
 
 templ SearchSuggestions(suggestions []string, originalQuery string) {
 	<ul
@@ -28,8 +29,10 @@ templ SearchSuggestions(suggestions []string, originalQuery string) {
 				>
 					if len(suggestion) <= len(originalQuery) {
 						<span><b>{ suggestion }</b></span>
-					} else {
+					} else if strings.Contains(suggestion, originalQuery) {
 						<span><b>{ originalQuery }</b>{ suggestion[len(originalQuery):] }</span>
+					} else {
+						<span>{ suggestion }</span>
 					}
 				</a>
 			</li>

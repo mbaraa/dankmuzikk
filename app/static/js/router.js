@@ -1,5 +1,7 @@
 "use strict";
 
+const mainContentsEl = document.getElementById("main-contents");
+
 const links = [
   { check: (l) => l === "/", element: document.getElementById("/") },
   { check: (l) => l === "/about", element: document.getElementById("/about") },
