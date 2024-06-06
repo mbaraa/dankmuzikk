@@ -903,7 +903,7 @@ playerEl?.addEventListener(
     if (y > playerStartY + 75) {
       collapse();
     }
-    if (y < playerStartY + 25) {
+    if (y < playerStartY - 25) {
       expand();
     }
   },
