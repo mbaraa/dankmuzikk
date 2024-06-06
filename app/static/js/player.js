@@ -886,13 +886,12 @@ audioPlayerEl.addEventListener("progress", () => {
   console.log("downloading...");
 });
 
-let _collapsedStartY = 0;
+let playerStartY = 0;
 
 playerEl?.addEventListener(
   "touchstart",
   (e) => {
-    _collapsedStartY = e.touches[0].pageY;
-    console.log("meow", _collapsedStartY);
+    playerStartY = e.touches[0].pageY;
   },
   { passive: true },
 );
@@ -901,10 +900,10 @@ playerEl?.addEventListener(
   "touchmove",
   async (e) => {
     const y = e.touches[0].pageY;
-    if (y > _collapsedStartY + 75) {
+    if (y > playerStartY + 75) {
       collapse();
     }
-    if (y < _collapsedStartY + 25) {
+    if (y < playerStartY + 25) {
       expand();
     }
   },
