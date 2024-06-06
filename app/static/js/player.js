@@ -886,6 +886,30 @@ audioPlayerEl.addEventListener("progress", () => {
   console.log("downloading...");
 });
 
+let playerStartY = 0;
+
+playerEl?.addEventListener(
+  "touchstart",
+  (e) => {
+    playerStartY = e.touches[0].pageY;
+  },
+  { passive: true },
+);
+
+playerEl?.addEventListener(
+  "touchmove",
+  async (e) => {
+    const y = e.touches[0].pageY;
+    if (y > playerStartY + 75) {
+      collapse();
+    }
+    if (y < playerStartY - 25) {
+      expand();
+    }
+  },
+  { passive: true },
+);
+
 document
   .getElementById("collapse-player-button")
   ?.addEventListener("click", (event) => {

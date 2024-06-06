@@ -63,9 +63,12 @@ func (g *GoogleLoginService) Login(state, code string) (string, error) {
 		return "", err
 	}
 
-	account, err := g.accountRepo.GetByConds("email = ? AND is_o_auth = 1", googleUser.Email)
+	account, err := g.accountRepo.GetByConds("email = ?", googleUser.Email)
 	if errors.Is(err, db.ErrRecordNotFound) || len(account) == 0 {
 		return g.Signup(googleUser)
+	}
+	if !account[0].IsOAuth {
+		return "", ErrDifferentLoginMethod
 	}
 	if err != nil {
 		return "", err

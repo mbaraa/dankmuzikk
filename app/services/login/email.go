@@ -36,9 +36,12 @@ func NewEmailLoginService(
 }
 
 func (e *EmailLoginService) Login(user entities.LoginRequest) (string, error) {
-	account, err := e.accountRepo.GetByConds("email = ? AND is_o_auth = 0", user.Email)
+	account, err := e.accountRepo.GetByConds("email = ?", user.Email)
 	if err != nil {
 		return "", errors.Join(ErrAccountNotFound, err)
+	}
+	if account[0].IsOAuth {
+		return "", ErrDifferentLoginMethod
 	}
 
 	profile, err := e.profileRepo.GetByConds("account_id = ?", account[0].Id)

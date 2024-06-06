@@ -7,6 +7,7 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/services/login"
 	"dankmuzikk/views/components/status"
+	"errors"
 	"net/http"
 	"time"
 )
@@ -39,7 +40,14 @@ func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r
 	}
 
 	sessionToken, err := g.service.Login(state, code)
-	if err != nil {
+	if err != nil && errors.Is(err, login.ErrDifferentLoginMethod) {
+		log.Errorf("[EMAIL LOGIN API]: Failed to login, error: %s\n", err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		status.
+			BugsBunnyError("This account uses Email to login!").
+			Render(context.Background(), w)
+		return
+	} else if err != nil {
 		// w.WriteHeader(http.StatusUnauthorized)
 		status.
 			GenericError("Account doesn't exist").

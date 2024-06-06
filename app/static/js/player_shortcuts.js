@@ -1,10 +1,15 @@
 "use strict";
 
 /**
- * Using YouTube's applicaple shortcuts: https://support.google.com/youtube/answer/7631406?hl=en
+ * Using YouTube's applicable shortcuts: https://support.google.com/youtube/answer/7631406?hl=en
+ *
+ * set those characters in Vimium's excluded patterns if you still wanna navigate the site using Vimium,
+ * l r k n N p P s m M 0 1 2 3 4 5 6 7 8 9 $ i I /
  */
 const shortcuts = {
   " ": togglePP,
+  l: () => toggleLoop(),
+  r: () => toggleShuffle(),
   k: togglePP,
   n: nextMuzikk,
   N: nextMuzikk,
