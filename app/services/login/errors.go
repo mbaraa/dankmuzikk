@@ -8,4 +8,5 @@ var (
 	ErrAccountExists           = errors.New("an account with the associated email already exists")
 	ErrExpiredVerificationCode = errors.New("expired verification code")
 	ErrInvalidVerificationCode = errors.New("invalid verification code")
+	ErrDifferentLoginMethod    = errors.New("account uses a different login/signup method")
 )

@@ -33,7 +33,14 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 	}
 
 	verificationToken, err := e.service.Login(reqBody)
-	if err != nil {
+	if err != nil && errors.Is(err, login.ErrDifferentLoginMethod) {
+		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
+		// w.WriteHeader(http.StatusInternalServerError)
+		status.
+			BugsBunnyError("This account uses Google Auth to login!").
+			Render(context.Background(), w)
+		return
+	} else if err != nil {
 		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
 		// w.WriteHeader(http.StatusInternalServerError)
 		status.
