@@ -144,7 +144,7 @@ func (y *ScraperSearch) Search(query string) (results []entities.Song, err error
 	}
 
 	for _, res := range res {
-		if res.Id == "" || res.Title == "" || res.ThumbnailUrl == "" || res.Uploader == "" {
+		if res.Id == "" || res.Title == "" || res.ThumbnailUrl == "" || res.Uploader == "" || res.Duration == "" {
 			continue
 		}
 		duration := strings.Split(res.Duration, ":")
