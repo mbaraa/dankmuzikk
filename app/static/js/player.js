@@ -886,6 +886,31 @@ audioPlayerEl.addEventListener("progress", () => {
   console.log("downloading...");
 });
 
+let _collapsedStartY = 0;
+
+playerEl?.addEventListener(
+  "touchstart",
+  (e) => {
+    _collapsedStartY = e.touches[0].pageY;
+    console.log("meow", _collapsedStartY);
+  },
+  { passive: true },
+);
+
+playerEl?.addEventListener(
+  "touchmove",
+  async (e) => {
+    const y = e.touches[0].pageY;
+    if (y > _collapsedStartY + 75) {
+      collapse();
+    }
+    if (y < _collapsedStartY + 25) {
+      expand();
+    }
+  },
+  { passive: true },
+);
+
 document
   .getElementById("collapse-player-button")
   ?.addEventListener("click", (event) => {
