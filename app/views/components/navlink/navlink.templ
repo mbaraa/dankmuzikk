@@ -1,8 +1,12 @@
 package navlink
 
-templ RouteLink(title, imageUrl, path string, showTilte ...bool) {
+templ RouteLink(title, path string, isMobile bool) {
 	<a
-		id={ path }
+		if isMobile {
+			id={ path + "?mobile" }
+		} else {
+			id={ path }
+		}
 		href={ templ.SafeURL(path) }
 		title={ title }
 		class={ "inline-block", "rounded-md", "p-1", "nav-link" }
@@ -15,25 +19,11 @@ templ RouteLink(title, imageUrl, path string, showTilte ...bool) {
 		data-loading-class-remove="hidden"
 		data-loading-path={ path + "?no_layout=true" }
 	>
-		if imageUrl != "" {
-			<div class={ "flex", "gap-x-3", "items-center" }>
-				<img
-					width="20"
-					height="20"
-					src={ imageUrl }
-					alt={ title }
-				/>
-				if len(showTilte) > 0 && showTilte[0] {
-					{ title }
-				}
-			</div>
-		} else {
-			{ title }
-		}
+		{ title }
 	</a>
 }
 
-templ ImageRouteLink(path, title string, child templ.Component) {
+templ ImageRouteLink(path, title string, child templ.Component, isMobile bool) {
 	<a
 		href={ templ.SafeURL(path) }
 		title={ title }
@@ -47,7 +37,11 @@ templ ImageRouteLink(path, title string, child templ.Component) {
 		data-loading-path={ path + "?no_layout=true" }
 	>
 		<div
-			id={ path }
+			if isMobile {
+				id={ path + "?mobile" }
+			} else {
+				id={ path }
+			}
 			class={ "p-1", "rounded-md" }
 		>
 			@child
