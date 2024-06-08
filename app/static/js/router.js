@@ -34,7 +34,9 @@ window.addEventListener("load", () => {
  */
 async function updateMainContent(path) {
   Utils.showLoading();
-  await fetch(path + "?no_layout=true")
+  const query = new URLSearchParams(location.search);
+  query.set("no_layout", "true");
+  await fetch(path + "?" + query.toString())
     .then((res) => res.text())
     .then((page) => {
       mainContentsEl.innerHTML = page;
