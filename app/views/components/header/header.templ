@@ -34,7 +34,7 @@ templ Header() {
 				@navlink.JustLink("/", "Home", homeLinkContainer())
 			</div>
 			<div class={ "w-full", "flex", "md:hidden", "justify-between", "items-center" }>
-				@navlink.JustLink("/about", "About", icons.About())
+				@navlink.ImageRouteLink("/about", "About", icons.About(), true)
 				<div
 					class={
 						"flex", "justify-center", "items-center", "flex-row",
@@ -60,13 +60,13 @@ templ Header() {
 			<nav>
 				<ul class={ "m-0", "list-none", "flex", "gap-x-5" }>
 					<li>
-						@navlink.RouteLink("About", "", "/about")
+						@navlink.RouteLink("About", "/about", false)
 					</li>
 					<li>
-						@navlink.RouteLink("Playlists", "", "/playlists")
+						@navlink.RouteLink("Playlists", "/playlists", false)
 					</li>
 					<li>
-						@navlink.RouteLink("Profile", "", "/profile")
+						@navlink.RouteLink("Profile", "/profile", false)
 					</li>
 				</ul>
 			</nav>
