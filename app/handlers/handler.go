@@ -148,7 +148,8 @@ func (a *Handler) authenticate(r *http.Request) (entities.Profile, error) {
 }
 
 func isMobile(r *http.Request) bool {
-	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile")
+	return strings.Contains(strings.ToLower(r.Header.Get("User-Agent")), "mobile") ||
+		strings.Contains(strings.ToLower(r.Header.Get("X-Is-Mobile")), "true")
 }
 
 func getTheme(r *http.Request) string {
