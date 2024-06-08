@@ -53,6 +53,26 @@ function copyTextToClipboard(text) {
   textArea.hidden = true;
 }
 
+let isMobile = window.innerWidth < 768;
+
+/**
+ * @param {EventTarget<Window>} e
+ */
+window.addEventListener("resize", (e) => {
+  if (e.target.innerWidth < 768 && !isMobile) {
+    isMobile = true;
+    (function (send) {
+      XMLHttpRequest.prototype.send = function (data) {
+        this.setRequestHeader("X-Is-Mobile", isMobile);
+        send.apply(this, data);
+      };
+    })(XMLHttpRequest.prototype.send);
+  }
+  if (e.target.innerWidth > 768 && isMobile) {
+    isMobile = false;
+  }
+});
+
 window.Utils = {
   showLoading,
   hideLoading,
