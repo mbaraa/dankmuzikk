@@ -55,31 +55,16 @@ function copyTextToClipboard(text) {
 
 let isMobile = window.innerWidth < 768;
 
-function setIsMobileHeader() {
-  (function (send) {
-    XMLHttpRequest.prototype.send = function (data) {
-      this.setRequestHeader("X-Is-Mobile", isMobile);
-      send.apply(this, data);
-    };
-  })(XMLHttpRequest.prototype.send);
-}
-
-(() => {
-  setIsMobileHeader();
-})();
-
 /**
  * @param {EventTarget<Window>} e
  */
 window.addEventListener("resize", (e) => {
   if (e.target.innerWidth < 768 && !isMobile) {
     isMobile = true;
-    setIsMobileHeader();
     window.location.reload();
   }
   if (e.target.innerWidth > 768 && isMobile) {
     isMobile = false;
-    setIsMobileHeader();
     window.location.reload();
   }
 });
