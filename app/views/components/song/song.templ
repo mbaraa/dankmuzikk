@@ -95,7 +95,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
 		}
 	>
-		<h3 class={ "text-lg", "font-medium" }>Song's Options</h3>
+		<h3 class={ "text-lg", "font-medium" }>{ song.Title }</h3>
 		<hr/>
 		for _, option := range additionalOptions {
 			@option
