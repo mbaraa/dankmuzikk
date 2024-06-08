@@ -21,7 +21,7 @@ templ Popover(id, title string, button, child templ.Component) {
 			id={ fmt.Sprintf("popover-%s", id) }
 			class={
 				"hidden", "absolute", "z-50", "top-[45px]", "right-[0px]",
-				"shadow-md", "min-w-[150px]",
+				"shadow-md", "min-w-[150px]", "animate-in",
 			}
 		>
 			@child
