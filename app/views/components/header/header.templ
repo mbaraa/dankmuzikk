@@ -20,40 +20,43 @@ templ homeLinkContainer() {
 	</div>
 }
 
-templ mobileHeader() {
-	<div class={ "md:hidden", "flex", "flex-col", "justify-between", "gap-y-5" }>
-		<div class={ "w-full", "flex", "justify-between", "items-center" }>
-			@navlink.ImageRouteLink("/about", "About", icons.About())
-			<div
-				class={
-					"flex", "justify-center", "items-center", "flex-row",
-					"gap-3", "h-min", "text-secondary",
-				}
-			>
-				<img
-					width="50"
-					height="50"
-					src="/static/images/logo.webp"
-					alt="DankMuzikk Logo"
-					class={ "w-[50px]", "rounded-md" }
-				/>
-				<h1 class={ "text-3xl", }>DankMuzikk</h1>
+templ Header() {
+	<header
+		id="dank-header"
+		class={
+			"bg-primary", "p-[15px]", "md:p-[10px]", "text-secondary", "w-full",
+			"flex", "flex-col", "md:flex-row", "justify-between", "items-center",
+			"gap-y-5",
+		}
+	>
+		<div class={ "w-full", "md:w-fit" }>
+			<div class={ "hidden", "md:block" }>
+				@navlink.JustLink("/", "Home", homeLinkContainer())
 			</div>
-			@themeswitch.ThemeSwitch()
+			<div class={ "w-full", "flex", "md:hidden", "justify-between", "items-center" }>
+				@navlink.JustLink("/about", "About", icons.About())
+				<div
+					class={
+						"flex", "justify-center", "items-center", "flex-row",
+						"gap-3", "h-min", "text-secondary",
+					}
+				>
+					<img
+						width="50"
+						height="50"
+						src="/static/images/logo.webp"
+						alt="DankMuzikk Logo"
+						class={ "w-[50px]", "rounded-md" }
+					/>
+					<h1 class={ "text-3xl", }>DankMuzikk</h1>
+				</div>
+				@themeswitch.ThemeSwitch()
+			</div>
 		</div>
-		<div>
+		<div class={ "w-full", "md:w-fit" }>
 			@search.Search()
 		</div>
-	</div>
-}
-
-templ desktopHeader() {
-	<div class={ "hidden", "md:flex", "justify-between", "font-Ubuntu", "text-secondary" }>
-		@navlink.LinkContainer("/", "Home", homeLinkContainer())
-		<div class={ "flex", "justify-center", "items-center" }>
-			@search.Search()
-		</div>
-		<div class={ "flex", "justify-center", "items-center", "gap-x-7" }>
+		<div class={ "hidden", "md:flex", "justify-center", "items-center", "gap-x-7" }>
 			<nav>
 				<ul class={ "m-0", "list-none", "flex", "gap-x-5" }>
 					<li>
@@ -69,26 +72,6 @@ templ desktopHeader() {
 			</nav>
 			@themeswitch.ThemeSwitch()
 		</div>
-	</div>
-}
-
-templ Header() {
-	<header id="dank-header" class={ "bg-primary", "p-[15px]", "md:p-[10px]" }>
-		// mobiles are usually shitty at rendering, so this prevents mobiles from rendering two blocks and choosing one using CSS.
-		if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
-			@mobileHeader()
-		} else {
-			<div style="display: contents" class={ "hidden", "md:block" }>
-				@desktopHeader()
-			</div>
-			<!--
-                for when opened on a desktop and the client's width is really small,
-                and a similar thing isn't being done for mobile, since mobile clients can't change width w/o reloading
-            -->
-			<div style="display: contents" class={ "md:hidden" }>
-				@mobileHeader()
-			</div>
-		}
 	</header>
 	// script is being used here, so it doesn't render twice on desktops and break shit.
 	<script src="/static/js/search.js" lang="javascript">
