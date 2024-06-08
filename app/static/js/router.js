@@ -36,10 +36,10 @@ async function updateMainContent(path) {
   Utils.showLoading();
   const query = new URLSearchParams(location.search);
   query.set("no_layout", "true");
-  await fetch(path + "?" + query.toString())
-    .then((res) => res.text())
-    .then((page) => {
-      mainContentsEl.innerHTML = page;
+  htmx
+    .ajax("GET", path + "?" + query.toString(), {
+      target: "#main-contents",
+      swap: "innerHTML",
     })
     .catch(() => {
       window.location.reload();
