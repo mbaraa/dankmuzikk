@@ -64,6 +64,10 @@ function setIsMobileHeader() {
   })(XMLHttpRequest.prototype.send);
 }
 
+(() => {
+  setIsMobileHeader();
+})();
+
 /**
  * @param {EventTarget<Window>} e
  */
