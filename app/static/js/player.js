@@ -618,6 +618,38 @@ async function playSong(song) {
 }
 
 /**
+ * @param {string} songYtId
+ */
+async function fetchSongMeta(songYtId) {
+  Utils.showLoading();
+  return await fetch(`/api/song/single?id=${songYtId}`)
+    .then((res) => res.json())
+    .then((s) => s)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+}
+
+/**
+ * @param {string} playlistPubId
+ */
+async function fetchPlaylistMeta(playlistPubId) {
+  Utils.showLoading();
+  return await fetch(`/api/playlist?playlist-id=${playlistPubId}`)
+    .then((res) => res.json())
+    .then((p) => p)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+}
+
+/**
  * @param {Song} song
  */
 async function playSingleSong(song) {
@@ -635,17 +667,7 @@ async function playSingleSong(song) {
  * @param {string} songYtId
  */
 async function playSingleSongId(songYtId) {
-  Utils.showLoading();
-  const song = await fetch(`/api/song/single?id=${songYtId}`)
-    .then((res) => res.json())
-    .then((s) => s)
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
-
+  const song = await fetchSongMeta(songYtId);
   await playSingleSong(song);
 }
 
@@ -669,17 +691,7 @@ async function playSingleSongNext(song) {
  * @param {string} songYtId
  */
 async function playSingleSongNextId(songYtId) {
-  Utils.showLoading();
-  const song = await fetch(`/api/song/single?id=${songYtId}`)
-    .then((res) => res.json())
-    .then((s) => s)
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
-
+  const song = await fetchSongMeta(songYtId);
   await playSingleSongNext(song);
 }
 
@@ -710,17 +722,7 @@ async function playPlaylistNext(playlist) {
  * @param {string} playlistPubId
  */
 async function playPlaylistNextId(playlistPubId) {
-  Utils.showLoading();
-  const playlist = await fetch(`/api/playlist?playlist-id=${playlistPubId}`)
-    .then((res) => res.json())
-    .then((p) => p)
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
-
+  const playlist = await fetchPlaylistMeta(playlistPubId);
   await playPlaylistNext(playlist);
 }
 
@@ -745,17 +747,7 @@ async function appendPlaylistToCurrentQueue(playlist) {
  * @param {string} playlistPubId
  */
 async function appendPlaylistToCurrentQueueId(playlistPubId) {
-  Utils.showLoading();
-  const playlist = await fetch(`/api/playlist?playlist-id=${playlistPubId}`)
-    .then((res) => res.json())
-    .then((p) => p)
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
-
+  const playlist = await fetchPlaylistMeta(playlistPubId);
   await appendPlaylistToCurrentQueue(playlist);
 }
 
@@ -799,17 +791,7 @@ async function playSongFromPlaylist(songYtId, playlist) {
  * @param {string} playlistPubId
  */
 async function playSongFromPlaylistId(songYtId, playlistPubId) {
-  Utils.showLoading();
-  const playlist = await fetch(`/api/playlist?playlist-id=${playlistPubId}`)
-    .then((res) => res.json())
-    .then((p) => p)
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
-
+  const playlist = await fetchPlaylistMeta(playlistPubId);
   await playSongFromPlaylist(songYtId, playlist);
 }
 
@@ -830,17 +812,7 @@ function appendSongToCurrentQueue(song) {
  * @param {string} songYtId
  */
 async function appendSongToCurrentQueueId(songYtId) {
-  Utils.showLoading();
-  const song = await fetch(`/api/song/single?id=${songYtId}`)
-    .then((res) => res.json())
-    .then((s) => s)
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
-
+  const song = await fetchSongMeta(songYtId);
   appendSongToCurrentQueue(song);
 }
 
