@@ -3,24 +3,42 @@
 const mainContentsEl = document.getElementById("main-contents");
 
 const links = [
-  { check: (l) => l === "/", element: document.getElementById("/") },
-  { check: (l) => l === "/about", element: document.getElementById("/about") },
+  {
+    check: (l) => l === "/",
+    elements: [
+      document.getElementById("/"),
+      document.getElementById("/?mobile"),
+    ],
+  },
+  {
+    check: (l) => l === "/about",
+    elements: [
+      document.getElementById("/about"),
+      document.getElementById("/about?mobile"),
+    ],
+  },
   {
     check: (l) => l === "/profile",
-    element: document.getElementById("/profile"),
+    elements: [
+      document.getElementById("/profile"),
+      document.getElementById("/profile?mobile"),
+    ],
   },
   {
     check: (l) => l.startsWith("/playlist"),
-    element: document.getElementById("/playlists"),
+    elements: [
+      document.getElementById("/playlists"),
+      document.getElementById("/playlists?mobile"),
+    ],
   },
 ];
 
 function updateActiveNavLink() {
   for (const link of links) {
     if (link.check(window.location.pathname)) {
-      link.element.classList.add("bg-accent-trans-20");
+      link.elements.forEach((e) => e?.classList.add("bg-accent-trans-20"));
     } else {
-      link.element.classList.remove("bg-accent-trans-20");
+      link.elements.forEach((e) => e?.classList.remove("bg-accent-trans-20"));
     }
   }
 }
@@ -34,10 +52,12 @@ window.addEventListener("load", () => {
  */
 async function updateMainContent(path) {
   Utils.showLoading();
-  await fetch(path + "?no_layout=true")
-    .then((res) => res.text())
-    .then((page) => {
-      mainContentsEl.innerHTML = page;
+  const query = new URLSearchParams(location.search);
+  query.set("no_layout", "true");
+  htmx
+    .ajax("GET", path + "?" + query.toString(), {
+      target: "#main-contents",
+      swap: "innerHTML",
     })
     .catch(() => {
       window.location.reload();

@@ -53,6 +53,22 @@ function copyTextToClipboard(text) {
   textArea.hidden = true;
 }
 
+let isMobile = window.innerWidth < 768;
+
+/**
+ * @param {EventTarget<Window>} e
+ */
+window.addEventListener("resize", (e) => {
+  if (e.target.innerWidth < 768 && !isMobile) {
+    isMobile = true;
+    window.location.reload();
+  }
+  if (e.target.innerWidth > 768 && isMobile) {
+    isMobile = false;
+    window.location.reload();
+  }
+});
+
 window.Utils = {
   showLoading,
   hideLoading,

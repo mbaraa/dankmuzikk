@@ -66,21 +66,56 @@ func (h *Service) Get(profileId, page uint) ([]entities.Song, error) {
 		songs = append(songs, song)
 	}
 
-	return songs, nil
+	songsFr := make([]entities.Song, 0)
+	for i := 0; i < len(songs); i++ {
+		playTimes := 1
+		for i < len(songs)-1 && songs[i+1].YtId == songs[i].YtId {
+			playTimes++
+			i++
+		}
+		songs[i].AddedAt = fmt.Sprintf("Played %s - %s", times(playTimes), songs[i].AddedAt)
+		songsFr = append(songsFr, songs[i])
+	}
+
+	return songsFr, nil
 }
 
 func whenDidItHappen(t time.Time) string {
 	now := time.Now().UTC()
 	switch {
 	case t.Day() == now.Day() && t.Month() == now.Month() && t.Year() == now.Year():
-		return "today"
+		return "Today"
 	case t.Day()+1 == now.Day() && t.Month() == now.Month() && t.Year() == now.Year():
-		return "yesterday"
+		return "Yesterday"
 	case t.Day()+5 < now.Day() && t.Month() == now.Month() && t.Year() == now.Year():
-		return "last week"
+		return "Last week"
 	case t.Day() == now.Day() && t.Month()+1 == now.Month() && t.Year() == now.Year():
-		return "last month"
+		return "Last month"
 	default:
-		return t.Format("2, January, 2006")
+		return fmt.Sprintf("%s %s %s", t.Format("January"), nth(t.Day()), t.Format("2006"))
+	}
+}
+
+func nth(n int) string {
+	switch {
+	case n%10 == 1:
+		return fmt.Sprintf("%dst", n)
+	case n%10 == 2:
+		return fmt.Sprintf("%dnd", n)
+	case n%10 == 3:
+		return fmt.Sprintf("%drd", n)
+	default:
+		return fmt.Sprintf("%dth", n)
+	}
+}
+
+func times(times int) string {
+	switch {
+	case times == 1:
+		return "once"
+	case times > 1:
+		return fmt.Sprintf("%d times", times)
+	default:
+		return ""
 	}
 }
