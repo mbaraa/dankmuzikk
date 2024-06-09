@@ -119,7 +119,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			}
 			title="Add song to queue"
 			type="button"
-			onClick={ addSongToQueue(song) }
+			onClick={ addSongToQueue(song.YtId) }
 		>
 			@icons.AddToQueue()
 			<span>Add to queue</span>
@@ -159,8 +159,8 @@ script downloadSong(songYtId, songTitle string) {
     Player.downloadSongToDevice(songYtId, songTitle)
 }
 
-script addSongToQueue(song entities.Song) {
-    window.Player.addSongToQueue(song);
+script addSongToQueue(songYtId string) {
+    window.Player.addSongToQueueId(songYtId);
 }
 
 script playSong(songYtId string) {

@@ -790,6 +790,24 @@ function appendSongToCurrentQueue(song) {
   alert(`Added ${song.title} to the queue!`);
 }
 
+/**
+ * @param {string} songYtId
+ */
+async function appendSongToCurrentQueueId(songYtId) {
+  Utils.showLoading();
+  const song = await fetch(`/api/song/single?id=${songYtId}`)
+    .then((res) => res.json())
+    .then((s) => s)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+
+  appendSongToCurrentQueue(song);
+}
+
 function addSongToPlaylist() {
   throw new Error("not implemented!");
 }
@@ -1038,6 +1056,7 @@ window.Player.playSongFromPlaylistId = playSongFromPlaylistId;
 window.Player.playPlaylistNext = playPlaylistNext;
 window.Player.removeSongFromPlaylist = removeSongFromPlaylist;
 window.Player.addSongToQueue = appendSongToCurrentQueue;
+window.Player.addSongToQueueId = appendSongToCurrentQueueId;
 window.Player.appendPlaylistToCurrentQueue = appendPlaylistToCurrentQueue;
 window.Player.stopMuzikk = stopMuzikk;
 window.Player.expand = () => expand();
