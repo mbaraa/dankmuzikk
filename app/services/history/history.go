@@ -76,7 +76,7 @@ func (h *Service) Get(profileId, page uint) ([]entities.Song, error) {
 		s.AddedAt = fmt.Sprintf("Played %s - %s", times(songsFreqs[songs[i].YtId]), songs[i].AddedAt)
 		songsFr = append(songsFr, s)
 		if songsFreqs[songs[i].YtId] > 1 {
-			i += songsFreqs[songs[i].YtId]
+			i += songsFreqs[songs[i].YtId]-1
 		}
 	}
 
