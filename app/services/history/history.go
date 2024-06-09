@@ -66,18 +66,15 @@ func (h *Service) Get(profileId, page uint) ([]entities.Song, error) {
 		songs = append(songs, song)
 	}
 
-	songsFreqs := make(map[string]int)
-	for _, song := range songs {
-		songsFreqs[song.YtId]++
-	}
 	songsFr := make([]entities.Song, 0)
 	for i := 0; i < len(songs); i++ {
-		s := songs[i]
-		s.AddedAt = fmt.Sprintf("Played %s - %s", times(songsFreqs[songs[i].YtId]), songs[i].AddedAt)
-		songsFr = append(songsFr, s)
-		if songsFreqs[songs[i].YtId] > 1 {
-			i += songsFreqs[songs[i].YtId]-1
+		playTimes := 1
+		for i < len(songs)-1 && songs[i+1].YtId == songs[i].YtId {
+			playTimes++
+			i++
 		}
+		songs[i].AddedAt = fmt.Sprintf("Played %s - %s", times(playTimes), songs[i].AddedAt)
+		songsFr = append(songsFr, songs[i])
 	}
 
 	return songsFr, nil
