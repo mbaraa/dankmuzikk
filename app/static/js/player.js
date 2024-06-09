@@ -707,6 +707,24 @@ async function playPlaylistNext(playlist) {
 }
 
 /**
+ * @param {string} playlistPubId
+ */
+async function playPlaylistNextId(playlistPubId) {
+  Utils.showLoading();
+  const playlist = await fetch(`/api/playlist?playlist-id=${playlistPubId}`)
+    .then((res) => res.json())
+    .then((p) => p)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+
+  await playPlaylistNext(playlist);
+}
+
+/**
  * @param {Playlist} playlist
  */
 async function appendPlaylistToCurrentQueue(playlist) {
@@ -1072,6 +1090,7 @@ window.Player.playSingleSongNextId = playSingleSongNextId;
 window.Player.playSongFromPlaylist = playSongFromPlaylist;
 window.Player.playSongFromPlaylistId = playSongFromPlaylistId;
 window.Player.playPlaylistNext = playPlaylistNext;
+window.Player.playPlaylistNextId = playPlaylistNextId;
 window.Player.removeSongFromPlaylist = removeSongFromPlaylist;
 window.Player.addSongToQueue = appendSongToCurrentQueue;
 window.Player.addSongToQueueId = appendSongToCurrentQueueId;

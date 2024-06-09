@@ -58,7 +58,7 @@ templ playlistOptions(playlist entities.Playlist) {
 				}
 				title="Play next"
 				type="button"
-				onClick={ playPlaylistNext(playlist) }
+				onClick={ playPlaylistNext(playlist.PublicId) }
 			>
 				@icons.AddToQueue()
 				<span>Play next</span>
@@ -140,8 +140,8 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 	</div>
 }
 
-script playPlaylistNext(pl entities.Playlist) {
-    Player.playPlaylistNext(pl)
+script playPlaylistNext(plPubId string) {
+    Player.playPlaylistNextId(plPubId)
 }
 
 script addToQueue(plPubId string) {
