@@ -6,6 +6,7 @@ import (
 	"dankmuzikk/views/components/loading"
 	"fmt"
 	"dankmuzikk/views/components/mobilenav"
+	"dankmuzikk/views/icons"
 )
 
 templ Default(title string, children ...templ.Component) {
@@ -74,6 +75,7 @@ templ Default(title string, children ...templ.Component) {
 				@loading.Loading()
 			</div>
 			@player.PlayerSticky()
+			@icons.IconsLoader()
 			<input id="clipboard-text-blyat" type="text" hidden/>
 			//
 			<script src="/static/js/utils.js"></script>

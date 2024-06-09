@@ -618,6 +618,38 @@ async function playSong(song) {
 }
 
 /**
+ * @param {string} songYtId
+ */
+async function fetchSongMeta(songYtId) {
+  Utils.showLoading();
+  return await fetch(`/api/song/single?id=${songYtId}`)
+    .then((res) => res.json())
+    .then((s) => s)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+}
+
+/**
+ * @param {string} playlistPubId
+ */
+async function fetchPlaylistMeta(playlistPubId) {
+  Utils.showLoading();
+  return await fetch(`/api/playlist?playlist-id=${playlistPubId}`)
+    .then((res) => res.json())
+    .then((p) => p)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+}
+
+/**
  * @param {Song} song
  */
 async function playSingleSong(song) {
@@ -629,6 +661,14 @@ async function playSingleSong(song) {
   };
   playerState.currentSongIdx = 0;
   await playSong(song);
+}
+
+/**
+ * @param {string} songYtId
+ */
+async function playSingleSongId(songYtId) {
+  const song = await fetchSongMeta(songYtId);
+  await playSingleSong(song);
 }
 
 /**
@@ -645,6 +685,14 @@ async function playSingleSongNext(song) {
   song.votes = 1;
   playerState.playlist.songs.splice(playerState.currentSongIdx + 1, 0, song);
   alert(`Playing ${song.title} next!`);
+}
+
+/**
+ * @param {string} songYtId
+ */
+async function playSingleSongNextId(songYtId) {
+  const song = await fetchSongMeta(songYtId);
+  await playSingleSongNext(song);
 }
 
 /**
@@ -671,6 +719,14 @@ async function playPlaylistNext(playlist) {
 }
 
 /**
+ * @param {string} playlistPubId
+ */
+async function playPlaylistNextId(playlistPubId) {
+  const playlist = await fetchPlaylistMeta(playlistPubId);
+  await playPlaylistNext(playlist);
+}
+
+/**
  * @param {Playlist} playlist
  */
 async function appendPlaylistToCurrentQueue(playlist) {
@@ -685,6 +741,14 @@ async function appendPlaylistToCurrentQueue(playlist) {
   playerState.playlist.songs.push(...playlist.songs);
   playerState.playlist.title = `${playerState.playlist.title} + ${playlist.title}`;
   alert(`Playing ${playlist.title} next!`);
+}
+
+/**
+ * @param {string} playlistPubId
+ */
+async function appendPlaylistToCurrentQueueId(playlistPubId) {
+  const playlist = await fetchPlaylistMeta(playlistPubId);
+  await appendPlaylistToCurrentQueue(playlist);
 }
 
 /**
@@ -723,6 +787,15 @@ async function playSongFromPlaylist(songYtId, playlist) {
 }
 
 /**
+ * @param {string} songYtId
+ * @param {string} playlistPubId
+ */
+async function playSongFromPlaylistId(songYtId, playlistPubId) {
+  const playlist = await fetchPlaylistMeta(playlistPubId);
+  await playSongFromPlaylist(songYtId, playlist);
+}
+
+/**
  * @param {Song} song
  */
 function appendSongToCurrentQueue(song) {
@@ -733,6 +806,14 @@ function appendSongToCurrentQueue(song) {
   song.votes = 1;
   playerState.playlist.songs.push(song);
   alert(`Added ${song.title} to the queue!`);
+}
+
+/**
+ * @param {string} songYtId
+ */
+async function appendSongToCurrentQueueId(songYtId) {
+  const song = await fetchSongMeta(songYtId);
+  appendSongToCurrentQueue(song);
 }
 
 function addSongToPlaylist() {
@@ -975,12 +1056,18 @@ window.Player.downloadSongToDevice = downloadSongToDevice;
 window.Player.showPlayer = show;
 window.Player.hidePlayer = hide;
 window.Player.playSingleSong = playSingleSong;
+window.Player.playSingleSongId = playSingleSongId;
 window.Player.playSingleSongNext = playSingleSongNext;
+window.Player.playSingleSongNextId = playSingleSongNextId;
 window.Player.playSongFromPlaylist = playSongFromPlaylist;
+window.Player.playSongFromPlaylistId = playSongFromPlaylistId;
 window.Player.playPlaylistNext = playPlaylistNext;
+window.Player.playPlaylistNextId = playPlaylistNextId;
 window.Player.removeSongFromPlaylist = removeSongFromPlaylist;
 window.Player.addSongToQueue = appendSongToCurrentQueue;
+window.Player.addSongToQueueId = appendSongToCurrentQueueId;
 window.Player.appendPlaylistToCurrentQueue = appendPlaylistToCurrentQueue;
+window.Player.appendPlaylistToCurrentQueueId = appendPlaylistToCurrentQueueId;
 window.Player.stopMuzikk = stopMuzikk;
 window.Player.expand = () => expand();
 window.Player.collapse = () => collapse();

@@ -6,6 +6,7 @@ import (
 	"dankmuzikk/services/history"
 	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/services/youtube/download"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -129,4 +130,21 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing song's yt id"))
+		return
+	}
+
+	song, err := s.songsService.GetSong(id)
+	if err != nil {
+		log.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	_ = json.NewEncoder(w).Encode(song)
 }
