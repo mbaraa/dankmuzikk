@@ -46,7 +46,7 @@ templ playlistOptions(playlist entities.Playlist) {
 				}
 				title="Add to queue"
 				type="button"
-				onClick={ addToQueue(playlist) }
+				onClick={ addToQueue(playlist.PublicId) }
 			>
 				@icons.AddToQueue()
 				<span>Add to queue</span>
@@ -144,8 +144,8 @@ script playPlaylistNext(pl entities.Playlist) {
     Player.playPlaylistNext(pl)
 }
 
-script addToQueue(pl entities.Playlist) {
-    Player.appendPlaylistToCurrentQueue(pl)
+script addToQueue(plPubId string) {
+    Player.appendPlaylistToCurrentQueueId(plPubId)
 }
 
 script copyLink(isPublic bool, plPubId string) {
