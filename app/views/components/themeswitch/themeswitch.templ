@@ -9,8 +9,8 @@ var themes = []struct {
 	actualName  string
 }{
 	{
-		displayName: "Default",
-		actualName:  "default",
+		displayName: "Dank",
+		actualName:  "dank",
 	},
 	{
 		displayName: "Black",
@@ -53,7 +53,7 @@ script changeTheme(themeName string) {
     document.cookie = "theme-name" + "=" + themeName  + expires + "; path=/";
 
     const themes = {
-        default: {
+        dank: {
             primary: "#4c8c36",
             primary20: "#4c8c3633",
             primary30: "#4c8c364c",
@@ -119,5 +119,5 @@ script changeTheme(themeName string) {
     style.setProperty('--accent-color-30', theme.accent30);
     style.setProperty('--accent-color-69', theme.accent69);
     document.body.style.backgroundColor = theme.bg;
-    document.getElementById("popover-theme-switcher").style.display = "none";
+    //document.getElementById("popover-theme-switcher").style.display = "none";
 }
