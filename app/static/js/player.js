@@ -632,6 +632,24 @@ async function playSingleSong(song) {
 }
 
 /**
+ * @param {string} songYtId
+ */
+async function playSingleSongId(songYtId) {
+  Utils.showLoading();
+  const song = await fetch(`/api/song/single?id=${songYtId}`)
+    .then((res) => res.json())
+    .then((s) => s)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+
+  await playSingleSong(song);
+}
+
+/**
  * @param {Song} song
  */
 async function playSingleSongNext(song) {
@@ -645,6 +663,24 @@ async function playSingleSongNext(song) {
   song.votes = 1;
   playerState.playlist.songs.splice(playerState.currentSongIdx + 1, 0, song);
   alert(`Playing ${song.title} next!`);
+}
+
+/**
+ * @param {string} songYtId
+ */
+async function playSingleSongNextId(songYtId) {
+  Utils.showLoading();
+  const song = await fetch(`/api/song/single?id=${songYtId}`)
+    .then((res) => res.json())
+    .then((s) => s)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+
+  await playSingleSongNext(song);
 }
 
 /**
@@ -720,6 +756,25 @@ async function playSongFromPlaylist(songYtId, playlist) {
   const songToPlay = playlist.songs[playerState.currentSongIdx];
   await highlightSongInPlaylist(songToPlay.yt_id, playlist);
   await playSong(songToPlay);
+}
+
+/**
+ * @param {string} songYtId
+ * @param {string} playlistPubId
+ */
+async function playSongFromPlaylistId(songYtId, playlistPubId) {
+  Utils.showLoading();
+  const playlist = await fetch(`/api/playlist?playlist-id=${playlistPubId}`)
+    .then((res) => res.json())
+    .then((p) => p)
+    .catch((err) => {
+      console.error(err);
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+
+  await playSongFromPlaylist(songYtId, playlist);
 }
 
 /**
@@ -975,8 +1030,11 @@ window.Player.downloadSongToDevice = downloadSongToDevice;
 window.Player.showPlayer = show;
 window.Player.hidePlayer = hide;
 window.Player.playSingleSong = playSingleSong;
+window.Player.playSingleSongId = playSingleSongId;
 window.Player.playSingleSongNext = playSingleSongNext;
+window.Player.playSingleSongNextId = playSingleSongNextId;
 window.Player.playSongFromPlaylist = playSongFromPlaylist;
+window.Player.playSongFromPlaylistId = playSongFromPlaylistId;
 window.Player.playPlaylistNext = playPlaylistNext;
 window.Player.removeSongFromPlaylist = removeSongFromPlaylist;
 window.Player.addSongToQueue = appendSongToCurrentQueue;

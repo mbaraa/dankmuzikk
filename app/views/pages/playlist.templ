@@ -47,7 +47,7 @@ templ playlistHeader(pl entities.Playlist) {
 				id="play-playlist-button"
 				type="button"
 				title="Play playlist"
-				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
+				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl.PublicId) }
 			>
 				@icons.PlayPlaylist()
 			</button>
@@ -172,6 +172,6 @@ script copyLink(isPublic bool) {
     }
 }
 
-script playSongFromPlaylist(songId string, playlist entities.Playlist) {
-    window.Player.playSongFromPlaylist(songId, playlist)
+script playSongFromPlaylist(songId, playlistPubId string) {
+    window.Player.playSongFromPlaylistId(songId, playlistPubId)
 }

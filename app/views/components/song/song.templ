@@ -23,9 +23,9 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			<div
 				class={ "w-[80px]",  "h-[80px]", "md:w-[70px]", "md:h-[70px]", "relative", "cursor-pointer" }
 				if playlist.PublicId != "" {
-					onClick={ playSongFromPlaylist(s.YtId, playlist) }
+					onClick={ playSongFromPlaylist(s.YtId, playlist.PublicId) }
 				} else {
-					onClick={ playSong(s) }
+					onClick={ playSong(s.YtId) }
 				}
 			>
 				<div
@@ -52,9 +52,9 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 				<div
 					class={ "w-full", "h-full", "flex", "gap-y-3", "items-start", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
 					if playlist.PublicId != "" {
-						onClick={ playSongFromPlaylist(s.YtId, playlist) }
+						onClick={ playSongFromPlaylist(s.YtId, playlist.PublicId) }
 					} else {
-						onClick={ playSong(s) }
+						onClick={ playSong(s.YtId) }
 					}
 				>
 					<h3
@@ -131,7 +131,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			}
 			title="Play next"
 			type="button"
-			onClick={ playSongNext(song) }
+			onClick={ playSongNext(song.YtId) }
 		>
 			@icons.AddToQueue()
 			<span>Play next</span>
@@ -163,16 +163,16 @@ script addSongToQueue(song entities.Song) {
     window.Player.addSongToQueue(song);
 }
 
-script playSong(song entities.Song) {
-    window.Player.playSingleSong(song);
+script playSong(songYtId string) {
+    window.Player.playSingleSongId(songYtId);
 }
 
-script playSongFromPlaylist(songId string, playlist entities.Playlist) {
-    window.Player.playSongFromPlaylist(songId, playlist)
+script playSongFromPlaylist(songId, playlistPubId string) {
+    window.Player.playSongFromPlaylistId(songId, playlistPubId)
 }
 
-script playSongNext(song entities.Song) {
-    Player.playSingleSongNext(song)
+script playSongNext(songYtId string) {
+    Player.playSingleSongNextId(songYtId)
 }
 
 script shareSong(songYtId string) {
