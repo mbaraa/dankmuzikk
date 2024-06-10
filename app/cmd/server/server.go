@@ -115,9 +115,9 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /history/{page}", gHandler.AuthApi(historyApi.HandleGetMoreHistoryItems))
 
 	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/", m.Middleware(pagesHandler))
+	applicationHandler.Handle("/", pagesHandler)
 	applicationHandler.Handle("/api/", http.StripPrefix("/api", apisHandler))
 
 	log.Info("Starting http server at port " + config.Env().Port)
-	return http.ListenAndServe(":"+config.Env().Port, applicationHandler)
+	return http.ListenAndServe(":"+config.Env().Port, m.Middleware(applicationHandler))
 }
