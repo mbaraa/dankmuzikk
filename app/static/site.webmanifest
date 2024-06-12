@@ -15,8 +15,8 @@
       "purpose": "any"
     }
   ],
-  "theme_color": "#4C8C36",
-  "background_color": "#4C8C36",
+  "theme_color": "#3E732C",
+  "background_color": "#3E732C",
   "start_url": "/",
   "scope": "https://dankmuzikk.com",
   "display": "standalone",
