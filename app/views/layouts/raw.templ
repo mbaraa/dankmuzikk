@@ -44,7 +44,7 @@ templ Raw(title string, children ...templ.Component) {
 		</head>
 		<body
 			hx-ext="loading-states"
-			class={ "min-w-screen", "min-h-screen", "p-0", "m-0", "font-Ubuntu" }
+			class={ "min-w-screen", "min-h-screen", "p-0", "m-0", "font-Ubuntu", "bg-primary" }
 		>
 			<div id="main-contents" style="display: contents">
 				for _, child := range children {
