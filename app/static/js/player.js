@@ -20,6 +20,10 @@ const playPauseToggleEl = document.getElementById("play"),
 
 // expanded player's elements
 const playPauseToggleExapndedEl = document.getElementById("play-expand"),
+  shuffleExpandEl = document.getElementById("shuffle-expand"),
+  nextExpandEl = document.getElementById("next-expand"),
+  prevExpandEl = document.getElementById("prev-expand"),
+  loopExpandEl = document.getElementById("loop-expand"),
   songNameExpandedEl = document.getElementById("song-name-expanded"),
   artistNameExpandedEl = document.getElementById("artist-name-expanded"),
   songSeekBarExpandedEl = document.getElementById("song-seek-bar-expanded"),
@@ -103,7 +107,7 @@ function looper() {
     } else {
       currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
     }
-    loopEl.innerHTML =
+    const icon =
       Player.icons[
         loopModes[currentLoopIdx] === LOOP_MODES.ALL
           ? "loop"
@@ -113,6 +117,8 @@ function looper() {
               ? "loopOff"
               : "loopOff"
       ];
+    setPlayerButtonIcon(loopEl, icon);
+    setPlayerButtonIcon(loopExpandEl, icon);
   };
 
   const __handle = () => {
@@ -303,6 +309,10 @@ function shuffler(state) {
     }
     setPlayerButtonIcon(
       shuffleEl,
+      state.shuffled ? Player.icons.shuffle : Player.icons.shuffleOff,
+    );
+    setPlayerButtonIcon(
+      shuffleExpandEl,
       state.shuffled ? Player.icons.shuffle : Player.icons.shuffleOff,
     );
   };
@@ -875,14 +885,13 @@ playPauseToggleExapndedEl?.addEventListener("click", (event) => {
 });
 
 nextEl?.addEventListener("click", nextMuzikk);
+nextExpandEl?.addEventListener("click", nextMuzikk);
 prevEl?.addEventListener("click", previousMuzikk);
+prevExpandEl?.addEventListener("click", previousMuzikk);
 shuffleEl?.addEventListener("click", toggleShuffle);
-
-loopEl?.addEventListener("click", (event) => {
-  event.stopImmediatePropagation();
-  event.preventDefault();
-  toggleLoop();
-});
+shuffleExpandEl?.addEventListener("click", toggleShuffle);
+loopEl?.addEventListener("click", toggleLoop);
+loopExpandEl?.addEventListener("click", toggleLoop);
 
 (() => {
   const __handler = (e) => {
@@ -916,9 +925,21 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
     playPauseToggleExapndedEl.disabled = null;
   }
   shuffleEl.disabled = null;
+  if (!!shuffleExpandEl) {
+    shuffleExpandEl.disabled = null;
+  }
   nextEl.disabled = null;
+  if (!!nextExpandEl) {
+    nextExpandEl.disabled = null;
+  }
   prevEl.disabled = null;
+  if (!!prevExpandEl) {
+    prevExpandEl.disabled = null;
+  }
   loopEl.disabled = null;
+  if (!!loopExpandEl) {
+    loopExpandEl.disabled = null;
+  }
 
   // set duration AAA
   {
