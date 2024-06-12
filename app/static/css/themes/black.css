@@ -9,12 +9,8 @@
   --secondary-color-30: #ffffff4c;
   --secondary-color-69: #ffffffb0;
 
-  --accent-color: #d3fcbf;
-  --accent-color-20: #d3fcbf33;
-  --accent-color-30: #d3fcbf4c;
-  --accent-color-69: #d3fcbfb0;
-}
-
-body {
-  background-color: #131313;
+  --accent-color: #236104;
+  --accent-color-20: #23610433;
+  --accent-color-30: #2361044c;
+  --accent-color-69: #236104b0;
 }

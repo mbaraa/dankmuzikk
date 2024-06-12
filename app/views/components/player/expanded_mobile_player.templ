@@ -1,82 +1,5 @@
 package player
 
-templ mobilePlayer() {
-	<div
-		class={ "fixed", "z-20", "bottom-[65px]", "left-0", "h-auto", "w-full" }
-		onClick={ expand() }
-	>
-		<div
-			id="ze-player"
-			class={
-				"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
-				"mx-[5px]", "rounded-[15px]", "text-secondary", "collapsed",
-			}
-		>
-			<div class={ "contents" } id="ze-collapsed-mobile-player">
-				@collapsedMobilePlayer()
-			</div>
-			<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
-				@expandedMobilePlayer()
-			</div>
-		</div>
-	</div>
-	<style>
-        .collapsed {
-            height: 90px;
-            max-height: 90px;
-        }
-        .exapnded {
-            height: 550px;
-            max-height: 550px;
-        }
-    </style>
-}
-
-templ collapsedMobilePlayer() {
-	<div
-		class={ "flex", "justify-between", "items-center", "gap-x-1", "p-[10px]", }
-	>
-		<div class={ "flex", "flex-col", "w-11/12" }>
-			<!-- seeker and time -->
-			<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
-				<input
-					id="song-seek-bar"
-					type="range"
-					min="0"
-					value="0"
-					class={ "my-2", "w-full" }
-				/>
-				<span id="song-current-time">00:00</span>
-			</div>
-			<div class={ "flex", "items-center", "justify-between", "min-w-[250px]", "w-full", }>
-				<div class={ "flex", "items-center", "gap-x-2" }>
-					<div
-						id="song-image"
-						class={
-							"w-[35px]", "h-[35px]", "rounded-[3px]", "bg-primary",
-							"bg-repeat", "bg-cover", "bg-center",
-						}
-					>
-						<div class="loader !h-[25px] !w-[25px]"></div>
-					</div>
-					<!-- details -->
-					<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[250px]" }>
-						<p class={ "font-Ubuntu", "w-full" }>
-							<span id="song-name">Loading...</span>
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- player controls -->
-		<div class={ "flex", "items-center", "gap-x-1", "" }>
-			<button id="play" type="button" title="Play/Pause" disabled>
-				<div id="loading" class="loader !h-10 !w-10"></div>
-			</button>
-		</div>
-	</div>
-}
-
 templ expandedMobilePlayer() {
 	<div class={ "flex", "flex-col", "justify-center", "gap-y-[20px]", "p-[20px]" }>
 		<!-- collapse button -->
@@ -189,8 +112,4 @@ templ expandedMobilePlayer() {
 			</div>
 		</div>
 	</div>
-}
-
-script expand() {
-    Player.expand();
 }

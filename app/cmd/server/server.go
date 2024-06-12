@@ -119,5 +119,5 @@ func StartServer(staticFS embed.FS) error {
 	applicationHandler.Handle("/api/", http.StripPrefix("/api", apisHandler))
 
 	log.Info("Starting http server at port " + config.Env().Port)
-	return http.ListenAndServe(":"+config.Env().Port, applicationHandler)
+	return http.ListenAndServe(":"+config.Env().Port, m.Middleware(applicationHandler))
 }
