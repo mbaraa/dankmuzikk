@@ -42,7 +42,10 @@ const shortcuts = {
  * @param {KeyboardEvent} e
  */
 document.addEventListener("keyup", (e) => {
-  if (document.activeElement.tagName === "INPUT") {
+  if (
+    document.activeElement.tagName === "INPUT" ||
+    document.activeElement.id.startsWith("search-suggestion")
+  ) {
     return;
   }
   const action = shortcuts[e.key];
