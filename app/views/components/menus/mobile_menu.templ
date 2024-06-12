@@ -47,14 +47,9 @@ templ MobileMenu(id, title string, button, child templ.Component) {
 script toggleMobileMenu(id string) {
     const popover = document.getElementById(`mobile-menu-${id}`);
     if (popover.classList.contains("mobile-menu-collapsed")) {
-        const player = document.getElementById("ze-player");
         const rect = popover.getBoundingClientRect();
         popover.style.bottom = `-${
-            (window.innerHeight-(rect.y+rect.height)) -
-            65 -
-            (!player.classList.contains("hidden")?
-            player.getBoundingClientRect().height + 5:
-            0)
+            (window.innerHeight-(rect.y+rect.height))
         }px`
         popover.style.height = (
             popover.children[0].getBoundingClientRect().height + 4 +
