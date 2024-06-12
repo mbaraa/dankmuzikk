@@ -30,13 +30,9 @@ templ Popover(id, title string, button, child templ.Component) {
 }
 
 script toggleTheThing(id string) {
-    const popover = document.getElementById(`popover-${id}`);
-    popover.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && popover.style.display === "block") {
-            popover.style.display = "none";
-        }
-    });
-
+    id = `popover-${id}`;
+    Utils.registerPopover(id);
+    const popover = document.getElementById(id);
     if (popover.style.display !== "block") {
       popover.style.display = "block";
       popover.scrollIntoView({ block: "nearest" });

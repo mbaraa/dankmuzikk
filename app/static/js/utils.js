@@ -53,6 +53,45 @@ function copyTextToClipboard(text) {
   textArea.hidden = true;
 }
 
+function menuer() {
+  const menus = [];
+
+  /**
+   * @param {string} id
+   */
+  const __registerPopover = (id) => {
+    menus.push(id);
+    document.body.addEventListener("click", __remove);
+  };
+
+  /**
+   * @param {MouseEvent} e
+   */
+  const __remove = (e) => {
+    for (let i = 0; i < menus.length; i++) {
+      const el = document.getElementById(menus[i]);
+      if (!el) {
+        continue;
+      }
+      const rect = el.getBoundingClientRect();
+      const parentRect = el.parentElement.getBoundingClientRect();
+      if (
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY + parentRect.height + 5 < rect.top ||
+        e.clientY > rect.bottom
+      ) {
+        menus.splice(i, 1);
+        el.style.display = "none";
+      }
+    }
+  };
+
+  return [__registerPopover];
+}
+
+const [registerPopover, registerMobileMenu, registerPopup] = menuer();
+
 window.Utils = {
   showLoading,
   hideLoading,
@@ -60,4 +99,5 @@ window.Utils = {
   formatNumber,
   getTextWidth,
   copyTextToClipboard,
+  registerPopover,
 };
