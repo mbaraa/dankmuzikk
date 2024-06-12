@@ -7,6 +7,7 @@ import (
 	"dankmuzikk/views/icons"
 	"dankmuzikk/views/components/menus"
 	"math/rand"
+	"dankmuzikk/views/components/playlist"
 )
 
 templ Song(song entities.Song) {
@@ -53,6 +54,7 @@ templ options(song entities.Song) {
 			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
 		}
 	>
+		@playlist.PlaylistsPopup(0, song.YtId)
 		<button
 			class={
 				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
