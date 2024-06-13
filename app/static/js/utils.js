@@ -54,36 +54,53 @@ function copyTextToClipboard(text) {
 }
 
 function menuer() {
-  const menus = [];
+  /**
+   * @type {HTMLDivElement}
+   */
+  let lastEl = null;
 
   /**
    * @param {string} id
    */
   const __registerPopover = (id) => {
-    menus.push(id);
-    document.body.addEventListener("click", __remove);
+    if (!id) {
+      return;
+    }
+    if (!!lastEl) {
+      lastEl.style.display = "none";
+      document.body.removeEventListener("click", __removePopover);
+    }
+    lastEl = document.getElementById(id);
+    if (!lastEl) {
+      return;
+    }
+    document.body.addEventListener("click", __removePopover);
   };
 
   /**
    * @param {MouseEvent} e
    */
-  const __remove = (e) => {
-    for (let i = 0; i < menus.length; i++) {
-      const el = document.getElementById(menus[i]);
-      if (!el) {
-        continue;
+  const __removePopover = (e) => {
+    const rect = lastEl.getBoundingClientRect();
+    const parentRect = lastEl.parentElement.getBoundingClientRect();
+    let popupChild = null;
+    for (const c of lastEl.children.item(0)?.children) {
+      if (c.tagName === "DIALOG") {
+        popupChild = c;
       }
-      const rect = el.getBoundingClientRect();
-      const parentRect = el.parentElement.getBoundingClientRect();
-      if (
-        e.clientX < rect.left ||
-        e.clientX > rect.right ||
-        e.clientY + parentRect.height + 5 < rect.top ||
-        e.clientY > rect.bottom
-      ) {
-        menus.splice(i, 1);
-        el.style.display = "none";
-      }
+    }
+    if (document.activeElement === popupChild) {
+      return;
+    }
+    if (
+      e.clientX < rect.left ||
+      e.clientX > rect.right ||
+      e.clientY + parentRect.height + 5 < rect.top ||
+      e.clientY > rect.bottom
+    ) {
+      lastEl.style.display = "none";
+      lastEl = null;
+      document.body.removeEventListener("click", __removePopover);
     }
   };
 
