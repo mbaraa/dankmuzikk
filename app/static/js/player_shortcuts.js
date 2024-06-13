@@ -44,7 +44,9 @@ const shortcuts = {
 document.addEventListener("keyup", (e) => {
   if (
     document.activeElement.tagName === "INPUT" ||
-    document.activeElement.id.startsWith("search-suggestion")
+    document.activeElement.id.startsWith("search-suggestion") ||
+    e.ctrlKey ||
+    e.altKey
   ) {
     return;
   }
@@ -60,7 +62,12 @@ document.addEventListener("keyup", (e) => {
  * @param {KeyboardEvent} e
  */
 document.addEventListener("keydown", (e) => {
-  if (document.activeElement.tagName === "INPUT") {
+  if (
+    document.activeElement.tagName === "INPUT" ||
+    document.activeElement.id.startsWith("search-suggestion") ||
+    e.ctrlKey ||
+    e.altKey
+  ) {
     return;
   }
   const action = shortcuts[e.key];
