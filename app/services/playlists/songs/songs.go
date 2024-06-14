@@ -64,6 +64,9 @@ func (s *Service) GetSong(songYtId string) (entities.Song, error) {
 				}
 				err = s.songRepo.Add(&ss)
 				log.Errorln(err)
+				if len(song) == 0 {
+					song = make([]models.Song, 1)
+				}
 				song[0] = ss
 			}
 		}
