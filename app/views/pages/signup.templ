@@ -45,6 +45,12 @@ templ Signup() {
 					"flex", "flex-col", "justify-between", "lg:gap-y-[30px]",
 				}
 			>
+				<div class={ "flex", "gap-x-3", "items-center", "text-secondary" }>
+					<svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M3.78462 12.9782C2.16532 11.9662 1.35578 11.4603 1.0781 10.8123C0.835619 10.2466 0.835619 9.60613 1.0781 9.04031C1.35578 8.3925 2.16532 7.88651 3.78462 6.87442L11.3899 2.12111C13.187 0.997903 14.0856 0.436243 14.8272 0.495963C15.4735 0.547923 16.066 0.876214 16.4527 1.39682C16.8962 1.99402 16.8962 3.05369 16.8962 5.17301L9.42289 9.89298L16.8962 14.6797C16.8962 16.799 16.8962 17.8586 16.4527 18.4558C16.066 18.9764 15.4735 19.3048 14.8272 19.3568C14.0856 19.4164 13.187 18.8548 11.3899 17.7316L3.78462 12.9782Z" stroke="var(--secondary-color)" stroke-linejoin="round"></path>
+					</svg>
+					<a class={ "nav-link", "text-lg" } href="/">Home</a>
+				</div>
 				<h1
 					class={ "text-secondary", "text-[35px]", "lg:text-[48px]", "font-light" }
 				>
@@ -112,7 +118,7 @@ templ signupForm() {
 			</a>
 			<button
 				type="submit"
-				class={ "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full" }
+				class={ "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full", "text-accent" }
 			>
 				Sign up
 			</button>
