@@ -77,6 +77,9 @@ func (s *Service) GetSong(songYtId string) (entities.Song, error) {
 	} else if err != nil {
 		return entities.Song{}, err
 	}
+	if len(song) == 0 {
+		return entities.Song{}, db.ErrRecordNotFound
+	}
 
 	return entities.Song{
 		YtId:         song[0].YtId,
