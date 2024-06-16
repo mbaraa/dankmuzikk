@@ -154,17 +154,17 @@ func isMobile(r *http.Request) bool {
 func getTheme(r *http.Request) string {
 	themeCookie, err := r.Cookie(ThemeName)
 	if err != nil || themeCookie == nil || themeCookie.Value == "" {
-		return "dank"
+		return "black"
 	}
 	switch themeCookie.Value {
-	case "black":
-		return "black"
+	case "dank":
+		return "dank"
 	case "white":
 		return "white"
-	case "dank":
+	case "black":
 		fallthrough
 	default:
-		return "dank"
+		return "black"
 	}
 }
 
