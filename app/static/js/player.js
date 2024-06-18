@@ -920,26 +920,16 @@ loopExpandEl?.addEventListener("click", toggleLoop);
 })();
 
 audioPlayerEl.addEventListener("loadeddata", (event) => {
-  playPauseToggleEl.disabled = null;
-  if (!!playPauseToggleExapndedEl) {
-    playPauseToggleExapndedEl.disabled = null;
-  }
-  shuffleEl.disabled = null;
-  if (!!shuffleExpandEl) {
-    shuffleExpandEl.disabled = null;
-  }
-  nextEl.disabled = null;
-  if (!!nextExpandEl) {
-    nextExpandEl.disabled = null;
-  }
-  prevEl.disabled = null;
-  if (!!prevExpandEl) {
-    prevExpandEl.disabled = null;
-  }
-  loopEl.disabled = null;
-  if (!!loopExpandEl) {
-    loopExpandEl.disabled = null;
-  }
+  if (!!playPauseToggleEl) playPauseToggleEl.disabled = null;
+  if (!!playPauseToggleExapndedEl) playPauseToggleExapndedEl.disabled = null;
+  if (!!shuffleEl) shuffleEl.disabled = null;
+  if (!!shuffleExpandEl) shuffleExpandEl.disabled = null;
+  if (!!nextEl) nextEl.disabled = null;
+  if (!!nextExpandEl) nextExpandEl.disabled = null;
+  if (!!prevEl) prevEl.disabled = null;
+  if (!!prevExpandEl) prevExpandEl.disabled = null;
+  if (!!loopEl) loopEl.disabled = null;
+  if (!!loopExpandEl) loopExpandEl.disabled = null;
 
   // set duration AAA
   {
