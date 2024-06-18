@@ -1,0 +1,14 @@
+package ui
+
+templ MobileOnly() {
+	if IsMobile(ctx) {
+		{ children... }
+	}
+}
+
+func IsMobile(ctx context.Context) bool {
+	if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+		return true
+	}
+	return false
+}
