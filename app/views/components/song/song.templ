@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"dankmuzikk/views/components/menus"
 	"math/rand"
+	"dankmuzikk/views/components/ui"
 )
 
 templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, playlist entities.Playlist) {
@@ -79,9 +80,10 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 		</div>
 		<!-- actions -->
 		<div class={ "lg:me-3", "flex", "items-center", "lg:gap-x-4" }>
-			if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+			@ui.MobileOnly() {
 				@menus.MobileMenu(s.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(s, additionalOptions))
-			} else {
+			}
+			@ui.DesktopOnly() {
 				@menus.Popover(s.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(s, additionalOptions))
 			}
 		</div>

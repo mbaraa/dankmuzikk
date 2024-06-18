@@ -6,12 +6,14 @@ import (
 	"dankmuzikk/views/components/menus"
 	"dankmuzikk/models"
 	"dankmuzikk/views/icons"
+	"dankmuzikk/views/components/ui"
 )
 
 templ PlaylistsOptions(playlist entities.Playlist) {
-	if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+	@ui.MobileOnly() {
 		@menus.MobileMenu("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
-	} else {
+	}
+	@ui.DesktopOnly() {
 		@menus.Popover("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
 	}
 }

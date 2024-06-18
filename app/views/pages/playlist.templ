@@ -9,6 +9,7 @@ import (
 	"dankmuzikk/views/components/song"
 	"dankmuzikk/views/components/page"
 	"dankmuzikk/views/icons"
+	"dankmuzikk/views/components/ui"
 )
 
 templ Playlist(pl entities.Playlist) {
@@ -67,7 +68,7 @@ templ playlistContent(pl entities.Playlist) {
 				}
 			>
 				for idx, s := range pl.Songs {
-					if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+					@ui.MobileOnly() {
 						@song.Song(
 							s,
 							[]string{},
@@ -79,7 +80,8 @@ templ playlistContent(pl entities.Playlist) {
 							},
 							pl,
 						)
-					} else {
+					}
+					@ui.DesktopOnly() {
 						@song.Song(
 							s,
 							[]string{
