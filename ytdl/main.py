@@ -66,8 +66,8 @@ def open_db_conn():
 
 
 def update_song_status(id: str):
+    cur = conn.cursor()
     try:
-        cur = conn.cursor()
         cur.execute("UPDATE songs SET fully_downloaded=1 WHERE yt_id=?", (id,))
         conn.commit()
     finally:
@@ -75,8 +75,8 @@ def update_song_status(id: str):
 
 
 def song_exists(song_yt_id: str) -> bool:
+    cur = conn.cursor()
     try:
-        cur = conn.cursor()
         cur.execute("SELECT id FROM songs WHERE yt_id=? AND fully_downloaded=1", (song_yt_id,))
         result = cur.fetchone()
         return result[0] if result else False
