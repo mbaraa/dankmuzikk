@@ -2,6 +2,8 @@ package ui
 
 templ DesktopOnly() {
 	if !IsMobile(ctx) {
-		{ children... }
+		<div class={ "hidden","md:contents" }>
+			{ children... }
+		</div>
 	}
 }
