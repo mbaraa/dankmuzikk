@@ -2,6 +2,8 @@ package player
 
 import "dankmuzikk/views/components/ui"
 import "dankmuzikk/views/components/menus"
+import "dankmuzikk/views/icons"
+import "fmt"
 
 templ collapsedPlayer() {
 	<div
@@ -70,7 +72,8 @@ templ collapsedPlayer() {
 		<!-- controls -->
 		<div class={ "flex", "items-center", "gap-x-0" }>
 			@ui.DesktopOnly() {
-				@menus.PopoverUp("volume-thingy", "Volume", volumeButton(), volumeSeeker())
+				@menus.PopoverUp("playback-speed-thingy", "Playback Speed", playbackSpeedButton(), playbackSpeedMenu(), 440)
+				@menus.PopoverUp("volume-thingy", "Volume", volumeButton(), volumeSeeker(), 45)
 			}
 			@ui.DesktopOnly() {
 				<button id="shuffle" class={ "hidden", "md:inline-block" } type="button" title="Shuffle" disabled>
@@ -144,4 +147,38 @@ templ volumeSeeker() {
 			class={ "my-1", "w-full", }
 		/>
 	</div>
+}
+
+templ playbackSpeedButton() {
+	@icons.PlaybackSpeed()
+}
+
+templ playbackSpeedMenu() {
+	<div
+		class={
+			"min-w-[250px]", "bg-accent-trans-20", "p-[10px]", "rounded-[10px]",
+			"flex", "flex-col", "gap-y-1", "backdrop-blur-lg",
+		}
+	>
+		<h3 class={ "text-lg", "font-medium" }>Playback Speed</h3>
+		<hr/>
+		for _, speed := range []float32{0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2} {
+			<button
+				class={
+					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+					"flex", "items-center", "gap-x-2", "w-full", "font-bold",
+				}
+				title={ fmt.Sprintf("Change playback speed to %.2f", speed) }
+				type="button"
+				onClick={ setPlaybackSpeed(speed) }
+			>
+				@icons.PlaybackSpeed()
+				x{ fmt.Sprint(speed) }
+			</button>
+		}
+	</div>
+}
+
+script setPlaybackSpeed(speed float32) {
+    window.Player.setPlaybackSpeed(speed)
 }
