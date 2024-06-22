@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-templ PopoverUp(id, title string, button, child templ.Component) {
+templ PopoverUp(id, title string, button, child templ.Component, topVal int16) {
 	<div class={ "popover-container", "relative" }>
 		<button
 			class={
@@ -20,13 +20,17 @@ templ PopoverUp(id, title string, button, child templ.Component) {
 		<div
 			id={ fmt.Sprintf("popover-%s", id) }
 			class={
-				"hidden", "absolute", "z-50", "top-[-45px]", "right-[0px]",
+				"hidden", "absolute", "z-50", top(fmt.Sprintf("-%dpx", topVal)), "right-[0px]",
 				"shadow-md", "min-w-[150px]", "animate-up",
 			}
 		>
 			@child
 		</div>
 	</div>
+}
+
+css top(topVal string) {
+	top: { topVal };
 }
 
 script toggleTheThingUp(id string) {
