@@ -495,6 +495,19 @@ function volumer() {
   return [__setVolume, __muter];
 }
 
+function playebackSpeeder() {
+  /**
+   * @param {number} speed
+   */
+  const __setSpeed = (speed) => {
+    speed = speed < 0.1 ? 0.1 : speed > 4 ? 4 : speed;
+    audioPlayerEl.playbackRate = speed;
+    // TODO: add the ui stuff
+  };
+
+  return [__setSpeed];
+}
+
 /**
  * @param {string} songYtId
  */
@@ -871,6 +884,7 @@ const [
   highlightSongInPlaylist,
 ] = playlister(playerState);
 const [setVolume, mute] = volumer();
+const [setPlaybackSpeed] = playebackSpeeder();
 
 playPauseToggleEl.addEventListener("click", (event) => {
   event.stopImmediatePropagation();
@@ -1080,5 +1094,6 @@ window.Player.addSongToQueueId = appendSongToCurrentQueueId;
 window.Player.appendPlaylistToCurrentQueue = appendPlaylistToCurrentQueue;
 window.Player.appendPlaylistToCurrentQueueId = appendPlaylistToCurrentQueueId;
 window.Player.stopMuzikk = stopMuzikk;
+window.Player.setPlaybackSpeed = setPlaybackSpeed;
 window.Player.expand = () => expand();
 window.Player.collapse = () => collapse();
