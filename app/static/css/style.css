@@ -10,7 +10,8 @@
   animation: animate-down calc(var(--animation-duration) -0.1s) ease-in-out;
 }
 
-main {
+main,
+.animate-up {
   animation: animate-up calc(var(--animation-duration) -0.1s) ease-in-out;
 }
 
