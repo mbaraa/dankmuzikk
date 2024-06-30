@@ -64,6 +64,9 @@ func (s *Service) GetSong(songYtId string) (entities.Song, error) {
 				}
 				err = s.songRepo.Add(&ss)
 				log.Errorln(err)
+				if len(song) == 0 {
+					song = make([]models.Song, 1)
+				}
 				song[0] = ss
 			}
 		}
@@ -73,6 +76,9 @@ func (s *Service) GetSong(songYtId string) (entities.Song, error) {
 		}
 	} else if err != nil {
 		return entities.Song{}, err
+	}
+	if len(song) == 0 {
+		return entities.Song{}, db.ErrRecordNotFound
 	}
 
 	return entities.Song{
@@ -110,6 +116,11 @@ func (s *Service) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uin
 		if err != nil {
 			return
 		}
+		err = s.downloadService.DownloadYoutubeSongQueue(songId)
+		if err != nil {
+			return
+		}
+
 		return true, s.downloadService.DownloadYoutubeSongQueue(songId)
 	} else {
 		return false, s.

@@ -88,6 +88,7 @@ docker compose up -f docker-compose-dev.yml
 - **This project is not affiliated with YouTube or Google, or anyone to that matter in any sort of ways.**
 - Frank’s original image was taken from [dingusland.biz](https://dingusland.biz)
 - Colorscheme is inspired from [Dankpods](https://www.youtube.com/@DankPods)
+- Loader’s CSS was made by [@thamudi](https://github.com/thamudi)
 
 ---
 

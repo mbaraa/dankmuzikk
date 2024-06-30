@@ -2,7 +2,6 @@ package main
 
 import (
 	"dankmuzikk/cmd/migrator"
-	"dankmuzikk/cmd/seeder"
 	"dankmuzikk/cmd/server"
 	"dankmuzikk/log"
 	"embed"
@@ -22,8 +21,6 @@ func main() {
 		err = server.StartServer(static)
 	case "migrate", "migration", "theotherthing":
 		err = migrator.Migrate()
-	case "seed", "seeder", "theotherotherthing":
-		err = seeder.SeedDb()
 	}
 	if err != nil {
 		log.Fatalln(log.ErrorLevel, err)

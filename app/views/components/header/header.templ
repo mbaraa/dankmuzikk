@@ -5,6 +5,7 @@ import (
 	"dankmuzikk/views/components/themeswitch"
 	"dankmuzikk/views/components/navlink"
 	"dankmuzikk/views/icons"
+	"dankmuzikk/views/components/ui"
 )
 
 templ homeLinkContainer() {
@@ -30,9 +31,11 @@ templ Header() {
 		}
 	>
 		<div class={ "w-full", "md:w-fit" }>
-			<div class={ "hidden", "md:block" }>
-				@navlink.JustLink("/", "Home", homeLinkContainer())
-			</div>
+			@ui.DesktopOnly() {
+				<div class={ "hidden", "md:block" }>
+					@navlink.JustLink("/", "Home", homeLinkContainer())
+				</div>
+			}
 			<div class={ "w-full", "flex", "md:hidden", "justify-between", "items-center" }>
 				@navlink.ImageRouteLink("/about", "About", icons.About(), true)
 				<div
@@ -56,22 +59,24 @@ templ Header() {
 		<div class={ "w-full", "md:w-fit" }>
 			@search.Search()
 		</div>
-		<div class={ "hidden", "md:flex", "justify-center", "items-center", "gap-x-7" }>
-			<nav>
-				<ul class={ "m-0", "list-none", "flex", "gap-x-5" }>
-					<li>
-						@navlink.RouteLink("About", "/about", false)
-					</li>
-					<li>
-						@navlink.RouteLink("Playlists", "/playlists", false)
-					</li>
-					<li>
-						@navlink.RouteLink("Profile", "/profile", false)
-					</li>
-				</ul>
-			</nav>
-			@themeswitch.ThemeSwitch()
-		</div>
+		@ui.DesktopOnly() {
+			<div class={ "hidden", "md:flex", "justify-center", "items-center", "gap-x-7" }>
+				<nav>
+					<ul class={ "m-0", "list-none", "flex", "gap-x-5" }>
+						<li>
+							@navlink.RouteLink("About", "/about", false)
+						</li>
+						<li>
+							@navlink.RouteLink("Playlists", "/playlists", false)
+						</li>
+						<li>
+							@navlink.RouteLink("Profile", "/profile", false)
+						</li>
+					</ul>
+				</nav>
+				@themeswitch.ThemeSwitch()
+			</div>
+		}
 	</header>
 	// script is being used here, so it doesn't render twice on desktops and break shit.
 	<script src="/static/js/search.js" lang="javascript">

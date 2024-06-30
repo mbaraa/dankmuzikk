@@ -1,12 +1,16 @@
 package playlists
 
 import (
+	"dankmuzikk/config"
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
 	"dankmuzikk/models"
+	"dankmuzikk/services/archive"
 	"dankmuzikk/services/nanoid"
 	"errors"
 	"fmt"
+	"io"
+	"os"
 	"time"
 )
 
@@ -16,6 +20,7 @@ type Service struct {
 	repo               db.UnsafeCRUDRepo[models.Playlist]
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner]
 	playlistSongsRepo  db.UnsafeCRUDRepo[models.PlaylistSong]
+	zipService         *archive.Service
 }
 
 // New accepts a playlist repo, a playlist pwners, and returns a new instance to the playlists service.
@@ -23,8 +28,14 @@ func New(
 	repo db.UnsafeCRUDRepo[models.Playlist],
 	playlistOwnersRepo db.CRUDRepo[models.PlaylistOwner],
 	playlistSongsRepo db.UnsafeCRUDRepo[models.PlaylistSong],
+	zipService *archive.Service,
 ) *Service {
-	return &Service{repo, playlistOwnersRepo, playlistSongsRepo}
+	return &Service{
+		repo:               repo,
+		playlistOwnersRepo: playlistOwnersRepo,
+		playlistSongsRepo:  playlistSongsRepo,
+		zipService:         zipService,
+	}
 }
 
 // CreatePlaylist creates a new playlist with with provided details for the given account's profile.
@@ -286,4 +297,52 @@ func (p *Service) GetAllMappedForAddPopover(ownerId uint) ([]entities.Playlist, 
 	}
 
 	return playlists, mappedPlaylists, nil
+}
+
+// Download zips the provided playlist,
+// then returns an io.Reader with the playlist's songs, and an occurring error.
+func (p *Service) Download(playlistPubId string, ownerId uint) (io.Reader, error) {
+	pl, _, err := p.Get(playlistPubId, ownerId)
+	if err != nil {
+		return nil, err
+	}
+
+	fileNames := make([]string, len(pl.Songs))
+	for i, song := range pl.Songs {
+		ogFile, err := os.Open(fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, song.YtId))
+		if err != nil {
+			return nil, err
+		}
+		newShit, err := os.OpenFile(
+			fmt.Sprintf("%s/%d-%s.mp3", config.Env().YouTube.MusicDir, i+1, song.Title),
+			os.O_WRONLY|os.O_CREATE, 0644,
+		)
+		io.Copy(newShit, ogFile)
+		fileNames[i] = newShit.Name()
+		_ = newShit.Close()
+		_ = ogFile.Close()
+	}
+
+	zip, err := p.zipService.CreateZip()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, fileName := range fileNames {
+		file, err := os.Open(fileName)
+		if err != nil {
+			return nil, err
+		}
+		err = zip.AddFile(file)
+		if err != nil {
+			return nil, err
+		}
+		_ = file.Close()
+		_ = os.Remove(file.Name())
+	}
+
+	defer func() {
+	}()
+
+	return zip.Deflate()
 }

@@ -1,0 +1,45 @@
+package menus
+
+import (
+	"fmt"
+)
+
+templ PopoverUp(id, title string, button, child templ.Component, topVal int16) {
+	<div class={ "popover-container", "relative" }>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "justify-center", "items-center", "gap-x-2",
+			}
+			title={ title }
+			type="button"
+			onClick={ toggleTheThingUp(id) }
+		>
+			@button
+		</button>
+		<div
+			id={ fmt.Sprintf("popover-%s", id) }
+			class={
+				"hidden", "absolute", "z-50", top(fmt.Sprintf("-%dpx", topVal)), "right-[0px]",
+				"shadow-md", "min-w-[150px]", "animate-up",
+			}
+		>
+			@child
+		</div>
+	</div>
+}
+
+css top(topVal string) {
+	top: { topVal };
+}
+
+script toggleTheThingUp(id string) {
+    id = `popover-${id}`;
+    const popover = document.getElementById(id);
+    if (popover.style.display !== "block") {
+      popover.style.display = "block";
+      popover.scrollIntoView({ block: "nearest" });
+    } else {
+      popover.style.display = "none";
+    }
+}

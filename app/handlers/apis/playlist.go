@@ -9,8 +9,10 @@ import (
 	"dankmuzikk/services/playlists/songs"
 	"dankmuzikk/views/components/playlist"
 	"dankmuzikk/views/components/ui"
+	"dankmuzikk/views/icons"
 	"dankmuzikk/views/pages"
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -134,9 +136,11 @@ func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Re
 	}
 
 	if joined {
-		_, _ = w.Write([]byte("Leave playlist"))
+		_ = icons.SadFrog().Render(r.Context(), w)
+		_, _ = w.Write([]byte("<span>Leave playlist</span>"))
 	} else {
-		_, _ = w.Write([]byte("Join playlist"))
+		_ = icons.HappyFrog().Render(r.Context(), w)
+		_, _ = w.Write([]byte("<span>Join playlist</span>"))
 	}
 }
 
@@ -207,4 +211,28 @@ func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *htt
 
 	playlist.PlaylistsSelector(songId, playlists, songsInPlaylists).
 		Render(r.Context(), w)
+}
+
+func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	playlistZip, err := p.service.Download(playlistId, profileId)
+	if err != nil {
+		log.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+	_, _ = io.Copy(w, playlistZip)
 }

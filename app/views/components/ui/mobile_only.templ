@@ -1,0 +1,16 @@
+package ui
+
+templ MobileOnly() {
+	if IsMobile(ctx) {
+		<div class={ "contents", "md:hidden" }>
+			{ children... }
+		</div>
+	}
+}
+
+func IsMobile(ctx context.Context) bool {
+	if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+		return true
+	}
+	return false
+}

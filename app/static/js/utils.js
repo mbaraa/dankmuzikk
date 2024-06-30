@@ -53,6 +53,26 @@ function copyTextToClipboard(text) {
   textArea.hidden = true;
 }
 
+/**
+ * @param {string} key
+ */
+function getCookie(key) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${key}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+}
+
+/**
+ * @param {string} key
+ * @param {string} value
+ */
+function setCookie(key, value) {
+  const date = new Date();
+  date.setTime(date.getTime() + 365 * 24 * 60 * 60 * 1000);
+  const expires = "; expires=" + date.toUTCString();
+  document.cookie = key + "=" + value + expires + "; path=/";
+}
+
 function menuer() {
   /**
    * @type {HTMLDivElement}
@@ -117,4 +137,6 @@ window.Utils = {
   getTextWidth,
   copyTextToClipboard,
   registerPopover,
+  getCookie,
+  setCookie,
 };

@@ -6,12 +6,14 @@ import (
 	"dankmuzikk/views/components/menus"
 	"dankmuzikk/models"
 	"dankmuzikk/views/icons"
+	"dankmuzikk/views/components/ui"
 )
 
 templ PlaylistsOptions(playlist entities.Playlist) {
-	if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+	@ui.MobileOnly() {
 		@menus.MobileMenu("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
-	} else {
+	}
+	@ui.DesktopOnly() {
 		@menus.Popover("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
 	}
 }
@@ -25,7 +27,9 @@ templ playlistOptions(playlist entities.Playlist) {
 	>
 		<h3 class={ "text-lg", "font-medium" }>Playlist's Options</h3>
 		<hr/>
-		@publicPlaylistToggle(playlist.PublicId, playlist.IsPublic)
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
+			@publicPlaylistToggle(playlist.PublicId, playlist.IsPublic)
+		}
 		<button
 			class={
 				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
@@ -64,7 +68,19 @@ templ playlistOptions(playlist entities.Playlist) {
 				<span>Play next</span>
 			</button>
 		}
-		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Download Playlist"
+			type="button"
+			onClick={ downloadPlaylist(playlist.PublicId, playlist.Title) }
+		>
+			@icons.Download()
+			<span>Download Playlist</span>
+		</button>
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
 			<button
 				class={
 					"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",
@@ -94,6 +110,8 @@ templ playlistOptions(playlist entities.Playlist) {
 				@icons.Trash()
 				<span>Delete playlist</span>
 			</button>
+		} else {
+			@joinLeavePlaylist(playlist.PublicId, perm)
 		}
 	</div>
 }
@@ -132,11 +150,55 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 						"bg-secondary": isPublic,
 					},
 				}
-			></div>
+			>
+				if isPublic {
+					@ui.CheckedCheckbox()
+				}
+			</div>
 		</div>
 		<p class={ "max-w-[300px]", "text-secondary", "text-md" }>
 			Sharable
 		</p>
+	</div>
+}
+
+templ joinLeavePlaylist(publicId string, perm models.PlaylistPermissions) {
+	<div
+		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
+		hx-put={
+			fmt.Sprintf(
+				"/api/playlist/join?playlist-id=%s",
+				publicId,
+			),
+		}
+		hx-swap="innerHTML"
+		hx-target={ fmt.Sprintf("#join-playlist-%s", publicId) }
+		hx-trigger="click"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={
+			fmt.Sprintf(
+				"/api/playlist/join?playlist-id=%s", publicId,
+			),
+		}
+	>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "gap-x-2", "items-center", "w-full",
+				"text-secondary",
+			}
+			type="submit"
+			id={ fmt.Sprintf("join-playlist-%s", publicId) }
+		>
+			if (perm & models.JoinerPermission) != 0 {
+				@icons.SadFrog()
+				<span>Leave playlist</span>
+			} else {
+				@icons.HappyFrog()
+				<span>Join playlist</span>
+			}
+		</button>
 	</div>
 }
 
@@ -146,6 +208,10 @@ script playPlaylistNext(plPubId string) {
 
 script addToQueue(plPubId string) {
     Player.appendPlaylistToCurrentQueueId(plPubId)
+}
+
+script downloadPlaylist(plId, title string) {
+    Player.downloadPlaylistToDevice(plId, title)
 }
 
 script copyLink(isPublic bool, plPubId string) {

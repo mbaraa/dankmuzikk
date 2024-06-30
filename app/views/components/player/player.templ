@@ -1,9 +1,11 @@
 package player
 
+import "dankmuzikk/views/components/ui"
+
 templ PlayerSticky() {
 	<div id="muzikk" class="hidden">
 		<div
-			if isMobile, ok := ctx.Value("is-mobile").(bool); ok && isMobile {
+			if ui.IsMobile(ctx) {
 				onClick={ expand() }
 			}
 			class={

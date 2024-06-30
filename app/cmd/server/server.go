@@ -8,6 +8,7 @@ import (
 	"dankmuzikk/handlers/pages"
 	"dankmuzikk/log"
 	"dankmuzikk/models"
+	"dankmuzikk/services/archive"
 	"dankmuzikk/services/history"
 	"dankmuzikk/services/jwt"
 	"dankmuzikk/services/login"
@@ -44,8 +45,9 @@ func StartServer(staticFS embed.FS) error {
 	historyRepo := db.NewBaseDB[models.History](dbConn)
 	playlistVotersRepo := db.NewBaseDB[models.PlaylistSongVoter](dbConn)
 
+	zipService := archive.NewService()
 	downloadService := download.New(songRepo)
-	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongsRepo)
+	playlistsService := playlists.New(playlistRepo, playlistOwnersRepo, playlistSongsRepo, zipService)
 	songsService := songs.New(playlistSongsRepo, playlistOwnersRepo, songRepo, playlistRepo, playlistVotersRepo, downloadService)
 	historyService := history.New(historyRepo, songRepo)
 
@@ -112,6 +114,7 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("PUT /playlist/public", gHandler.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
 	apisHandler.HandleFunc("PUT /playlist/join", gHandler.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
 	apisHandler.HandleFunc("DELETE /playlist", gHandler.AuthApi(playlistsApi.HandleDeletePlaylist))
+	apisHandler.HandleFunc("GET /playlist/zip", gHandler.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
 	apisHandler.HandleFunc("GET /history/{page}", gHandler.AuthApi(historyApi.HandleGetMoreHistoryItems))
 
 	applicationHandler := http.NewServeMux()
