@@ -3,7 +3,7 @@ module dankmuzikk
 go 1.22
 
 require (
-	github.com/a-h/templ v0.2.663
+	github.com/a-h/templ v0.2.731
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/tdewolff/minify/v2 v2.20.24
