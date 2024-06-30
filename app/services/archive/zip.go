@@ -63,7 +63,6 @@ func (z *Zip) AddFile(f *os.File) error {
 	}
 
 	return nil
-
 }
 
 func (z *Zip) RemoveFile(_ string) error {
