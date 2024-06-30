@@ -66,6 +66,18 @@ templ playlistOptions(playlist entities.Playlist) {
 				<span>Play next</span>
 			</button>
 		}
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Download Playlist"
+			type="button"
+			onClick={ downloadPlaylist(playlist.PublicId, playlist.Title) }
+		>
+			@icons.Download()
+			<span>Download Playlist</span>
+		</button>
 		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
 			<button
 				class={
@@ -148,6 +160,10 @@ script playPlaylistNext(plPubId string) {
 
 script addToQueue(plPubId string) {
     Player.appendPlaylistToCurrentQueueId(plPubId)
+}
+
+script downloadPlaylist(plId, title string) {
+    Player.downloadPlaylistToDevice(plId, title)
 }
 
 script copyLink(isPublic bool, plPubId string) {
