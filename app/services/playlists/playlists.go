@@ -307,12 +307,20 @@ func (p *Service) Download(playlistPubId string, ownerId uint) (io.Reader, error
 		return nil, err
 	}
 
-	files := make([]*os.File, len(pl.Songs))
+	fileNames := make([]string, len(pl.Songs))
 	for i, song := range pl.Songs {
-		files[i], err = os.Open(fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, song.YtId))
+		ogFile, err := os.Open(fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, song.YtId))
 		if err != nil {
 			return nil, err
 		}
+		newShit, err := os.OpenFile(
+			fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MusicDir, song.Title),
+			os.O_WRONLY|os.O_CREATE, 0644,
+		)
+		io.Copy(newShit, ogFile)
+		fileNames[i] = newShit.Name()
+		_ = newShit.Close()
+		_ = ogFile.Close()
 	}
 
 	zip, err := p.zipService.CreateZip()
@@ -320,12 +328,21 @@ func (p *Service) Download(playlistPubId string, ownerId uint) (io.Reader, error
 		return nil, err
 	}
 
-	for _, file := range files {
+	for _, fileName := range fileNames {
+		file, err := os.Open(fileName)
+		if err != nil {
+			return nil, err
+		}
 		err = zip.AddFile(file)
 		if err != nil {
 			return nil, err
 		}
+		_ = file.Close()
+		_ = os.Remove(file.Name())
 	}
+
+	defer func() {
+	}()
 
 	return zip.Deflate()
 }
