@@ -116,6 +116,11 @@ func (s *Service) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uin
 		if err != nil {
 			return
 		}
+		err = s.downloadService.DownloadYoutubeSongQueue(songId)
+		if err != nil {
+			return
+		}
+
 		return true, s.downloadService.DownloadYoutubeSongQueue(songId)
 	} else {
 		return false, s.
