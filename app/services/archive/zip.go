@@ -61,7 +61,6 @@ func (z *Zip) AddFile(f *os.File) error {
 	if err != nil {
 		return err
 	}
-	f.Close()
 
 	return nil
 
