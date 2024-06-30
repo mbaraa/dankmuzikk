@@ -552,7 +552,6 @@ async function downloadPlaylistToDevice(plPubId, plTitle) {
     .then(async (res) => {
       if (!res.ok) {
         throw new Error(await res.text());
-        return;
       }
       return res.blob();
     })
