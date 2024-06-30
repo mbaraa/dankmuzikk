@@ -542,6 +542,30 @@ async function downloadToApp() {
   throw new Error("not implemented!");
 }
 
+/**
+ * @param {string} plPubId
+ * @param {plTitle} plTitle
+ */
+async function downloadPlaylistToDevice(plPubId, plTitle) {
+  Utils.showLoading();
+  await fetch(`/api/playlist/zip?playlist-id=${plPubId}`)
+    .then(async (res) => {
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+      return res.blob();
+    })
+    .then((playlistZip) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(playlistZip);
+      a.download = `${plTitle}.zip`;
+      a.click();
+    })
+    .finally(() => {
+      Utils.hideLoading();
+    });
+}
+
 function show() {
   muzikkContainerEl.style.display = "block";
 }
@@ -1078,6 +1102,7 @@ document
 
 window.Player = {};
 window.Player.downloadSongToDevice = downloadSongToDevice;
+window.Player.downloadPlaylistToDevice = downloadPlaylistToDevice;
 window.Player.showPlayer = show;
 window.Player.hidePlayer = hide;
 window.Player.playSingleSong = playSingleSong;
