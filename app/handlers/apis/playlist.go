@@ -11,6 +11,7 @@ import (
 	"dankmuzikk/views/components/ui"
 	"dankmuzikk/views/pages"
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -207,4 +208,28 @@ func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *htt
 
 	playlist.PlaylistsSelector(songId, playlists, songsInPlaylists).
 		Render(r.Context(), w)
+}
+
+func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	playlistZip, err := p.service.Download(playlistId, profileId)
+	if err != nil {
+		log.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("🤷‍♂️"))
+		return
+	}
+	_, _ = io.Copy(w, playlistZip)
 }
