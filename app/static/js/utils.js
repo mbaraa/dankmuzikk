@@ -116,7 +116,7 @@ function menuer() {
       e.clientX < rect.left ||
       e.clientX > rect.right ||
       e.clientY + parentRect.height + 5 < rect.top ||
-      e.clientY > rect.bottom
+      e.clientY > rect.bottom + parentRect.height + 5
     ) {
       lastEl.style.display = "none";
       lastEl = null;
