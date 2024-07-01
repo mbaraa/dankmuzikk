@@ -1,5 +1,7 @@
 package ui
 
+import "context"
+
 templ MobileOnly() {
 	if IsMobile(ctx) {
 		<div class={ "contents", "md:hidden" }>
