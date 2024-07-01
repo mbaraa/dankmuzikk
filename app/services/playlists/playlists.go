@@ -317,7 +317,10 @@ func (p *Service) Download(playlistPubId string, ownerId uint) (io.Reader, error
 			fmt.Sprintf("%s/%d-%s.mp3", config.Env().YouTube.MusicDir, i+1, song.Title),
 			os.O_WRONLY|os.O_CREATE, 0644,
 		)
-		io.Copy(newShit, ogFile)
+		if err != nil {
+			return nil, err
+		}
+		_, _ = io.Copy(newShit, ogFile)
 		fileNames[i] = newShit.Name()
 		_ = newShit.Close()
 		_ = ogFile.Close()
