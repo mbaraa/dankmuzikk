@@ -35,6 +35,7 @@ css top(topVal string) {
 
 script toggleTheThingUp(id string) {
     id = `popover-${id}`;
+    Utils.registerPopover(id);
     const popover = document.getElementById(id);
     if (popover.style.display !== "block") {
       popover.style.display = "block";

@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -314,10 +316,22 @@ func (p *Service) Download(playlistPubId string, ownerId uint) (io.Reader, error
 			return nil, err
 		}
 		newShit, err := os.OpenFile(
-			fmt.Sprintf("%s/%d-%s.mp3", config.Env().YouTube.MusicDir, i+1, song.Title),
+			filepath.Clean(
+				fmt.Sprintf("%s/%d-%s.mp3", config.Env().YouTube.MusicDir, i+1,
+					strings.ReplaceAll(song.Title, "/", "|"),
+				),
+			),
 			os.O_WRONLY|os.O_CREATE, 0644,
 		)
-		io.Copy(newShit, ogFile)
+		if err != nil {
+			_ = ogFile.Close()
+			return nil, err
+		}
+		_, err = io.Copy(newShit, ogFile)
+		if err != nil {
+			_ = ogFile.Close()
+			return nil, err
+		}
 		fileNames[i] = newShit.Name()
 		_ = newShit.Close()
 		_ = ogFile.Close()

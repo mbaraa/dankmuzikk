@@ -217,8 +217,10 @@ function playPauser(audioEl) {
  */
 function stopper(audioEl) {
   return () => {
-    audioEl.pause();
-    audioEl.currentTime = 0;
+    if (!audioEl.paused) {
+      audioEl.pause();
+      audioEl.currentTime = 0;
+    }
     const songEl = document.getElementById(
       "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
     );
@@ -613,11 +615,18 @@ async function playSong(song) {
   setLoading(true);
   show();
 
-  await downloadSong(song.yt_id).then(() => {
-    stopMuzikk();
-    audioPlayerEl.src = `/muzikkx/${song.yt_id}.mp3`;
-    audioPlayerEl.load();
-  });
+  const resp = await downloadSong(song.yt_id);
+  if (!resp.ok) {
+    alert("Something went wrong when downloading the song...");
+    return;
+  }
+  stopMuzikk();
+  if (audioPlayerEl.childNodes.length > 0) {
+    audioPlayerEl.removeChild(audioPlayerEl.childNodes.item(0));
+  }
+  const src = document.createElement("source");
+  src.src = `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`;
+  audioPlayerEl.appendChild(src);
 
   // song's details setting, yada yada
   {
@@ -658,6 +667,12 @@ async function playSong(song) {
       songImageExpandedEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
       songImageExpandedEl.innerHTML = "";
     }
+  }
+  {
+    setTimeout(75);
+    audioPlayerEl.load();
+    setTimeout(75);
+    audioPlayerEl.load();
   }
   setMediaSessionMetadata(song);
   playMuzikk();
