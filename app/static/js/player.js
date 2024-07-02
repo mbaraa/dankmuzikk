@@ -671,6 +671,8 @@ async function playSong(song) {
   {
     setTimeout(75);
     audioPlayerEl.load();
+    setTimeout(75);
+    audioPlayerEl.load();
   }
   setMediaSessionMetadata(song);
   playMuzikk();
