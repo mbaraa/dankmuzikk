@@ -217,8 +217,10 @@ function playPauser(audioEl) {
  */
 function stopper(audioEl) {
   return () => {
-    audioEl.pause();
-    audioEl.currentTime = 0;
+    if (!audioEl.paused) {
+      audioEl.pause();
+      audioEl.currentTime = 0;
+    }
     const songEl = document.getElementById(
       "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
     );
