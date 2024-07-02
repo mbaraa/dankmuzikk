@@ -615,8 +615,13 @@ async function playSong(song) {
 
   await downloadSong(song.yt_id).then(() => {
     stopMuzikk();
-    audioPlayerEl.children.item(0).src =
-      `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`;
+    // audioPlayerEl.children.item(0).src =
+    if (audioPlayerEl.childNodes.length > 0) {
+      audioPlayerEl.removeChild(audioPlayerEl.childNodes.item(0));
+    }
+    const src = document.createElement("source");
+    src.src = `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`;
+    audioPlayerEl.appendChild(src);
     audioPlayerEl.load();
   });
 
