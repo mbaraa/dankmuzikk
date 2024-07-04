@@ -1011,7 +1011,9 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
   const currentTime = Math.floor(event.target.currentTime);
-  setDuration(currentTime);
+  if (isSafari()) {
+    setDuration(currentTime);
+  }
   if (songCurrentTimeEl) {
     songCurrentTimeEl.innerHTML = Utils.formatTime(currentTime);
   }
