@@ -620,8 +620,11 @@ async function playSong(song) {
     audioPlayerEl.removeChild(audioPlayerEl.childNodes.item(0));
   }
   const src = document.createElement("source");
-  src.src = `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`;
-  src.type = "audio/mpeg";
+  src.setAttribute("type", "audio/mpeg");
+  src.setAttribute(
+    "src",
+    `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`,
+  );
   audioPlayerEl.appendChild(src);
 
   if (isSafari()) {
@@ -971,6 +974,24 @@ loopExpandEl?.addEventListener("click", toggleLoop);
   }
 })();
 
+function setDuration(duration) {
+  if (Number.isNaN(duration) || !Number.isFinite(duration)) {
+    duration = 0;
+  }
+  songSeekBarEl.max = Math.ceil(duration);
+  songSeekBarEl.value = 0;
+  if (!!songSeekBarExpandedEl) {
+    songSeekBarExpandedEl.max = Math.ceil(duration);
+    songSeekBarExpandedEl.value = 0;
+  }
+  if (!!songDurationEl) {
+    songDurationEl.innerHTML = Utils.formatTime(duration);
+  }
+  if (!!songDurationExpandedEl) {
+    songDurationExpandedEl.innerHTML = Utils.formatTime(duration);
+  }
+}
+
 audioPlayerEl.addEventListener("loadeddata", (event) => {
   if (!!playPauseToggleEl) playPauseToggleEl.disabled = null;
   if (!!playPauseToggleExapndedEl) playPauseToggleExapndedEl.disabled = null;
@@ -983,31 +1004,14 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
   if (!!loopEl) loopEl.disabled = null;
   if (!!loopExpandEl) loopExpandEl.disabled = null;
 
-  // set duration AAA
-  {
-    let duration = event.target.duration;
-    if (isNaN(duration)) {
-      duration = 0;
-    }
-    songSeekBarEl.max = Math.ceil(duration);
-    songSeekBarEl.value = 0;
-    if (!!songSeekBarExpandedEl) {
-      songSeekBarExpandedEl.max = Math.ceil(duration);
-      songSeekBarExpandedEl.value = 0;
-    }
-    if (!!songDurationEl) {
-      songDurationEl.innerHTML = Utils.formatTime(duration);
-    }
-    if (!!songDurationExpandedEl) {
-      songDurationExpandedEl.innerHTML = Utils.formatTime(duration);
-    }
-  }
+  setDuration(event.target.duration);
 
   setLoading(false, Player.icons.pause);
 });
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
   const currentTime = Math.floor(event.target.currentTime);
+  setDuration(currentTime);
   if (songCurrentTimeEl) {
     songCurrentTimeEl.innerHTML = Utils.formatTime(currentTime);
   }
