@@ -621,8 +621,13 @@ async function playSong(song) {
   }
   const src = document.createElement("source");
   src.src = `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`;
-  src.target = "audio/mpeg";
+  src.type = "audio/mpeg";
   audioPlayerEl.appendChild(src);
+
+  if (isSafari()) {
+    setTimeout(80);
+  }
+  audioPlayerEl.load();
 
   // song's details setting, yada yada
   {
@@ -663,12 +668,6 @@ async function playSong(song) {
       songImageExpandedEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
       songImageExpandedEl.innerHTML = "";
     }
-  }
-  {
-    setTimeout(75);
-    audioPlayerEl.load();
-    setTimeout(75);
-    audioPlayerEl.load();
   }
   setMediaSessionMetadata(song);
   playMuzikk();
@@ -906,6 +905,10 @@ function setMediaSessionMetadata(song) {
       };
     }),
   });
+}
+
+function isSafari() {
+  return navigator.userAgent.toLowerCase().includes("safari");
 }
 
 const [toggleLoop, handleLoop, checkLoop] = looper();
