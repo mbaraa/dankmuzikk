@@ -185,6 +185,7 @@ function setLoading(loading, fallback) {
  */
 function playPauser(audioEl) {
   const __play = () => {
+    audioEl.muted = null;
     audioEl.play();
     const songEl = document.getElementById(
       "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
