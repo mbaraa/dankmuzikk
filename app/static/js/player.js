@@ -217,10 +217,8 @@ function playPauser(audioEl) {
  */
 function stopper(audioEl) {
   return () => {
-    if (!audioEl.paused) {
-      audioEl.pause();
-      audioEl.currentTime = 0;
-    }
+    audioEl.pause();
+    audioEl.currentTime = 0;
     const songEl = document.getElementById(
       "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
     );
@@ -265,7 +263,7 @@ function shuffler(state) {
     state.playlist.songs.push(...extraSongs);
     __shuffleArray(state.playlist.songs);
     let sIdx = 0;
-    if (!!audioPlayerEl.src) {
+    if (!!audioPlayerEl.childNodes.length) {
       sIdx = state.playlist.songs.findIndex((s) => s.yt_id === songYtId);
       if (sIdx !== -1) {
         [state.playlist.songs[sIdx], state.playlist.songs[0]] = [
@@ -280,11 +278,9 @@ function shuffler(state) {
   const __toggleShuffle = () => {
     state.shuffled = !state.shuffled;
     if (state.shuffled) {
+      const src = audioPlayerEl.childNodes.item(0);
       shuffle(
-        audioPlayerEl.src.substring(
-          audioPlayerEl.src.lastIndexOf("/") + 1,
-          audioPlayerEl.src.length - 4,
-        ),
+        src.src.substring(src.src.lastIndexOf("/") + 1, src.src.length - 4),
       );
     } else {
       const tmp = state.playlist.songs.sort((si, sj) => si.order - sj.order);
@@ -298,14 +294,12 @@ function shuffler(state) {
       if (tmp[tmp.length - 1].yt_id !== tmp[tmp.length - 2]) {
         state.playlist.songs.push(tmp[tmp.length - 1]);
       }
-      if (!!audioPlayerEl.src) {
+      if (!!src) {
+        console.log("src", src.src);
         state.currentSongIdx = state.playlist.songs.findIndex(
           (s) =>
             s.yt_id ===
-            audioPlayerEl.src.substring(
-              audioPlayerEl.src.lastIndexOf("/") + 1,
-              audioPlayerEl.src.length - 4,
-            ),
+            src.src.substring(src.src.lastIndexOf("/") + 1, src.src.length - 4),
         );
       }
     }
@@ -626,6 +620,7 @@ async function playSong(song) {
   }
   const src = document.createElement("source");
   src.src = `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`;
+  src.target = "audio/mpeg";
   audioPlayerEl.appendChild(src);
 
   // song's details setting, yada yada
