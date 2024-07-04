@@ -185,6 +185,7 @@ function setLoading(loading, fallback) {
  */
 function playPauser(audioEl) {
   const __play = () => {
+    audioEl.muted = null;
     audioEl.play();
     const songEl = document.getElementById(
       "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
@@ -217,10 +218,8 @@ function playPauser(audioEl) {
  */
 function stopper(audioEl) {
   return () => {
-    if (!audioEl.paused) {
-      audioEl.pause();
-      audioEl.currentTime = 0;
-    }
+    audioEl.pause();
+    audioEl.currentTime = 0;
     const songEl = document.getElementById(
       "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
     );
@@ -265,7 +264,7 @@ function shuffler(state) {
     state.playlist.songs.push(...extraSongs);
     __shuffleArray(state.playlist.songs);
     let sIdx = 0;
-    if (!!audioPlayerEl.src) {
+    if (!!audioPlayerEl.childNodes.length) {
       sIdx = state.playlist.songs.findIndex((s) => s.yt_id === songYtId);
       if (sIdx !== -1) {
         [state.playlist.songs[sIdx], state.playlist.songs[0]] = [
@@ -280,11 +279,9 @@ function shuffler(state) {
   const __toggleShuffle = () => {
     state.shuffled = !state.shuffled;
     if (state.shuffled) {
+      const src = audioPlayerEl.childNodes.item(0);
       shuffle(
-        audioPlayerEl.src.substring(
-          audioPlayerEl.src.lastIndexOf("/") + 1,
-          audioPlayerEl.src.length - 4,
-        ),
+        src.src.substring(src.src.lastIndexOf("/") + 1, src.src.length - 4),
       );
     } else {
       const tmp = state.playlist.songs.sort((si, sj) => si.order - sj.order);
@@ -298,14 +295,12 @@ function shuffler(state) {
       if (tmp[tmp.length - 1].yt_id !== tmp[tmp.length - 2]) {
         state.playlist.songs.push(tmp[tmp.length - 1]);
       }
-      if (!!audioPlayerEl.src) {
+      if (!!src) {
+        console.log("src", src.src);
         state.currentSongIdx = state.playlist.songs.findIndex(
           (s) =>
             s.yt_id ===
-            audioPlayerEl.src.substring(
-              audioPlayerEl.src.lastIndexOf("/") + 1,
-              audioPlayerEl.src.length - 4,
-            ),
+            src.src.substring(src.src.lastIndexOf("/") + 1, src.src.length - 4),
         );
       }
     }
@@ -625,8 +620,17 @@ async function playSong(song) {
     audioPlayerEl.removeChild(audioPlayerEl.childNodes.item(0));
   }
   const src = document.createElement("source");
-  src.src = `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`;
+  src.setAttribute("type", "audio/mpeg");
+  src.setAttribute(
+    "src",
+    `${location.protocol}//${location.host}/muzikkx/${song.yt_id}.mp3`,
+  );
   audioPlayerEl.appendChild(src);
+
+  if (isSafari()) {
+    setTimeout(80);
+  }
+  audioPlayerEl.load();
 
   // song's details setting, yada yada
   {
@@ -667,12 +671,6 @@ async function playSong(song) {
       songImageExpandedEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
       songImageExpandedEl.innerHTML = "";
     }
-  }
-  {
-    setTimeout(75);
-    audioPlayerEl.load();
-    setTimeout(75);
-    audioPlayerEl.load();
   }
   setMediaSessionMetadata(song);
   playMuzikk();
@@ -912,6 +910,10 @@ function setMediaSessionMetadata(song) {
   });
 }
 
+function isSafari() {
+  return navigator.userAgent.toLowerCase().includes("safari");
+}
+
 const [toggleLoop, handleLoop, checkLoop] = looper();
 const [playMuzikk, pauseMuzikk, togglePP] = playPauser(audioPlayerEl);
 const stopMuzikk = stopper(audioPlayerEl);
@@ -972,6 +974,24 @@ loopExpandEl?.addEventListener("click", toggleLoop);
   }
 })();
 
+function setDuration(duration) {
+  if (Number.isNaN(duration) || !Number.isFinite(duration)) {
+    duration = 0;
+  }
+  songSeekBarEl.max = Math.ceil(duration);
+  songSeekBarEl.value = 0;
+  if (!!songSeekBarExpandedEl) {
+    songSeekBarExpandedEl.max = Math.ceil(duration);
+    songSeekBarExpandedEl.value = 0;
+  }
+  if (!!songDurationEl) {
+    songDurationEl.innerHTML = Utils.formatTime(duration);
+  }
+  if (!!songDurationExpandedEl) {
+    songDurationExpandedEl.innerHTML = Utils.formatTime(duration);
+  }
+}
+
 audioPlayerEl.addEventListener("loadeddata", (event) => {
   if (!!playPauseToggleEl) playPauseToggleEl.disabled = null;
   if (!!playPauseToggleExapndedEl) playPauseToggleExapndedEl.disabled = null;
@@ -984,31 +1004,16 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
   if (!!loopEl) loopEl.disabled = null;
   if (!!loopExpandEl) loopExpandEl.disabled = null;
 
-  // set duration AAA
-  {
-    let duration = event.target.duration;
-    if (isNaN(duration)) {
-      duration = 0;
-    }
-    songSeekBarEl.max = Math.ceil(duration);
-    songSeekBarEl.value = 0;
-    if (!!songSeekBarExpandedEl) {
-      songSeekBarExpandedEl.max = Math.ceil(duration);
-      songSeekBarExpandedEl.value = 0;
-    }
-    if (!!songDurationEl) {
-      songDurationEl.innerHTML = Utils.formatTime(duration);
-    }
-    if (!!songDurationExpandedEl) {
-      songDurationExpandedEl.innerHTML = Utils.formatTime(duration);
-    }
-  }
+  setDuration(event.target.duration);
 
   setLoading(false, Player.icons.pause);
 });
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
   const currentTime = Math.floor(event.target.currentTime);
+  if (isSafari()) {
+    setDuration(currentTime);
+  }
   if (songCurrentTimeEl) {
     songCurrentTimeEl.innerHTML = Utils.formatTime(currentTime);
   }
