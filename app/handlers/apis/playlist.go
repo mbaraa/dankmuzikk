@@ -3,7 +3,7 @@ package apis
 import (
 	"context"
 	"dankmuzikk/entities"
-	"dankmuzikk/handlers"
+	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
 	"dankmuzikk/services/playlists"
 	"dankmuzikk/services/playlists/songs"
@@ -26,7 +26,7 @@ func NewPlaylistApi(service *playlists.Service, songService *songs.Service) *pla
 }
 
 func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -57,7 +57,7 @@ func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -89,7 +89,7 @@ func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.
 }
 
 func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -116,7 +116,7 @@ func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.
 }
 
 func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -145,7 +145,7 @@ func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Re
 }
 
 func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -167,7 +167,7 @@ func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) 
 }
 
 func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -190,7 +190,7 @@ func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -214,7 +214,7 @@ func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *htt
 }
 
 func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("🤷‍♂️"))

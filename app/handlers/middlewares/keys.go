@@ -1,4 +1,4 @@
-package handlers
+package middlewares
 
 // Cookie keys
 const (

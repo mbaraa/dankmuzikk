@@ -4,7 +4,7 @@ import (
 	"context"
 	"dankmuzikk/config"
 	"dankmuzikk/entities"
-	"dankmuzikk/handlers"
+	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
 	"dankmuzikk/services/login"
 	"dankmuzikk/views/components/otp"
@@ -50,7 +50,7 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     handlers.VerificationTokenKey,
+		Name:     auth.VerificationTokenKey,
 		Value:    verificationToken,
 		HttpOnly: true,
 		Path:     "/api/verify-otp",
@@ -87,7 +87,7 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     handlers.VerificationTokenKey,
+		Name:     auth.VerificationTokenKey,
 		Value:    verificationToken,
 		HttpOnly: true,
 		Path:     "/api/verify-otp",
@@ -98,7 +98,7 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 }
 
 func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *http.Request) {
-	verificationToken, err := r.Cookie(handlers.VerificationTokenKey)
+	verificationToken, err := r.Cookie(auth.VerificationTokenKey)
 	if err != nil {
 		// w.Write([]byte("Invalid verification token"))
 		status.
@@ -148,7 +148,7 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     handlers.SessionTokenKey,
+		Name:     auth.SessionTokenKey,
 		Value:    sessionToken,
 		HttpOnly: true,
 		Path:     "/",

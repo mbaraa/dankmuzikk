@@ -5,7 +5,8 @@ import (
 	"dankmuzikk/config"
 	"dankmuzikk/db"
 	"dankmuzikk/entities"
-	"dankmuzikk/handlers"
+	"dankmuzikk/handlers/middlewares/auth"
+	"dankmuzikk/handlers/middlewares/contenttype"
 	"dankmuzikk/log"
 	"dankmuzikk/models"
 	"dankmuzikk/services/history"
@@ -56,7 +57,7 @@ func NewPagesHandler(
 func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 	var recentPlays []entities.Song
 	var err error
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if profileIdCorrect {
 		recentPlays, err = p.historyService.Get(profileId, 1)
 		if err != nil {
@@ -64,7 +65,7 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if handlers.IsNoLayoutPage(r) {
+	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", "Home")
 		w.Header().Set("HX-Push-Url", "/")
 		pages.Index(recentPlays).Render(r.Context(), w)
@@ -74,7 +75,7 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
-	if handlers.IsNoLayoutPage(r) {
+	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", "About")
 		w.Header().Set("HX-Push-Url", "/about")
 		pages.About().Render(r.Context(), w)
@@ -88,7 +89,7 @@ func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		status.
 			BugsBunnyError("I'm not sure what you're trying to do :)").
@@ -101,7 +102,7 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 		playlists = make([]entities.Playlist, 0)
 	}
 
-	if handlers.IsNoLayoutPage(r) {
+	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", "Playlists")
 		w.Header().Set("HX-Push-Url", "/playlists")
 		pages.Playlists(playlists).Render(r.Context(), w)
@@ -111,7 +112,7 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		status.
 			BugsBunnyError("I'm not sure what you're trying to do :)").
@@ -128,7 +129,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	}
 
 	playlist, permission, err := p.playlistsService.Get(playlistPubId, profileId)
-	htmxReq := handlers.IsNoLayoutPage(r)
+	htmxReq := contenttype.IsNoLayoutPage(r)
 	switch {
 	case errors.Is(err, playlists.ErrUnauthorizedToSeePlaylist):
 		log.Errorln(err)
@@ -155,9 +156,9 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 				Render(r.Context(), w)
 		}
 	}
-	ctx := context.WithValue(r.Context(), handlers.PlaylistPermission, permission)
+	ctx := context.WithValue(r.Context(), auth.PlaylistPermission, permission)
 
-	if handlers.IsNoLayoutPage(r) {
+	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", playlist.Title)
 		w.Header().Set("HX-Push-Url", "/playlist/"+playlist.PublicId)
 		pages.Playlist(playlist).Render(ctx, w)
@@ -183,7 +184,7 @@ func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if handlers.IsNoLayoutPage(r) {
+	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", song.Title)
 		w.Header().Set("HX-Push-Url", "/song/"+song.YtId)
 		pages.Song(song).Render(r.Context(), w)
@@ -197,9 +198,9 @@ func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request)
 }
 
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		if handlers.IsNoLayoutPage(r) {
+		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
 			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
@@ -213,7 +214,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		PfpLink:  dbProfile.PfpLink,
 		Username: dbProfile.Username,
 	}
-	if handlers.IsNoLayoutPage(r) {
+	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", "Profile")
 		w.Header().Set("HX-Push-Url", "/profile")
 		pages.Profile(profile).Render(r.Context(), w)
@@ -238,7 +239,7 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		_ = p.downloadService.DownloadYoutubeSongsMetadata(results)
 	}
 
-	if handlers.IsNoLayoutPage(r) {
+	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", "Results for "+query)
 		w.Header().Set("HX-Push-Url", "/search?query="+query)
 		pages.SearchResults(results).Render(r.Context(), w)
