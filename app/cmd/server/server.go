@@ -3,8 +3,11 @@ package server
 import (
 	"dankmuzikk/config"
 	"dankmuzikk/db"
-	"dankmuzikk/handlers"
 	"dankmuzikk/handlers/apis"
+	"dankmuzikk/handlers/middlewares/auth"
+	"dankmuzikk/handlers/middlewares/contenttype"
+	"dankmuzikk/handlers/middlewares/ismobile"
+	"dankmuzikk/handlers/middlewares/theme"
 	"dankmuzikk/handlers/pages"
 	"dankmuzikk/log"
 	"dankmuzikk/models"
@@ -53,7 +56,7 @@ func StartServer(staticFS embed.FS) error {
 
 	jwtUtil := jwt.NewJWTImpl()
 
-	gHandler := handlers.NewHandler(profileRepo, jwtUtil)
+	authMw := auth.New(profileRepo, jwtUtil)
 
 	///////////// Pages and files /////////////
 	pagesHandler := http.NewServeMux()
@@ -74,16 +77,16 @@ func StartServer(staticFS embed.FS) error {
 	pagesHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MusicDir))))
 
 	pagesRouter := pages.NewPagesHandler(profileRepo, playlistsService, jwtUtil, &search.ScraperSearch{}, downloadService, historyService, songsService)
-	pagesHandler.HandleFunc("/", gHandler.OptionalAuthPage(pagesRouter.HandleHomePage))
-	pagesHandler.HandleFunc("GET /signup", gHandler.AuthPage(pagesRouter.HandleSignupPage))
-	pagesHandler.HandleFunc("GET /login", gHandler.AuthPage(pagesRouter.HandleLoginPage))
-	pagesHandler.HandleFunc("GET /profile", gHandler.AuthPage(pagesRouter.HandleProfilePage))
-	pagesHandler.HandleFunc("GET /about", gHandler.NoAuthPage(pagesRouter.HandleAboutPage))
-	pagesHandler.HandleFunc("GET /playlists", gHandler.AuthPage(pagesRouter.HandlePlaylistsPage))
-	pagesHandler.HandleFunc("GET /playlist/{playlist_id}", gHandler.AuthPage(pagesRouter.HandleSinglePlaylistPage))
-	pagesHandler.HandleFunc("GET /song/{song_id}", gHandler.OptionalAuthPage(pagesRouter.HandleSingleSongPage))
-	pagesHandler.HandleFunc("GET /privacy", gHandler.NoAuthPage(pagesRouter.HandlePrivacyPage))
-	pagesHandler.HandleFunc("GET /search", gHandler.OptionalAuthPage(pagesRouter.HandleSearchResultsPage))
+	pagesHandler.HandleFunc("/", contenttype.Html(authMw.OptionalAuthPage(pagesRouter.HandleHomePage)))
+	pagesHandler.HandleFunc("GET /signup", contenttype.Html(authMw.AuthPage(pagesRouter.HandleSignupPage)))
+	pagesHandler.HandleFunc("GET /login", contenttype.Html(authMw.AuthPage(pagesRouter.HandleLoginPage)))
+	pagesHandler.HandleFunc("GET /profile", contenttype.Html(authMw.AuthPage(pagesRouter.HandleProfilePage)))
+	pagesHandler.HandleFunc("GET /about", contenttype.Html(pagesRouter.HandleAboutPage))
+	pagesHandler.HandleFunc("GET /playlists", contenttype.Html(authMw.AuthPage(pagesRouter.HandlePlaylistsPage)))
+	pagesHandler.HandleFunc("GET /playlist/{playlist_id}", contenttype.Html(authMw.AuthPage(pagesRouter.HandleSinglePlaylistPage)))
+	pagesHandler.HandleFunc("GET /song/{song_id}", contenttype.Html(authMw.OptionalAuthPage(pagesRouter.HandleSingleSongPage)))
+	pagesHandler.HandleFunc("GET /privacy", contenttype.Html(pagesRouter.HandlePrivacyPage))
+	pagesHandler.HandleFunc("GET /search", contenttype.Html(authMw.OptionalAuthPage(pagesRouter.HandleSearchResultsPage)))
 
 	///////////// APIs /////////////
 
@@ -102,25 +105,25 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
-	apisHandler.HandleFunc("GET /song", gHandler.OptionalAuthApi(songApi.HandlePlaySong))
-	apisHandler.HandleFunc("GET /song/single", gHandler.OptionalAuthApi(songApi.HandleGetSong))
-	apisHandler.HandleFunc("PUT /song/playlist", gHandler.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
-	apisHandler.HandleFunc("PUT /song/playlist/plays", gHandler.AuthApi(songApi.HandleIncrementSongPlaysInPlaylist))
-	apisHandler.HandleFunc("PUT /song/playlist/upvote", gHandler.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
-	apisHandler.HandleFunc("PUT /song/playlist/downvote", gHandler.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
-	apisHandler.HandleFunc("GET /playlist/all", gHandler.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
-	apisHandler.HandleFunc("GET /playlist", gHandler.AuthApi(playlistsApi.HandleGetPlaylist))
-	apisHandler.HandleFunc("POST /playlist", gHandler.AuthApi(playlistsApi.HandleCreatePlaylist))
-	apisHandler.HandleFunc("PUT /playlist/public", gHandler.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
-	apisHandler.HandleFunc("PUT /playlist/join", gHandler.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
-	apisHandler.HandleFunc("DELETE /playlist", gHandler.AuthApi(playlistsApi.HandleDeletePlaylist))
-	apisHandler.HandleFunc("GET /playlist/zip", gHandler.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
-	apisHandler.HandleFunc("GET /history/{page}", gHandler.AuthApi(historyApi.HandleGetMoreHistoryItems))
+	apisHandler.HandleFunc("GET /song", authMw.OptionalAuthApi(songApi.HandlePlaySong))
+	apisHandler.HandleFunc("GET /song/single", authMw.OptionalAuthApi(songApi.HandleGetSong))
+	apisHandler.HandleFunc("PUT /song/playlist", authMw.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
+	apisHandler.HandleFunc("PUT /song/playlist/plays", authMw.AuthApi(songApi.HandleIncrementSongPlaysInPlaylist))
+	apisHandler.HandleFunc("PUT /song/playlist/upvote", authMw.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
+	apisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
+	apisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
+	apisHandler.HandleFunc("GET /playlist", authMw.AuthApi(playlistsApi.HandleGetPlaylist))
+	apisHandler.HandleFunc("POST /playlist", authMw.AuthApi(playlistsApi.HandleCreatePlaylist))
+	apisHandler.HandleFunc("PUT /playlist/public", authMw.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
+	apisHandler.HandleFunc("PUT /playlist/join", authMw.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
+	apisHandler.HandleFunc("DELETE /playlist", authMw.AuthApi(playlistsApi.HandleDeletePlaylist))
+	apisHandler.HandleFunc("GET /playlist/zip", authMw.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
+	apisHandler.HandleFunc("GET /history/{page}", authMw.AuthApi(historyApi.HandleGetMoreHistoryItems))
 
 	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/", pagesHandler)
-	applicationHandler.Handle("/api/", http.StripPrefix("/api", apisHandler))
+	applicationHandler.Handle("/", ismobile.Handler(theme.Handler(pagesHandler)))
+	applicationHandler.Handle("/api/", ismobile.Handler(theme.Handler(http.StripPrefix("/api", apisHandler))))
 
 	log.Info("Starting http server at port " + config.Env().Port)
-	return http.ListenAndServe(":"+config.Env().Port, m.Middleware(applicationHandler))
+	return http.ListenAndServe(":"+config.Env().Port, ismobile.Handler(theme.Handler(m.Middleware(applicationHandler))))
 }

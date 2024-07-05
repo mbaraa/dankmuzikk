@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"dankmuzikk/handlers"
+	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
 	"dankmuzikk/services/history"
 	"dankmuzikk/services/playlists/songs"
@@ -30,7 +30,7 @@ func NewDownloadHandler(
 }
 
 func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -55,7 +55,7 @@ func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.Response
 }
 
 func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -82,7 +82,7 @@ func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWri
 }
 
 func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
 		return
@@ -116,7 +116,7 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if profileIdCorrect {
 		err := s.historyService.AddSongToHistory(id, profileId)
 		if err != nil {
