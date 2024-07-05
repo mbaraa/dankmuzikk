@@ -911,7 +911,7 @@ function setMediaSessionMetadata(song) {
 }
 
 function isSafari() {
-  return navigator.userAgent.toLowerCase().includes("safari");
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 }
 
 const [toggleLoop, handleLoop, checkLoop] = looper();
