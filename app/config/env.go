@@ -12,6 +12,7 @@ var (
 func initEnvVars() {
 	_config = config{
 		Port:      getEnv("PORT"),
+		GoEnv:     getEnv("GO_ENV"),
 		Hostname:  getEnv("HOSTNAME"),
 		JwtSecret: getEnv("JWT_SECRET"),
 		YouTube: struct {
@@ -57,6 +58,7 @@ func initEnvVars() {
 
 type config struct {
 	Port      string
+	GoEnv     string
 	Hostname  string
 	JwtSecret string
 	YouTube   struct {

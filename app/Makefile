@@ -17,18 +17,15 @@ init:
 	go generate && \
     go run main.go migrate
 
-seed:
-	go run main.go seed
-
 dev:
 	go run github.com/cosmtrek/air@v1.51.0
 
 beta:
-	./${BINARY_NAME} serve
+	GO_ENV="beta" ./${BINARY_NAME} serve
 
 prod:
 	./${BINARY_NAME} migrate
-	./${BINARY_NAME} serve
+	GO_ENV="prod" ./${BINARY_NAME} serve
 
 clean:
 	go clean

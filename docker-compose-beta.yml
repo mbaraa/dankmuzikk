@@ -4,7 +4,7 @@ services:
   app-beta:
     container_name: "dankmuzikk-beta"
     build:
-      dockerfile: ./Dockerfile.beta
+      dockerfile: ./Dockerfile
       context: ./app
     image: "dankmuzikk-app-beta"
     restart: "always"

@@ -7,6 +7,7 @@ import (
 	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/handlers/middlewares/contenttype"
 	"dankmuzikk/handlers/middlewares/ismobile"
+	"dankmuzikk/handlers/middlewares/logger"
 	"dankmuzikk/handlers/middlewares/theme"
 	"dankmuzikk/handlers/pages"
 	"dankmuzikk/log"
@@ -125,5 +126,8 @@ func StartServer(staticFS embed.FS) error {
 	applicationHandler.Handle("/api/", ismobile.Handler(theme.Handler(http.StripPrefix("/api", apisHandler))))
 
 	log.Info("Starting http server at port " + config.Env().Port)
+	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
+		return http.ListenAndServe(":"+config.Env().Port, logger.Handler(ismobile.Handler(theme.Handler(m.Middleware(applicationHandler)))))
+	}
 	return http.ListenAndServe(":"+config.Env().Port, ismobile.Handler(theme.Handler(m.Middleware(applicationHandler))))
 }
