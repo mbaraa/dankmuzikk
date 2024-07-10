@@ -69,7 +69,11 @@ func StartServer(staticFS embed.FS) error {
 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
 	m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
-	pagesHandler.Handle("/static/", m.Middleware(http.FileServer(http.FS(staticFS))))
+	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
+		pagesHandler.Handle("/static/", http.FileServer(http.FS(staticFS)))
+	} else {
+		pagesHandler.Handle("/static/", m.Middleware(http.FileServer(http.FS(staticFS))))
+	}
 	pagesHandler.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		robotsFile, _ := staticFS.ReadFile("static/robots.txt")
 		w.Header().Set("Content-Type", "text/plain")
@@ -127,7 +131,7 @@ func StartServer(staticFS embed.FS) error {
 
 	log.Info("Starting http server at port " + config.Env().Port)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
-		return http.ListenAndServe(":"+config.Env().Port, logger.Handler(ismobile.Handler(theme.Handler(m.Middleware(applicationHandler)))))
+		return http.ListenAndServe(":"+config.Env().Port, logger.Handler(ismobile.Handler(theme.Handler(applicationHandler))))
 	}
 	return http.ListenAndServe(":"+config.Env().Port, ismobile.Handler(theme.Handler(m.Middleware(applicationHandler))))
 }
