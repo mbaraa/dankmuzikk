@@ -3,7 +3,7 @@ package apis
 import (
 	"context"
 	"dankmuzikk/config"
-	"dankmuzikk/handlers"
+	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
 	"dankmuzikk/services/login"
 	"dankmuzikk/views/components/status"
@@ -57,7 +57,7 @@ func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     handlers.SessionTokenKey,
+		Name:     auth.SessionTokenKey,
 		Value:    sessionToken,
 		HttpOnly: true,
 		Path:     "/",

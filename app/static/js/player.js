@@ -295,8 +295,8 @@ function shuffler(state) {
       if (tmp[tmp.length - 1].yt_id !== tmp[tmp.length - 2]) {
         state.playlist.songs.push(tmp[tmp.length - 1]);
       }
+      const src = audioPlayerEl.childNodes.item(0);
       if (!!src) {
-        console.log("src", src.src);
         state.currentSongIdx = state.playlist.songs.findIndex(
           (s) =>
             s.yt_id ===

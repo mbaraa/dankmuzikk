@@ -2,13 +2,13 @@ package apis
 
 import (
 	"dankmuzikk/config"
-	"dankmuzikk/handlers"
+	"dankmuzikk/handlers/middlewares/auth"
 	"net/http"
 )
 
 func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
-		Name:   handlers.SessionTokenKey,
+		Name:   auth.SessionTokenKey,
 		Value:  "",
 		Path:   "/",
 		Domain: config.Env().Hostname,

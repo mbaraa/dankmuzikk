@@ -3,7 +3,7 @@ package apis
 import (
 	"bytes"
 	"dankmuzikk/entities"
-	"dankmuzikk/handlers"
+	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
 	"dankmuzikk/services/history"
 	"dankmuzikk/views/components/playlist"
@@ -24,7 +24,7 @@ func NewHistoryApi(service *history.Service) *historyApi {
 }
 
 func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(handlers.ProfileIdKey).(uint)
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
