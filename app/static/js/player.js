@@ -509,9 +509,10 @@ function playebackSpeeder() {
  * @param {string} songYtId
  */
 async function downloadSong(songYtId) {
-  return await fetch("/api/song?id=" + songYtId).catch((err) =>
-    console.error(err),
-  );
+  return await fetch("/api/song?id=" + songYtId).catch((err) => {
+    console.error(err);
+    return { ok: false };
+  });
 }
 
 /**
