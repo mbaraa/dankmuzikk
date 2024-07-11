@@ -111,7 +111,7 @@ def download_yt_song(id: str) -> int:
         YouTube("https://www.youtube.com/watch?v=" + id) \
             .streams.filter(only_audio=True).first() \
             .download(output_path=DOWNLOAD_PATH, filename=id + ".mp3")
-    except pytube_exceptions.AgeRestrictedError:
+    except Exception:
         try:
             print(f"song with id {id} is age resticted, trying yt_dlp...")
             ytdl = YoutubeDL({
@@ -193,10 +193,10 @@ def download_song(song_yt_id: str) -> int:
             currently_downloading_queue.add(song_yt_id)
             res = download_yt_song(song_yt_id)
             currently_downloading_queue.remove(song_yt_id)
-            update_song_status(song_yt_id)
             if res != 0:
                 print(f"error: {YT_ERROR[res]} when downloading {song_yt_id}")
                 return res
+            update_song_status(song_yt_id)
             print("Successfully downloaded " + song_yt_id)
             return 0
     return 3
