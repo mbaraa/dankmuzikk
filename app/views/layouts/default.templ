@@ -2,11 +2,11 @@ package layouts
 
 import (
 	"dankmuzikk/views/components/header"
-	"dankmuzikk/views/components/player"
 	"dankmuzikk/views/components/loading"
-	"fmt"
 	"dankmuzikk/views/components/mobilenav"
+	"dankmuzikk/views/components/player"
 	"dankmuzikk/views/icons"
+	"fmt"
 )
 
 templ Default(title string, children ...templ.Component) {
@@ -106,7 +106,6 @@ templ Default(title string, children ...templ.Component) {
 		                });
 			    }
 			    registerServiceWorkers();
-                alert("This is a dead project (at least for the time being)\nUntil I find a way to bypass the new YouTube player, you can't listen to new songs, however you can still enjoy your already downloaded (listened to at least once) music!\nStill danking!!");
 		    </script>
 		</body>
 	</html>
