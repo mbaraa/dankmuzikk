@@ -3,7 +3,7 @@ FROM golang:1.22-alpine as build
 WORKDIR /app
 COPY . .
 
-RUN go install github.com/a-h/templ/cmd/templ@latest &&\
+RUN go install github.com/a-h/templ/cmd/templ@v0.2.731 &&\
     apk add --no-cache make npm nodejs &&\
     make
 
