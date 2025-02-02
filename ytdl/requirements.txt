@@ -8,14 +8,13 @@ gunicorn==22.0.0
 idna==3.7
 itsdangerous==2.2.0
 Jinja2==3.1.4
-mariadb==1.1.10
+mariadb==1.1.11
 MarkupSafe==2.1.5
 mutagen==1.47.0
 packaging==24.0
 pycryptodomex==3.20.0
-pytube==15.0.0
 requests==2.32.2
 urllib3==2.2.2
 websockets==12.0
 Werkzeug==3.0.3
-yt-dlp==2024.7.1
+yt-dlp==2025.01.26

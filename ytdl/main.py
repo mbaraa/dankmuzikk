@@ -1,9 +1,7 @@
-import pytube
 from flask import Flask
 import mariadb
 import os
 import os.path
-from pytube import YouTube, exceptions as pytube_exceptions
 import signal
 import threading
 import time
@@ -99,37 +97,22 @@ open_db_conn()
 YT_ERROR = {
     0: "none",
     1: "age restiction",
-    2: "video unavailble",
+    2: "video unavailable",
     3: "other youtube error",
 }
 
-
-
-
 def download_yt_song(id: str) -> int:
     try:
-        YouTube("https://www.youtube.com/watch?v=" + id) \
-            .streams.filter(only_audio=True).first() \
-            .download(output_path=DOWNLOAD_PATH, filename=id + ".mp3")
-    except Exception:
-        try:
-            print(f"song with id {id} is age resticted, trying yt_dlp...")
-            ytdl = YoutubeDL({
-                "format": "bestaudio/mp3",
-                "postprocessors": [{
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "192",
-                }],
-                "outtmpl": f"{DOWNLOAD_PATH}/%(id)s.%(ext)s"
-            })
-            ytdl.download("https://www.youtube.com/watch?v=" + id)
-        except:
-            return 1
-    except pytube_exceptions.VideoUnavailable:
-        return 2
-    except pytube_exceptions.RegexMatchError:
-        return 3
+        ytdl = YoutubeDL({
+            "format": "bestaudio/mp3",
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }],
+            "outtmpl": f"{DOWNLOAD_PATH}/%(id)s.%(ext)s"
+        })
+        ytdl.download("https://www.youtube.com/watch?v=" + id)
     except:
         return 3
 
