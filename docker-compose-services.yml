@@ -9,10 +9,12 @@ services:
       MARIADB_ROOT_PASSWORD: "previetcomrade"
       MARIADB_DATABASE: "dankabase"
     ports:
-      - 3307:3306
+      - 3306:3306
     volumes:
       - db-config:/etc/mysql
       - db-data:/var/lib/mysql
+    networks:
+      - danknetwork
 
   yt-dl:
     container_name: "yt-dl"
@@ -26,6 +28,10 @@ services:
       - .env.docker
     volumes:
       - dankuploads-dir:/app/_serve
+    depends_on:
+      - dank-db
+    networks:
+      - danknetwork
 
 volumes:
   dankuploads-dir:
@@ -46,3 +52,6 @@ volumes:
       type: none
       o: bind
       device: ./_db/var/
+
+networks:
+  danknetwork: {}
