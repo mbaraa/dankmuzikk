@@ -1,1 +1,0 @@
-htmx.defineExtension("json-enc",{onEvent:function(e,n){"htmx:configRequest"===e&&(n.detail.headers["Content-Type"]="application/json")},encodeParameters:function(e,n,t){n={};for(const e of t)if(e.name&&e.value){let t=!1;if("number"===e.type)t=!0;n[e.name]=t?Number(e.value):e.value}return e.overrideMimeType("text/json"),JSON.stringify(n)}});
