@@ -1,8 +1,8 @@
 root = "."
 
 [build]
-bin = "./dankmuzikk serve"
-cmd = "go generate && go build"
+full_bin = "export `cat ../.env | xargs` && ./dankmuzikk-server"
+cmd = "make build-server"
 delay = 100
 exclude_dir = [
   "assets",
@@ -18,7 +18,6 @@ exclude_file = []
 exclude_regex = [".*_templ.go"]
 exclude_unchanged = false
 follow_symlink = false
-full_bin = ""
 include_dir = []
 include_ext = ["go", "tpl", "tmpl", "templ", "html", "js", "css"]
 kill_delay = "0s"

@@ -27,7 +27,7 @@ services:
     env_file:
       - .env.docker
     volumes:
-      - dankuploads-dir:/app/_serve
+      - dankuploads-dir:/app/.serve
     depends_on:
       - dank-db
     networks:
@@ -39,19 +39,19 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./_serve/
+      device: ./.serve/
   db-config:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./_db/etc/
+      device: ./.db/etc/
   db-data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./_db/var/
+      device: ./.db/var/
 
 networks:
   danknetwork: {}

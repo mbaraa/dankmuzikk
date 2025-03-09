@@ -5,7 +5,7 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-dankmuzikk
+dankmuzikk-*
 static/css/tailwind.css
 google-service-account.json
 views/**/*.go

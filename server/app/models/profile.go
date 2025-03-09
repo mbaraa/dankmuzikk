@@ -12,7 +12,7 @@ type Profile struct {
 	Account   Account
 	Name      string `gorm:"not null"`
 	PfpLink   string
-	Username  string `gorm:"unique;not null"`
+	Username  string `gorm:"unique;not null;index"`
 
 	Playlist  []*Playlist `gorm:"many2many:playlist_owners"`
 	CreatedAt time.Time

@@ -11,3 +11,5 @@ google-service-account.json
 views/**/*.go
 views/**/*.txt
 _*/
+.*/
+Session.vim

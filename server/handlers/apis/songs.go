@@ -1,38 +1,28 @@
 package apis
 
 import (
+	"dankmuzikk/actions"
 	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
-	"dankmuzikk/services/history"
-	"dankmuzikk/services/playlists/songs"
-	"dankmuzikk/services/youtube/download"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
 type songDownloadHandler struct {
-	service        *download.Service
-	songsService   *songs.Service
-	historyService *history.Service
+	usecases *actions.Actions
 }
 
-func NewDownloadHandler(
-	service *download.Service,
-	songsService *songs.Service,
-	historyService *history.Service,
-) *songDownloadHandler {
+func NewDownloadHandler(usecases *actions.Actions) *songDownloadHandler {
 	return &songDownloadHandler{
-		service:        service,
-		songsService:   songsService,
-		historyService: historyService,
+		usecases: usecases,
 	}
 }
 
 func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	songId := r.URL.Query().Get("song-id")
@@ -46,10 +36,9 @@ func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.Response
 		return
 	}
 
-	err := s.songsService.IncrementSongPlays(songId, playlistId, profileId)
+	err := s.usecases.IncrementSongPlaysInPlaylist(songId, playlistId, profileId)
 	if err != nil {
-		log.Errorln(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		handleErrorResponse(w, err)
 		return
 	}
 }
@@ -57,7 +46,7 @@ func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.Response
 func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	songId := r.URL.Query().Get("song-id")
@@ -71,10 +60,9 @@ func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWri
 		return
 	}
 
-	votes, err := s.songsService.UpvoteSong(songId, playlistId, profileId)
+	votes, err := s.usecases.UpvoteSongInPlaylist(songId, playlistId, profileId)
 	if err != nil {
-		log.Errorln(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		handleErrorResponse(w, err)
 		return
 	}
 
@@ -84,7 +72,7 @@ func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWri
 func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	songId := r.URL.Query().Get("song-id")
@@ -98,10 +86,9 @@ func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseW
 		return
 	}
 
-	votes, err := s.songsService.DownvoteSong(songId, playlistId, profileId)
+	votes, err := s.usecases.DownvoteSongInPlaylist(songId, playlistId, profileId)
 	if err != nil {
-		log.Errorln(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		handleErrorResponse(w, err)
 		return
 	}
 
@@ -112,22 +99,20 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("missing song's yt id"))
 		return
 	}
 
 	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if profileIdCorrect {
-		err := s.historyService.AddSongToHistory(id, profileId)
+		err := s.usecases.AddSongToHistory(id, profileId)
 		if err != nil {
 			log.Errorln(err)
 		}
 	}
 
-	err := s.service.DownloadYoutubeSong(id)
+	err := s.usecases.DownloadYouTubeSong(id)
 	if err != nil {
-		log.Errorln(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		handleErrorResponse(w, err)
 		return
 	}
 }
@@ -136,15 +121,14 @@ func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Reque
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("missing song's yt id"))
 		return
 	}
 
-	song, err := s.songsService.GetSong(id)
+	payload, err := s.usecases.GetSongByYouTubeId(id)
 	if err != nil {
-		log.Errorln(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		handleErrorResponse(w, err)
 		return
 	}
-	_ = json.NewEncoder(w).Encode(song)
+
+	_ = json.NewEncoder(w).Encode(payload)
 }

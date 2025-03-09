@@ -16,6 +16,12 @@ type Song struct {
 	FullyDownloaded bool
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+
+	// Playlist only fields
+
+	AddedAt   string
+	Votes     int
+	PlayTimes int
 }
 
 func (s Song) GetId() uint {

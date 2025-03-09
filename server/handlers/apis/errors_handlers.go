@@ -2,6 +2,7 @@ package apis
 
 import (
 	"dankmuzikk/app"
+	"dankmuzikk/log"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -13,6 +14,12 @@ type errorResponse struct {
 }
 
 func handleErrorResponse(w http.ResponseWriter, err error) {
+	if err == nil {
+		return
+	}
+
+	log.Errorf("error happened in api, %v\n", err)
+
 	if dankError, ok := err.(app.DankError); ok {
 		if dankError.ExposeToClients() {
 			w.WriteHeader(dankError.ClientStatusCode())

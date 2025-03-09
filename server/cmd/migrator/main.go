@@ -1,15 +1,15 @@
-package migrator
+package main
 
 import (
+	"dankmuzikk/app/models"
 	"dankmuzikk/db"
 	"dankmuzikk/log"
-	"dankmuzikk/models"
 )
 
 func main() {
 	err := Migrate()
 	if err != nil {
-		log.Fatalln(log.ErrorLevel, err)
+		log.Fatalln(err)
 	}
 }
 

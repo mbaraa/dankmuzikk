@@ -17,10 +17,10 @@ func initEnvVars() {
 		JwtSecret: getEnv("JWT_SECRET"),
 		YouTube: struct {
 			DownloaderUrl string
-			MuzikkDir      string
+			MuzikkDir     string
 		}{
 			DownloaderUrl: getEnv("YOUTUBE_DOWNLOADER_URL"),
-			MuzikkDir:      getEnv("YOUTUBE_MUSIC_DOWNLOAD_PATH"),
+			MuzikkDir:     getEnv("YOUTUBE_MUSIC_DOWNLOAD_PATH"),
 		},
 		Google: struct {
 			ApiServiceAccount string
@@ -63,7 +63,7 @@ type config struct {
 	JwtSecret string
 	YouTube   struct {
 		DownloaderUrl string
-		MuzikkDir      string
+		MuzikkDir     string
 	}
 	Google struct {
 		ApiServiceAccount string
@@ -92,7 +92,7 @@ func Env() config {
 func getEnv(key string) string {
 	value := os.Getenv(key)
 	if len(value) == 0 {
-		log.Fatalln(log.ErrorLevel, "The \""+key+"\" variable is missing.")
+		log.Fatalln("The \"" + key + "\" variable is missing.")
 	}
 	return value
 }

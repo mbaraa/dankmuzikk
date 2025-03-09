@@ -1,86 +1,72 @@
 package apis
 
 import (
-	"dankmuzikk/app/entities"
-	"dankmuzikk/handlers/middlewares/auth"
+	"dankmuzikk/actions"
 	"dankmuzikk/log"
-	"dankmuzikk/services/login"
 	"encoding/json"
 	"net/http"
 )
 
 type emailLoginApi struct {
-	service *login.EmailLoginService
+	usecases *actions.Actions
 }
 
-func NewEmailLoginApi(service *login.EmailLoginService) *emailLoginApi {
-	return &emailLoginApi{service}
+func NewEmailLoginApi(usecases *actions.Actions) *emailLoginApi {
+	return &emailLoginApi{
+		usecases: usecases,
+	}
 }
 
 func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request) {
-	var reqBody entities.LoginRequest
+	var reqBody actions.LoginWithEmailParams
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	verificationToken, err := e.service.Login(reqBody)
+	payload, err := e.usecases.LoginWithEmail(reqBody)
 	if err != nil {
 		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
 		handleErrorResponse(w, err)
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"token": verificationToken,
-	})
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request) {
-	var reqBody entities.SignupRequest
+	var reqBody actions.SignupWithEmailParams
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	verificationToken, err := e.service.Signup(reqBody)
+	payload, err := e.usecases.SignupWithEmail(reqBody)
 	if err != nil {
 		log.Errorf("[EMAIL LOGIN API]: Failed to sign up a new user: %+v, error: %s\n", reqBody, err.Error())
 		handleErrorResponse(w, err)
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"token": verificationToken,
-	})
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *http.Request) {
-	verificationToken, err := r.Cookie(auth.VerificationTokenKey)
+	var reqBody actions.VerifyOtpParams
+	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	payload, err := e.usecases.VerifyOtp(reqBody)
 	if err != nil {
 		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
 
-	var reqBody entities.OtpRequest
-	err = json.NewDecoder(r.Body).Decode(&reqBody)
-	if err != nil {
-		log.Error(err)
-		handleErrorResponse(w, err)
-		return
-	}
-
-	sessionToken, err := e.service.VerifyOtp(verificationToken.Value, reqBody)
-	if err != nil {
-		log.Error(err)
-		handleErrorResponse(w, err)
-		return
-	}
-
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"token": sessionToken,
-	})
+	_ = json.NewEncoder(w).Encode(payload)
 }

@@ -1,30 +1,45 @@
 .PHONY: build
 
-BINARY_NAME=dankmuzikk-server
+SERVER_BINARY_NAME=dankmuzikk-server
+EVENTHUB_BINARY_NAME=dankmuzikk-eventhub
+MIGRATOR_BINARY_NAME=dankmuzikk-migrator
 
-build:
-	npm i && \
+build: init generate build-server build-migrator build-eventhub
+
+build-server:
+	go build -ldflags="-w -s" -o ${SERVER_BINARY_NAME} ./cmd/http-server/main.go
+
+build-eventhub:
+	go build -ldflags="-w -s" -o ${EVENTHUB_BINARY_NAME} ./cmd/eventhub/main.go
+
+build-migrator:
+	go build -ldflags="-w -s" -o ${MIGRATOR_BINARY_NAME} ./cmd/migrator/main.go
+
+init:
 	go mod tidy && \
-	go generate && \
-	go build ./cmd/server/main.go -ldflags="-w -s" -o ${BINARY_NAME}
+	go generate
+
+migrate:
+	export `cat ../.env | xargs` && \
+	go run ./cmd/migrator/main.go
+
+dev:
+	air -v > /dev/null
+	@if [ $$? != 0 ]; then \
+		echo "air was not found, installing it..."; \
+		go install github.com/cosmtrek/air@v1.51.0; \
+	fi
+
+	air
+
+beta: init
+	GO_ENV="beta" ./${SERVER_BINARY_NAME}
+
+prod: init
+	GO_ENV="prod" ./${SERVER_BINARY_NAME}
 
 generate:
 	go generate
 
-init:
-	go mod tidy && \
-	go get && \
-    go run ./cmd/migrator/main.go
-
-dev:
-	go run github.com/cosmtrek/air@v1.51.0
-
-beta: init
-	GO_ENV="beta" ./${BINARY_NAME}
-
-prod: init
-	GO_ENV="prod" ./${BINARY_NAME}
-
 clean:
 	go clean
-

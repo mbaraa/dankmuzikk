@@ -1,25 +1,25 @@
 package apis
 
 import (
+	"dankmuzikk/actions"
 	"dankmuzikk/config"
-	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
-	"dankmuzikk/services/login"
+	"encoding/json"
 	"net/http"
-	"time"
 )
 
 type googleLoginApi struct {
-	service *login.GoogleLoginService
+	usecases *actions.Actions
 }
 
-func NewGoogleLoginApi(service *login.GoogleLoginService) *googleLoginApi {
-	return &googleLoginApi{service}
+func NewGoogleLoginApi(usecases *actions.Actions) *googleLoginApi {
+	return &googleLoginApi{
+		usecases: usecases,
+	}
 }
 
 func (g *googleLoginApi) HandleGoogleOAuthLogin(w http.ResponseWriter, r *http.Request) {
-	// TODO: idk something
-	url := config.GoogleOAuthConfig().AuthCodeURL(g.service.CurrentRandomState())
+	url := config.GoogleOAuthConfig().AuthCodeURL(g.usecases.CurrentRandomState())
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
@@ -37,21 +37,26 @@ func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r
 		return
 	}
 
-	sessionToken, err := g.service.Login(state, code)
+	payload, err := g.usecases.LoginWithGoogle(actions.LoginWithGoogleParams{
+		Code:  code,
+		State: state,
+	})
 	if err != nil {
 		log.Errorln("[GOOGLE LOGIN API]: ", err)
 		handleErrorResponse(w, err)
 		return
 	}
 
-	// TODO: idk something
-	http.SetCookie(w, &http.Cookie{
-		Name:     auth.SessionTokenKey,
-		Value:    sessionToken,
-		HttpOnly: true,
-		Path:     "/",
-		Domain:   config.Env().Hostname,
-		Expires:  time.Now().UTC().Add(time.Hour * 24 * 30),
-	})
-	http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
+	_ = json.NewEncoder(w).Encode(payload)
+
+	//	// TODO: idk something
+	//	http.SetCookie(w, &http.Cookie{
+	//		Name:     auth.SessionTokenKey,
+	//		Value:    sessionToken,
+	//		HttpOnly: true,
+	//		Path:     "/",
+	//		Domain:   config.Env().Hostname,
+	//		Expires:  time.Now().UTC().Add(time.Hour * 24 * 30),
+	//	})
+	//	http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
 }
