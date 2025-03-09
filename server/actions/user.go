@@ -183,8 +183,8 @@ func (a *Actions) sendOtp(profile models.Profile) error {
 }
 
 type LoginWithGoogleParams struct {
-	State string
-	Code  string
+	State string `json:"state"`
+	Code  string `json:"code"`
 }
 
 type LoginWithGooglePayload struct {

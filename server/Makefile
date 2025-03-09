@@ -1,10 +1,11 @@
 .PHONY: build
 
 SERVER_BINARY_NAME=dankmuzikk-server
+CDN_BINARY_NAME=dankmuzikk-cdn
 EVENTHUB_BINARY_NAME=dankmuzikk-eventhub
 MIGRATOR_BINARY_NAME=dankmuzikk-migrator
 
-build: init generate build-server build-migrator build-eventhub
+build: init generate build-server build-migrator build-eventhub build-cdn
 
 build-server:
 	go build -ldflags="-w -s" -o ${SERVER_BINARY_NAME} ./cmd/http-server/main.go
@@ -14,6 +15,9 @@ build-eventhub:
 
 build-migrator:
 	go build -ldflags="-w -s" -o ${MIGRATOR_BINARY_NAME} ./cmd/migrator/main.go
+
+build-cdn:
+	go build -ldflags="-w -s" -o ${CDN_BINARY_NAME} ./cmd/cdn/main.go
 
 init:
 	go mod tidy && \

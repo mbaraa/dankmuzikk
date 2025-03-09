@@ -32,6 +32,18 @@ func New(usecases *actions.Actions) *mw {
 	}
 }
 
+func (a *mw) AuthHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		profile, err := a.authenticate(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		h.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 // AuthApi authenticates an API's handler.
 func (a *mw) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

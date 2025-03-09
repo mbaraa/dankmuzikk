@@ -3,9 +3,10 @@ package apis
 import (
 	"dankmuzikk/actions"
 	"dankmuzikk/config"
+	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
-	"encoding/json"
 	"net/http"
+	"time"
 )
 
 type googleLoginApi struct {
@@ -47,16 +48,13 @@ func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(payload)
-
-	//	// TODO: idk something
-	//	http.SetCookie(w, &http.Cookie{
-	//		Name:     auth.SessionTokenKey,
-	//		Value:    sessionToken,
-	//		HttpOnly: true,
-	//		Path:     "/",
-	//		Domain:   config.Env().Hostname,
-	//		Expires:  time.Now().UTC().Add(time.Hour * 24 * 30),
-	//	})
-	//	http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
+	http.SetCookie(w, &http.Cookie{
+		Name:     auth.SessionTokenKey,
+		Value:    payload.SessionToken,
+		HttpOnly: true,
+		Path:     "/",
+		Domain:   config.Env().DomainName,
+		Expires:  time.Now().UTC().Add(time.Hour * 24 * 60),
+	})
+	http.Redirect(w, r, config.WebUrl(), http.StatusTemporaryRedirect)
 }

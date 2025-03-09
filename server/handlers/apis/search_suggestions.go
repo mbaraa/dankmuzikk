@@ -2,6 +2,7 @@ package apis
 
 import (
 	"dankmuzikk/actions"
+	"dankmuzikk/log"
 	"encoding/json"
 	"net/http"
 )
@@ -29,11 +30,6 @@ func (s *searchApi) HandleSearchSuggestions(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if len(sug) == 0 {
-		_, _ = w.Write(nil)
-		return
-	}
-
 	_ = json.NewEncoder(w).Encode(sug)
 }
 
@@ -41,6 +37,7 @@ func (s *searchApi) HandleSearchResults(w http.ResponseWriter, r *http.Request) 
 	query := r.URL.Query().Get("query")
 	results, err := s.usecases.SearchYouTube(query)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}

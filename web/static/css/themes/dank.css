@@ -1,0 +1,16 @@
+:root {
+  --primary-color: #3e732c;
+  --primary-color-20: #3e732c33;
+  --primary-color-30: #3e732c4c;
+  --primary-color-69: #3e732cb0;
+
+  --secondary-color: #ffffff;
+  --secondary-color-20: #ffffff33;
+  --secondary-color-30: #ffffff4c;
+  --secondary-color-69: #ffffffb0;
+
+  --accent-color: #000000;
+  --accent-color-20: #00000033;
+  --accent-color-30: #0000004c;
+  --accent-color-69: #000000b0;
+}

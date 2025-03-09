@@ -1,21 +1,15 @@
-version: "3.8"
-
 services:
-  app-beta:
+  server-beta:
     container_name: "dankmuzikk-beta"
     build:
       dockerfile: ./Dockerfile
       context: ./app
-    image: "dankmuzikk-app-beta"
     restart: "always"
     ports:
       - "20251:3000"
     stdin_open: true
     env_file:
       - .env.docker
-    volumes:
-      - ./google-service-account.json:/app/google-service-account.json
-      - dankuploads-dir:/app/.serve
     networks:
       - danknetwork
 

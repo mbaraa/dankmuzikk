@@ -14,7 +14,7 @@ const (
 )
 
 func init() {
-	log.SetFlags(log.LstdFlags | log.Lmsgprefix | log.LUTC | log.Llongfile)
+	log.SetFlags(log.LstdFlags | log.Lmsgprefix | log.LUTC)
 }
 
 // Infoln prints an info log with a new line.

@@ -3,6 +3,7 @@ package apis
 import (
 	"dankmuzikk/actions"
 	"dankmuzikk/handlers/middlewares/auth"
+	"dankmuzikk/log"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -33,6 +34,7 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 	}
 	recentPlays, err := h.usecases.GetHistoryItems(profileId, uint(page))
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}

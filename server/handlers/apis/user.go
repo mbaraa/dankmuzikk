@@ -2,6 +2,7 @@ package apis
 
 import (
 	"dankmuzikk/actions"
+	"dankmuzikk/log"
 	"encoding/json"
 	"net/http"
 )
@@ -25,6 +26,7 @@ func (u *userApi) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 
 	profile, err := u.usecases.AuthenticateUser(sessionToken[0])
 	if err != nil {
+		log.Error(err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

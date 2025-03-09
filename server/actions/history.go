@@ -1,14 +1,13 @@
 package actions
 
 import (
-	"dankmuzikk/app/models"
 	"fmt"
 )
 
-func (a *Actions) GetHistoryItems(profileId, page uint) (models.List[Song], error) {
+func (a *Actions) GetHistoryItems(profileId, page uint) ([]Song, error) {
 	songs, err := a.app.GetHistory(profileId, page)
 	if err != nil {
-		return models.List[Song]{}, err
+		return nil, err
 	}
 
 	songsFr := make([]Song, 0, songs.Size)
@@ -28,7 +27,7 @@ func (a *Actions) GetHistoryItems(profileId, page uint) (models.List[Song], erro
 		})
 	}
 
-	return models.NewList(songsFr, songs.Cursor), nil
+	return songsFr, nil
 }
 
 func times(times int) string {

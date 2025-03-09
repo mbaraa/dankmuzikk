@@ -3,6 +3,7 @@ package apis
 import (
 	"dankmuzikk/actions"
 	"dankmuzikk/handlers/middlewares/auth"
+	"dankmuzikk/log"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -35,11 +36,29 @@ func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Reques
 
 	payload, err := p.usecases.CreatePlaylist(params)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
 
 	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (p *playlistApi) HandleGetPlaylists(w http.ResponseWriter, r *http.Request) {
+	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
+	if !profileIdCorrect {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	playlists, err := p.usecases.GetPlaylistsForProfile(profileId)
+	if err != nil {
+		log.Error(err)
+		handleErrorResponse(w, err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(playlists)
 }
 
 func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.Request) {
@@ -62,6 +81,7 @@ func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.
 
 	added, err := p.usecases.ToggleSongInPlaylist(songId, playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -86,6 +106,7 @@ func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.
 
 	madePublic, err := p.usecases.TogglePublicPlaylist(playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -110,6 +131,7 @@ func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Re
 
 	joined, err := p.usecases.ToggleProfileInPlaylist(playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -134,6 +156,7 @@ func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) 
 
 	playlist, err := p.usecases.GetPlaylistByPublicId(playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -156,6 +179,7 @@ func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Reques
 
 	err := p.usecases.DeletePlaylist(playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -168,14 +192,9 @@ func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *htt
 		return
 	}
 
-	songId := r.URL.Query().Get("song-id")
-	if songId == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	playlists, songsInPlaylists, err := p.usecases.GetAllPlaylistsMappedWithSongs(profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -201,6 +220,7 @@ func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Req
 
 	playlistZip, err := p.usecases.DownloadPlaylist(playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}

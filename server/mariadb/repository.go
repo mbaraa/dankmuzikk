@@ -111,7 +111,7 @@ func (r *Repository) CreateOtp(otp models.EmailVerificationCode) error {
 	return tryWrapMariaDbError(
 		r.client.
 			Model(new(models.EmailVerificationCode)).
-			Create(otp).
+			Create(&otp).
 			Error,
 	)
 }
@@ -141,7 +141,9 @@ func (r *Repository) DeleteOtpsForAccount(id uint) error {
 	return tryWrapMariaDbError(
 		r.client.
 			Model(new(models.EmailVerificationCode)).
-			Delete(new(models.EmailVerificationCode), "account_id = ?", id).
+			Delete(&models.EmailVerificationCode{
+				AccountId: id,
+			}, "account_id = ?", id).
 			Error,
 	)
 }
@@ -492,7 +494,10 @@ func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (add
 		return false, tryWrapMariaDbError(
 			r.client.
 				Model(new(models.PlaylistSong)).
-				Delete(new(models.PlaylistSong), "playlist_id = ? AND song_id = ?", playlistId, songId).
+				Delete(&models.PlaylistSong{
+					PlaylistId: playlistId,
+					SongId:     songId,
+				}, "playlist_id = ? AND song_id = ?", playlistId, songId).
 				Error,
 		)
 	}
@@ -743,7 +748,7 @@ func (r *Repository) DeletePlaylist(id uint) error {
 	err := tryWrapMariaDbError(
 		r.client.
 			Model(new(models.Playlist)).
-			Delete(new(models.Playlist), "id = ?", id).
+			Delete(&models.Playlist{Id: id}, "id = ?", id).
 			Error,
 	)
 	if _, ok := err.(*ErrRecordNotFound); ok {

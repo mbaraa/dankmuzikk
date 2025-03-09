@@ -17,11 +17,12 @@ type CreatePlaylistParams struct {
 }
 
 type Playlist struct {
-	PublicId   string `json:"public_id"`
-	Title      string `json:"title"`
-	SongsCount int    `json:"songs_count"`
-	Songs      []Song `json:"songs"`
-	IsPublic   bool   `json:"is_public"`
+	PublicId    string                     `json:"public_id"`
+	Title       string                     `json:"title"`
+	SongsCount  int                        `json:"songs_count"`
+	Songs       []Song                     `json:"songs"`
+	IsPublic    bool                       `json:"is_public"`
+	Permissions models.PlaylistPermissions `json:"permissions"`
 }
 
 type CreatePlaylistPayload struct {
@@ -56,7 +57,7 @@ func (a *Actions) ToggleProfileInPlaylist(playlistPubId string, profileId uint) 
 }
 
 func (a *Actions) GetPlaylistByPublicId(playlistPubId string, profileId uint) (Playlist, error) {
-	playlist, err := a.app.GetPlaylistByPublicId(playlistPubId, profileId)
+	playlist, permissions, err := a.app.GetPlaylistByPublicId(playlistPubId, profileId)
 	if err != nil {
 		return Playlist{}, err
 	}
@@ -76,11 +77,12 @@ func (a *Actions) GetPlaylistByPublicId(playlistPubId string, profileId uint) (P
 	}
 
 	return Playlist{
-		PublicId:   playlist.PublicId,
-		Title:      playlist.Title,
-		SongsCount: playlist.SongsCount,
-		Songs:      songs,
-		IsPublic:   playlist.IsPublic,
+		PublicId:    playlist.PublicId,
+		Title:       playlist.Title,
+		SongsCount:  playlist.SongsCount,
+		Songs:       songs,
+		IsPublic:    playlist.IsPublic,
+		Permissions: permissions,
 	}, nil
 }
 
@@ -89,7 +91,7 @@ func (a *Actions) DeletePlaylist(playlistPubId string, profileId uint) error {
 }
 
 func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (io.Reader, error) {
-	playlist, err := a.app.GetPlaylistByPublicId(playlistPubId, profileId)
+	playlist, _, err := a.app.GetPlaylistByPublicId(playlistPubId, profileId)
 	if err != nil {
 		return nil, err
 	}
@@ -146,14 +148,29 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (io.Rea
 	return archive.Deflate()
 }
 
-func (a *Actions) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]models.Playlist, map[string]bool, error) {
-	return a.app.GetAllPlaylistsMappedWithSongs(ownerId)
+func (a *Actions) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]Playlist, map[string]bool, error) {
+	playlists, mapping, err := a.app.GetAllPlaylistsMappedWithSongs(ownerId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	outPlaylists := make([]Playlist, 0, len(playlists))
+	for _, playlist := range playlists {
+		outPlaylists = append(outPlaylists, Playlist{
+			PublicId:   playlist.PublicId,
+			Title:      playlist.Title,
+			SongsCount: playlist.SongsCount,
+			IsPublic:   playlist.IsPublic,
+		})
+	}
+
+	return outPlaylists, mapping, nil
 }
 
-func (a *Actions) GetPlaylistsForProfile(ownerId uint) (models.List[Playlist], error) {
+func (a *Actions) GetPlaylistsForProfile(ownerId uint) ([]Playlist, error) {
 	playlists, err := a.app.GetPlaylistsForProfile(ownerId)
 	if err != nil {
-		return models.List[Playlist]{}, err
+		return nil, err
 	}
 
 	outPlaylists := make([]Playlist, 0, playlists.Size)
@@ -166,5 +183,5 @@ func (a *Actions) GetPlaylistsForProfile(ownerId uint) (models.List[Playlist], e
 		})
 	}
 
-	return models.NewList(outPlaylists, ""), nil
+	return outPlaylists, nil
 }

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   dank-db:
     image: "mariadb:10.8"
@@ -16,11 +14,28 @@ services:
     networks:
       - danknetwork
 
-  yt-dl:
-    container_name: "yt-dl"
+  dank-cdn:
+    container_name: "dank-cdn"
+    build:
+      context: ./server
+      dockerfile: Dockerfile.cdn
+    restart: "always"
+    ports:
+      - "20251:3001"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    volumes:
+      - dankuploads-dir:/app/.serve
+    networks:
+      - danknetwork
+    depends_on:
+      - dank-db
+
+  dank-ytdl:
+    container_name: "dank-ytdl"
     build:
       context: ./ytdl
-    image: "ytdl"
     restart: "always"
     ports:
       - "4321:8000"

@@ -2,6 +2,7 @@ package app
 
 import (
 	"dankmuzikk/app/models"
+	"dankmuzikk/log"
 	"dankmuzikk/nanoid"
 	"fmt"
 )
@@ -80,19 +81,19 @@ func (a *App) ToggleProfileInPlaylist(playlistPubId string, profileId uint) (joi
 	return false, a.repo.RemoveProfileFromPlaylist(playlist.Id, profileId)
 }
 
-func (a *App) GetPlaylistByPublicId(playlistPubId string, profileId uint) (models.Playlist, error) {
-	playlist, _, err := a.CheckProfilePlaylistAccess(profileId, playlistPubId)
+func (a *App) GetPlaylistByPublicId(playlistPubId string, profileId uint) (models.Playlist, models.PlaylistPermissions, error) {
+	playlist, permissions, err := a.CheckProfilePlaylistAccess(profileId, playlistPubId)
 	if err != nil {
-		return models.Playlist{}, err
+		return models.Playlist{}, 0, err
 	}
 
 	songs, err := a.repo.GetPlaylistSongs(playlist.Id)
 	if err != nil {
-		return models.Playlist{}, err
+		return models.Playlist{}, 0, err
 	}
 	playlist.Songs = songs.Items
 
-	return playlist, nil
+	return playlist, permissions, nil
 }
 
 func (a *App) DeletePlaylist(playlistPubId string, profileId uint) error {
@@ -103,6 +104,8 @@ func (a *App) DeletePlaylist(playlistPubId string, profileId uint) error {
 	if permissions&models.OwnerPermission == 0 {
 		return &ErrNonOwnerCantDeletePlaylists{}
 	}
+
+	log.Warning("playlist", playlist.Id)
 
 	return a.repo.DeletePlaylist(playlist.Id)
 }
@@ -118,14 +121,14 @@ func (a *App) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]models.Playlist, m
 	}
 
 	mappedPlaylists := make(map[string]bool)
-	for playlist := range playlists.Seq() {
+	for _, playlist := range playlists.Items {
 		for _, song := range playlist.Songs {
 			mappedPlaylists[song.YtId+"-"+playlist.PublicId] = true
 		}
 	}
-	for i, playlist := range playlists.Seq2() {
+	for i, playlist := range playlists.Items {
 		for _, song := range playlist.Songs {
-			if mappedPlaylists[song.YtId+"-"+playlists.Items[0].PublicId] {
+			if mappedPlaylists[song.YtId+"-"+playlist.PublicId] {
 				continue
 			}
 			mappedPlaylists[fmt.Sprintf("unmapped-%d", i)] = false

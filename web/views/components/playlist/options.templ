@@ -1,0 +1,224 @@
+package playlist
+
+import (
+	"dankmuzikk-web/entities"
+	"dankmuzikk-web/models"
+	"dankmuzikk-web/views/components/menus"
+	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
+	"fmt"
+)
+
+templ PlaylistsOptions(playlist entities.Playlist) {
+	@ui.MobileOnly() {
+		@menus.MobileMenu("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
+	}
+	@ui.DesktopOnly() {
+		@menus.Popover("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
+	}
+}
+
+templ playlistOptions(playlist entities.Playlist) {
+	<div
+		class={
+			"min-w-[250px]", "bg-accent-trans-20", "p-[15px]", "rounded-[10px]",
+			"flex", "flex-col", "gap-y-2", "backdrop-blur-lg",
+		}
+	>
+		<h3 class={ "text-lg", "font-medium" }>Playlist's Options</h3>
+		<hr/>
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
+			@publicPlaylistToggle(playlist.PublicId, playlist.IsPublic)
+		}
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Copy link to this playlist"
+			type="button"
+			onClick={ copyLink(playlist.IsPublic, playlist.PublicId) }
+		>
+			@icons.ShareLink()
+			<span>Share playlist</span>
+		</button>
+		if len(playlist.Songs) != 0 {
+			<button
+				class={
+					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+					"flex", "items-center", "gap-x-2", "w-full",
+				}
+				title="Add to queue"
+				type="button"
+				onClick={ addToQueue(playlist.PublicId) }
+			>
+				@icons.AddToQueue()
+				<span>Add to queue</span>
+			</button>
+			<button
+				class={
+					"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+					"flex", "items-center", "gap-x-2", "w-full",
+				}
+				title="Play next"
+				type="button"
+				onClick={ playPlaylistNext(playlist.PublicId) }
+			>
+				@icons.AddToQueue()
+				<span>Play next</span>
+			</button>
+		}
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Download Playlist"
+			type="button"
+			onClick={ downloadPlaylist(playlist.PublicId, playlist.Title) }
+		>
+			@icons.Download()
+			<span>Download Playlist</span>
+		</button>
+		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
+			<button
+				class={
+					"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",
+					"flex", "items-center", "gap-x-2", "w-full",
+				}
+				title={ "Remove " + playlist.Title + "!" }
+				type="button"
+				hx-delete={
+					fmt.Sprintf(
+						"/api/playlist?playlist-id=%s",
+						playlist.PublicId,
+					),
+				}
+				if playlist.SongsCount > 0 {
+					hx-confirm={ fmt.Sprintf("Delete %s?", playlist.Title) }
+				}
+				hx-trigger="click"
+				data-loading-target="#loading"
+				data-loading-class-remove="hidden"
+				data-loading-path={
+					fmt.Sprintf(
+						"/api/playlist?playlist-id=%s",
+						playlist.PublicId,
+					),
+				}
+			>
+				@icons.Trash()
+				<span>Delete playlist</span>
+			</button>
+		} else {
+			@joinLeavePlaylist(playlist.PublicId, perm)
+		}
+	</div>
+}
+
+templ publicPlaylistToggle(publicId string, isPublic bool) {
+	<div
+		class={
+			"flex", "gap-x-2", "items-center", "cursor-pointer",
+			"p-2", "rounded-md", "hover:bg-accent-trans-20", "w-full",
+		}
+		hx-put={
+			fmt.Sprintf(
+				"/api/playlist/public?playlist-id=%s",
+				publicId,
+			),
+		}
+		hx-swap="innerHTML"
+		hx-target={ fmt.Sprintf("#public-playlist-%s", publicId) }
+		hx-trigger="click"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={
+			fmt.Sprintf(
+				"/api/playlist/public?playlist-id=%s", publicId,
+			),
+		}
+		title="Toggling this will change whether if anyone can see the playlist or not."
+	>
+		<div
+			id={ fmt.Sprintf("public-playlist-%s", publicId) }
+		>
+			<div
+				class={
+					"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-secondary",
+					map[string]bool{
+						"bg-secondary": isPublic,
+					},
+				}
+			>
+				if isPublic {
+					@ui.CheckedCheckbox()
+				}
+			</div>
+		</div>
+		<p class={ "max-w-[300px]", "text-secondary", "text-md" }>
+			Sharable
+		</p>
+	</div>
+}
+
+templ joinLeavePlaylist(publicId string, perm models.PlaylistPermissions) {
+	<div
+		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
+		hx-put={
+			fmt.Sprintf(
+				"/api/playlist/join?playlist-id=%s",
+				publicId,
+			),
+		}
+		hx-swap="innerHTML"
+		hx-target={ fmt.Sprintf("#join-playlist-%s", publicId) }
+		hx-trigger="click"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={
+			fmt.Sprintf(
+				"/api/playlist/join?playlist-id=%s", publicId,
+			),
+		}
+	>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "gap-x-2", "items-center", "w-full",
+				"text-secondary",
+			}
+			type="submit"
+			id={ fmt.Sprintf("join-playlist-%s", publicId) }
+		>
+			if (perm & models.JoinerPermission) != 0 {
+				@icons.SadFrog()
+				<span>Leave playlist</span>
+			} else {
+				@icons.HappyFrog()
+				<span>Join playlist</span>
+			}
+		</button>
+	</div>
+}
+
+script playPlaylistNext(plPubId string) {
+    Player.playPlaylistNextId(plPubId)
+}
+
+script addToQueue(plPubId string) {
+    Player.appendPlaylistToCurrentQueueId(plPubId)
+}
+
+script downloadPlaylist(plId, title string) {
+    Player.downloadPlaylistToDevice(plId, title)
+}
+
+script copyLink(isPublic bool, plPubId string) {
+    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/playlist/${plPubId}`)
+    if (isPublic) {
+        alert("Playlist's links was copied!");
+    } else {
+        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
+    }
+}

@@ -1,0 +1,83 @@
+package layouts
+
+import (
+	"dankmuzikk-web/views/components/loading"
+	"fmt"
+)
+
+templ Raw(title string, children ...templ.Component) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<title>{ title } - DankMuzikk</title>
+			<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png"/>
+			<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>
+			<link rel="icon" type="image/png" sizes="192x192" href="/static/android-chrome-192x192.png"/>
+			<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>
+			<link rel="manifest" href="/static/site.webmanifest"/>
+			<link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#000000"/>
+			<meta name="msapplication-TileColor" content="#000000"/>
+			<meta name="theme-color" content="#000000"/>
+			<meta
+				name="viewport"
+				content="width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes"
+			/>
+			<meta name="description" content="Create, Share and Play Music Playlists."/>
+			<meta name="og:description" content="Create, Share and Play Music Playlists."/>
+			<meta name="og:title" content={ title + " - DankMuzikk" }/>
+			<link
+				defer
+				rel="stylesheet"
+				type="text/css"
+				href="/static/css/player-seeker.css"
+			/>
+			<link
+				defer
+				rel="stylesheet"
+				type="text/css"
+				href="/static/css/ubuntu-font.css"
+			/>
+			<link href="/static/css/tailwind.css" rel="stylesheet"/>
+			<link href={ fmt.Sprintf("/static/css/themes/%s.css", ctx.Value("theme-name").(string)) } rel="stylesheet"/>
+			<script src="/static/js/htmx/htmx.min.js"></script>
+			<script defer src="/static/js/htmx/json-enc.js"></script>
+			<script defer src="/static/js/htmx/loading-states.js"></script>
+		</head>
+		<body
+			hx-ext="loading-states"
+			class={ "min-w-[360px]",  "min-h-screen", "p-0", "m-0", "font-Ubuntu", "bg-primary" }
+		>
+			<div id="main-contents" style="display: contents">
+				for _, child := range children {
+					@child
+				}
+			</div>
+			<div id="loading" class="hidden">
+				@loading.Loading()
+			</div>
+			//
+			<script src="/static/js/utils.js"></script>
+			<script src="/static/js/theme.js"></script>
+			<script type="module">
+			    function registerServiceWorkers() {
+			    	if (!("serviceWorker" in navigator)) {
+			    		console.error("Browser doesn't support service workers");
+			    		return;
+			    	}
+			    	window.addEventListener("load", () => {
+			    		navigator.serviceWorker
+			    			.register("/static/js/service-worker.js")
+			    			.then((reg) => {
+			    				console.log("Service Worker Registered", reg);
+			    			})
+			    			.catch((err) => {
+			    				console.log("Service Worker Registration failed:", err);
+			    			});
+		                });
+			    }
+			    registerServiceWorkers();
+		    </script>
+		</body>
+	</html>
+}

@@ -9,17 +9,17 @@ import (
 	"net/http"
 )
 
-type songDownloadHandler struct {
+type songsHandler struct {
 	usecases *actions.Actions
 }
 
-func NewDownloadHandler(usecases *actions.Actions) *songDownloadHandler {
-	return &songDownloadHandler{
+func NewSongsHandler(usecases *actions.Actions) *songsHandler {
+	return &songsHandler{
 		usecases: usecases,
 	}
 }
 
-func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+func (s *songsHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -38,12 +38,13 @@ func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.Response
 
 	err := s.usecases.IncrementSongPlaysInPlaylist(songId, playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
 }
 
-func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+func (s *songsHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -62,6 +63,7 @@ func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWri
 
 	votes, err := s.usecases.UpvoteSongInPlaylist(songId, playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -69,7 +71,7 @@ func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWri
 	_, _ = w.Write([]byte(fmt.Sprint(votes)))
 }
 
-func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+func (s *songsHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -88,6 +90,7 @@ func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseW
 
 	votes, err := s.usecases.DownvoteSongInPlaylist(songId, playlistId, profileId)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -95,7 +98,7 @@ func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseW
 	_, _ = w.Write([]byte(fmt.Sprint(votes)))
 }
 
-func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
+func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -112,12 +115,13 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 
 	err := s.usecases.DownloadYouTubeSong(id)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
 }
 
-func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
+func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -126,9 +130,12 @@ func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Reque
 
 	payload, err := s.usecases.GetSongByYouTubeId(id)
 	if err != nil {
+		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
+
+	fmt.Println("song", payload)
 
 	_ = json.NewEncoder(w).Encode(payload)
 }

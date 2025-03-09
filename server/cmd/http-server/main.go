@@ -26,7 +26,7 @@ import (
 func main() {
 	err := StartServer()
 	if err != nil {
-		log.Fatalln(log.ErrorLevel, err)
+		log.Fatalln(err)
 	}
 }
 
@@ -59,7 +59,7 @@ func StartServer() error {
 	emailLoginApi := apis.NewEmailLoginApi(usecases)
 	googleLoginApi := apis.NewGoogleLoginApi(usecases)
 	searchApi := apis.NewYouTubeSearchApi(usecases)
-	songApi := apis.NewDownloadHandler(usecases)
+	songApi := apis.NewSongsHandler(usecases)
 	playlistsApi := apis.NewPlaylistApi(usecases)
 	historyApi := apis.NewHistoryApi(usecases)
 	userApi := apis.NewUserApi(usecases)
@@ -71,16 +71,16 @@ func StartServer() error {
 	v1ApisHandler.HandleFunc("GET /login/google", googleLoginApi.HandleGoogleOAuthLogin)
 	v1ApisHandler.HandleFunc("GET /signup/google", googleLoginApi.HandleGoogleOAuthLogin)
 	v1ApisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
-	v1ApisHandler.HandleFunc("GET /logout", apis.HandleLogout)
-	v1ApisHandler.HandleFunc("GET /search-suggestion", searchApi.HandleSearchSuggestions)
+	v1ApisHandler.HandleFunc("GET /search/suggestions", searchApi.HandleSearchSuggestions)
 	v1ApisHandler.HandleFunc("GET /search", searchApi.HandleSearchResults)
-	v1ApisHandler.HandleFunc("GET /song", authMw.OptionalAuthApi(songApi.HandlePlaySong))
+	v1ApisHandler.HandleFunc("GET /song/play", authMw.OptionalAuthApi(songApi.HandlePlaySong))
 	v1ApisHandler.HandleFunc("GET /song/single", authMw.OptionalAuthApi(songApi.HandleGetSong))
 	v1ApisHandler.HandleFunc("PUT /song/playlist", authMw.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/plays", authMw.AuthApi(songApi.HandleIncrementSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/upvote", authMw.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
-	v1ApisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
+	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
+	v1ApisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylists))
 	v1ApisHandler.HandleFunc("GET /playlist", authMw.AuthApi(playlistsApi.HandleGetPlaylist))
 	v1ApisHandler.HandleFunc("POST /playlist", authMw.AuthApi(playlistsApi.HandleCreatePlaylist))
 	v1ApisHandler.HandleFunc("PUT /playlist/public", authMw.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
