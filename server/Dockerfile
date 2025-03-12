@@ -15,6 +15,7 @@ RUN apk add --no-cache make
 
 WORKDIR /app
 COPY --from=build /app/dankmuzikk-server ./dankmuzikk-server
+COPY --from=build /app/Makefile ./Makefile
 
 EXPOSE 8080
 
