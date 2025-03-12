@@ -1,38 +1,51 @@
-version: "3.8"
-
 services:
-  app:
-    container_name: "dankmuzikk"
+  server:
+    container_name: "dankmuzikk-server"
     build:
-      context: ./app
-    image: "dankmuzikk-app"
+      context: ./server
     restart: "always"
     ports:
       - "20250:3000"
     stdin_open: true
     env_file:
       - .env.docker
-    volumes:
-      - ./google-service-account.json:/app/google-service-account.json
-      - dankuploads-dir:/app/_serve
     networks:
       - danknetwork
     depends_on:
-      - yt-dl
+      - dank-cdn
+      - dank-ytdl
 
-  yt-dl:
-    container_name: "ytdl"
+  dank-cdn:
+    container_name: "dank-cdn"
     build:
-      context: ./ytdl
-    image: "ytdl"
+      context: ./server
+      dockerfile: Dockerfile.cdn
     restart: "always"
     ports:
-      - 8000
+      - "20251:3001"
     stdin_open: true
     env_file:
       - .env.docker
     volumes:
-      - dankuploads-dir:/app/_serve
+      - dankuploads-dir:/app/.serve
+    networks:
+      - danknetwork
+    depends_on:
+      - dank-db
+
+  dank-ytdl:
+    container_name: "dank-ytdl"
+    build:
+      context: ./ytdl
+    restart: "always"
+    ports:
+      - "4321:8000"
+    env_file:
+      - .env.docker
+    volumes:
+      - dankuploads-dir:/app/.serve
+    depends_on:
+      - dank-db
     networks:
       - danknetwork
 
@@ -46,4 +59,4 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./_serve/
+      device: ./.serve/

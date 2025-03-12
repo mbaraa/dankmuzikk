@@ -1,0 +1,118 @@
+package pages
+
+import (
+	"dankmuzikk-web/views/components/info"
+)
+
+/*
+   This page uses desktop design after lg (1024px)
+*/
+
+templ Login() {
+	<main id="main-login-container" class={ "w-full", "h-screen", "flex" }>
+		<!-- frank and details -->
+		<div class={ "hidden", "lg:block", "relative", "w-[70%]", "xl:w-full", "h-fit", "flex" }>
+			<!-- frank -->
+			<div
+				class={
+					"w-full", "h-screen", "bg-primary", "bg-[url('/static/images/frank-cropped.png')]",
+					"bg-repeat", "bg-cover", "bg-center",
+				}
+			></div>
+			<!-- details -->
+			<div class={ "absolute", "top-0", "left-0", "z-10", "w-full", "h-full", "bg-primary-trans-20" }>
+				<div class={ "absolute", "left-[20px]", "bottom-[20px]" }>
+					@info.Intro()
+					@info.Links()
+				</div>
+			</div>
+		</div>
+		<!-- login form -->
+		<div
+			class={
+				"w-full", "p-[15px]", "lg:px-[40px]",
+				"bg-primary-trans-20", "flex", "flex-col", "justify-center", "items-center",
+			}
+		>
+			<div class={ "block", "lg:hidden", "mb-5" }>
+				@info.Intro()
+			</div>
+			<div
+				id="replaceable-login-form"
+				class={
+					"w-full", "h-[95%]", "lg:h-auto", "bg-secondary-trans-20", "backdrop-blur-sm",
+					"p-[20px]", "lg:p-[60px]", "rounded-[10px]",
+					"flex", "flex-col", "justify-between", "lg:gap-y-[30px]",
+				}
+			>
+				<div class={ "flex", "gap-x-3", "items-center", "text-secondary" }>
+					<svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M3.78462 12.9782C2.16532 11.9662 1.35578 11.4603 1.0781 10.8123C0.835619 10.2466 0.835619 9.60613 1.0781 9.04031C1.35578 8.3925 2.16532 7.88651 3.78462 6.87442L11.3899 2.12111C13.187 0.997903 14.0856 0.436243 14.8272 0.495963C15.4735 0.547923 16.066 0.876214 16.4527 1.39682C16.8962 1.99402 16.8962 3.05369 16.8962 5.17301L9.42289 9.89298L16.8962 14.6797C16.8962 16.799 16.8962 17.8586 16.4527 18.4558C16.066 18.9764 15.4735 19.3048 14.8272 19.3568C14.0856 19.4164 13.187 18.8548 11.3899 17.7316L3.78462 12.9782Z" stroke="var(--secondary-color)" stroke-linejoin="round"></path>
+					</svg>
+					<a class={ "nav-link", "text-lg" } href="/">Home</a>
+				</div>
+				<h1
+					class={ "text-secondary", "text-[35px]", "lg:text-[48px]", "font-light" }
+				>
+					Login
+				</h1>
+				@loginForm()
+				<div class={ "text-secondary", "flex", "justify-between" }>
+					<p class={ "" }>New here?</p>
+					<a class={ "underline" } href="/signup">Signup</a>
+				</div>
+			</div>
+			<div class={ "block", "lg:hidden" }>
+				@info.Links()
+			</div>
+		</div>
+	</main>
+}
+
+templ loginForm() {
+	<form
+		class={ "flex", "flex-col", "gap-y-[15px]", "lg:gap-y-[35px]" }
+		hx-post="/api/login/email"
+		hx-ext="json-enc"
+		hx-target="#replaceable-login-form"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+	>
+		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
+			<label class={ "text-secondary", "text-[16px]" } for="email">Email</label>
+			<input
+				id="email"
+				type="email"
+				required
+				class={ "w-full", "p-[10px]", "lg:p-[15px]", "rounded-[8px]" }
+				name="email"
+				placeholder="Enter your email"
+				autofocus
+			/>
+		</div>
+		<div class={ "flex", "flex-col-reverse", "lg:flex-row", "lg:justify-between", "gap-[15px]", "lg:gap-x-[30px]", "mt-4" }>
+			<a class={ "w-full" } href="/api/login/google" title="Login with Google">
+				<button
+					type="button"
+					class={ "w-full", "bg-secondary", "rounded-[50px]", "p-[10px]", "flex", "justify-center", "items-center" }
+				>
+					<span class={ "font-Ubuntu" }>
+						<img
+							width="25"
+							height="25"
+							class={ "w-[25px]", "h-[25px]" }
+							src="/static/images/google.webp"
+							alt="Login with Google"
+						/>
+					</span>
+				</button>
+			</a>
+			<button
+				type="submit"
+				class={ "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full", "text-accent" }
+			>
+				Login
+			</button>
+		</div>
+	</form>
+}

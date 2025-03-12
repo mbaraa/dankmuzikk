@@ -1,0 +1,60 @@
+package pages
+
+import "dankmuzikk-web/views/components/page"
+
+templ Privacy() {
+	@page.Container(privacyHeader(), privacyContent())
+}
+
+templ privacyHeader() {
+	<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Privacy</h1>
+}
+
+templ privacyContent() {
+	<div class={ "flex", "flex-col", "gap-y-4" }>
+		<p>
+			I respect the privacy of my users. This Privacy Policy explains what information we collect when you use this music player application DankMuzikk, how I use that information, and the choices you have about your information.
+		</p>
+		<p>Information I Collect&colon;</p>
+		<ul class={ "list-disc", "ms-5" }>
+			<li>
+				Non really, what you see is what you get.
+			</li>
+			<li>
+				I'm lazy to implement and snoop over data and stuff.
+			</li>
+			<li>
+				The only things stored about you are your full name and email (you provide them in the signup process), but they're just used to identify users in the application's scope.
+			</li>
+		</ul>
+		<p>How I Use Your Information&colon;</p>
+		<ul class={ "list-disc", "ms-5" }>
+			<li>I don’t, even YouTube don't know anything that is going on over here. (they'll hang me if they found out about it, but eh)</li>
+			<li>Emails are stored so you can access the application.</li>
+			<li>Your fullname is stored to make you feel at home.</li>
+			<li>I will not share any of your personal information with any third-parties cuntil the sun rises from the west.</li>
+		</ul>
+		<p>You have choices regarding your information&colon;</p>
+		<ul class={ "list-disc", "ms-5" }>
+			<li>
+				You can access and update your information in the App settings.
+			</li>
+			<li>
+				If you delete your account, all data related to it will be gone for good, that is, your full name, email, username, and playlists. <b>STILL NOT IMPLEMENTED YET, SEND ME AN EMAIL AND I'LL CAST YOUR DATA INTO FIRE</b>
+			</li>
+		</ul>
+		<p>Security:</p>
+		<ul class={ "list-disc", "ms-5" }>
+			<li>
+				I take reasonable steps to protect your information from unauthorized access, disclosure, alteration, or destruction. However, no internet transmission is completely secure.
+			</li>
+			<li>
+				No one can access the data stores, not even me, I mean I can, but I can only delete stuff, and I can’t really make sense of them, since the data are encrypted on the database’s level, so you're good to go :)
+			</li>
+		</ul>
+		<p>Contact Us</p>
+		<p>
+			If you have any questions about this Privacy Policy, please contact me at: <a class={ "nav-link" } href="mailto:dankmuzikk-web@mbaraa.com">dankmuzikk-web@mbaraa.com</a>
+		</p>
+	</div>
+}

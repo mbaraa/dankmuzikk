@@ -1,0 +1,130 @@
+package pages
+
+import (
+	"dankmuzikk-web/entities"
+	"dankmuzikk-web/views/components/page"
+	"fmt"
+	"dankmuzikk-web/views/icons"
+	"dankmuzikk-web/views/components/menus"
+	"math/rand"
+	"dankmuzikk-web/views/components/playlist"
+	"dankmuzikk-web/views/components/ui"
+)
+
+templ Song(song entities.Song) {
+	@page.Container(templ.NopComponent, songContent(song))
+}
+
+templ songContent(song entities.Song) {
+	<div class={ "flex", "flex-col", "justify-center", "items-center", "gap-6" }>
+		<div
+			class={
+				"w-[250px]", "h-[250px]", "rounded-md", "bg-primary",
+				"bg-repeat", "bg-cover", "bg-center", songThumb(fmt.Sprintf("url(\"%s\")", song.ThumbnailUrl)),
+			}
+		></div>
+		<div class={ "w-full", "flex", "justify-center", "items-center", "gap-3" }>
+			<button
+				class={
+					"p-2", "px-4", "rounded-md", "bg-accent-trans-20", "hover:bg-accent-trans-30",
+					"flex", "gap-x-2", "items-center", "justify-center", "font-semibold", "min-w-[200px]",
+				}
+				title="Play now"
+				type="button"
+				onClick={ playSong(song) }
+			>
+				<span>Play now</span>
+			</button>
+			@ui.MobileOnly() {
+				@menus.MobileMenu(song.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
+			}
+			@ui.DesktopOnly() {
+				@menus.Popover(song.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
+			}
+		</div>
+		<h1 class={ "text-secondary", "text-xl", "lg:text-4xl" }>{ song.Title }</h1>
+		<p class={ "text-secondary", "text-md" }>By { song.Artist }</p>
+		<p class={ "text-secondary", "text-md" }>Duration { song.Duration }</p>
+	</div>
+}
+
+// TODO: generalize this and the same shit under components/song/song.templ
+templ options(song entities.Song) {
+	<div
+		class={
+			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md", "min-w-[250px]",
+			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
+		}
+	>
+		@playlist.PlaylistsPopup(0, song.YtId)
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Share song"
+			type="button"
+			onClick={ shareSong(song.YtId) }
+		>
+			@icons.ShareLink()
+			<span>Share song</span>
+		</button>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Add song to queue"
+			type="button"
+			onClick={ addSongToQueue(song) }
+		>
+			@icons.AddToQueue()
+			<span>Add to queue</span>
+		</button>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Play next"
+			type="button"
+			onClick={ playSongNext(song) }
+		>
+			@icons.AddToQueue()
+			<span>Play next</span>
+		</button>
+		<button
+			class={
+				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+				"flex", "items-center", "gap-x-2", "w-full",
+			}
+			title="Download song"
+			type="button"
+			onClick={ downloadSong(song.YtId, song.Title) }
+		>
+			@icons.Download()
+			<span>Download to device</span>
+		</button>
+	</div>
+}
+
+script playSong(song entities.Song) {
+    Player.playSingleSong(song)
+}
+
+script playSongNext(song entities.Song) {
+    Player.playSingleSongNext(song)
+}
+
+script shareSong(songYtId string) {
+    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/song/${songYtId}`)
+    alert("Song's links was copied!");
+}
+
+script addSongToQueue(song entities.Song) {
+    window.Player.addSongToQueue(song);
+}
+
+script downloadSong(songYtId, songTitle string) {
+    Player.downloadSongToDevice(songYtId, songTitle)
+}
