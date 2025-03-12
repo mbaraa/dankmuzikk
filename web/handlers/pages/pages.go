@@ -206,7 +206,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
-			http.Redirect(w, r, config.Env().DomainName, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
 		}
 		return
 	}

@@ -13,3 +13,5 @@ views/**/*.txt
 _*/
 .*/
 Session.vim
+build-errors.log
+tmp/

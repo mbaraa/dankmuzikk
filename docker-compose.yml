@@ -15,6 +15,21 @@ services:
       - dank-cdn
       - dank-ytdl
 
+  web-client:
+    container_name: "dankmuzikk-web"
+    build:
+      context: ./server
+    restart: "always"
+    ports:
+      - "20250:3000"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    depends_on:
+      - server
+
   dank-cdn:
     container_name: "dank-cdn"
     build:

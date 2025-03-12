@@ -12,22 +12,20 @@ var (
 
 func initEnvVars() {
 	_config = config{
-		Port:        getEnv("WEB_PORT"),
-		BackendPort: getEnv("PORT"),
-		CdnPort:     getEnv("CDN_PORT"),
-		GoEnv:       getEnv("GO_ENV"),
-		DomainName:  getEnv("DOMAIN_NAME"),
-		JwtSecret:   getEnv("JWT_SECRET"),
+		Port:          getEnv("WEB_PORT"),
+		GoEnv:         getEnv("GO_ENV"),
+		Hostname:      getEnv("HOST_NAME"),
+		ServerAddress: getEnv("BACKEND_ADDRESS"),
+		CdnAddress:    getEnv("CDN_ADDRESS"),
 	}
 }
 
 type config struct {
-	Port        string
-	BackendPort string
-	CdnPort     string
-	GoEnv       string
-	DomainName  string
-	JwtSecret   string
+	Port          string
+	GoEnv         string
+	Hostname      string
+	ServerAddress string
+	CdnAddress    string
 }
 
 // Env returns the thing's config values :)
@@ -38,21 +36,11 @@ func Env() config {
 // GetRequestUrl returns a full path of the request with the backend's URL.
 // TODO: make a unified requests package or something.
 func GetRequestUrl(path string) string {
-	if Env().GoEnv == "prod" {
-		return fmt.Sprintf("https://api.%s%s", Env().DomainName, path)
-	} else {
-		return fmt.Sprintf("http://%s:%s%s", Env().DomainName, Env().BackendPort, path)
-	}
+	return fmt.Sprintf("%s%s", Env().ServerAddress, path)
 }
 
 func GetCdnUrl() string {
-	if Env().GoEnv == "prod" {
-		return fmt.Sprintf("https://cdn.%s", Env().DomainName)
-	} else if Env().GoEnv == "dev" {
-		return fmt.Sprintf("http://%s:20251", Env().DomainName)
-	} else {
-		return fmt.Sprintf("http://%s:%s", Env().DomainName, Env().CdnPort)
-	}
+	return fmt.Sprintf("%s", Env().CdnAddress)
 }
 
 func getEnv(key string) string {

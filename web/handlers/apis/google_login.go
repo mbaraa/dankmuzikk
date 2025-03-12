@@ -82,7 +82,7 @@ func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r
 		Value:    sessionToken,
 		HttpOnly: true,
 		Path:     "/",
-		Domain:   config.Env().DomainName,
+		Domain:   config.Env().Hostname,
 		Expires:  time.Now().UTC().Add(time.Hour * 24 * 60),
 	})
 

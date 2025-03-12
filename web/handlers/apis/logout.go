@@ -11,8 +11,8 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Name:   auth.SessionTokenKey,
 		Value:  "",
 		Path:   "/",
-		Domain: config.Env().DomainName,
+		Domain: config.Env().Hostname,
 		MaxAge: -1,
 	})
-	http.Redirect(w, r, config.Env().DomainName, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
 }

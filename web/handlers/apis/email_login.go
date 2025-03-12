@@ -52,7 +52,7 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 		Value:    verificationToken,
 		HttpOnly: true,
 		Path:     "/api/verify-otp",
-		Domain:   config.Env().DomainName,
+		Domain:   config.Env().Hostname,
 		Expires:  time.Now().UTC().Add(time.Hour / 2),
 	})
 	otp.VerifyOtp().Render(context.Background(), w)
@@ -88,7 +88,7 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 		Value:    verificationToken,
 		HttpOnly: true,
 		Path:     "/api/verify-otp",
-		Domain:   config.Env().DomainName,
+		Domain:   config.Env().Hostname,
 		Expires:  time.Now().UTC().Add(time.Hour / 2),
 	})
 	otp.VerifyOtp().Render(context.Background(), w)
@@ -147,7 +147,7 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 		Value:    sessionToken,
 		HttpOnly: true,
 		Path:     "/",
-		Domain:   config.Env().DomainName,
+		Domain:   config.Env().Hostname,
 		Expires:  time.Now().UTC().Add(time.Hour * 24 * 60),
 	})
 

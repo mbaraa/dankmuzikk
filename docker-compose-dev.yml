@@ -16,6 +16,21 @@ services:
       - dank-ytdl
       - dank-cdn
 
+  web-client:
+    container_name: "dankmuzikk-web"
+    build:
+      context: ./server
+    restart: "always"
+    ports:
+      - "20250:3000"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    depends_on:
+      - server
+
   dank-db:
     image: "mariadb:10.8"
     container_name: "dank-db"

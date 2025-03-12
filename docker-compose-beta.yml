@@ -13,6 +13,21 @@ services:
     networks:
       - danknetwork
 
+  web-client-beta:
+    container_name: "dankmuzikk-web-beta"
+    build:
+      context: ./server
+    restart: "always"
+    ports:
+      - "20250:3000"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    depends_on:
+      - server-beta
+
 networks:
   danknetwork:
     external: true
