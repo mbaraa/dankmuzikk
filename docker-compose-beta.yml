@@ -3,7 +3,7 @@ services:
     container_name: "dankmuzikk-beta"
     build:
       dockerfile: ./Dockerfile
-      context: ./app
+      context: ./server
     restart: "always"
     ports:
       - "20360:3000"
@@ -16,7 +16,7 @@ services:
   web-client-beta:
     container_name: "dankmuzikk-web-beta"
     build:
-      context: ./server
+      context: ./web
     restart: "always"
     ports:
       - "20361:3000"
