@@ -36,10 +36,10 @@ dev:
 	air
 
 dankmuzikk-server-beta:
-	./${MIGRATOR_BINARY_NAME}
 	GO_ENV="beta" ./${SERVER_BINARY_NAME}
 
-dankmuzikk-server-prod: migrate
+dankmuzikk-server-prod:
+	./${MIGRATOR_BINARY_NAME}
 	GO_ENV="prod" ./${SERVER_BINARY_NAME}
 
 generate:
