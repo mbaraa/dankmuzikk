@@ -21,7 +21,7 @@ services:
       context: ./web
     restart: "always"
     ports:
-      - "20352:3000"
+      - "20352:3002"
     stdin_open: true
     env_file:
       - .env.docker
