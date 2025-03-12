@@ -35,7 +35,8 @@ dev:
 
 	air
 
-dankmuzikk-server-beta: migrate
+dankmuzikk-server-beta:
+	./${MIGRATOR_BINARY_NAME}
 	GO_ENV="beta" ./${SERVER_BINARY_NAME}
 
 dankmuzikk-server-prod: migrate
