@@ -18,7 +18,7 @@ services:
   web-client:
     container_name: "dankmuzikk-web"
     build:
-      context: ./server
+      context: ./web
     restart: "always"
     ports:
       - "20250:3000"
@@ -45,8 +45,6 @@ services:
       - dankuploads-dir:/app/.serve
     networks:
       - danknetwork
-    depends_on:
-      - dank-db
 
   dank-ytdl:
     container_name: "dank-ytdl"
@@ -59,8 +57,6 @@ services:
       - .env.docker
     volumes:
       - dankuploads-dir:/app/.serve
-    depends_on:
-      - dank-db
     networks:
       - danknetwork
 

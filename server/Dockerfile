@@ -15,11 +15,7 @@ RUN apk add --no-cache make
 
 WORKDIR /app
 COPY --from=build /app/dankmuzikk-server ./dankmuzikk-server
-COPY --from=build /app/Makefile ./Makefile
-
-RUN make init &&\
-    make migrate
 
 EXPOSE 8080
 
-CMD ["./dankmuzikk-server"]
+CMD ["make", "dankmuzikk-server-prod"]

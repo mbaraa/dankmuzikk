@@ -28,7 +28,6 @@ beta:
 	GO_ENV="beta" ./${BINARY_NAME}
 
 prod:
-	./${BINARY_NAME} migrate
 	GO_ENV="prod" ./${BINARY_NAME}
 
 clean:

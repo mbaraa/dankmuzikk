@@ -15,7 +15,7 @@ func initEnvVars() {
 		Port:          getEnv("WEB_PORT"),
 		GoEnv:         getEnv("GO_ENV"),
 		Hostname:      getEnv("HOST_NAME"),
-		ServerAddress: getEnv("BACKEND_ADDRESS"),
+		ServerAddress: getEnv("SERVER_ADDRESS"),
 		CdnAddress:    getEnv("CDN_ADDRESS"),
 	}
 }

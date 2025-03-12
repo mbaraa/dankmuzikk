@@ -21,11 +21,10 @@ build-cdn:
 
 init:
 	go mod tidy && \
-	go generate
+	go generate cmd/http-server/main.go
 
-migrate:
-	export `cat ../.env | xargs` && \
-	go run ./cmd/migrator/main.go
+migrate: build-migrator
+	./${MIGRATOR_BINARY_NAME}
 
 dev:
 	air -v > /dev/null
@@ -36,14 +35,14 @@ dev:
 
 	air
 
-beta: init
+dankmuzikk-server-beta: migrate
 	GO_ENV="beta" ./${SERVER_BINARY_NAME}
 
-prod: init
+dankmuzikk-server-prod: migrate
 	GO_ENV="prod" ./${SERVER_BINARY_NAME}
 
 generate:
-	go generate
+	go generate cmd/http-server/main.go
 
 clean:
 	go clean

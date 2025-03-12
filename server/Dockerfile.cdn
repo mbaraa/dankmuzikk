@@ -8,8 +8,6 @@ RUN apk add --no-cache make &&\
 
 FROM alpine:latest AS run
 
-RUN apk add --no-cache make
-
 WORKDIR /app
 COPY --from=build /app/dankmuzikk-cdn ./dankmuzikk-cdn
 

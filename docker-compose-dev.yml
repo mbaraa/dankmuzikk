@@ -19,7 +19,7 @@ services:
   web-client:
     container_name: "dankmuzikk-web"
     build:
-      context: ./server
+      context: ./web
     restart: "always"
     ports:
       - "20250:3000"
