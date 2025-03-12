@@ -6,7 +6,7 @@ services:
       context: ./app
     restart: "always"
     ports:
-      - "20251:3000"
+      - "20360:3000"
     stdin_open: true
     env_file:
       - .env.docker
@@ -19,7 +19,7 @@ services:
       context: ./server
     restart: "always"
     ports:
-      - "20250:3000"
+      - "20361:3000"
     stdin_open: true
     env_file:
       - .env.docker

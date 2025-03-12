@@ -5,7 +5,7 @@ services:
       context: ./server
     restart: "always"
     ports:
-      - "20250:3000"
+      - "20350:3000"
     stdin_open: true
     env_file:
       - .env.docker
@@ -21,7 +21,7 @@ services:
       context: ./web
     restart: "always"
     ports:
-      - "20250:3000"
+      - "20352:3000"
     stdin_open: true
     env_file:
       - .env.docker
@@ -37,7 +37,7 @@ services:
       dockerfile: Dockerfile.cdn
     restart: "always"
     ports:
-      - "20251:3001"
+      - "20351:3001"
     stdin_open: true
     env_file:
       - .env.docker
