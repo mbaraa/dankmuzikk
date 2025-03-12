@@ -111,24 +111,6 @@ func (e ErrInvalidVerificationToken) ExposeToClients() bool {
 	return true
 }
 
-type ErrOwnerCantLeavePlaylist struct{}
-
-func (e ErrOwnerCantLeavePlaylist) Error() string {
-	return "owner-cant-leave-playlist"
-}
-
-func (e ErrOwnerCantLeavePlaylist) ClientStatusCode() int {
-	return http.StatusForbidden
-}
-
-func (e ErrOwnerCantLeavePlaylist) ExtraData() map[string]any {
-	return nil
-}
-
-func (e ErrOwnerCantLeavePlaylist) ExposeToClients() bool {
-	return true
-}
-
 type ErrNonOwnerCantDeletePlaylists struct{}
 
 func (e ErrNonOwnerCantDeletePlaylists) Error() string {
@@ -180,24 +162,6 @@ func (e ErrUnauthorizedToSeePlaylist) ExtraData() map[string]any {
 }
 
 func (e ErrUnauthorizedToSeePlaylist) ExposeToClients() bool {
-	return true
-}
-
-type ErrEmptyPlaylist struct{}
-
-func (e ErrEmptyPlaylist) Error() string {
-	return "empty-playlist"
-}
-
-func (e ErrEmptyPlaylist) ClientStatusCode() int {
-	return http.StatusBadRequest
-}
-
-func (e ErrEmptyPlaylist) ExtraData() map[string]any {
-	return nil
-}
-
-func (e ErrEmptyPlaylist) ExposeToClients() bool {
 	return true
 }
 

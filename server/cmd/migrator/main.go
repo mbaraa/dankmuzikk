@@ -2,8 +2,9 @@ package main
 
 import (
 	"dankmuzikk/app/models"
-	"dankmuzikk/db"
+	"dankmuzikk/config"
 	"dankmuzikk/log"
+	"dankmuzikk/mariadb"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 }
 
 func Migrate() error {
-	dbConn, err := db.Connector()
+	dbConn, err := mariadb.DBConnector(config.Env().DB.Name)
 	if err != nil {
 		return err
 	}

@@ -15,7 +15,7 @@ type Repository struct {
 }
 
 func New() (*Repository, error) {
-	conn, err := getDBConnector(config.Env().DB.Name)
+	conn, err := DBConnector(config.Env().DB.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func New() (*Repository, error) {
 func (r *Repository) GetAccount(id uint) (models.Account, error) {
 	var account models.Account
 
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Account)).
 			First(&account, "id = ?", id).
@@ -49,7 +49,7 @@ func (r *Repository) GetAccount(id uint) (models.Account, error) {
 func (r *Repository) GetAccountByEmail(email string) (models.Account, error) {
 	var account models.Account
 
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Account)).
 			First(&account, "email = ?", email).
@@ -68,7 +68,7 @@ func (r *Repository) GetAccountByEmail(email string) (models.Account, error) {
 }
 
 func (r *Repository) CreateProfile(profile models.Profile) (models.Profile, error) {
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Profile)).
 			Create(&profile).
@@ -89,7 +89,7 @@ func (r *Repository) CreateProfile(profile models.Profile) (models.Profile, erro
 func (r *Repository) GetProfileForAccount(accountId uint) (models.Profile, error) {
 	var profile models.Profile
 
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Profile)).
 			First(&profile, "account_id = ?", accountId).
@@ -108,7 +108,7 @@ func (r *Repository) GetProfileForAccount(accountId uint) (models.Profile, error
 }
 
 func (r *Repository) CreateOtp(otp models.EmailVerificationCode) error {
-	return tryWrapMariaDbError(
+	return tryWrapDbError(
 		r.client.
 			Model(new(models.EmailVerificationCode)).
 			Create(&otp).
@@ -119,7 +119,7 @@ func (r *Repository) CreateOtp(otp models.EmailVerificationCode) error {
 func (r *Repository) GetOtpForAccount(id uint) (models.EmailVerificationCode, error) {
 	var otps []models.EmailVerificationCode
 
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.EmailVerificationCode)).
 			Find(&otps, "account_id = ?", id).
@@ -138,7 +138,7 @@ func (r *Repository) GetOtpForAccount(id uint) (models.EmailVerificationCode, er
 }
 
 func (r *Repository) DeleteOtpsForAccount(id uint) error {
-	return tryWrapMariaDbError(
+	return tryWrapDbError(
 		r.client.
 			Model(new(models.EmailVerificationCode)).
 			Delete(&models.EmailVerificationCode{
@@ -149,7 +149,7 @@ func (r *Repository) DeleteOtpsForAccount(id uint) error {
 }
 
 func (r *Repository) CreateSong(song models.Song) (models.Song, error) {
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Song)).
 			Create(&song).
@@ -170,7 +170,7 @@ func (r *Repository) CreateSong(song models.Song) (models.Song, error) {
 func (r *Repository) GetSong(id uint) (models.Song, error) {
 	var song models.Song
 
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Song)).
 			First(&song, "id = ?", id).
@@ -191,7 +191,7 @@ func (r *Repository) GetSong(id uint) (models.Song, error) {
 func (r *Repository) GetSongByYouTubeId(ytId string) (models.Song, error) {
 	var song models.Song
 
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Song)).
 			First(&song, "yt_id = ?", ytId).
@@ -228,7 +228,7 @@ func (r *Repository) IncrementSongPlaysInPlaylist(songId, playlistPubId string, 
 		LIMIT 1;`
 
 	var songDbId, playlistDbId uint
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Raw(gigaQuery, playlistPubId, songId, ownerId).
 			Row().
@@ -243,7 +243,7 @@ func (r *Repository) IncrementSongPlaysInPlaylist(songId, playlistPubId string, 
 		WHERE
 			playlist_id = ? AND song_id = ?;`
 
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Exec(updateQuery, playlistDbId, songDbId).
 			Error,
@@ -274,7 +274,7 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 		LIMIT 1;`
 
 	var songDbId, playlistDbId uint
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Raw(gigaQuery, playlistPubId, songId, ownerId).
 			Row().
@@ -285,7 +285,7 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 	}
 
 	var voter models.PlaylistSongVoter
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Model(&voter).
 			First(&voter,
@@ -304,7 +304,7 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 		WHERE
 			playlist_id = ? AND song_id = ?;`
 
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Exec(updateQuery, playlistDbId, songDbId).
 			Error,
@@ -314,7 +314,7 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 	}
 
 	var ps models.PlaylistSong
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Model(&ps).
 			First(&ps,
@@ -327,7 +327,7 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 		return 0, &app.ErrUserHasAlreadyVoted{}
 	}
 
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistSongVoter)).
 			Create(
@@ -368,7 +368,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 		LIMIT 1;`
 
 	var songDbId, playlistDbId uint
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Raw(gigaQuery, playlistPubId, songId, ownerId).
 			Row().
@@ -379,7 +379,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 	}
 
 	var voter models.PlaylistSongVoter
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Model(&voter).
 			First(&voter,
@@ -398,7 +398,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 		WHERE
 			playlist_id = ? AND song_id = ?;`
 
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Exec(updateQuery, playlistDbId, songDbId).
 			Error,
@@ -408,7 +408,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 	}
 
 	var ps models.PlaylistSong
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Model(&ps).
 			First(&ps,
@@ -421,7 +421,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 		return 0, &app.ErrUserHasAlreadyVoted{}
 	}
 
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistSongVoter)).
 			Create(
@@ -445,7 +445,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 
 func (r *Repository) AddSongToHistory(songYtId string, profileId uint) error {
 	var song models.Song
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Song)).
 			First(&song, "yt_id = ?", songYtId).
@@ -455,7 +455,7 @@ func (r *Repository) AddSongToHistory(songYtId string, profileId uint) error {
 		return err
 	}
 
-	return tryWrapMariaDbError(
+	return tryWrapDbError(
 		r.client.
 			Model(new(models.History)).
 			Create(
@@ -468,14 +468,14 @@ func (r *Repository) AddSongToHistory(songYtId string, profileId uint) error {
 }
 
 func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (added bool, err error) {
-	err = tryWrapMariaDbError(
+	err = tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistSong)).
-			First(new(models.PlaylistSong), "playlist_id = ? AND song_id = ?", playlistId, songId).
+			First(&models.PlaylistSong{}, "playlist_id = ? AND song_id = ?", playlistId, songId).
 			Error,
 	)
 	if _, ok := err.(*ErrRecordNotFound); ok {
-		err = tryWrapMariaDbError(
+		err = tryWrapDbError(
 			r.client.
 				Model(new(models.PlaylistSong)).
 				Create(&models.PlaylistSong{
@@ -491,7 +491,7 @@ func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (add
 
 		return true, nil
 	} else {
-		return false, tryWrapMariaDbError(
+		return false, tryWrapDbError(
 			r.client.
 				Model(new(models.PlaylistSong)).
 				Delete(&models.PlaylistSong{
@@ -551,7 +551,7 @@ func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song
 	rows, err := r.client.
 		Raw(gigaQuery, playlistId).
 		Rows()
-	err = tryWrapMariaDbError(err)
+	err = tryWrapDbError(err)
 	if err != nil {
 		return models.List[*models.Song]{}, err
 	}
@@ -575,7 +575,7 @@ func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song
 
 func (r *Repository) GetPlaylistByPublicId(pubId string) (models.Playlist, error) {
 	var playlist models.Playlist
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Playlist)).
 			First(&playlist, "public_id = ?", pubId).
@@ -594,7 +594,7 @@ func (r *Repository) GetPlaylistByPublicId(pubId string) (models.Playlist, error
 }
 
 func (r *Repository) CreatePlaylist(pl models.Playlist) (models.Playlist, error) {
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Playlist)).
 			Create(&pl).
@@ -613,7 +613,7 @@ func (r *Repository) CreatePlaylist(pl models.Playlist) (models.Playlist, error)
 }
 
 func (r *Repository) AddProfileToPlaylist(plId, profileId uint) error {
-	return tryWrapMariaDbError(
+	return tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistOwner)).
 			Create(&models.PlaylistOwner{
@@ -626,7 +626,7 @@ func (r *Repository) AddProfileToPlaylist(plId, profileId uint) error {
 }
 
 func (r *Repository) RemoveProfileFromPlaylist(plId, profileId uint) error {
-	return tryWrapMariaDbError(
+	return tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistOwner)).
 			Delete(&models.PlaylistOwner{},
@@ -638,7 +638,7 @@ func (r *Repository) RemoveProfileFromPlaylist(plId, profileId uint) error {
 
 func (r *Repository) GetPlaylistOwners(plId uint) ([]models.PlaylistOwner, error) {
 	var owners []models.PlaylistOwner
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistOwner)).
 			Find(&owners, "playlist_id = ?", plId).
@@ -657,7 +657,7 @@ func (r *Repository) GetPlaylistOwners(plId uint) ([]models.PlaylistOwner, error
 }
 
 func (r *Repository) MakePlaylistPublic(id uint) error {
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Playlist)).
 			Where("id = ?", id).
@@ -677,7 +677,7 @@ func (r *Repository) MakePlaylistPublic(id uint) error {
 }
 
 func (r *Repository) MakePlaylistPrivate(id uint) error {
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Playlist)).
 			Where("id = ?", id).
@@ -698,7 +698,7 @@ func (r *Repository) MakePlaylistPrivate(id uint) error {
 
 func (r *Repository) GetPlaylistsForProfile(ownerId uint) (models.List[models.Playlist], error) {
 	var playlists []models.Playlist
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(&models.Profile{
 				Id: ownerId,
@@ -723,7 +723,7 @@ func (r *Repository) GetPlaylistsForProfile(ownerId uint) (models.List[models.Pl
 
 func (r *Repository) GetPlaylistsWithSongsForProfile(profileId uint) (models.List[models.Playlist], error) {
 	var dbPlaylists []models.Playlist
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(&models.Profile{
 				Id: profileId,
@@ -745,7 +745,7 @@ func (r *Repository) GetPlaylistsWithSongsForProfile(profileId uint) (models.Lis
 }
 
 func (r *Repository) DeletePlaylist(id uint) error {
-	err := tryWrapMariaDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Playlist)).
 			Delete(&models.Playlist{Id: id}, "id = ?", id).

@@ -69,19 +69,15 @@ func StartServer(staticFS embed.FS) error {
 	})
 
 	pagesRouter := pages.NewPagesHandler(playlistsService, &search.SearchImpl{}, historyService, songsService)
-	// ok
 	pagesHandler.HandleFunc("/", contenttype.Html(authMw.OptionalAuthPage(pagesRouter.HandleHomePage)))
 	pagesHandler.HandleFunc("GET /signup", contenttype.Html(authMw.AuthPage(pagesRouter.HandleSignupPage)))
 	pagesHandler.HandleFunc("GET /login", contenttype.Html(authMw.AuthPage(pagesRouter.HandleLoginPage)))
 	pagesHandler.HandleFunc("GET /profile", contenttype.Html(authMw.AuthPage(pagesRouter.HandleProfilePage)))
-	// ok
 	pagesHandler.HandleFunc("GET /about", contenttype.Html(pagesRouter.HandleAboutPage))
 	pagesHandler.HandleFunc("GET /playlists", contenttype.Html(authMw.AuthPage(pagesRouter.HandlePlaylistsPage)))
 	pagesHandler.HandleFunc("GET /playlist/{playlist_id}", contenttype.Html(authMw.AuthPage(pagesRouter.HandleSinglePlaylistPage)))
 	pagesHandler.HandleFunc("GET /song/{song_id}", contenttype.Html(authMw.OptionalAuthPage(pagesRouter.HandleSingleSongPage)))
-	// ok
 	pagesHandler.HandleFunc("GET /privacy", contenttype.Html(pagesRouter.HandlePrivacyPage))
-	// ok
 	pagesHandler.HandleFunc("GET /search", contenttype.Html(authMw.OptionalAuthPage(pagesRouter.HandleSearchResultsPage)))
 
 	///////////// APIs /////////////
@@ -93,21 +89,15 @@ func StartServer(staticFS embed.FS) error {
 	historyApi := apis.NewHistoryApi(historyService)
 
 	apisHandler := http.NewServeMux()
-	// ok
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
-	// ok
 	apisHandler.HandleFunc("POST /signup/email", emailLoginApi.HandleEmailSignup)
-	// ok
 	apisHandler.HandleFunc("POST /verify-otp", emailLoginApi.HandleEmailOTPVerification)
 	apisHandler.HandleFunc("GET /login/google", googleLoginApi.HandleGoogleOAuthLogin)
 	apisHandler.HandleFunc("GET /signup/google", googleLoginApi.HandleGoogleOAuthLogin)
 	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("GET /logout", apis.HandleLogout)
-	// ok
 	apisHandler.HandleFunc("GET /search-suggestion", apis.HandleSearchSuggestions)
-	// ok
 	apisHandler.HandleFunc("GET /song", authMw.OptionalAuthApi(songApi.HandlePlaySong))
-	// ok
 	apisHandler.HandleFunc("GET /song/single", authMw.OptionalAuthApi(songApi.HandleGetSong))
 	apisHandler.HandleFunc("PUT /song/playlist", authMw.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 	apisHandler.HandleFunc("PUT /song/playlist/plays", authMw.AuthApi(songApi.HandleIncrementSongPlaysInPlaylist))
@@ -115,11 +105,9 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	apisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
 	apisHandler.HandleFunc("GET /playlist", authMw.AuthApi(playlistsApi.HandleGetPlaylist))
-	// ok
 	apisHandler.HandleFunc("POST /playlist", authMw.AuthApi(playlistsApi.HandleCreatePlaylist))
 	apisHandler.HandleFunc("PUT /playlist/public", authMw.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
 	apisHandler.HandleFunc("PUT /playlist/join", authMw.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
-	// ok
 	apisHandler.HandleFunc("DELETE /playlist", authMw.AuthApi(playlistsApi.HandleDeletePlaylist))
 	apisHandler.HandleFunc("GET /playlist/zip", authMw.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
 	apisHandler.HandleFunc("GET /history/{page}", authMw.AuthApi(historyApi.HandleGetMoreHistoryItems))

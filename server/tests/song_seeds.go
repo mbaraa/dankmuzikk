@@ -2,7 +2,7 @@ package tests
 
 import (
 	"dankmuzikk/app/models"
-	"dankmuzikk/services/nanoid"
+	"dankmuzikk/nanoid"
 	"time"
 )
 
@@ -46,7 +46,7 @@ var songs = []models.Song{
 
 func RandomSong() models.Song {
 	song := songs[random.Intn(len(songs))]
-	song.YtId = nanoid.Generate()
+	song.YtId = nanoid.New()
 	return song
 }
 

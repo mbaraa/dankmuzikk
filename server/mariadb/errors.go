@@ -1,26 +1,11 @@
 package mariadb
 
 import (
+	"errors"
+
 	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 )
-
-type ErrNilObject struct{}
-
-func (e ErrNilObject) Error() string {
-	return "nil-object"
-}
-
-func (e ErrNilObject) ClientStatusCode() int {
-	return 400
-}
-
-func (e ErrNilObject) ExtraData() map[string]any {
-	return nil
-}
-
-func (e ErrNilObject) ExposeToClients() bool {
-	return true
-}
 
 type ErrInvalidWhereConditions struct{}
 
@@ -37,7 +22,7 @@ func (e ErrInvalidWhereConditions) ExtraData() map[string]any {
 }
 
 func (e ErrInvalidWhereConditions) ExposeToClients() bool {
-	return true
+	return false
 }
 
 type ErrRecordNotFound struct{}
@@ -55,7 +40,7 @@ func (e ErrRecordNotFound) ExtraData() map[string]any {
 }
 
 func (e ErrRecordNotFound) ExposeToClients() bool {
-	return true
+	return false
 }
 
 type ErrRecordExists struct{}
@@ -73,10 +58,17 @@ func (e ErrRecordExists) ExtraData() map[string]any {
 }
 
 func (e ErrRecordExists) ExposeToClients() bool {
-	return true
+	return false
 }
 
-func tryWrapMariaDbError(err error) error {
+func tryWrapDbError(err error) error {
+	switch {
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		return &ErrRecordNotFound{}
+	case errors.Is(err, gorm.ErrDuplicatedKey):
+		return &ErrRecordExists{}
+	}
+
 	if mysqlErr, ok := err.(*mysql.MySQLError); ok {
 		switch mysqlErr.Number {
 		case 1146:

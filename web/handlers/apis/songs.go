@@ -130,7 +130,13 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err := s.songsService.PlaySong(id)
+	token := ""
+	sessionToken, _ := r.Cookie(auth.SessionTokenKey)
+	if sessionToken != nil {
+		token = sessionToken.Value
+	}
+
+	err := s.songsService.PlaySong(token, id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)

@@ -10,7 +10,7 @@ import (
 
 var instance *gorm.DB = nil
 
-func getDBConnector(dbName string) (*gorm.DB, error) {
+func DBConnector(dbName string) (*gorm.DB, error) {
 	if instance != nil {
 		return instance, nil
 	}

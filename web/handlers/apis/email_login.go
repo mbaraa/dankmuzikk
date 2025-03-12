@@ -35,14 +35,12 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 	verificationToken, err := e.service.Login(reqBody)
 	if err != nil && errors.Is(err, login.ErrDifferentLoginMethod) {
 		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
-		// w.WriteHeader(http.StatusInternalServerError)
 		status.
 			BugsBunnyError("This account uses Google Auth to login!").
 			Render(context.Background(), w)
 		return
 	} else if err != nil {
 		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
-		// w.WriteHeader(http.StatusInternalServerError)
 		status.
 			BugsBunnyError(fmt.Sprintf("No account associated with the email \"%s\" was found", reqBody.Email)).
 			Render(context.Background(), w)
@@ -71,7 +69,6 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 	verificationToken, err := e.service.Signup(reqBody)
 	if errors.Is(err, login.ErrAccountExists) {
 		log.Errorf("[EMAIL LOGIN API]: Failed to sign up a new user: %+v, error: %s\n", reqBody, err.Error())
-		// w.WriteHeader(http.StatusConflict)
 		status.
 			BugsBunnyError(fmt.Sprintf("An account associated with the email \"%s\" already exists", reqBody.Email)).
 			Render(context.Background(), w)
@@ -100,14 +97,12 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *http.Request) {
 	verificationToken, err := r.Cookie(auth.VerificationTokenKey)
 	if err != nil {
-		// w.Write([]byte("Invalid verification token"))
 		status.
 			BugsBunnyError("Invalid verification token").
 			Render(context.Background(), w)
 		return
 	}
 	if verificationToken.Expires.After(time.Now().UTC()) {
-		// w.Write([]byte("Expired verification token"))
 		status.
 			BugsBunnyError("Expired verification token").
 			Render(context.Background(), w)
@@ -141,7 +136,6 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	}
 	if err != nil {
 		log.Error(err)
-		// w.WriteHeader(http.StatusInternalServerError)
 		status.
 			BugsBunnyError("Something went wrong...").
 			Render(context.Background(), w)
@@ -154,7 +148,7 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 		HttpOnly: true,
 		Path:     "/",
 		Domain:   config.Env().DomainName,
-		Expires:  time.Now().UTC().Add(time.Hour * 24 * 30),
+		Expires:  time.Now().UTC().Add(time.Hour * 24 * 60),
 	})
 
 	w.Header().Set("HX-Redirect", "/")

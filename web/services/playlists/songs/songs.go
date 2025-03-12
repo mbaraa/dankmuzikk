@@ -18,8 +18,8 @@ func (s *Service) GetSong(songYtId string) (entities.Song, error) {
 	return requests.GetRequest[entities.Song]("/v1/song/single?id=" + url.QueryEscape(songYtId))
 }
 
-func (s *Service) PlaySong(songYtId string) error {
-	err := requests.GetRequestAuthNoRespBody("/v1/song/play?id="+url.QueryEscape(songYtId), "")
+func (s *Service) PlaySong(token, songYtId string) error {
+	err := requests.GetRequestAuthNoRespBody("/v1/song/play?id="+url.QueryEscape(songYtId), token)
 	return err
 }
 

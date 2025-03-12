@@ -524,7 +524,7 @@ async function downloadSongToDevice(songYtId, songTitle) {
   await downloadSong(songYtId)
     .then(() => {
       const a = document.createElement("a");
-      a.href = `/muzikkx/${songYtId}.mp3`;
+      a.href = `${window.cdnUrl}/muzikkx/${songYtId}.mp3`;
       a.download = `${songTitle}.mp3`;
       a.click();
     })
@@ -622,7 +622,7 @@ async function playSong(song) {
   }
   const src = document.createElement("source");
   src.setAttribute("type", "audio/mpeg");
-  src.setAttribute("src", `${window.cdnUrl}/${song.yt_id}.mp3`);
+  src.setAttribute("src", `${window.cdnUrl}/muzikkx/${song.yt_id}.mp3`);
   audioPlayerEl.appendChild(src);
 
   if (isSafari()) {

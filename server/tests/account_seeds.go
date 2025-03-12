@@ -2,7 +2,7 @@ package tests
 
 import (
 	"dankmuzikk/app/models"
-	"dankmuzikk/services/nanoid"
+	"dankmuzikk/nanoid"
 	"fmt"
 	"time"
 )
@@ -12,7 +12,7 @@ var accounts = []models.Account{}
 func initAccounts() {
 	for i := 0; i < 50; i++ {
 		accounts = append(accounts, models.Account{
-			Email: fmt.Sprintf("%s@example.com", nanoid.Generate()),
+			Email: fmt.Sprintf("%s@example.com", nanoid.New()),
 		})
 	}
 }

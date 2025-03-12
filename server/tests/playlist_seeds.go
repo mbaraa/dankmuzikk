@@ -2,7 +2,7 @@ package tests
 
 import (
 	"dankmuzikk/app/models"
-	"dankmuzikk/services/nanoid"
+	"dankmuzikk/nanoid"
 	"time"
 )
 
@@ -23,7 +23,7 @@ func initPlaylists() {
 	for i := range playlists {
 		playlists[i].Songs = RandomSongs(random.Intn(6))
 		playlists[i].SongsCount = len(playlists[i].Songs)
-		playlists[i].PublicId = nanoid.Generate()
+		playlists[i].PublicId = nanoid.New()
 		playlists[i].IsPublic = random.Int()%2 == 0
 	}
 }

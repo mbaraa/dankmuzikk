@@ -20,14 +20,6 @@ func GoogleLoginRedirectUrl() string {
 	}
 }
 
-func WebUrl() string {
-	if Env().GoEnv == "prod" {
-		return fmt.Sprintf("https://%s/", Env().DomainName)
-	} else {
-		return fmt.Sprintf("http://%s:%s/", Env().DomainName, Env().WebPort)
-	}
-}
-
 func initGoogleConfig() {
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  GoogleLoginRedirectUrl(),

@@ -47,11 +47,11 @@ func GetRequestUrl(path string) string {
 
 func GetCdnUrl() string {
 	if Env().GoEnv == "prod" {
-		return fmt.Sprintf("https://cdn.%s/muzikkx", Env().DomainName)
+		return fmt.Sprintf("https://cdn.%s", Env().DomainName)
 	} else if Env().GoEnv == "dev" {
-		return fmt.Sprintf("http://%s:20251/muzikkx", Env().DomainName)
+		return fmt.Sprintf("http://%s:20251", Env().DomainName)
 	} else {
-		return fmt.Sprintf("http://%s:%s/muzikkx", Env().DomainName, Env().CdnPort)
+		return fmt.Sprintf("http://%s:%s", Env().DomainName, Env().CdnPort)
 	}
 }
 

@@ -57,14 +57,14 @@ func (s *Jwt[T]) Validate(token string, subject actions.Subject) error {
 // Decode decodes the given token using the set JWT secret
 func (s *Jwt[T]) Decode(token string, subject actions.Subject) (actions.JwtClaims[T], error) {
 	if len(token) == 0 {
-		return actions.JwtClaims[T]{}, &ErrEmptyToken{}
+		return actions.JwtClaims[T]{}, &ErrInvalidToken{}
 	}
 
 	claims := actions.JwtClaims[T]{}
 
 	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (any, error) {
 		if claims.Subject != subject {
-			return nil, &ErrInvalidSubject{}
+			return nil, &ErrInvalidToken{}
 		}
 		if claims.ExpiresAt.Time.Before(time.Now().UTC()) {
 			return nil, &ErrExpiredToken{}

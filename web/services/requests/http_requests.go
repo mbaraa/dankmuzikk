@@ -3,10 +3,10 @@ package requests
 import (
 	"bytes"
 	"dankmuzikk-web/config"
-	"dankmuzikk-web/log"
 	"encoding/json"
-	"errors"
+	"io"
 	"net/http"
+	"reflect"
 	"sync"
 	"time"
 )
@@ -34,29 +34,20 @@ func (r *requester) client() *http.Client {
 	return r.httpClient
 }
 
+type errorResponse struct {
+	ErrorId   string         `json:"error_id"`
+	ExtraData map[string]any `json:"extra_data,omitempty"`
+}
+
 func GetRequest[ResponseBody any](path string) (ResponseBody, error) {
 	return getRequest[ResponseBody](path, map[string]string{})
 }
 
 func GetRequestAuthNoRespBody(path, token string) error {
-	req, err := http.NewRequest(http.MethodGet, config.GetRequestUrl(path), http.NoBody)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Authorization", token)
-
-	resp, err := r.client().Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		log.Errorf("got %d status, when requesting GET %s\n", resp.StatusCode, path)
-		return errors.New("non 200 status")
-	}
-
-	return nil
+	_, err := makeRequest[any, any](http.MethodGet, path, map[string]string{
+		"Authorization": token,
+	}, nil)
+	return err
 }
 
 func GetRequestAuth[ResponseBody any](path, token string) (ResponseBody, error) {
@@ -76,30 +67,8 @@ func PostRequestAuth[RequestBody any, ResponseBody any](path, token string, body
 }
 
 func PostRequestAuthNoBody[RequestBody any](path, token string, body RequestBody) error {
-	bodyBytes := bytes.NewBuffer(nil)
-	err := json.NewEncoder(bodyBytes).Encode(body)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, config.GetRequestUrl(path), bodyBytes)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Authorization", token)
-
-	resp, err := r.client().Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		log.Errorf("got %d status, when requesting %s %s\n", resp.StatusCode, "POST", path)
-		return errors.New("non 200 status")
-	}
-
-	return nil
+	_, err := makeRequest[RequestBody, any](http.MethodPost, path, map[string]string{}, body)
+	return err
 }
 
 func PutRequest[RequestBody any, ResponseBody any](path string, body RequestBody) (ResponseBody, error) {
@@ -113,30 +82,8 @@ func PutRequestAuth[RequestBody any, ResponseBody any](path, token string, body 
 }
 
 func PutRequestAuthNoRespBody[RequestBody any](path, token string, body RequestBody) error {
-	bodyBytes := bytes.NewBuffer(nil)
-	err := json.NewEncoder(bodyBytes).Encode(body)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest(http.MethodPut, config.GetRequestUrl(path), bodyBytes)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Authorization", token)
-
-	resp, err := r.client().Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		log.Errorf("got %d status, when requesting PUT %s\n", resp.StatusCode, path)
-		return errors.New("non 200 status")
-	}
-
-	return nil
+	_, err := makeRequest[RequestBody, any](http.MethodPut, path, map[string]string{}, body)
+	return err
 }
 
 func DeleteRequest(path string) error {
@@ -150,117 +97,42 @@ func DeleteRequestAuth(path, token string) error {
 }
 
 func getRequest[ResponseBody any](path string, headers map[string]string) (ResponseBody, error) {
-	var respBody ResponseBody
-
-	req, err := http.NewRequest(http.MethodGet, config.GetRequestUrl(path), http.NoBody)
-	if err != nil {
-		return respBody, err
-	}
-
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-
-	resp, err := r.client().Do(req)
-	if err != nil {
-		return respBody, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		log.Errorf("got %d status, when requesting GET %s\n", resp.StatusCode, path)
-		return respBody, errors.New("non 200 status")
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
-	if err != nil {
-		return respBody, err
-	}
-
-	_ = resp.Body.Close()
-
-	return respBody, nil
+	return makeRequest[any, ResponseBody](http.MethodGet, path, headers, nil)
 }
 
 func postRequest[RequestBody any, ResponseBody any](path string, body RequestBody, headers map[string]string) (ResponseBody, error) {
-	var respBody ResponseBody
-
-	bodyBytes := bytes.NewBuffer(nil)
-	err := json.NewEncoder(bodyBytes).Encode(body)
-	if err != nil {
-		return respBody, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, config.GetRequestUrl(path), bodyBytes)
-	if err != nil {
-		return respBody, err
-	}
-
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-
-	resp, err := r.client().Do(req)
-	if err != nil {
-		return respBody, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		log.Errorf("got %d status, when requesting POST %s\n", resp.StatusCode, path)
-		return respBody, errors.New("non 200 status")
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
-	if err != nil {
-		return respBody, err
-	}
-
-	_ = resp.Body.Close()
-
-	return respBody, nil
+	return makeRequest[RequestBody, ResponseBody](http.MethodPost, path, headers, body)
 }
 
 func putRequest[RequestBody any, ResponseBody any](path string, body RequestBody, headers map[string]string) (ResponseBody, error) {
-	var respBody ResponseBody
-
-	bodyBytes := bytes.NewBuffer(nil)
-	err := json.NewEncoder(bodyBytes).Encode(body)
-	if err != nil {
-		return respBody, err
-	}
-
-	req, err := http.NewRequest(http.MethodPut, config.GetRequestUrl(path), bodyBytes)
-	if err != nil {
-		return respBody, err
-	}
-
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-
-	resp, err := r.client().Do(req)
-	if err != nil {
-		return respBody, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		log.Errorf("got %d status, when requesting PUT %s\n", resp.StatusCode, path)
-		return respBody, errors.New("non 200 status")
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
-	if err != nil {
-		return respBody, err
-	}
-
-	_ = resp.Body.Close()
-
-	return respBody, nil
+	return makeRequest[RequestBody, ResponseBody](http.MethodPut, path, headers, body)
 }
 
 func deleteRequest(path string, headers map[string]string) error {
-	req, err := http.NewRequest(http.MethodDelete, config.GetRequestUrl(path), http.NoBody)
+	_, err := makeRequest[any, any](http.MethodDelete, path, headers, nil)
+	return err
+}
+
+func makeRequest[RequestBody any, ResponseBody any](method, path string, headers map[string]string, body RequestBody) (ResponseBody, error) {
+	var respBody ResponseBody
+
+	var bodyReader io.Reader = http.NoBody
+
+	reqBodyType := reflect.TypeOf(body)
+	if reqBodyType != nil && reqBodyType.Kind() != reflect.Interface {
+		bodyReaderLoc := bytes.NewBuffer(nil)
+		err := json.NewEncoder(bodyReaderLoc).Encode(body)
+		if err != nil {
+			return respBody, err
+		}
+		bodyReader = bodyReaderLoc
+	} else {
+		bodyReader = http.NoBody
+	}
+
+	req, err := http.NewRequest(method, config.GetRequestUrl(path), bodyReader)
 	if err != nil {
-		return err
+		return respBody, err
 	}
 
 	for key, value := range headers {
@@ -269,13 +141,30 @@ func deleteRequest(path string, headers map[string]string) error {
 
 	resp, err := r.client().Do(req)
 	if err != nil {
-		return err
+		return respBody, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Errorf("got %d status, when requesting DELETE %s\n", resp.StatusCode, path)
-		return errors.New("non 200 status")
+		var errResp errorResponse
+		err = json.NewDecoder(resp.Body).Decode(&errResp)
+		if err != nil {
+			return respBody, err
+		}
+
+		_ = resp.Body.Close()
+
+		return respBody, mapError(errResp.ErrorId)
 	}
 
-	return nil
+	respBodyType := reflect.TypeOf(respBody)
+	if respBodyType != nil && respBodyType.Kind() != reflect.Interface {
+		err = json.NewDecoder(resp.Body).Decode(&respBody)
+		if err != nil {
+			return respBody, err
+		}
+
+		_ = resp.Body.Close()
+	}
+
+	return respBody, nil
 }

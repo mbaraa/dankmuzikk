@@ -4,24 +4,6 @@ import (
 	"net/http"
 )
 
-type ErrEmptyToken struct{}
-
-func (e ErrEmptyToken) Error() string {
-	return "empty-token"
-}
-
-func (e ErrEmptyToken) ClientStatusCode() int {
-	return http.StatusBadRequest
-}
-
-func (e ErrEmptyToken) ExtraData() map[string]any {
-	return nil
-}
-
-func (e ErrEmptyToken) ExposeToClients() bool {
-	return true
-}
-
 type ErrInvalidToken struct{}
 
 func (e ErrInvalidToken) Error() string {
@@ -55,23 +37,5 @@ func (e ErrExpiredToken) ExtraData() map[string]any {
 }
 
 func (e ErrExpiredToken) ExposeToClients() bool {
-	return true
-}
-
-type ErrInvalidSubject struct{}
-
-func (e ErrInvalidSubject) Error() string {
-	return "invalid-subject"
-}
-
-func (e ErrInvalidSubject) ClientStatusCode() int {
-	return http.StatusUnauthorized
-}
-
-func (e ErrInvalidSubject) ExtraData() map[string]any {
-	return nil
-}
-
-func (e ErrInvalidSubject) ExposeToClients() bool {
 	return true
 }
