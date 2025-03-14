@@ -524,7 +524,7 @@ async function downloadSongToDevice(songYtId, songTitle) {
   await downloadSong(songYtId)
     .then(() => {
       const a = document.createElement("a");
-      a.href = `${window.cdnUrl}/muzikkx/${songYtId}.mp3`;
+      a.href = `${window.cdnUrl}/muzikkx-raw/${songYtId}.mp3`;
       a.download = `${songTitle}.mp3`;
       a.click();
     })

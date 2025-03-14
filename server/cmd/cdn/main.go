@@ -32,6 +32,7 @@ func StartServer() error {
 	// applicationHandler.Handle("/muzikkx/", authMw.AuthHandler(http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir)))))
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir))))
+	applicationHandler.Handle("/muzikkx-raw/", http.StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir))))
 
 	log.Info("Starting http cdn server at port " + config.Env().CdnPort)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
