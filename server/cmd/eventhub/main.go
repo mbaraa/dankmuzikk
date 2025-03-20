@@ -16,6 +16,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -69,62 +70,93 @@ func init() {
 }
 
 func executeEvents(events []evy.EventPayload) error {
+	wg := sync.WaitGroup{}
+	wg.Add(len(events))
+
 	for _, e := range events {
 		log.Warningln("handling event", e.Topic)
 
-		var err error
 		switch e.Topic {
 		case "song-played":
 			var body dankevents.SongPlayed
-			err = json.Unmarshal([]byte(e.Body), &body)
+			err := json.Unmarshal([]byte(e.Body), &body)
 			if err != nil {
-				return err
+				log.Errorf("failed unmarshalling event's json: %v\n", err)
+				continue
 			}
 
-			err = errors.Join(
-				handlers.HandleDownloadSongOnPlay(body),
-				handlers.HandleAddSongToHistory(body),
-				handlers.HandleIncrementSongPlaysInPlaylist(body),
-			)
+			go func() {
+				err := errors.Join(
+					handlers.HandleDownloadSongOnPlay(body),
+					handlers.HandleAddSongToHistory(body),
+					handlers.HandleIncrementSongPlaysInPlaylist(body),
+				)
+				if err != nil {
+					log.Errorln("song-played", err)
+				}
+
+				wg.Done()
+			}()
 		case "song-downloaded":
 			var body dankevents.SongDownloaded
-			err = json.Unmarshal([]byte(e.Body), &body)
+			err := json.Unmarshal([]byte(e.Body), &body)
 			if err != nil {
-				return err
+				log.Errorf("failed unmarshalling event's json: %v\n", err)
+				continue
 			}
 
-			err = handlers.HandleMarkSongAsDownloaded(body)
+			go func() {
+				err := handlers.HandleMarkSongAsDownloaded(body)
+				if err != nil {
+					log.Errorln("song-downloaded", err)
+				}
+
+				wg.Done()
+			}()
 		case "song-added-to-playlist":
 			var body dankevents.SongAddedToPlaylist
-			err = json.Unmarshal([]byte(e.Body), &body)
+			err := json.Unmarshal([]byte(e.Body), &body)
 			if err != nil {
-				return err
+				log.Errorf("failed unmarshalling event's json: %v\n", err)
+				continue
 			}
 
-			err = errors.Join(
-				handlers.HandleIncrementPlaylistSongsCount(body),
-				handlers.HandleDownloadSongOnAddingToPlaylist(body),
-			)
+			go func() {
+				err := errors.Join(
+					handlers.HandleIncrementPlaylistSongsCount(body),
+					handlers.HandleDownloadSongOnAddingToPlaylist(body),
+				)
+				if err != nil {
+					log.Errorln("song-added-to-playlist", err)
+				}
+
+				wg.Done()
+			}()
 		case "song-removed-from-playlist":
 			var body dankevents.SongRemovedFromPlaylist
-			err = json.Unmarshal([]byte(e.Body), &body)
+			err := json.Unmarshal([]byte(e.Body), &body)
 			if err != nil {
-				return err
+				log.Errorf("failed unmarshalling event's json: %v\n", err)
+				continue
 			}
 
-			err = handlers.HandleDecrementPlaylistSongsCount(body)
-		}
-		err2 := repo.DeleteEvent(e.Id)
-		if err2 != nil {
-			log.Errorf("Failed deleting event: %+v, error: %v\n", e, err2)
-			return err2
-		}
+			go func() {
+				err := handlers.HandleDecrementPlaylistSongsCount(body)
+				if err != nil {
+					log.Errorln("song-removed-from-playlist", err)
+				}
 
+				wg.Done()
+			}()
+		}
+		err := repo.DeleteEvent(e.Id)
 		if err != nil {
+			log.Errorf("Failed deleting event: %+v, error: %v\n", e, err)
 			return err
 		}
 	}
 
+	wg.Wait()
 	return nil
 }
 
@@ -132,19 +164,24 @@ func main() {
 	// TODO: make this concurrent :)
 	timer := time.NewTicker(time.Second * 3)
 	go func() {
+		wg := sync.WaitGroup{}
 		for range timer.C {
 			events, err := repo.GetEventsBatch(eventsBatchSize)
 			if err != nil {
-				log.Errorln("Failed getting events", err)
 				continue
 			}
 
-			err = executeEvents(events)
-			if err != nil {
-				log.Errorln("Failed executing events batch", err)
-				continue
-			}
+			wg.Add(1)
+			go func() {
+				err = executeEvents(events)
+				if err != nil {
+					log.Errorln("Failed executing events batch", err)
+					// continue
+				}
+				wg.Done()
+			}()
 		}
+		wg.Wait()
 	}()
 
 	http.HandleFunc("/emit", func(w http.ResponseWriter, r *http.Request) {

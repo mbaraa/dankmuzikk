@@ -809,6 +809,7 @@ func (r *Repository) GetEventsBatch(size int32) ([]evy.EventPayload, error) {
 		r.client.
 			Model(&evy.EventPayload{}).
 			Find(&events).
+			Limit(int(size)).
 			Error,
 	)
 	if _, ok := err.(*ErrRecordNotFound); ok {

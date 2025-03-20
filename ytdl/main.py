@@ -37,7 +37,7 @@ app = Flask(__name__)
 
 @app.route("/download/<id>")
 def handle_download_song(id):
-    res = download_song(id)
+    res = download_yt_song(id)
     if res != 0:
         return {"error": YT_ERROR[res]}
     return {"msg": "woohoo"}
