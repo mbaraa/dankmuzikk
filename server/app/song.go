@@ -45,3 +45,7 @@ func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (
 
 	return a.repo.ToggleSongInPlaylist(song.Id, playlist.Id, ownerId)
 }
+
+func (a *App) MarkSongAsDownloaded(songYtId string) error {
+	return a.repo.MarkSongAsDownloaded(songYtId)
+}

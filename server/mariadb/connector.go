@@ -10,7 +10,7 @@ import (
 
 var instance *gorm.DB = nil
 
-func DBConnector(dbName string) (*gorm.DB, error) {
+func dbConnector() (*gorm.DB, error) {
 	if instance != nil {
 		return instance, nil
 	}
@@ -20,7 +20,7 @@ func DBConnector(dbName string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = database.Exec("CREATE DATABASE IF NOT EXISTS " + dbName + ";").Debug().Error
+	err = database.Exec("CREATE DATABASE IF NOT EXISTS " + config.Env().DB.Name + ";").Debug().Error
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func DBConnector(dbName string) (*gorm.DB, error) {
 			config.Env().DB.Username,
 			config.Env().DB.Password,
 			config.Env().DB.Host,
-			dbName,
+			config.Env().DB.Name,
 		),
 	), &gorm.Config{})
 	if err != nil {

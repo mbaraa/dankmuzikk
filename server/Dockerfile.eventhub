@@ -4,13 +4,13 @@ WORKDIR /app
 COPY . .
 
 RUN apk add --no-cache make &&\
-    make build-cdn
+    make build-eventhub
 
 FROM alpine:latest AS run
 
 WORKDIR /app
-COPY --from=build /app/dankmuzikk-cdn ./dankmuzikk-cdn
+COPY --from=build /app/dankmuzikk-eventhub ./dankmuzikk-eventhub
 
-EXPOSE 3001
+EXPOSE 3002
 
-CMD ["./dankmuzikk-cdn"]
+CMD ["./dankmuzikk-eventhub"]

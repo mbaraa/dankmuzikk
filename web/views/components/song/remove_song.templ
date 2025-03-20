@@ -2,12 +2,11 @@ package song
 
 import (
 	"dankmuzikk-web/entities"
-	"dankmuzikk-web/models"
 	"dankmuzikk-web/views/icons"
 )
 
 templ RemoveSong(song entities.Song, playlistId string) {
-	if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.JoinerPermission) != 0 {
+	if perm, ok := ctx.Value("playlist-permission").(entities.PlaylistPermissions); ok && (perm & entities.JoinerPermission) != 0 {
 		<button
 			class={
 				"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",

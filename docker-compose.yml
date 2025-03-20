@@ -14,6 +14,7 @@ services:
     depends_on:
       - dank-cdn
       - dank-ytdl
+      - dank-eventhub
 
   web-client:
     container_name: "dankmuzikk-web"
@@ -21,7 +22,7 @@ services:
       context: ./web
     restart: "always"
     ports:
-      - "20352:3002"
+      - "20353:3003"
     stdin_open: true
     env_file:
       - .env.docker
@@ -39,6 +40,21 @@ services:
     ports:
       - "20351:3001"
     stdin_open: true
+    env_file:
+      - .env.docker
+    volumes:
+      - dankuploads-dir:/app/.serve
+    networks:
+      - danknetwork
+
+  dank-eventhub:
+    container_name: "dank-eventhub"
+    build:
+      context: ./server
+      dockerfile: Dockerfile.eventhub
+    restart: "always"
+    ports:
+      - "20352:3002"
     env_file:
       - .env.docker
     volumes:

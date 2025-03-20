@@ -46,6 +46,8 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
  * @property {string} added_at
  * @property {number} votes
  * @property {number} order
+ * @property {boolean} fully_downloaded
+ * @property {string} media_url
  */
 
 /**
@@ -237,7 +239,8 @@ function stopper(audioEl) {
  * @returns {Function}
  */
 function shuffler(state) {
-  // using Fisher–Yates shuffling algorithm https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+  // using Fisher–Yates shuffling algorithm
+  // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
   const __shuffleArray = (a) => {
     let currIdx = a.length;
     while (currIdx != 0) {
@@ -509,10 +512,21 @@ function playebackSpeeder() {
  * @param {string} songYtId
  */
 async function downloadSong(songYtId) {
-  return await fetch("/api/song?id=" + songYtId).catch((err) => {
-    console.error(err);
+  try {
+    const resp = await fetch("/api/song?id=" + songYtId).then((res) =>
+      res.json(),
+    );
+    for (let i = 0; i < 30; i++) {
+      const song = await fetchSongMeta(songYtId);
+      if (song.fully_downloaded) {
+        return { ok: true, ...resp };
+      }
+      await Utils.sleep(1000);
+    }
+  } catch (err) {
+    console.error("oopsie", err);
     return { ok: false };
-  });
+  }
 }
 
 /**
@@ -522,11 +536,12 @@ async function downloadSong(songYtId) {
 async function downloadSongToDevice(songYtId, songTitle) {
   Utils.showLoading();
   await downloadSong(songYtId)
-    .then(() => {
+    .then((song) => {
       const a = document.createElement("a");
-      a.href = `${window.cdnUrl}/muzikkx/${songYtId}.mp3`;
+      a.href = song.media_url.replace("muzikkx", "muzikkx-raw");
       a.download = `${songTitle}.mp3`;
       a.click();
+      a.remove();
     })
     .finally(() => {
       Utils.hideLoading();
@@ -592,16 +607,18 @@ async function updateSongPlays() {
   if (!playerState.playlist.public_id) {
     return;
   }
-  await fetch(
-    "/api/song/playlist/plays?" +
-      new URLSearchParams({
-        "song-id": playerState.playlist.songs[playerState.currentSongIdx].yt_id,
-        "playlist-id": playerState.playlist.public_id,
-      }).toString(),
-    {
-      method: "PUT",
-    },
-  ).catch((err) => console.error(err));
+  try {
+    return await fetch(
+      "/api/song?" +
+        new URLSearchParams({
+          id: playerState.playlist.songs[playerState.currentSongIdx].yt_id,
+          "playlist-id": playerState.playlist.public_id,
+        }).toString(),
+    );
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
 }
 
 /**
@@ -611,10 +628,10 @@ async function playSong(song) {
   setLoading(true);
   show();
 
-  const resp = await downloadSong(song.yt_id);
+  let resp = await downloadSong(song.yt_id);
   if (!resp.ok) {
     alert("Something went wrong when downloading the song...");
-    return;
+    throw new Error("Something went wrong when downloading the song...");
   }
   stopMuzikk();
   if (audioPlayerEl.childNodes.length > 0) {
@@ -622,7 +639,7 @@ async function playSong(song) {
   }
   const src = document.createElement("source");
   src.setAttribute("type", "audio/mpeg");
-  src.setAttribute("src", `${window.cdnUrl}/muzikkx/${song.yt_id}.mp3`);
+  src.setAttribute("src", resp.media_url);
   audioPlayerEl.appendChild(src);
 
   if (isSafari()) {
@@ -677,18 +694,22 @@ async function playSong(song) {
 
 /**
  * @param {string} songYtId
+ *
+ * @returns {Promise<Song| never>}
  */
 async function fetchSongMeta(songYtId) {
   Utils.showLoading();
-  return await fetch(`/api/song/single?id=${songYtId}`)
-    .then((res) => res.json())
-    .then((s) => s)
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
+  try {
+    const song = await fetch(`/api/song/single?id=${songYtId}`);
+    if (!song.ok) {
+      throw new Error("Something went wrong when fetching song's metadata");
+    }
+    return await song.json();
+  } catch (err) {
+    return err;
+  } finally {
+    Utils.hideLoading();
+  }
 }
 
 /**
@@ -718,15 +739,23 @@ async function playSingleSong(song) {
     songs: [song],
   };
   playerState.currentSongIdx = 0;
-  await playSong(song);
+
+  await window.Utils.retryer(async () => {
+    return await playSong(song);
+  });
 }
 
 /**
  * @param {string} songYtId
  */
 async function playSingleSongId(songYtId) {
-  const song = await fetchSongMeta(songYtId);
-  await playSingleSong(song);
+  try {
+    await fetchSongMeta(songYtId).then(
+      async (song) => await playSingleSong(song),
+    );
+  } catch (err) {
+    return err;
+  }
 }
 
 /**
@@ -734,8 +763,11 @@ async function playSingleSongId(songYtId) {
  */
 async function playSingleSongNext(song) {
   if (playerState.playlist.songs.length === 0) {
-    playSingleSong(song);
-    return;
+    try {
+      await playSingleSong(song);
+    } catch (err) {
+      return err;
+    }
   }
   if (!song.yt_id) {
     return;
@@ -749,8 +781,12 @@ async function playSingleSongNext(song) {
  * @param {string} songYtId
  */
 async function playSingleSongNextId(songYtId) {
-  const song = await fetchSongMeta(songYtId);
-  await playSingleSongNext(song);
+  try {
+    const song = await fetchSongMeta(songYtId);
+    await playSingleSongNext(song);
+  } catch (err) {
+    return err;
+  }
 }
 
 /**
@@ -856,10 +892,13 @@ async function playSongFromPlaylistId(songYtId, playlistPubId) {
 /**
  * @param {Song} song
  */
-function appendSongToCurrentQueue(song) {
+async function appendSongToCurrentQueue(song) {
   if (playerState.playlist.songs.length === 0) {
-    playSingleSong(song);
-    return;
+    try {
+      await playSingleSong(song);
+    } catch (err) {
+      return err;
+    }
   }
   song.votes = 1;
   playerState.playlist.songs.push(song);

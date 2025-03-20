@@ -234,12 +234,7 @@ func (y *YouTube) SearchSuggestions(query string) (suggestions []string, err err
 // and returns an occurring error
 //
 // Used when playing a new song (usually from search).
-// TODO: optimize select query, maybe?
 func (y *YouTube) DownloadYoutubeSong(songYtId string) error {
-	err := y.DownloadYoutubeSongQueue(songYtId)
-	if err != nil {
-		return err
-	}
 	resp, err := http.Get(fmt.Sprintf("%s/download/%s", config.Env().YouTube.DownloaderUrl, songYtId))
 	if err != nil {
 		return err
@@ -248,21 +243,15 @@ func (y *YouTube) DownloadYoutubeSong(songYtId string) error {
 		return errors.New("something went wrong when downloading a song; id: " + songYtId)
 	}
 
-	return nil
-
-}
-
-// DownloadYoutubeSongQueue same as DownloadYoutubeSong but it downloads the song in the background,
-// and only downloads the song's file (since the meta was already downloaded before).
-//
-// Used when adding a song to a playlist.
-func (y *YouTube) DownloadYoutubeSongQueue(songYtId string) error {
-	resp, err := http.Get(fmt.Sprintf("%s/download/queue/%s", config.Env().YouTube.DownloaderUrl, songYtId))
+	respBody := map[string]string{}
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != http.StatusOK {
-		return errors.New("something went wrong when downloading a song; id: " + songYtId)
+	_ = resp.Body.Close()
+
+	if respBody["error"] != "" {
+		return errors.New(respBody["error"])
 	}
 
 	return nil

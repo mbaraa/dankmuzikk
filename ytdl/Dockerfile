@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 RUN apk update && \
-    apk add --no-cache mariadb-dev build-base gcc musl-dev linux-headers ffmpeg
+    apk add --no-cache ffmpeg
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && \
@@ -14,4 +14,4 @@ COPY . /app
 WORKDIR /app
 
 EXPOSE 8000
-CMD [ "gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "main:app" ]
+CMD [ "gunicorn", "--timeout", "600", "-w", "4", "-b", "0.0.0.0:8000", "main:app" ]

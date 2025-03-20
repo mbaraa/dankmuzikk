@@ -30,6 +30,7 @@ type Repository interface {
 	AddSongToHistory(songYtId string, profileId uint) error
 	ToggleSongInPlaylist(songId, playlistId, ownerId uint) (added bool, err error)
 	GetHistory(profileId, page uint) (models.List[models.Song], error)
+	MarkSongAsDownloaded(songYtId string) error
 
 	// --------------------------------
 	// Playlist v1 stuff

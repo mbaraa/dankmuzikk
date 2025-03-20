@@ -18,7 +18,6 @@ type YouTube interface {
 	SearchSuggestions(query string) (suggestions []string, err error)
 
 	DownloadYoutubeSong(songYtId string) error
-	DownloadYoutubeSongQueue(songYtId string) error
 }
 
 func (a *Actions) SearchSuggestions(q string) ([]string, error) {
