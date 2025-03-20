@@ -32,6 +32,22 @@ services:
     depends_on:
       - dank-db
 
+  dank-eventhub:
+    container_name: "dank-eventhub"
+    build:
+      context: ./server
+      dockerfile: Dockerfile.eventhub
+    restart: "always"
+    ports:
+      - "20252:3002"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    depends_on:
+      - dank-db
+
   dank-ytdl:
     container_name: "dank-ytdl"
     build:

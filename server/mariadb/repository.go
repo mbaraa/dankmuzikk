@@ -3,7 +3,7 @@ package mariadb
 import (
 	"dankmuzikk/app"
 	"dankmuzikk/app/models"
-	"dankmuzikk/config"
+	"dankmuzikk/evy"
 	"fmt"
 	"time"
 
@@ -15,7 +15,7 @@ type Repository struct {
 }
 
 func New() (*Repository, error) {
-	conn, err := DBConnector(config.Env().DB.Name)
+	conn, err := dbConnector()
 	if err != nil {
 		return nil, err
 	}
@@ -573,6 +573,23 @@ func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song
 	return models.NewList(songs, ""), nil
 }
 
+func (r *Repository) MarkSongAsDownloaded(songYtId string) error {
+	err := tryWrapDbError(
+		r.client.
+			Model(new(models.Song)).
+			Where("yt_id = ?", songYtId).
+			Update("fully_downloaded", true).
+			Error,
+	)
+	if _, ok := err.(*ErrRecordNotFound); ok {
+		return &app.ErrNotFound{
+			ResourceName: "song",
+		}
+	}
+
+	return nil
+}
+
 func (r *Repository) GetPlaylistByPublicId(pubId string) (models.Playlist, error) {
 	var playlist models.Playlist
 	err := tryWrapDbError(
@@ -762,6 +779,77 @@ func (r *Repository) DeletePlaylist(id uint) error {
 
 	return nil
 }
+
+// --------------------------------
+// Evy Repository
+// --------------------------------
+
+func (r *Repository) CreateEvent(e evy.EventPayload) error {
+	err := tryWrapDbError(
+		r.client.
+			Model(new(evy.EventPayload)).
+			Create(&e).
+			Error,
+	)
+	if _, ok := err.(*ErrRecordExists); ok {
+		return &app.ErrExists{
+			ResourceName: "event",
+		}
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) GetEventsBatch(size int32) ([]evy.EventPayload, error) {
+	var events []evy.EventPayload
+	err := tryWrapDbError(
+		r.client.
+			Model(&evy.EventPayload{}).
+			Find(&events).
+			Error,
+	)
+	if _, ok := err.(*ErrRecordNotFound); ok {
+		return nil, &app.ErrNotFound{
+			ResourceName: "event",
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	if len(events) == 0 {
+		return nil, &app.ErrNotFound{
+			ResourceName: "event",
+		}
+	}
+
+	return events, nil
+}
+
+func (r *Repository) DeleteEvent(id uint) error {
+	err := tryWrapDbError(
+		r.client.
+			Model(new(evy.EventPayload)).
+			Delete(&evy.EventPayload{Id: id}, "id = ?", id).
+			Error,
+	)
+	if _, ok := err.(*ErrRecordNotFound); ok {
+		return &app.ErrNotFound{
+			ResourceName: "event",
+		}
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// --------------------------------
+// Utils
+// --------------------------------
 
 func whenDidItHappen(t time.Time) string {
 	now := time.Now().UTC()

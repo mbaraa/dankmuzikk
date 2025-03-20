@@ -3,18 +3,21 @@ package actions
 import (
 	"dankmuzikk/app"
 	"dankmuzikk/app/models"
+	"dankmuzikk/evy/events"
+	"dankmuzikk/log"
 	"errors"
 )
 
 type Song struct {
-	YtId         string `json:"yt_id"`
-	Title        string `json:"title"`
-	Artist       string `json:"artist"`
-	ThumbnailUrl string `json:"thumbnail_url"`
-	Duration     string `json:"duration"`
-	PlayTimes    int    `json:"play_times,omitempty"`
-	Votes        int    `json:"votes,omitempty"`
-	AddedAt      string `json:"added_at,omitempty"`
+	YtId            string `json:"yt_id"`
+	Title           string `json:"title"`
+	Artist          string `json:"artist"`
+	ThumbnailUrl    string `json:"thumbnail_url"`
+	Duration        string `json:"duration"`
+	PlayTimes       int    `json:"play_times,omitempty"`
+	Votes           int    `json:"votes,omitempty"`
+	AddedAt         string `json:"added_at,omitempty"`
+	FullyDownloaded bool   `json:"fully_downloaded"`
 }
 
 func (a *Actions) GetSongByYouTubeId(ytId string) (Song, error) {
@@ -49,7 +52,9 @@ func (a *Actions) GetSongByYouTubeId(ytId string) (Song, error) {
 				}
 			}
 		}
-		err = a.DownloadYouTubeSong(ytId)
+		err = a.eventhub.Publish(events.SongPlayed{
+			SongYtId: ytId,
+		})
 		if err != nil {
 			return Song{}, err
 		}
@@ -58,11 +63,12 @@ func (a *Actions) GetSongByYouTubeId(ytId string) (Song, error) {
 	}
 
 	return Song{
-		YtId:         song.YtId,
-		Title:        song.Title,
-		Artist:       song.Artist,
-		ThumbnailUrl: song.ThumbnailUrl,
-		Duration:     song.Duration,
+		YtId:            song.YtId,
+		Title:           song.Title,
+		Artist:          song.Artist,
+		ThumbnailUrl:    song.ThumbnailUrl,
+		Duration:        song.Duration,
+		FullyDownloaded: song.FullyDownloaded,
 	}, nil
 }
 
@@ -83,7 +89,28 @@ func (a *Actions) AddSongToHistory(songYtId string, profileId uint) error {
 }
 
 func (a *Actions) DownloadYouTubeSong(ytId string) error {
-	return a.youtube.DownloadYoutubeSong(ytId)
+	song, err := a.app.GetSongByYouTubeId(ytId)
+	if err != nil {
+		return err
+	}
+
+	if song.FullyDownloaded {
+		log.Infof("The song with id %s was already downloaded 😬\n", ytId)
+		return nil
+	}
+
+	err = a.youtube.DownloadYoutubeSong(ytId)
+	if err != nil {
+		return err
+	}
+
+	return a.eventhub.Publish(events.SongDownloaded{
+		SongYtId: ytId,
+	})
+}
+
+func (a *Actions) MarkSongAsDownloaded(songYtId string) error {
+	return a.app.MarkSongAsDownloaded(songYtId)
 }
 
 func (a *Actions) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {
@@ -92,10 +119,36 @@ func (a *Actions) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uin
 		return false, err
 	}
 
-	err = a.youtube.DownloadYoutubeSongQueue(songId)
+	var event events.Event
+	if added {
+		event = events.SongAddedToPlaylist{
+			PlaylistPubId: playlistPubId,
+			SongYtId:      songId,
+		}
+	} else {
+		event = events.SongRemovedFromPlaylist{
+			PlaylistPubId: playlistPubId,
+			SongYtId:      songId,
+		}
+	}
+	err = a.eventhub.Publish(event)
 	if err != nil {
 		return false, err
 	}
 
-	return
+	return added, nil
+}
+
+type PlaySongParams struct {
+	Profile       models.Profile
+	SongYtId      string
+	PlaylistPubId string
+}
+
+func (a *Actions) PlaySong(params PlaySongParams) error {
+	return a.eventhub.Publish(events.SongPlayed{
+		ProfileId:     params.Profile.Id,
+		SongYtId:      params.SongYtId,
+		PlaylistPubId: params.PlaylistPubId,
+	})
 }
