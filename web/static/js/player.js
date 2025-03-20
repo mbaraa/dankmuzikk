@@ -47,6 +47,7 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
  * @property {number} votes
  * @property {number} order
  * @property {boolean} fully_downloaded
+ * @property {string} media_url
  */
 
 /**
@@ -512,11 +513,13 @@ function playebackSpeeder() {
  */
 async function downloadSong(songYtId) {
   try {
-    await fetch("/api/song?id=" + songYtId);
+    const resp = await fetch("/api/song?id=" + songYtId).then((res) =>
+      res.json(),
+    );
     for (let i = 0; i < 30; i++) {
       const song = await fetchSongMeta(songYtId);
       if (song.fully_downloaded) {
-        return { ok: true };
+        return { ok: true, ...resp };
       }
       await Utils.sleep(1000);
     }
@@ -533,11 +536,12 @@ async function downloadSong(songYtId) {
 async function downloadSongToDevice(songYtId, songTitle) {
   Utils.showLoading();
   await downloadSong(songYtId)
-    .then(() => {
+    .then((song) => {
       const a = document.createElement("a");
-      a.href = `${window.cdnUrl}/muzikkx-raw/${songYtId}.mp3`;
+      a.href = song.media_url.replace("muzikkx", "muzikkx-raw");
       a.download = `${songTitle}.mp3`;
       a.click();
+      a.remove();
     })
     .finally(() => {
       Utils.hideLoading();
@@ -635,7 +639,7 @@ async function playSong(song) {
   }
   const src = document.createElement("source");
   src.setAttribute("type", "audio/mpeg");
-  src.setAttribute("src", `${window.cdnUrl}/muzikkx/${song.yt_id}.mp3`);
+  src.setAttribute("src", resp.media_url);
   audioPlayerEl.appendChild(src);
 
   if (isSafari()) {

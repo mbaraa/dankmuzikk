@@ -16,6 +16,7 @@ func initEnvVars() {
 		EventHubPort:    getEnv("EVENTHUB_PORT"),
 		WebPort:         getEnv("WEB_PORT"),
 		GoEnv:           getEnv("GO_ENV"),
+		CdnAddress:      getEnv("CDN_ADDRESS"),
 		EventHubAddress: getEnv("EVENTHUB_ADDRESS"),
 		Hostname:        getEnv("HOST_NAME"),
 		JwtSecret:       getEnv("JWT_SECRET"),
@@ -64,6 +65,7 @@ type config struct {
 	EventHubPort    string
 	WebPort         string
 	GoEnv           string
+	CdnAddress      string
 	EventHubAddress string
 	Hostname        string
 	JwtSecret       string

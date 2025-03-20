@@ -3,9 +3,11 @@ package actions
 import (
 	"dankmuzikk/app"
 	"dankmuzikk/app/models"
+	"dankmuzikk/config"
 	"dankmuzikk/evy/events"
 	"dankmuzikk/log"
 	"errors"
+	"fmt"
 )
 
 type Song struct {
@@ -145,10 +147,20 @@ type PlaySongParams struct {
 	PlaylistPubId string
 }
 
-func (a *Actions) PlaySong(params PlaySongParams) error {
-	return a.eventhub.Publish(events.SongPlayed{
+func (a *Actions) PlaySong(params PlaySongParams) (mediaUrl string, err error) {
+	_, err = a.GetSongByYouTubeId(params.SongYtId)
+	if err != nil {
+		return "", err
+	}
+
+	err = a.eventhub.Publish(events.SongPlayed{
 		ProfileId:     params.Profile.Id,
 		SongYtId:      params.SongYtId,
 		PlaylistPubId: params.PlaylistPubId,
 	})
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, params.SongYtId), nil
 }

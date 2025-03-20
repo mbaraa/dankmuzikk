@@ -107,12 +107,16 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 		token = sessionToken.Value
 	}
 
-	err := s.songsService.PlaySong(token, id, playlistId)
+	mediaUrl, err := s.songsService.PlaySong(token, id, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
 		return
 	}
+
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"media_url": mediaUrl,
+	})
 }
 
 func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {

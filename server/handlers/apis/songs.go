@@ -83,7 +83,7 @@ func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 	playlistId := r.URL.Query().Get("playlist-id")
 	profileId, _ := r.Context().Value(auth.ProfileIdKey).(uint)
 
-	err := s.usecases.PlaySong(actions.PlaySongParams{
+	mediaUrl, err := s.usecases.PlaySong(actions.PlaySongParams{
 		Profile:       models.Profile{Id: profileId},
 		SongYtId:      id,
 		PlaylistPubId: playlistId,
@@ -93,6 +93,10 @@ func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 		handleErrorResponse(w, err)
 		return
 	}
+
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"media_url": mediaUrl,
+	})
 }
 
 func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
