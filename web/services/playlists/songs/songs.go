@@ -18,8 +18,8 @@ func (s *Service) GetSong(songYtId string) (entities.Song, error) {
 	return requests.GetRequest[entities.Song]("/v1/song/single?id=" + url.QueryEscape(songYtId))
 }
 
-func (s *Service) PlaySong(token, songYtId string) error {
-	err := requests.GetRequestAuthNoRespBody("/v1/song/play?id="+url.QueryEscape(songYtId), token)
+func (s *Service) PlaySong(token, songYtId, playlistId string) error {
+	err := requests.GetRequestAuthNoRespBody(fmt.Sprintf("/v1/song/play?id=%s&playlist-id=%s", url.QueryEscape(songYtId), url.QueryEscape(playlistId)), token)
 	return err
 }
 
@@ -30,15 +30,6 @@ func (s *Service) ToggleSongInPlaylist(token, songId, playlistPubId string) (add
 	}
 
 	return resp["added"], nil
-}
-
-func (s *Service) IncrementSongPlays(token, songId, playlistPubId string) error {
-	_, err := requests.PutRequestAuth[map[string]string, any](fmt.Sprintf("/v1/song/playlist/plays?song-id=%s&playlist-id=%s", songId, playlistPubId), token, map[string]string{})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (s *Service) UpvoteSong(token, songId, playlistPubId string) (int, error) {

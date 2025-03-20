@@ -100,7 +100,6 @@ func StartServer(staticFS embed.FS) error {
 	apisHandler.HandleFunc("GET /song", authMw.OptionalAuthApi(songApi.HandlePlaySong))
 	apisHandler.HandleFunc("GET /song/single", authMw.OptionalAuthApi(songApi.HandleGetSong))
 	apisHandler.HandleFunc("PUT /song/playlist", authMw.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
-	apisHandler.HandleFunc("PUT /song/playlist/plays", authMw.AuthApi(songApi.HandleIncrementSongPlaysInPlaylist))
 	apisHandler.HandleFunc("PUT /song/playlist/upvote", authMw.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
 	apisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	apisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))

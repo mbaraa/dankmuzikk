@@ -12,7 +12,7 @@ FROM alpine:latest AS run
 WORKDIR /app
 COPY --from=build /app/dankmuzikk-web ./dankmuzikk-web
 
-EXPOSE 8080
+EXPOSE 3003
 
 CMD ["./dankmuzikk-web"]
 
