@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"time"
 )
 
 type EventPayload struct {
@@ -18,15 +17,10 @@ type EventPayload struct {
 }
 
 type Evy struct {
-	httpClient *http.Client
 }
 
 func New() *Evy {
-	return &Evy{
-		httpClient: &http.Client{
-			Timeout: 3 * time.Second,
-		},
-	}
+	return &Evy{}
 }
 
 func (e *Evy) Publish(event events.Event) error {
@@ -46,12 +40,7 @@ func (e *Evy) Publish(event events.Event) error {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, config.Env().EventHubAddress+"/emit", body)
-	if err != nil {
-		return err
-	}
-
-	resp, err := e.httpClient.Do(req)
+	resp, err := http.Post(config.Env().EventHubAddress+"/emit", "application/json", body)
 	if err != nil {
 		return err
 	}

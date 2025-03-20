@@ -243,5 +243,16 @@ func (y *YouTube) DownloadYoutubeSong(songYtId string) error {
 		return errors.New("something went wrong when downloading a song; id: " + songYtId)
 	}
 
+	respBody := map[string]string{}
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	if err != nil {
+		return err
+	}
+	_ = resp.Body.Close()
+
+	if respBody["error"] != "" {
+		return errors.New(respBody["error"])
+	}
+
 	return nil
 }
