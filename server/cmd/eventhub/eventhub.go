@@ -147,23 +147,19 @@ func executeEvents(events []evy.EventPayload) error {
 
 func fetchAndExecuteEventsAsync() {
 	timer := time.NewTicker(time.Second * fetchWaitTimeSeconds)
-	wg := sync.WaitGroup{}
 	for range timer.C {
 		events, err := repo.GetEventsBatch(eventsBatchItems)
 		if err != nil {
 			continue
 		}
 
-		wg.Add(1)
 		go func() {
-			err = executeEvents(events)
+			err := executeEvents(events)
 			if err != nil {
 				log.Errorln("Failed executing events batch", err)
 			}
-			wg.Done()
 		}()
 	}
-	wg.Wait()
 }
 
 func handleEventEmitted(w http.ResponseWriter, r *http.Request) {
