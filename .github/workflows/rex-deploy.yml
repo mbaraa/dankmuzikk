@@ -20,8 +20,11 @@ jobs:
     environment: production
     steps:
       - name: rex-7567-e27
-        uses: mbaraa/rex-action@v1.6
+        uses: mbaraa/rex-action@v1.6.4
         with:
           server-url: ${{ secrets.REX_SERVER }}
           token: ${{ secrets.REX_KEY }}
           repo-name: dankmuzikk
+          commit-sha: ${{ github.sha }}
+          latest-tag: ${{ github.ref }}
+          compose-file-name: "docker-compose-prod.yml"
