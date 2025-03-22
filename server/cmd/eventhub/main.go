@@ -1,16 +1,48 @@
 package main
 
 import (
-	"fmt"
+	"dankmuzikk/actions"
+	"dankmuzikk/app"
+	"dankmuzikk/config"
+	"dankmuzikk/handlers/events"
+	"dankmuzikk/jwt"
+	"dankmuzikk/log"
+	"dankmuzikk/mailer"
+	"dankmuzikk/mariadb"
+	"dankmuzikk/youtube"
+	"dankmuzikk/zip"
 	"net/http"
-	"time"
 )
 
-func greet(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World! %s", time.Now())
+func init() {
+	mariadbRepo, err := mariadb.New()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	repo = mariadbRepo
+
+	app := app.New(mariadbRepo)
+	zipArchiver := zip.New()
+	jwtUtil := jwt.New[actions.TokenPayload]()
+	mailer := mailer.New()
+	yt := youtube.New()
+
+	usecases := actions.New(
+		app,
+		&eventHub{},
+		zipArchiver,
+		jwtUtil,
+		mailer,
+		yt,
+	)
+
+	handlers = events.New(usecases)
 }
 
 func main() {
-	http.HandleFunc("/", greet)
-	http.ListenAndServe(":8080", nil)
+	go fetchAndExecuteEventsAsync()
+
+	http.HandleFunc("/emit", handleEventEmitted)
+	http.ListenAndServe(":"+config.Env().EventHubPort, nil)
 }

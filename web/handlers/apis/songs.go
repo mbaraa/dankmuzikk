@@ -25,37 +25,6 @@ func NewDownloadHandler(
 	}
 }
 
-func (s *songDownloadHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	songId := r.URL.Query().Get("song-id")
-	if songId == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	playlistId := r.URL.Query().Get("playlist-id")
-	if playlistId == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	err = s.songsService.IncrementSongPlays(sessionToken.Value, songId, playlistId)
-	if err != nil {
-		log.Errorln(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-}
-
 func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
@@ -130,18 +99,24 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	playlistId := r.URL.Query().Get("playlist-id")
+
 	token := ""
 	sessionToken, _ := r.Cookie(auth.SessionTokenKey)
 	if sessionToken != nil {
 		token = sessionToken.Value
 	}
 
-	err := s.songsService.PlaySong(token, id)
+	mediaUrl, err := s.songsService.PlaySong(token, id, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
 		return
 	}
+
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"media_url": mediaUrl,
+	})
 }
 
 func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {

@@ -11,7 +11,7 @@ build-server:
 	go build -ldflags="-w -s" -o ${SERVER_BINARY_NAME} ./cmd/http-server/main.go
 
 build-eventhub:
-	go build -ldflags="-w -s" -o ${EVENTHUB_BINARY_NAME} ./cmd/eventhub/main.go
+	go build -ldflags="-w -s" -o ${EVENTHUB_BINARY_NAME} ./cmd/eventhub/...
 
 build-migrator:
 	go build -ldflags="-w -s" -o ${MIGRATOR_BINARY_NAME} ./cmd/migrator/main.go

@@ -16,7 +16,6 @@ func initEnvVars() {
 		GoEnv:         getEnv("GO_ENV"),
 		Hostname:      getEnv("HOST_NAME"),
 		ServerAddress: getEnv("SERVER_ADDRESS"),
-		CdnAddress:    getEnv("CDN_ADDRESS"),
 	}
 }
 
@@ -25,7 +24,6 @@ type config struct {
 	GoEnv         string
 	Hostname      string
 	ServerAddress string
-	CdnAddress    string
 }
 
 // Env returns the thing's config values :)
@@ -37,10 +35,6 @@ func Env() config {
 // TODO: make a unified requests package or something.
 func GetRequestUrl(path string) string {
 	return fmt.Sprintf("%s%s", Env().ServerAddress, path)
-}
-
-func GetCdnUrl() string {
-	return fmt.Sprintf("%s", Env().CdnAddress)
 }
 
 func getEnv(key string) string {

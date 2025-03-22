@@ -18,6 +18,6 @@ COPY --from=build /app/dankmuzikk-server ./dankmuzikk-server
 COPY --from=build /app/dankmuzikk-migrator ./dankmuzikk-migrator
 COPY --from=build /app/Makefile ./Makefile
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["make", "dankmuzikk-server-prod"]

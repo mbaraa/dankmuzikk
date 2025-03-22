@@ -1,7 +1,6 @@
 package layouts
 
 import (
-	"dankmuzikk-web/config"
 	"dankmuzikk-web/views/components/loading"
 	"fmt"
 )
@@ -48,7 +47,6 @@ templ Raw(title string, children ...templ.Component) {
 		<body
 			hx-ext="loading-states"
 			class={ "min-w-[360px]",  "min-h-screen", "p-0", "m-0", "font-Ubuntu", "bg-primary" }
-			onload={ templ.JSFuncCall("setCdnUrl", config.GetCdnUrl()) }
 		>
 			<div id="main-contents" style="display: contents">
 				for _, child := range children {
@@ -59,11 +57,6 @@ templ Raw(title string, children ...templ.Component) {
 				@loading.Loading()
 			</div>
 			//
-			<script>
-                function setCdnUrl(url) {
-                    window.cdnUrl = url
-                }
-            </script>
 			<script src="/static/js/utils.js"></script>
 			<script src="/static/js/theme.js"></script>
 			<script type="module">

@@ -2,6 +2,7 @@ package apis
 
 import (
 	"dankmuzikk/actions"
+	"dankmuzikk/app/models"
 	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
 	"encoding/json"
@@ -16,31 +17,6 @@ type songsHandler struct {
 func NewSongsHandler(usecases *actions.Actions) *songsHandler {
 	return &songsHandler{
 		usecases: usecases,
-	}
-}
-
-func (s *songsHandler) HandleIncrementSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	songId := r.URL.Query().Get("song-id")
-	if songId == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	playlistId := r.URL.Query().Get("playlist-id")
-	if playlistId == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	err := s.usecases.IncrementSongPlaysInPlaylist(songId, playlistId, profileId)
-	if err != nil {
-		log.Error(err)
-		handleErrorResponse(w, err)
-		return
 	}
 }
 
@@ -104,21 +80,23 @@ func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	playlistId := r.URL.Query().Get("playlist-id")
+	profileId, _ := r.Context().Value(auth.ProfileIdKey).(uint)
 
-	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if profileIdCorrect {
-		err := s.usecases.AddSongToHistory(id, profileId)
-		if err != nil {
-			log.Errorln(err)
-		}
-	}
-
-	err := s.usecases.DownloadYouTubeSong(id)
+	mediaUrl, err := s.usecases.PlaySong(actions.PlaySongParams{
+		Profile:       models.Profile{Id: profileId},
+		SongYtId:      id,
+		PlaylistPubId: playlistId,
+	})
 	if err != nil {
-		log.Error(err)
+		log.Error("Playing a song failed", err)
 		handleErrorResponse(w, err)
 		return
 	}
+
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"media_url": mediaUrl,
+	})
 }
 
 func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
@@ -134,8 +112,6 @@ func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 		handleErrorResponse(w, err)
 		return
 	}
-
-	fmt.Println("song", payload)
 
 	_ = json.NewEncoder(w).Encode(payload)
 }

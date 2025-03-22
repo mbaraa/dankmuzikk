@@ -11,12 +11,15 @@ var (
 
 func initEnvVars() {
 	_config = config{
-		Port:      getEnv("PORT"),
-		CdnPort:   getEnv("CDN_PORT"),
-		WebPort:   getEnv("WEB_PORT"),
-		GoEnv:     getEnv("GO_ENV"),
-		Hostname:  getEnv("HOST_NAME"),
-		JwtSecret: getEnv("JWT_SECRET"),
+		Port:            getEnv("PORT"),
+		CdnPort:         getEnv("CDN_PORT"),
+		EventHubPort:    getEnv("EVENTHUB_PORT"),
+		WebPort:         getEnv("WEB_PORT"),
+		GoEnv:           getEnv("GO_ENV"),
+		CdnAddress:      getEnv("CDN_ADDRESS"),
+		EventHubAddress: getEnv("EVENTHUB_ADDRESS"),
+		Hostname:        getEnv("HOST_NAME"),
+		JwtSecret:       getEnv("JWT_SECRET"),
 		YouTube: struct {
 			DownloaderUrl string
 			MuzikkDir     string
@@ -57,13 +60,16 @@ func initEnvVars() {
 }
 
 type config struct {
-	Port      string
-	CdnPort   string
-	WebPort   string
-	GoEnv     string
-	Hostname  string
-	JwtSecret string
-	YouTube   struct {
+	Port            string
+	CdnPort         string
+	EventHubPort    string
+	WebPort         string
+	GoEnv           string
+	CdnAddress      string
+	EventHubAddress string
+	Hostname        string
+	JwtSecret       string
+	YouTube         struct {
 		DownloaderUrl string
 		MuzikkDir     string
 	}

@@ -4,6 +4,7 @@ import (
 	"dankmuzikk/actions"
 	"dankmuzikk/app"
 	"dankmuzikk/config"
+	"dankmuzikk/evy"
 	"dankmuzikk/handlers/apis"
 	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/handlers/middlewares/logger"
@@ -37,6 +38,7 @@ func StartServer() error {
 	}
 
 	app := app.New(mariadbRepo)
+	eventhub := evy.New()
 	zipArchiver := zip.New()
 	jwtUtil := jwt.New[actions.TokenPayload]()
 	mailer := mailer.New()
@@ -44,6 +46,7 @@ func StartServer() error {
 
 	usecases := actions.New(
 		app,
+		eventhub,
 		zipArchiver,
 		jwtUtil,
 		mailer,
@@ -76,7 +79,6 @@ func StartServer() error {
 	v1ApisHandler.HandleFunc("GET /song/play", authMw.OptionalAuthApi(songApi.HandlePlaySong))
 	v1ApisHandler.HandleFunc("GET /song/single", authMw.OptionalAuthApi(songApi.HandleGetSong))
 	v1ApisHandler.HandleFunc("PUT /song/playlist", authMw.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
-	v1ApisHandler.HandleFunc("PUT /song/playlist/plays", authMw.AuthApi(songApi.HandleIncrementSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/upvote", authMw.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))

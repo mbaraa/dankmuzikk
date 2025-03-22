@@ -129,6 +129,29 @@ function menuer() {
 
 const [registerPopover, registerMobileMenu, registerPopup] = menuer();
 
+/**
+ * @param {() => Promise<any>} func
+ * @param {number} times
+ *
+ * @returns Promise<any>
+ */
+async function retryer(func, times = 3) {
+  try {
+    return await func();
+  } catch (err) {
+    if (times > 0) {
+      console.log("retrying ", times);
+      await sleep(3500);
+      return await retryer(func, times - 1);
+    }
+    return err;
+  }
+}
+
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 window.Utils = {
   showLoading,
   hideLoading,
@@ -139,4 +162,6 @@ window.Utils = {
   registerPopover,
   getCookie,
   setCookie,
+  retryer,
+  sleep,
 };

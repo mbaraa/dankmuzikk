@@ -2,7 +2,6 @@ package playlist
 
 import (
 	"dankmuzikk-web/entities"
-	"dankmuzikk-web/models"
 	"dankmuzikk-web/views/components/menus"
 	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
@@ -27,7 +26,7 @@ templ playlistOptions(playlist entities.Playlist) {
 	>
 		<h3 class={ "text-lg", "font-medium" }>Playlist's Options</h3>
 		<hr/>
-		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
+		if perm, ok := ctx.Value("playlist-permission").(entities.PlaylistPermissions); ok && (perm & entities.OwnerPermission) != 0 {
 			@publicPlaylistToggle(playlist.PublicId, playlist.IsPublic)
 		}
 		<button
@@ -80,7 +79,7 @@ templ playlistOptions(playlist entities.Playlist) {
 			@icons.Download()
 			<span>Download Playlist</span>
 		</button>
-		if perm, ok := ctx.Value("playlist-permission").(models.PlaylistPermissions); ok && (perm & models.OwnerPermission) != 0 {
+		if perm, ok := ctx.Value("playlist-permission").(entities.PlaylistPermissions); ok && (perm & entities.OwnerPermission) != 0 {
 			<button
 				class={
 					"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",
@@ -162,7 +161,7 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 	</div>
 }
 
-templ joinLeavePlaylist(publicId string, perm models.PlaylistPermissions) {
+templ joinLeavePlaylist(publicId string, perm entities.PlaylistPermissions) {
 	<div
 		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
 		hx-put={
@@ -191,7 +190,7 @@ templ joinLeavePlaylist(publicId string, perm models.PlaylistPermissions) {
 			type="submit"
 			id={ fmt.Sprintf("join-playlist-%s", publicId) }
 		>
-			if (perm & models.JoinerPermission) != 0 {
+			if (perm & entities.JoinerPermission) != 0 {
 				@icons.SadFrog()
 				<span>Leave playlist</span>
 			} else {
