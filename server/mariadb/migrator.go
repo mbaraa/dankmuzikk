@@ -28,9 +28,9 @@ func Migrate() error {
 	}
 
 	for _, tableName := range []string{
-		"profiles", "songs", "playlists",
+		"profiles", "songs", "playlists", "event_payloads",
 	} {
-		err = dbConn.Exec("ALTER TABLE " + tableName + " CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci").Error
+		err = dbConn.Exec("ALTER TABLE " + tableName + " CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci").Error
 		if err != nil {
 			return err
 		}

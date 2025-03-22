@@ -164,3 +164,21 @@ func (a *Actions) PlaySong(params PlaySongParams) (mediaUrl string, err error) {
 
 	return fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, params.SongYtId), nil
 }
+
+func (a *Actions) SaveSongsMetadataFromYouTube(songs []Song) error {
+	for _, newSong := range songs {
+		_, err := a.app.CreateSong(models.Song{
+			YtId:            newSong.YtId,
+			Title:           newSong.Title,
+			Artist:          newSong.Artist,
+			ThumbnailUrl:    newSong.ThumbnailUrl,
+			Duration:        newSong.Duration,
+			FullyDownloaded: false,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

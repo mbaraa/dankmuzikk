@@ -25,6 +25,10 @@ func New() (*Repository, error) {
 	}, nil
 }
 
+// --------------------------------
+// App Repository
+// --------------------------------
+
 func (r *Repository) GetAccount(id uint) (models.Account, error) {
 	var account models.Account
 

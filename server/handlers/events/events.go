@@ -43,4 +43,19 @@ func (e *EventHandlers) HandleDecrementPlaylistSongsCount(event events.SongRemov
 	return nil
 }
 
+func (e *EventHandlers) HandleSaveSongsMetadataOnSearchBatch(event events.SongsSearched) error {
+	songs := make([]actions.Song, 0, len(event.Songs))
+	for _, newSong := range event.Songs {
+		songs = append(songs, actions.Song{
+			YtId:         newSong.YouTubeId,
+			Title:        newSong.Title,
+			Artist:       newSong.Artist,
+			ThumbnailUrl: newSong.ThumbnailUrl,
+			Duration:     newSong.Duration,
+		})
+	}
+
+	return e.usecases.SaveSongsMetadataFromYouTube(songs)
+}
+
 func (e *EventHandlers) IncrementSongPlaysInPlaylist() {}
