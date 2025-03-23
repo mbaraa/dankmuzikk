@@ -1,39 +1,43 @@
 package main
 
 import (
+	"dankmuzikk/actions"
+	"dankmuzikk/app"
 	"dankmuzikk/config"
+	"dankmuzikk/evy"
+	"dankmuzikk/evy/events"
+	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/handlers/middlewares/logger"
+	"dankmuzikk/jwt"
 	"dankmuzikk/log"
+	"dankmuzikk/mariadb"
 	"net/http"
+	"strings"
+	"time"
 )
 
 func main() {
-	err := StartServer()
+	mariadbRepo, err := mariadb.New()
 	if err != nil {
 		log.Fatalln(err)
 	}
-}
-
-func StartServer() error {
-	// mariadbRepo, err := mariadb.New()
-	// if err != nil {
-	// return err
-	// }
-	// app := app.New(mariadbRepo)
-	// jwtUtil := jwt.New[actions.TokenPayload]()
-	//	usecases := actions.New(
-	//		app,
-	//		nil,
-	//		jwtUtil,
-	//		nil,
-	//		nil,
-	//	)
-	// authMw := auth.New(usecases)
-	// applicationHandler.Handle("/muzikkx/", authMw.AuthHandler(http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir)))))
+	app := app.New(mariadbRepo)
+	eventhub := evy.New()
+	jwtUtil := jwt.New[actions.TokenPayload]()
+	usecases := actions.New(
+		app,
+		eventhub,
+		nil,
+		jwtUtil,
+		nil,
+		nil,
+	)
+	authMw := auth.New(usecases)
 	applicationHandler := http.NewServeMux()
 
 	muzikkxDir := config.Env().BlobsDir + "/muzikkx/"
 	pixDir := config.Env().BlobsDir + "/pix/"
+	playlistsDir := config.Env().BlobsDir + "/playlists/"
 
 	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
 	applicationHandler.Handle("/muzikkx-raw/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -42,11 +46,25 @@ func StartServer() error {
 			StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(muzikkxDir))).
 			ServeHTTP(w, r)
 	}))
+
 	applicationHandler.Handle("/pix/", http.StripPrefix("/pix", http.FileServer(http.Dir(pixDir))))
+	applicationHandler.Handle("/playlists/", authMw.AuthHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Disposition", "attachment")
+
+		title := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/playlists/"), ".zip")
+		eventhub.Publish(events.PlaylistDownloaded{
+			PlaylistTitle: title,
+			DeleteAt:      time.Now().Add(time.Minute * 5),
+		})
+
+		http.
+			StripPrefix("/playlists", http.FileServer(http.Dir(playlistsDir))).
+			ServeHTTP(w, r)
+	})))
 
 	log.Info("Starting http cdn server at port " + config.Env().CdnPort)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
-		return http.ListenAndServe(":"+config.Env().CdnPort, logger.Handler(applicationHandler))
+		log.Fatalln(http.ListenAndServe(":"+config.Env().CdnPort, logger.Handler(applicationHandler)))
 	}
-	return http.ListenAndServe(":"+config.Env().CdnPort, applicationHandler)
+	log.Fatalln(http.ListenAndServe(":"+config.Env().CdnPort, applicationHandler))
 }
