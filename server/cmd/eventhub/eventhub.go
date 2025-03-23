@@ -14,7 +14,7 @@ import (
 
 const (
 	eventsBatchItems     = 25
-	fetchWaitTimeSeconds = 5
+	fetchWaitTimeSeconds = 1
 )
 
 var (
