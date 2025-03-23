@@ -10,6 +10,8 @@ services:
     stdin_open: true
     env_file:
       - .env.docker
+    volumes:
+      - dank-files:/app/.serve
     networks:
       - danknetwork
     depends_on:
