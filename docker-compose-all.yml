@@ -1,4 +1,38 @@
 services:
+  dank-server:
+    container_name: "dank-server"
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: "always"
+    ports:
+      - "20250:3000"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    depends_on:
+      - dank-cdn
+      - dank-ytdl
+      - dank-eventhub
+
+  dank-web-client:
+    container_name: "dank-web-client"
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    restart: "always"
+    ports:
+      - "20253:3003"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    depends_on:
+      - dank-server
+
   dank-cdn:
     container_name: "dank-cdn"
     build:

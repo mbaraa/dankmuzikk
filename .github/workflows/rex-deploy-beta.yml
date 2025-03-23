@@ -5,7 +5,7 @@ concurrency: beta
 on:
   push:
     branches:
-      - dev
+      - beta
     paths-ignore:
       - "**.md"
   pull_request:
@@ -20,8 +20,11 @@ jobs:
     environment: beta
     steps:
       - name: rex-7567-e27
-        uses: mbaraa/rex-action@v1.6
+        uses: mbaraa/rex-action@v1.6.4
         with:
           server-url: ${{ secrets.REX_SERVER }}
           token: ${{ secrets.REX_KEY }}
           repo-name: dankmuzikk-beta
+          commit-sha: ${{ github.sha }}
+          latest-tag: ${{ github.ref }}
+          compose-file-name: "docker-compose-beta.yml"

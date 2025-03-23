@@ -77,7 +77,7 @@ cp .env.example .env.docker
 3. Run it with docker compose.
 
 ```bash
-docker compose up -f docker-compose-dev.yml
+docker compose up -f docker-compose-all.yml
 ```
 
 3. Visit http://localhost:20250
