@@ -15,3 +15,5 @@ _*/
 Session.vim
 build-errors.log
 tmp/
+docker-compose-prod.yml
+docker-compose-beta.yml

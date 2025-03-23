@@ -1,0 +1,14 @@
+services:
+{{ range .Services }}
+    {{ . }}
+{{ end }}
+
+networks:
+{{ range .Networks }}
+    {{ . }}
+{{ end }}
+
+volumes:
+{{ range .Volumes }}
+    {{ . }}
+{{ end }}
