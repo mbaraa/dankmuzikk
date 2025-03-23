@@ -44,6 +44,7 @@ type TemplateValues struct {
 
 	MariaDbImage string
 
+	Beta            bool
 	ExternalNetwork bool
 	EnabledServices []string
 }
@@ -192,6 +193,27 @@ func getExternalNetwork(name string) (string, error) {
 }
 
 func generateComposeFile(values TemplateValues) (string, error) {
+	serverContainerName := "dank-server"
+	if values.Beta {
+		serverContainerName += "-beta"
+	}
+	webContainerName := "dank-web-client"
+	if values.Beta {
+		webContainerName += "-beta"
+	}
+	cdnContainerName := "dank-cdn"
+	if values.Beta {
+		cdnContainerName += "-beta"
+	}
+	eventhubContainerName := "dank-eventhub"
+	if values.Beta {
+		eventhubContainerName += "-beta"
+	}
+	ytdlContainerName := "dank-ytdl"
+	if values.Beta {
+		ytdlContainerName += "-beta"
+	}
+
 	filesVolumeName := "dank-files"
 	dbConfigVolumeName := "dank-db-config"
 	dbDataVolumeName := "dank-db-data"
@@ -201,7 +223,7 @@ func generateComposeFile(values TemplateValues) (string, error) {
 	var networks []string
 
 	server, err := getService(ServiceValues{
-		ServiceName:  "dank-server",
+		ServiceName:  serverContainerName,
 		BuildContext: "./server",
 		Dockerfile:   "Dockerfile",
 		Ports: []ServicePortsValues{
@@ -224,7 +246,7 @@ func generateComposeFile(values TemplateValues) (string, error) {
 	}
 
 	webClient, err := getService(ServiceValues{
-		ServiceName:  "dank-web-client",
+		ServiceName:  webContainerName,
 		BuildContext: "./web",
 		Dockerfile:   "Dockerfile",
 		Ports: []ServicePortsValues{
@@ -247,7 +269,7 @@ func generateComposeFile(values TemplateValues) (string, error) {
 	}
 
 	cdn, err := getService(ServiceValues{
-		ServiceName:  "dank-cdn",
+		ServiceName:  cdnContainerName,
 		BuildContext: "./server",
 		Dockerfile:   "Dockerfile.cdn",
 		Ports: []ServicePortsValues{
@@ -274,7 +296,7 @@ func generateComposeFile(values TemplateValues) (string, error) {
 	}
 
 	eventhub, err := getService(ServiceValues{
-		ServiceName:  "dank-eventhub",
+		ServiceName:  eventhubContainerName,
 		BuildContext: "./server",
 		Dockerfile:   "Dockerfile.eventhub",
 		Ports: []ServicePortsValues{
@@ -296,7 +318,7 @@ func generateComposeFile(values TemplateValues) (string, error) {
 	}
 
 	ytdl, err := getService(ServiceValues{
-		ServiceName:    "dank-ytdl",
+		ServiceName:    ytdlContainerName,
 		BuildContext:   "./ytdl",
 		Dockerfile:     "Dockerfile",
 		ContainerImage: "",
@@ -559,10 +581,14 @@ func generateBetaComposeFile(networkName, uploadsDir string) error {
 		YtDlPort:        "20364",
 		NetworkName:     networkName,
 		FilesPath:       uploadsDir,
+		Beta:            true,
 		ExternalNetwork: true,
 		EnabledServices: []string{
 			ServiceServer,
 			ServiceWeb,
+			ServiceCdn,
+			ServiceEventHub,
+			ServiceYtDl,
 		},
 	})
 	if err != nil {
