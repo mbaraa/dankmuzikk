@@ -1,0 +1,123 @@
+services:
+  dank-server:
+    container_name: "dank-server"
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: "always"
+    ports:
+      - "20250:3000"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    depends_on:
+      - dank-cdn
+      - dank-ytdl
+      - dank-eventhub
+
+  dank-web-client:
+    container_name: "dank-web-client"
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    restart: "always"
+    ports:
+      - "20253:3003"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    depends_on:
+      - dank-server
+
+  dank-cdn:
+    container_name: "dank-cdn"
+    build:
+      context: ./server
+      dockerfile: Dockerfile.cdn
+    restart: "always"
+    ports:
+      - "20251:3001"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    volumes:
+      - dank-files:/app/.serve
+    networks:
+      - danknetwork
+
+  dank-eventhub:
+    container_name: "dank-eventhub"
+    build:
+      context: ./server
+      dockerfile: Dockerfile.eventhub
+    restart: "always"
+    ports:
+      - "20252:3002"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+
+  dank-ytdl:
+    container_name: "dank-ytdl"
+    build:
+      context: ./ytdl
+      dockerfile: Dockerfile
+    restart: "always"
+    ports:
+      - "20254:8000"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    volumes:
+      - dank-files:/app/.serve
+    networks:
+      - danknetwork
+
+  dank-db:
+    container_name: "dank-db"
+    image: "mariadb:11.7"
+    restart: "always"
+    ports:
+      - "3306:3306"
+    stdin_open: true
+    environment:
+      MARIADB_ROOT_PASSWORD: "previetcomrade"
+      MARIADB_DATABASE: "dankabase"
+    env_file:
+      - .env.docker
+    volumes:
+      - dank-db-config:/var/lib/mysql
+      - dank-db-data:/etc/mysql
+    networks:
+      - danknetwork
+
+networks:
+  danknetwork: {}
+
+volumes:
+  dank-files:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./.serve
+
+  dank-db-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./.db/etc
+
+  dank-db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./.db/var
