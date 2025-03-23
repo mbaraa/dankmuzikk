@@ -517,11 +517,11 @@ func generateJustServicesComposeFile() error {
 
 func generateProdComposeFile(networkName, uploadsDir string) error {
 	content, err := generateComposeFile(TemplateValues{
-		ServerPort:      "20260",
-		WebPort:         "20263",
-		CdnPort:         "20261",
-		EventHubPort:    "20262",
-		YtDlPort:        "20264",
+		ServerPort:      "20250",
+		WebPort:         "20253",
+		CdnPort:         "20251",
+		EventHubPort:    "20252",
+		YtDlPort:        "20254",
 		NetworkName:     networkName,
 		FilesPath:       uploadsDir,
 		ExternalNetwork: true,
@@ -552,20 +552,17 @@ func generateProdComposeFile(networkName, uploadsDir string) error {
 
 func generateBetaComposeFile(networkName, uploadsDir string) error {
 	content, err := generateComposeFile(TemplateValues{
-		ServerPort:      "20250",
-		WebPort:         "20253",
-		CdnPort:         "20251",
-		EventHubPort:    "20252",
-		YtDlPort:        "20254",
+		ServerPort:      "20360",
+		WebPort:         "20363",
+		CdnPort:         "20361",
+		EventHubPort:    "20362",
+		YtDlPort:        "20364",
 		NetworkName:     networkName,
 		FilesPath:       uploadsDir,
 		ExternalNetwork: true,
 		EnabledServices: []string{
 			ServiceServer,
 			ServiceWeb,
-			ServiceCdn,
-			ServiceEventHub,
-			ServiceYtDl,
 		},
 	})
 	if err != nil {
