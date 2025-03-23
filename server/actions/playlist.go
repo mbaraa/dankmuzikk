@@ -121,7 +121,7 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 			_ = ogFile.Close()
 			return "", err
 		}
-		fileNames[i] = newShit.Name()
+		fileNames = append(fileNames, newShit.Name())
 		_ = newShit.Close()
 		_ = ogFile.Close()
 	}
