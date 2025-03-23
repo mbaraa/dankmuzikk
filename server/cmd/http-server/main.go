@@ -93,7 +93,6 @@ func StartServer() error {
 	v1ApisHandler.HandleFunc("GET /profile", userApi.HandleGetProfile)
 
 	pagesHandler := http.NewServeMux()
-	pagesHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir))))
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", pagesHandler)

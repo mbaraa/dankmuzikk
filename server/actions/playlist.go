@@ -98,13 +98,13 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (io.Rea
 
 	fileNames := make([]string, 0, playlist.SongsCount)
 	for i, song := range playlist.Songs {
-		ogFile, err := os.Open(fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MuzikkDir, song.YtId))
+		ogFile, err := os.Open(fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().BlobsDir, song.YtId))
 		if err != nil {
 			return nil, err
 		}
 		newShit, err := os.OpenFile(
 			filepath.Clean(
-				fmt.Sprintf("%s/%d-%s.mp3", config.Env().YouTube.MuzikkDir, i+1,
+				fmt.Sprintf("%s/muzikkx/%d-%s.mp3", config.Env().BlobsDir, i+1,
 					strings.ReplaceAll(song.Title, "/", "|"),
 				),
 			),

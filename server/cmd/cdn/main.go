@@ -31,13 +31,18 @@ func StartServer() error {
 	// authMw := auth.New(usecases)
 	// applicationHandler.Handle("/muzikkx/", authMw.AuthHandler(http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir)))))
 	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir))))
+
+	muzikkxDir := config.Env().BlobsDir + "/muzikkx/"
+	pixDir := config.Env().BlobsDir + "/pix/"
+
+	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
 	applicationHandler.Handle("/muzikkx-raw/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Disposition", "attachment")
 		http.
-			StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir))).
+			StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(muzikkxDir))).
 			ServeHTTP(w, r)
 	}))
+	applicationHandler.Handle("/pix/", http.StripPrefix("/pix", http.FileServer(http.Dir(pixDir))))
 
 	log.Info("Starting http cdn server at port " + config.Env().CdnPort)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {

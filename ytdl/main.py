@@ -2,12 +2,15 @@ from flask import Flask
 import os
 import signal
 from yt_dlp import YoutubeDL
+import shutil
 
-DOWNLOAD_PATH = os.environ.get("YOUTUBE_MUSIC_DOWNLOAD_PATH")
+DOWNLOAD_PATH = os.environ.get("BLOBS_DIR")
 if DOWNLOAD_PATH is None or DOWNLOAD_PATH == "":
-    print("Missing YOUTUBE_MUSIC_DOWNLOAD_PATH suka")
+    print("Missing BLOBS_DIR suka")
     exit(1)
 
+MUZIKKX_DIR = f"{DOWNLOAD_PATH}/muzikkx/"
+PIX_DIR = f"{DOWNLOAD_PATH}/pix/"
 
 YT_ERROR = {
     0: "none",
@@ -25,9 +28,11 @@ def download_yt_song(id: str) -> int:
                 "preferredcodec": "mp3",
                 "preferredquality": "192",
             }],
-            "outtmpl": f"{DOWNLOAD_PATH}/%(id)s.%(ext)s"
+            "writethumbnail": True,
+            "outtmpl": f"{MUZIKKX_DIR}/%(id)s.%(ext)s"
         })
         ytdl.download("https://www.youtube.com/watch?v=" + id)
+        shutil.move(f"{MUZIKKX_DIR}/{id}.webp", f"{PIX_DIR}/{id}.webp")
     except:
         return 3
     return 0
