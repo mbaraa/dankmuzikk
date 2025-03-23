@@ -230,12 +230,12 @@ func (y *YouTube) SearchSuggestions(query string) (suggestions []string, err err
 }
 
 // DownloadYoutubeSong downloads a YouTube muzikk file into the path specified by the environment variable
-// YOUTUBE_MUSIC_DOWNLOAD_PATH, where the file name will be <video_id.mp3> to be served under /muzikk/{id}
+// BLOBS_DIR, where the file name will be <video_id.mp3> to be served under /muzikk/{id}
 // and returns an occurring error
 //
 // Used when playing a new song (usually from search).
 func (y *YouTube) DownloadYoutubeSong(songYtId string) error {
-	resp, err := http.Get(fmt.Sprintf("%s/download/%s", config.Env().YouTube.DownloaderUrl, songYtId))
+	resp, err := http.Get(fmt.Sprintf("%s/download/%s", config.Env().YouTubeDownloaderAddress, songYtId))
 	if err != nil {
 		return err
 	}

@@ -32,8 +32,8 @@ func StartServer() error {
 	// applicationHandler.Handle("/muzikkx/", authMw.AuthHandler(http.StripPrefix("/muzikkx", http.FileServer(http.Dir(config.Env().YouTube.MuzikkDir)))))
 	applicationHandler := http.NewServeMux()
 
-	muzikkxDir := config.Env().YouTube.MuzikkDir + "/muzikkx/"
-	pixDir := config.Env().YouTube.MuzikkDir + "/pix/"
+	muzikkxDir := config.Env().BlobsDir + "/muzikkx/"
+	pixDir := config.Env().BlobsDir + "/pix/"
 
 	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
 	applicationHandler.Handle("/muzikkx-raw/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
