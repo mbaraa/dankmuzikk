@@ -40,7 +40,7 @@ func (a *Actions) GetSongByYouTubeId(ytId string) (Song, error) {
 					YtId:            s.YtId,
 					Title:           s.Title,
 					Artist:          s.Artist,
-					ThumbnailUrl:    fmt.Sprintf("%s/pix/%s.webp", config.Env().CdnAddress, s.YtId),
+					ThumbnailUrl:    fmt.Sprintf("%s/pix/%s.webp", config.CdnAddress(), s.YtId),
 					Duration:        s.Duration,
 					FullyDownloaded: false,
 				}
@@ -171,7 +171,7 @@ func (a *Actions) SaveSongsMetadataFromYouTube(songs []Song) error {
 			YtId:            newSong.YtId,
 			Title:           newSong.Title,
 			Artist:          newSong.Artist,
-			ThumbnailUrl:    fmt.Sprintf("%s/pix/%s.webp", config.Env().CdnAddress, newSong.YtId),
+			ThumbnailUrl:    fmt.Sprintf("%s/pix/%s.webp", config.CdnAddress(), newSong.YtId),
 			Duration:        newSong.Duration,
 			FullyDownloaded: false,
 		})

@@ -89,6 +89,15 @@ func Env() config {
 	return _config
 }
 
+func CdnAddress() string {
+	cdnAddress := "https://cdn.dankmuzikk.com"
+	if Env().GoEnv == "dev" {
+		cdnAddress = Env().CdnAddress
+	}
+
+	return cdnAddress
+}
+
 func getEnv(key string) string {
 	value := os.Getenv(key)
 	if len(value) == 0 {
