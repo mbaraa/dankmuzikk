@@ -25,6 +25,7 @@ def download_yt_song(id: str) -> int:
                 "preferredcodec": "mp3",
                 "preferredquality": "192",
             }],
+            "writethumbnail": True,
             "outtmpl": f"{DOWNLOAD_PATH}/%(id)s.%(ext)s"
         })
         ytdl.download("https://www.youtube.com/watch?v=" + id)
