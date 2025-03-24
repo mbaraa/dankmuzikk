@@ -44,7 +44,7 @@ func main() {
 			return
 		}
 
-		w.Header().Set("Content-Disposition", "attachment; filename="+song.Title+".mp3")
+		w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+song.Title+".mp3")
 		http.
 			StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(muzikkxDir))).
 			ServeHTTP(w, r)
