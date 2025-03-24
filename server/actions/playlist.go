@@ -161,7 +161,7 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 
 	_ = outFile.Close()
 
-	return fmt.Sprintf("%s/playlists/%s.zip", config.Env().CdnAddress, playlist.Title), nil
+	return fmt.Sprintf("%s/playlists/%s.zip", config.Env().CdnAddress, playlist.PublicId), nil
 }
 
 func (a *Actions) DeletePlaylistArchive(event events.PlaylistDownloaded) error {
