@@ -3,6 +3,7 @@ package main
 import (
 	"dankmuzikk/actions"
 	"dankmuzikk/app"
+	"dankmuzikk/blobs"
 	"dankmuzikk/config"
 	"dankmuzikk/evy"
 	"dankmuzikk/handlers/apis"
@@ -40,6 +41,7 @@ func StartServer() error {
 	app := app.New(mariadbRepo)
 	eventhub := evy.New()
 	zipArchiver := zip.New()
+	blobstorage := blobs.New()
 	jwtUtil := jwt.New[actions.TokenPayload]()
 	mailer := mailer.New()
 	yt := youtube.New()
@@ -48,6 +50,7 @@ func StartServer() error {
 		app,
 		eventhub,
 		zipArchiver,
+		blobstorage,
 		jwtUtil,
 		mailer,
 		yt,
