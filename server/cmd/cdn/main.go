@@ -44,6 +44,7 @@ func main() {
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/octet-stream")
 		w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+song.Title+".mp3")
 		http.
 			StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(muzikkxDir))).
@@ -64,6 +65,7 @@ func main() {
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/octet-stream")
 		w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+pl.Title+".zip")
 		http.
 			StripPrefix("/playlists", http.FileServer(http.Dir(playlistsDir))).
