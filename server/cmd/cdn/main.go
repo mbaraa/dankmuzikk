@@ -48,7 +48,7 @@ func main() {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/playlists/"), ".zip")
 		eventhub.Publish(events.PlaylistDownloaded{
 			PlaylistId: id,
-			DeleteAt:   time.Now().Add(time.Minute * 5),
+			DeleteAt:   time.Now().Add(time.Hour),
 		})
 
 		pl, err := mariadbRepo.GetPlaylistByPublicId(id)
