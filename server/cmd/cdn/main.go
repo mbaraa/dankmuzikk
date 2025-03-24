@@ -45,7 +45,7 @@ func main() {
 		}
 
 		w.Header().Set("Content-Type", "audio/mpeg")
-		w.Header().Set("Content-Disposition", "attachment; filename=\""+song.Title+".mp3\"")
+		w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+song.Title+".mp3")
 		http.
 			StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(muzikkxDir))).
 			ServeHTTP(w, r)
@@ -66,7 +66,7 @@ func main() {
 		}
 
 		w.Header().Set("Content-Type", "application/zip")
-		w.Header().Set("Content-Disposition", "attachment; filename=\""+pl.Title+".zip\"")
+		w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+pl.Title+".zip")
 		http.
 			StripPrefix("/playlists", http.FileServer(http.Dir(playlistsDir))).
 			ServeHTTP(w, r)
