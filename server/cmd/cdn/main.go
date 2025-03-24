@@ -37,7 +37,14 @@ func main() {
 
 	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
 	applicationHandler.Handle("/muzikkx-raw/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Disposition", "attachment")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/muzikkx/"), ".mp3")
+		song, err := mariadbRepo.GetSongByYouTubeId(id)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Disposition", "attachment; filename="+song.Title+".mp3")
 		http.
 			StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(muzikkxDir))).
 			ServeHTTP(w, r)
@@ -58,7 +65,6 @@ func main() {
 		}
 
 		w.Header().Set("Content-Disposition", "attachment; filename="+pl.Title+".zip")
-
 		http.
 			StripPrefix("/playlists", http.FileServer(http.Dir(playlistsDir))).
 			ServeHTTP(w, r)
