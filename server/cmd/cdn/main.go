@@ -6,16 +6,17 @@ import (
 	"dankmuzikk/evy/events"
 	"dankmuzikk/handlers/middlewares/logger"
 	"dankmuzikk/log"
+	"dankmuzikk/mariadb"
 	"net/http"
 	"strings"
 	"time"
 )
 
 func main() {
-	// mariadbRepo, err := mariadb.New()
-	// if err != nil {
-	// log.Fatalln(err)
-	// }
+	mariadbRepo, err := mariadb.New()
+	if err != nil {
+		log.Fatalln(err)
+	}
 	// app := app.New(mariadbRepo)
 	eventhub := evy.New()
 	// jwtUtil := jwt.New[actions.TokenPayload]()
@@ -44,13 +45,19 @@ func main() {
 
 	applicationHandler.Handle("/pix/", http.StripPrefix("/pix", http.FileServer(http.Dir(pixDir))))
 	applicationHandler.Handle("/playlists/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Disposition", "attachment")
-
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/playlists/"), ".zip")
 		eventhub.Publish(events.PlaylistDownloaded{
 			PlaylistId: id,
 			DeleteAt:   time.Now().Add(time.Minute * 5),
 		})
+
+		pl, err := mariadbRepo.GetPlaylistByPublicId(id)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Disposition", "attachment; filename="+pl.Title+".zip")
 
 		http.
 			StripPrefix("/playlists", http.FileServer(http.Dir(playlistsDir))).
