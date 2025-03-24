@@ -3,8 +3,8 @@ package events
 import "time"
 
 type PlaylistDownloaded struct {
-	PlaylistTitle string    `json:"playlist_title"`
-	DeleteAt      time.Time `json:"delete_at"`
+	PlaylistId string    `json:"playlist_id"`
+	DeleteAt   time.Time `json:"delete_at"`
 }
 
 func (p PlaylistDownloaded) Topic() string {

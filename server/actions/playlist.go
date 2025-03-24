@@ -149,7 +149,7 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 		return "", err
 	}
 
-	outFile, err := os.Create(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, playlist.Title))
+	outFile, err := os.Create(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, playlist.PublicId))
 	if err != nil {
 		return "", err
 	}
@@ -169,7 +169,7 @@ func (a *Actions) DeletePlaylistArchive(event events.PlaylistDownloaded) error {
 		return a.eventhub.Publish(event)
 	}
 
-	err := os.Remove(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, event.PlaylistTitle))
+	err := os.Remove(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, event.PlaylistId))
 	if err != nil {
 		return err
 	}

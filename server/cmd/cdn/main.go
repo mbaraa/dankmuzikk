@@ -46,10 +46,10 @@ func main() {
 	applicationHandler.Handle("/playlists/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Disposition", "attachment")
 
-		title := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/playlists/"), ".zip")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/playlists/"), ".zip")
 		eventhub.Publish(events.PlaylistDownloaded{
-			PlaylistTitle: title,
-			DeleteAt:      time.Now().Add(time.Minute * 5),
+			PlaylistId: id,
+			DeleteAt:   time.Now().Add(time.Minute * 5),
 		})
 
 		http.
