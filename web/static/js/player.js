@@ -517,7 +517,7 @@ async function downloadSong(songYtId) {
       res.json(),
     );
     for (let i = 0; i < 30; i++) {
-      const song = await fetchSongMeta(songYtId);
+      const song = await fetchSongMeta(songYtId, false);
       if (song.fully_downloaded) {
         return { ok: true, ...resp };
       }
@@ -698,8 +698,10 @@ async function playSong(song) {
  *
  * @returns {Promise<Song| never>}
  */
-async function fetchSongMeta(songYtId) {
-  Utils.showLoading();
+async function fetchSongMeta(songYtId, displayLoader = true) {
+  if (displayLoader) {
+    Utils.showLoading();
+  }
   try {
     const song = await fetch(`/api/song/single?id=${songYtId}`);
     if (!song.ok) {
@@ -709,7 +711,9 @@ async function fetchSongMeta(songYtId) {
   } catch (err) {
     return err;
   } finally {
-    Utils.hideLoading();
+    if (displayLoader) {
+      Utils.hideLoading();
+    }
   }
 }
 
