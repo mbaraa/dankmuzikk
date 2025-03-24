@@ -11,22 +11,17 @@ var (
 
 func initEnvVars() {
 	_config = config{
-		Port:            getEnv("PORT"),
-		CdnPort:         getEnv("CDN_PORT"),
-		EventHubPort:    getEnv("EVENTHUB_PORT"),
-		WebPort:         getEnv("WEB_PORT"),
-		GoEnv:           getEnv("GO_ENV"),
-		CdnAddress:      getEnv("CDN_ADDRESS"),
-		EventHubAddress: getEnv("EVENTHUB_ADDRESS"),
-		Hostname:        getEnv("HOST_NAME"),
-		JwtSecret:       getEnv("JWT_SECRET"),
-		YouTube: struct {
-			DownloaderUrl string
-			MuzikkDir     string
-		}{
-			DownloaderUrl: getEnv("YOUTUBE_DOWNLOADER_URL"),
-			MuzikkDir:     getEnv("YOUTUBE_MUSIC_DOWNLOAD_PATH"),
-		},
+		Port:                     getEnv("PORT"),
+		CdnPort:                  getEnv("CDN_PORT"),
+		EventHubPort:             getEnv("EVENTHUB_PORT"),
+		WebPort:                  getEnv("WEB_PORT"),
+		GoEnv:                    getEnv("GO_ENV"),
+		CdnAddress:               getEnv("CDN_ADDRESS"),
+		EventHubAddress:          getEnv("EVENTHUB_ADDRESS"),
+		YouTubeDownloaderAddress: getEnv("YTDL_ADDRESS"),
+		Hostname:                 getEnv("HOST_NAME"),
+		JwtSecret:                getEnv("JWT_SECRET"),
+		BlobsDir:                 getEnv("BLOBS_DIR"),
 		Google: struct {
 			ClientId     string
 			ClientSecret string
@@ -60,20 +55,18 @@ func initEnvVars() {
 }
 
 type config struct {
-	Port            string
-	CdnPort         string
-	EventHubPort    string
-	WebPort         string
-	GoEnv           string
-	CdnAddress      string
-	EventHubAddress string
-	Hostname        string
-	JwtSecret       string
-	YouTube         struct {
-		DownloaderUrl string
-		MuzikkDir     string
-	}
-	Google struct {
+	Port                     string
+	CdnPort                  string
+	EventHubPort             string
+	WebPort                  string
+	GoEnv                    string
+	CdnAddress               string
+	EventHubAddress          string
+	YouTubeDownloaderAddress string
+	Hostname                 string
+	JwtSecret                string
+	BlobsDir                 string
+	Google                   struct {
 		ClientId     string
 		ClientSecret string
 	}
@@ -94,6 +87,15 @@ type config struct {
 // Env returns the thing's config values :)
 func Env() config {
 	return _config
+}
+
+func CdnAddress() string {
+	cdnAddress := "https://cdn.dankmuzikk.com"
+	if Env().GoEnv == "dev" {
+		cdnAddress = Env().CdnAddress
+	}
+
+	return cdnAddress
 }
 
 func getEnv(key string) string {

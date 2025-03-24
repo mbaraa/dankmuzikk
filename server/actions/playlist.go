@@ -4,11 +4,10 @@ import (
 	"dankmuzikk/app"
 	"dankmuzikk/app/models"
 	"dankmuzikk/config"
+	"dankmuzikk/evy/events"
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
 	"strings"
+	"time"
 )
 
 type CreatePlaylistParams struct {
@@ -90,62 +89,75 @@ func (a *Actions) DeletePlaylist(playlistPubId string, profileId uint) error {
 	return a.app.DeletePlaylist(playlistPubId, profileId)
 }
 
-func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (io.Reader, error) {
+func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string, error) {
 	playlist, _, err := a.app.GetPlaylistByPublicId(playlistPubId, profileId)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	fileNames := make([]string, 0, playlist.SongsCount)
 	for i, song := range playlist.Songs {
-		ogFile, err := os.Open(fmt.Sprintf("%s/%s.mp3", config.Env().YouTube.MuzikkDir, song.YtId))
-		if err != nil {
-			return nil, err
-		}
-		newShit, err := os.OpenFile(
-			filepath.Clean(
-				fmt.Sprintf("%s/%d-%s.mp3", config.Env().YouTube.MuzikkDir, i+1,
-					strings.ReplaceAll(song.Title, "/", "|"),
-				),
-			),
-			os.O_WRONLY|os.O_CREATE, 0644,
+		oldPath := fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().BlobsDir, song.YtId)
+		newPath := fmt.Sprintf("%s/muzikkx/%d-%s.mp3", config.Env().BlobsDir, i+1,
+			strings.ReplaceAll(song.Title, "/", "|"),
 		)
+		err = a.blobstorage.CopyFile(oldPath, newPath)
 		if err != nil {
-			_ = ogFile.Close()
-			return nil, err
+			return "", err
 		}
-		_, err = io.Copy(newShit, ogFile)
-		if err != nil {
-			_ = ogFile.Close()
-			return nil, err
-		}
-		fileNames[i] = newShit.Name()
-		_ = newShit.Close()
-		_ = ogFile.Close()
+
+		fileNames = append(fileNames, newPath)
 	}
 
 	archive, err := a.archiver.CreateArchive(playlist.Title)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	for _, fileName := range fileNames {
-		file, err := os.Open(fileName)
+		file, err := a.blobstorage.GetFile(fileName)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		err = archive.AddFile(file)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
+
+		_ = a.blobstorage.DeleteFile(file.Name())
 		_ = file.Close()
-		_ = os.Remove(file.Name())
 	}
 
-	defer func() {
-	}()
+	playlistZip, err := archive.Deflate()
+	if err != nil {
+		return "", err
+	}
 
-	return archive.Deflate()
+	playlistsArchivePath := fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, playlist.PublicId)
+	err = a.blobstorage.CreateFile(playlistsArchivePath)
+	if err != nil {
+		return "", err
+	}
+
+	err = a.blobstorage.WriteToFile(playlistsArchivePath, playlistZip)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s/playlists/%s.zip", config.Env().CdnAddress, playlist.PublicId), nil
+}
+
+func (a *Actions) DeletePlaylistArchive(event events.PlaylistDownloaded) error {
+	if event.DeleteAt.Before(time.Now().UTC()) {
+		return a.eventhub.Publish(event)
+	}
+
+	err := a.blobstorage.DeleteFile(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, event.PlaylistId))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a *Actions) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]Playlist, map[string]bool, error) {

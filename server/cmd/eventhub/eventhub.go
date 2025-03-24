@@ -14,7 +14,7 @@ import (
 
 const (
 	eventsBatchItems     = 25
-	fetchWaitTimeSeconds = 5
+	fetchWaitTimeSeconds = 1
 )
 
 var (
@@ -129,6 +129,22 @@ func executeEvents(events []evy.EventPayload) error {
 				err := handlers.HandleSaveSongsMetadataOnSearchBatch(body)
 				if err != nil {
 					log.Errorln("song-searched", err)
+				}
+
+				wg.Done()
+			}()
+		case "playlist-downloaded":
+			var body dankevents.PlaylistDownloaded
+			err := json.Unmarshal([]byte(e.Body), &body)
+			if err != nil {
+				log.Errorf("failed unmarshalling event's json: %v\n", err)
+				continue
+			}
+
+			go func() {
+				err := handlers.HandleDownloadPlaylist(body)
+				if err != nil {
+					log.Errorln("playlist-downloaded", err)
 				}
 
 				wg.Done()

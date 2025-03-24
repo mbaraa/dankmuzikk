@@ -3,6 +3,7 @@ package main
 import (
 	"dankmuzikk/actions"
 	"dankmuzikk/app"
+	"dankmuzikk/blobs"
 	"dankmuzikk/config"
 	"dankmuzikk/handlers/events"
 	"dankmuzikk/jwt"
@@ -24,6 +25,7 @@ func init() {
 
 	app := app.New(mariadbRepo)
 	zipArchiver := zip.New()
+	blobstorage := blobs.New()
 	jwtUtil := jwt.New[actions.TokenPayload]()
 	mailer := mailer.New()
 	yt := youtube.New()
@@ -32,6 +34,7 @@ func init() {
 		app,
 		&eventHub{},
 		zipArchiver,
+		blobstorage,
 		jwtUtil,
 		mailer,
 		yt,

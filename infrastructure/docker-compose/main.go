@@ -234,9 +234,14 @@ func generateComposeFile(values TemplateValues) (string, error) {
 		},
 		Environment: []ServiceEnvironmentValues{},
 		EnvFile:     ".env.docker",
-		Volumes:     []ServiceVolumesValues{},
-		Networks:    []string{values.NetworkName},
-		DependsOn:   []string{"dank-cdn", "dank-ytdl", "dank-eventhub"},
+		Volumes: []ServiceVolumesValues{
+			{
+				VolumeName: filesVolumeName,
+				MountPath:  "/app/.serve",
+			},
+		},
+		Networks:  []string{values.NetworkName},
+		DependsOn: []string{cdnContainerName, ytdlContainerName, eventhubContainerName},
 	})
 	if err != nil {
 		return "", err
@@ -259,7 +264,7 @@ func generateComposeFile(values TemplateValues) (string, error) {
 		EnvFile:     ".env.docker",
 		Volumes:     []ServiceVolumesValues{},
 		Networks:    []string{values.NetworkName},
-		DependsOn:   []string{"dank-server"},
+		DependsOn:   []string{serverContainerName},
 	})
 	if err != nil {
 		return "", err
@@ -307,8 +312,13 @@ func generateComposeFile(values TemplateValues) (string, error) {
 		},
 		Environment: []ServiceEnvironmentValues{},
 		EnvFile:     ".env.docker",
-		Volumes:     []ServiceVolumesValues{},
-		Networks:    []string{values.NetworkName},
+		Volumes: []ServiceVolumesValues{
+			{
+				VolumeName: filesVolumeName,
+				MountPath:  "/app/.serve",
+			},
+		},
+		Networks: []string{values.NetworkName},
 	})
 	if err != nil {
 		return "", err
