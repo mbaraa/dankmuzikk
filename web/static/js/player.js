@@ -641,7 +641,7 @@ async function playSong(song) {
   const src = document.createElement("source");
   src.setAttribute("type", "audio/mpeg");
   src.setAttribute("src", resp.media_url);
-  src.setAttribute("preload", "automatic");
+  src.setAttribute("preload", "metadata");
   audioPlayerEl.appendChild(src);
 
   if (isSafari()) {
@@ -1054,6 +1054,9 @@ audioPlayerEl.addEventListener("loadeddata", (event) => {
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
   const currentTime = Math.floor(event.target.currentTime);
+  if (isSafari()) {
+    // setDuration(currentTime);
+  }
   if (songCurrentTimeEl) {
     songCurrentTimeEl.innerHTML = Utils.formatTime(currentTime);
   }

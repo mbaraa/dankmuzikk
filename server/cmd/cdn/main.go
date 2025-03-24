@@ -8,9 +8,15 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/mariadb"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 )
+
+func isSafari(userAgent string) bool {
+	re := regexp.MustCompile(`^((?!chrome|android).)*safari`)
+	return re.MatchString(userAgent) && strings.Contains(strings.ToLower(userAgent), "safari")
+}
 
 func main() {
 	mariadbRepo, err := mariadb.New()
@@ -37,8 +43,7 @@ func main() {
 
 	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
 	applicationHandler.Handle("/muzikkx/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isSafari := false
-		if isSafari {
+		if isSafari(r.Header.Get("User-Agent")) {
 			w.Header().Set("Range", "bytes=0-")
 			w.Header().Set("Icy-Metadata", "1")
 		}
