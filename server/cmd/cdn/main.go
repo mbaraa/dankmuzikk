@@ -37,7 +37,7 @@ func main() {
 
 	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
 	applicationHandler.Handle("/muzikkx-raw/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/muzikkx/"), ".mp3")
+		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/muzikkx-raw/"), ".mp3")
 		song, err := mariadbRepo.GetSongByYouTubeId(id)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
