@@ -41,7 +41,6 @@ func main() {
 	pixDir := config.Env().BlobsDir + "/pix/"
 	playlistsDir := config.Env().BlobsDir + "/playlists/"
 
-	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
 	applicationHandler.Handle("/muzikkx/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isSafari(r.Header.Get("User-Agent")) {
 			w.Header().Set("Range", "bytes=0-")
