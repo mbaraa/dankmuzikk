@@ -36,6 +36,20 @@ func main() {
 	playlistsDir := config.Env().BlobsDir + "/playlists/"
 
 	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
+	applicationHandler.Handle("/muzikkx/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		isSafari := false
+		if isSafari {
+			w.Header().Set("Range", "bytes=0-")
+			w.Header().Set("Icy-Metadata", "1")
+		}
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Content-Type", "audio/mpeg")
+		w.Header().Set("Content-Disposition", "inline")
+		http.
+			StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))).
+			ServeHTTP(w, r)
+	}))
+
 	applicationHandler.Handle("/muzikkx-raw/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/muzikkx-raw/"), ".mp3")
 		song, err := mariadbRepo.GetSongByYouTubeId(id)
