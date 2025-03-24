@@ -6,9 +6,6 @@ import (
 	"dankmuzikk/config"
 	"dankmuzikk/evy/events"
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -100,30 +97,16 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 
 	fileNames := make([]string, 0, playlist.SongsCount)
 	for i, song := range playlist.Songs {
-		ogFile, err := os.Open(fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().BlobsDir, song.YtId))
-		if err != nil {
-			return "", err
-		}
-		newShit, err := os.OpenFile(
-			filepath.Clean(
-				fmt.Sprintf("%s/muzikkx/%d-%s.mp3", config.Env().BlobsDir, i+1,
-					strings.ReplaceAll(song.Title, "/", "|"),
-				),
-			),
-			os.O_WRONLY|os.O_CREATE, 0644,
+		oldPath := fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().BlobsDir, song.YtId)
+		newPath := fmt.Sprintf("%s/muzikkx/%d-%s.mp3", config.Env().BlobsDir, i+1,
+			strings.ReplaceAll(song.Title, "/", "|"),
 		)
+		err = a.blobstorage.CopyFile(oldPath, newPath)
 		if err != nil {
-			_ = ogFile.Close()
 			return "", err
 		}
-		_, err = io.Copy(newShit, ogFile)
-		if err != nil {
-			_ = ogFile.Close()
-			return "", err
-		}
-		fileNames = append(fileNames, newShit.Name())
-		_ = newShit.Close()
-		_ = ogFile.Close()
+
+		fileNames = append(fileNames, newPath)
 	}
 
 	archive, err := a.archiver.CreateArchive(playlist.Title)
@@ -132,7 +115,7 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 	}
 
 	for _, fileName := range fileNames {
-		file, err := os.Open(fileName)
+		file, err := a.blobstorage.GetFile(fileName)
 		if err != nil {
 			return "", err
 		}
@@ -140,8 +123,9 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 		if err != nil {
 			return "", err
 		}
+
+		_ = a.blobstorage.DeleteFile(file.Name())
 		_ = file.Close()
-		_ = os.Remove(file.Name())
 	}
 
 	playlistZip, err := archive.Deflate()
@@ -149,17 +133,16 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 		return "", err
 	}
 
-	outFile, err := os.Create(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, playlist.PublicId))
+	playlistsArchivePath := fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, playlist.PublicId)
+	err = a.blobstorage.CreateFile(playlistsArchivePath)
 	if err != nil {
 		return "", err
 	}
 
-	_, err = io.Copy(outFile, playlistZip)
+	err = a.blobstorage.WriteToFile(playlistsArchivePath, playlistZip)
 	if err != nil {
 		return "", err
 	}
-
-	_ = outFile.Close()
 
 	return fmt.Sprintf("%s/playlists/%s.zip", config.Env().CdnAddress, playlist.PublicId), nil
 }
@@ -169,7 +152,7 @@ func (a *Actions) DeletePlaylistArchive(event events.PlaylistDownloaded) error {
 		return a.eventhub.Publish(event)
 	}
 
-	err := os.Remove(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, event.PlaylistId))
+	err := a.blobstorage.DeleteFile(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, event.PlaylistId))
 	if err != nil {
 		return err
 	}

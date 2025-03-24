@@ -312,8 +312,13 @@ func generateComposeFile(values TemplateValues) (string, error) {
 		},
 		Environment: []ServiceEnvironmentValues{},
 		EnvFile:     ".env.docker",
-		Volumes:     []ServiceVolumesValues{},
-		Networks:    []string{values.NetworkName},
+		Volumes: []ServiceVolumesValues{
+			{
+				VolumeName: filesVolumeName,
+				MountPath:  "/app/.serve",
+			},
+		},
+		Networks: []string{values.NetworkName},
 	})
 	if err != nil {
 		return "", err
