@@ -5,7 +5,6 @@ import (
 	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
 	"encoding/json"
-	"io"
 	"net/http"
 )
 
@@ -218,11 +217,14 @@ func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	playlistZip, err := p.usecases.DownloadPlaylist(playlistId, profileId)
+	playlistDownloadUrl, err := p.usecases.DownloadPlaylist(playlistId, profileId)
 	if err != nil {
 		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
-	_, _ = io.Copy(w, playlistZip)
+
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"playlist_download_url": playlistDownloadUrl,
+	})
 }

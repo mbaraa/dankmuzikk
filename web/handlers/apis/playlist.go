@@ -2,7 +2,6 @@ package apis
 
 import (
 	"context"
-	"dankmuzikk-web/config"
 	"dankmuzikk-web/entities"
 	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
@@ -13,9 +12,7 @@ import (
 	"dankmuzikk-web/views/icons"
 	"dankmuzikk-web/views/pages"
 	"encoding/json"
-	"io"
 	"net/http"
-	"time"
 )
 
 type playlistApi struct {
@@ -269,25 +266,14 @@ func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	req, err := http.NewRequest(http.MethodGet, config.GetRequestUrl("/v1/playlist/zip"), http.NoBody)
+	playlistDownloadUrl, err := p.service.DownloadPlaylist(sessionToken.Value, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("🤷‍♂️"))
 		return
 	}
 
-	req.Header.Set("Authorization", sessionToken.Value)
-
-	resp, err := (&http.Client{Timeout: time.Second * 20}).Do(req)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	_, _ = io.Copy(w, resp.Body)
-	_ = resp.Body.Close()
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"playlist_download_url": playlistDownloadUrl,
+	})
 }

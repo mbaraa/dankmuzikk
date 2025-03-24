@@ -566,13 +566,14 @@ async function downloadPlaylistToDevice(plPubId, plTitle) {
       if (!res.ok) {
         throw new Error(await res.text());
       }
-      return res.blob();
+      return res.json();
     })
-    .then((playlistZip) => {
+    .then((res) => {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(playlistZip);
+      a.href = res["playlist_download_url"];
       a.download = `${plTitle}.zip`;
       a.click();
+      a.remove();
     })
     .finally(() => {
       Utils.hideLoading();

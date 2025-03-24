@@ -4,11 +4,13 @@ import (
 	"dankmuzikk/app"
 	"dankmuzikk/app/models"
 	"dankmuzikk/config"
+	"dankmuzikk/evy/events"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type CreatePlaylistParams struct {
@@ -90,17 +92,17 @@ func (a *Actions) DeletePlaylist(playlistPubId string, profileId uint) error {
 	return a.app.DeletePlaylist(playlistPubId, profileId)
 }
 
-func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (io.Reader, error) {
+func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string, error) {
 	playlist, _, err := a.app.GetPlaylistByPublicId(playlistPubId, profileId)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	fileNames := make([]string, 0, playlist.SongsCount)
 	for i, song := range playlist.Songs {
 		ogFile, err := os.Open(fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().BlobsDir, song.YtId))
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		newShit, err := os.OpenFile(
 			filepath.Clean(
@@ -112,40 +114,67 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (io.Rea
 		)
 		if err != nil {
 			_ = ogFile.Close()
-			return nil, err
+			return "", err
 		}
 		_, err = io.Copy(newShit, ogFile)
 		if err != nil {
 			_ = ogFile.Close()
-			return nil, err
+			return "", err
 		}
-		fileNames[i] = newShit.Name()
+		fileNames = append(fileNames, newShit.Name())
 		_ = newShit.Close()
 		_ = ogFile.Close()
 	}
 
 	archive, err := a.archiver.CreateArchive(playlist.Title)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	for _, fileName := range fileNames {
 		file, err := os.Open(fileName)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		err = archive.AddFile(file)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		_ = file.Close()
 		_ = os.Remove(file.Name())
 	}
 
-	defer func() {
-	}()
+	playlistZip, err := archive.Deflate()
+	if err != nil {
+		return "", err
+	}
 
-	return archive.Deflate()
+	outFile, err := os.Create(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, playlist.PublicId))
+	if err != nil {
+		return "", err
+	}
+
+	_, err = io.Copy(outFile, playlistZip)
+	if err != nil {
+		return "", err
+	}
+
+	_ = outFile.Close()
+
+	return fmt.Sprintf("%s/playlists/%s.zip", config.Env().CdnAddress, playlist.PublicId), nil
+}
+
+func (a *Actions) DeletePlaylistArchive(event events.PlaylistDownloaded) error {
+	if event.DeleteAt.Before(time.Now().UTC()) {
+		return a.eventhub.Publish(event)
+	}
+
+	err := os.Remove(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, event.PlaylistId))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a *Actions) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]Playlist, map[string]bool, error) {

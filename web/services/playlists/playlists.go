@@ -3,8 +3,10 @@ package playlists
 import (
 	"dankmuzikk-web/entities"
 	"dankmuzikk-web/services/requests"
+	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -71,4 +73,18 @@ func (p *Service) GetAllMappedForAddPopover(token string) ([]entities.Playlist, 
 	}
 
 	return resp.Playlists, resp.SongsInPlaylists, nil
+}
+
+func (p *Service) DownloadPlaylist(token, playlistId string) (string, error) {
+	resp, err := requests.GetRequestAuth[map[string]string](fmt.Sprintf("/v1/playlist/zip?playlist-id=%s", url.QueryEscape(playlistId)), token)
+	if err != nil {
+		return "", err
+	}
+
+	playlistDownloadUrl, ok := resp["playlist_download_url"]
+	if !ok {
+		return "", errors.New("missing playlist_download_url")
+	}
+
+	return playlistDownloadUrl, err
 }
