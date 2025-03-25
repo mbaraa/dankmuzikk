@@ -349,7 +349,6 @@ function playlister(state) {
     if (checkLoop(LOOP_MODES.ONCE)) {
       stopMuzikk();
       playMuzikk();
-      await updateSongPlays();
       return;
     }
     // chack votes to whether repeat the song or not.
@@ -395,7 +394,6 @@ function playlister(state) {
     if (checkLoop(LOOP_MODES.ONCE)) {
       stopMuzikk();
       playMuzikk();
-      await updateSongPlays();
       return;
     }
     // chack votes to whether repeat the song or not.
@@ -604,24 +602,6 @@ function collapse() {
   }
 }
 
-async function updateSongPlays() {
-  if (!playerState.playlist.public_id) {
-    return;
-  }
-  try {
-    return await fetch(
-      "/api/song?" +
-        new URLSearchParams({
-          id: playerState.playlist.songs[playerState.currentSongIdx].yt_id,
-          "playlist-id": playerState.playlist.public_id,
-        }).toString(),
-    );
-  } catch (err) {
-    console.error(err);
-    return err;
-  }
-}
-
 /**
  * @param {Song} song
  */
@@ -691,7 +671,6 @@ async function playSong(song) {
   }
   setMediaSessionMetadata(song);
   playMuzikk();
-  await updateSongPlays();
 }
 
 /**
