@@ -38,6 +38,7 @@ func init() {
 		jwtUtil,
 		mailer,
 		yt,
+		nil,
 	)
 
 	handlers = events.New(usecases)
