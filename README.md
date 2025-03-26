@@ -44,8 +44,7 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - [ ] Cross device control
 - [ ] Offline support
 - [ ] Songs' metadata fixer
-- [ ] Lyrics
-- [ ] Refactor the code (never gonna happen)
+- [x] Lyrics
 
 ## Technologies used
 
