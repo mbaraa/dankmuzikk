@@ -5,6 +5,7 @@ import (
 	"dankmuzikk/app/models"
 	"dankmuzikk/config"
 	"dankmuzikk/evy/events"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -96,6 +97,7 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 	}
 
 	fileNames := make([]string, 0, playlist.SongsCount)
+	var errs []error
 	for i, song := range playlist.Songs {
 		oldPath := fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().BlobsDir, song.YtId)
 		newPath := fmt.Sprintf("%s/muzikkx/%d-%s.mp3", config.Env().BlobsDir, i+1,
@@ -103,10 +105,19 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 		)
 		err = a.blobstorage.CopyFile(oldPath, newPath)
 		if err != nil {
-			return "", err
+			// TODO: add blobstorage.Exists or something, just to make sure the error is coming from one place.
+			errs = append(errs, err)
+			// to download the song, so a second download retry would be enough without playing all the songs :)
+			_ = a.eventhub.Publish(events.SongPlayed{
+				SongYtId: song.YtId,
+			})
+			continue
 		}
 
 		fileNames = append(fileNames, newPath)
+	}
+	if len(errs) != 0 {
+		return "", errors.Join(errs...)
 	}
 
 	archive, err := a.archiver.CreateArchive(playlist.Title)

@@ -58,7 +58,7 @@ func (e *EventHandlers) HandleSaveSongsMetadataOnSearchBatch(event events.SongsS
 	return e.usecases.SaveSongsMetadataFromYouTube(songs)
 }
 
-func (e *EventHandlers) HandleDownloadPlaylist(event events.PlaylistDownloaded) error {
+func (e *EventHandlers) HandleDeletePlaylistArchive(event events.PlaylistDownloaded) error {
 	return e.usecases.DeletePlaylistArchive(event)
 }
 
