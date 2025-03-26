@@ -16,6 +16,7 @@ import (
 	"dankmuzikk-web/views/layouts"
 	"dankmuzikk-web/views/pages"
 	"errors"
+	"fmt"
 	"net/http"
 
 	_ "github.com/a-h/templ"
@@ -63,7 +64,12 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 		pages.Index(recentPlays).Render(r.Context(), w)
 		return
 	}
-	layouts.Default("Home", pages.Index(recentPlays)).Render(r.Context(), w)
+	layouts.Default(layouts.PageProps{
+		Title:       "Home",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname,
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Index(recentPlays)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
@@ -73,11 +79,21 @@ func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 		pages.About().Render(r.Context(), w)
 		return
 	}
-	layouts.Default("About", pages.About()).Render(r.Context(), w)
+	layouts.Default(layouts.PageProps{
+		Title:       "About",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/about",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.About()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Raw("Login", pages.Login()).Render(r.Context(), w)
+	layouts.Raw(layouts.PageProps{
+		Title:       "Login",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/login",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Login()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +122,12 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 		pages.Playlists(playlists).Render(r.Context(), w)
 		return
 	}
-	layouts.Default("Playlists", pages.Playlists(playlists)).Render(r.Context(), w)
+	layouts.Default(layouts.PageProps{
+		Title:       "Playlists",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/playlists",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Playlists(playlists)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +162,9 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 				BugsBunnyError("You can't see this playlist! <br/> (don't snoop around other people's stuff or else!)").
 				Render(context.Background(), w)
 		} else {
-			layouts.Default("Error",
+			layouts.Default(layouts.PageProps{
+				Title: "Error",
+			},
 				status.
 					BugsBunnyError("You can't see this playlist! <br/> (don't snoop around other people's stuff or else!)")).
 				Render(r.Context(), w)
@@ -153,7 +176,9 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 				BugsBunnyError("You can't see this playlist! <br/> (it might be John Cena)").
 				Render(context.Background(), w)
 		} else {
-			layouts.Default("Error",
+			layouts.Default(layouts.PageProps{
+				Title: "Error",
+			},
 				status.
 					BugsBunnyError("You can't see this playlist! <br/> (it might be John Cena)")).
 				Render(r.Context(), w)
@@ -167,7 +192,13 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 		pages.Playlist(playlist).Render(ctx, w)
 		return
 	}
-	layouts.Default(playlist.Title, pages.Playlist(playlist)).Render(ctx, w)
+	layouts.Default(layouts.PageProps{
+		Title:       playlist.Title,
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/playlist/" + playlist.PublicId,
+		Type:        layouts.PlaylistPage,
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Playlist(playlist)).Render(ctx, w)
 }
 
 func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Request) {
@@ -193,11 +224,27 @@ func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Reque
 		pages.Song(song).Render(r.Context(), w)
 		return
 	}
-	layouts.Default(song.Title, pages.Song(song)).Render(r.Context(), w)
+	layouts.Default(layouts.PageProps{
+		Title:       song.Title,
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/song/" + song.YtId,
+		Type:        layouts.SongPage,
+		ImageUrl:    song.ThumbnailUrl,
+		Audio: layouts.AudioProps{
+			Url:      fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, song.YtId),
+			Duration: song.Duration,
+			Musician: song.Artist,
+		},
+	}, pages.Song(song)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Default("Privacy", pages.Privacy()).Render(r.Context(), w)
+	layouts.Default(layouts.PageProps{
+		Title:       "Privacy",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/privacy",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Privacy()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
@@ -229,7 +276,13 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		pages.Profile(user).Render(r.Context(), w)
 		return
 	}
-	layouts.Default("Profile", pages.Profile(user)).Render(r.Context(), w)
+	layouts.Default(layouts.PageProps{
+		Title:       "Profile",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/profile",
+		Type:        layouts.ProfilePage,
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Profile(user)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Request) {
@@ -248,9 +301,19 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		pages.SearchResults(results).Render(r.Context(), w)
 		return
 	}
-	layouts.Default("Results for "+query, pages.SearchResults(results)).Render(r.Context(), w)
+	layouts.Default(layouts.PageProps{
+		Title:       "Results for " + query,
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/search?query=" + query,
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.SearchResults(results)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Raw("Sign up", pages.Signup()).Render(r.Context(), w)
+	layouts.Raw(layouts.PageProps{
+		Title:       "Signup",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/signup",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Signup()).Render(r.Context(), w)
 }

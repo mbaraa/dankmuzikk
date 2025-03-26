@@ -9,12 +9,12 @@ import (
 	"fmt"
 )
 
-templ Default(title string, children ...templ.Component) {
+templ Default(props PageProps, children ...templ.Component) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
-			<title>{ title } - DankMuzikk</title>
+			<title>{ props.Title } - DankMuzikk</title>
 			<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png"/>
 			<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>
 			<link rel="icon" type="image/png" sizes="192x192" href="/static/android-chrome-192x192.png"/>
@@ -28,8 +28,30 @@ templ Default(title string, children ...templ.Component) {
 				content="width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes"
 			/>
 			<meta name="description" content="Create, Share and Play Music Playlists."/>
+			<meta name="og:title" content={ props.Title + " - DankMuzikk" }/>
 			<meta name="og:description" content="Create, Share and Play Music Playlists."/>
-			<meta name="og:title" content={ title + " - DankMuzikk" }/>
+			<meta property="og:site_name" content="DankMuzikk"/>
+			if props.Audio.Url != "" {
+				<meta property="og:audio" content={ props.Audio.Url }/>
+			}
+			if  props.Audio.Duration  != "" {
+				<meta property="music:duration" content={ props.Audio.Duration }/>
+			}
+			if  props.Audio.Album  != "" {
+				<meta property="music:album" content={ props.Audio.Album }/>
+			}
+			if props.Audio.Musician  != "" {
+				<meta property="music:musician" content={ props.Audio.Musician }/>
+			}
+			if  props.Type  != "" {
+				<meta property="og:type" content={ string(props.Type) }/>
+			}
+			if props.Url  != "" {
+				<meta property="og:url" content={ props.Url }/>
+			}
+			if props.ImageUrl  != "" {
+				<meta property="og:image" content={ props.ImageUrl }/>
+			}
 			<meta
 				name="keywords"
 				content="dankmuzikk-web,dank,dank music,music,music playlist,share playlist,group playlist"
