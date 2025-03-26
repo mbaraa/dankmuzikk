@@ -1,8 +1,6 @@
 package pages
 
-import (
-	"dankmuzikk-web/views/components/info"
-)
+import "dankmuzikk-web/views/components/info"
 
 /*
    This page uses desktop design after lg (1024px)
@@ -99,29 +97,25 @@ templ signupForm() {
 				placeholder="Enter your email"
 			/>
 		</div>
-		<div class={ "flex", "flex-col-reverse", "lg:flex-row", "lg:justify-between", "gap-[15px]", "lg:gap-x-[30px]", "mt-4" }>
-			<a class={ "w-full" } href="/api/signup/google" title="Sign up with Google">
+		<div class={ "flex", "flex-col", "lg:justify-between", "gap-[15px]", "lg:gap-x-[30px]" }>
+			<p class={ "flex", "justify-start", "items-center", "text-secondary" , "text-[16px]" }>Or Use OAuth</p>
+			<a class={ "w-full" } href="/api/signup/google" title="Signup with Google">
 				<button
 					type="button"
 					class={ "w-full", "bg-secondary", "rounded-[50px]", "p-[10px]", "flex", "justify-center", "items-center" }
 				>
-					<span class={ "font-Ubuntu" }>
+					<span class={ "flex", "gap-x-3", "text-accent", "font-Ubuntu" }>
 						<img
 							width="25"
 							height="25"
 							class={ "w-[25px]", "h-[25px]" }
 							src="/static/images/google.webp"
-							alt="Sign up with Google"
+							alt="Signup with Google"
 						/>
+						<span>Login with Google						</span>
 					</span>
 				</button>
 			</a>
-			<button
-				type="submit"
-				class={ "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full", "text-accent" }
-			>
-				Sign up
-			</button>
 		</div>
 	</form>
 }

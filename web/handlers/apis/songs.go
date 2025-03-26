@@ -13,7 +13,7 @@ import (
 	"net/http"
 )
 
-type songDownloadHandler struct {
+type songsApi struct {
 	songsService   *songs.Service
 	historyService *history.Service
 }
@@ -21,14 +21,14 @@ type songDownloadHandler struct {
 func NewDownloadHandler(
 	songsService *songs.Service,
 	historyService *history.Service,
-) *songDownloadHandler {
-	return &songDownloadHandler{
+) *songsApi {
+	return &songsApi{
 		songsService:   songsService,
 		historyService: historyService,
 	}
 }
 
-func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+func (s *songsApi) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
@@ -61,7 +61,7 @@ func (s *songDownloadHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWri
 	_, _ = w.Write([]byte(fmt.Sprint(votes)))
 }
 
-func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
+func (s *songsApi) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
 	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
 	if !profileIdCorrect {
 		w.Write([]byte("🤷‍♂️"))
@@ -94,7 +94,7 @@ func (s *songDownloadHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseW
 	_, _ = w.Write([]byte(fmt.Sprint(votes)))
 }
 
-func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
+func (s *songsApi) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -122,7 +122,7 @@ func (s *songDownloadHandler) HandlePlaySong(w http.ResponseWriter, r *http.Requ
 	})
 }
 
-func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
+func (s *songsApi) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -139,7 +139,7 @@ func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Reque
 	_ = json.NewEncoder(w).Encode(song)
 }
 
-func (s *songDownloadHandler) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
+func (s *songsApi) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -152,20 +152,20 @@ func (s *songDownloadHandler) HandleGetSongLyrics(w http.ResponseWriter, r *http
 		Lyrics    []string `json:"lyrics"`
 	}]("/v1/song/lyrics?id=" + id)
 	if err != nil {
-		status.BugsBunnyError("Something went wrong").Render(r.Context(), w)
+		status.BugsBunnyError("Something went wrong").
+			Render(r.Context(), w)
 		return
 	}
 
-	// TODO: fix this unsafe garbage
-	lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics).Render(r.Context(), w)
+	lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics).
+		Render(r.Context(), w)
 }
 
-func (s *songDownloadHandler) HandleGetSongWithArtistLyrics(w http.ResponseWriter, r *http.Request) {
+func (s *songsApi) HandleGetSongWithArtistLyrics(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("missing song's yt id"))
 		return
 	}
-
 }
