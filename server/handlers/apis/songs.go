@@ -115,3 +115,34 @@ func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.NewEncoder(w).Encode(payload)
 }
+
+func (s *songsHandler) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	fetchArtist := r.URL.Query().Get("with-artist")
+
+	var payload actions.GetLyricsForSongPayload
+	var err error
+
+	if fetchArtist == "true" {
+		payload, err = s.usecases.GetLyricsForSongAndArtist(id)
+		if err != nil {
+			log.Error(err)
+			handleErrorResponse(w, err)
+			return
+		}
+	} else {
+		payload, err = s.usecases.GetLyricsForSong(id)
+		if err != nil {
+			log.Error(err)
+			handleErrorResponse(w, err)
+			return
+		}
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
+}

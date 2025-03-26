@@ -2,20 +2,8 @@ package player
 
 import "dankmuzikk-web/views/components/menus"
 
-templ expandedMobilePlayer() {
-	<div class={ "flex", "flex-col", "justify-center", "gap-y-[20px]", "p-[20px]" }>
-		<!-- collapse button -->
-		<div class={ "flex", "justify-between" }>
-			<div></div>
-			<button
-				id="collapse-player-button"
-				title="Collapse player"
-			>
-				<svg width="39" height="34" viewBox="0 0 39 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M25.1608 26.3201C23.2837 29.3237 22.3451 30.8253 21.1433 31.3403C20.094 31.7901 18.906 31.7901 17.8565 31.3403C16.6549 30.8253 15.7164 29.3237 13.8391 26.3201L5.0224 12.2135C2.93902 8.88005 1.89722 7.2133 2.008 5.83785C2.10437 4.63893 2.7133 3.53992 3.67896 2.82276C4.78668 2 6.75219 2 10.6832 2L19.4381 15.862L28.3166 2C32.2476 2 34.2131 2 35.3209 2.82276C36.2865 3.53992 36.8956 4.63893 36.992 5.83785C37.1026 7.2133 36.0609 8.88005 33.9775 12.2135L25.1608 26.3201Z" stroke="var(--secondary-color)" stroke-width="3" stroke-linejoin="round"></path>
-				</svg>
-			</button>
-		</div>
+templ expandedMobilePlayerControls() {
+	<div id="expanded-mobile-player-controls" class={ "flex", "flex-col", "justify-center", "gap-y-[20px]", "p-[20px]", "h-full" }>
 		<!-- foto -->
 		<div class={ "flex", "justify-center", "items-center" }>
 			<div
@@ -115,4 +103,71 @@ templ expandedMobilePlayer() {
 			</div>
 		</div>
 	</div>
+}
+
+templ expandedMobilePlayerLyrics() {
+	<div
+		id="expanded-mobile-player-lyrics"
+		class={
+			"w-full", "overflow-y-scroll", "max-h-[45vh]", "md:max-h-[55vh]",
+			"hidden", "flex-col", "gap-y-1", "lg:mb-5", "p-5",
+		}
+	>
+		<div
+			id="current-song-lyrics"
+			data-hx-revealed="true"
+			data-loading-target="#lyrics-loading"
+			data-loading-class-remove="hidden"
+		></div>
+		<div id="lyrics-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
+			<div class={ "loader", "!h-20", "!w-20" }></div>
+		</div>
+	</div>
+}
+
+templ expandedMobilePlayerQueue() {
+	<div id="expanded-mobile-player-queue" class={ "h-full", "hidden", "flex", "justify-center", "items-center" }>
+		<p>
+			Coming soon...
+		</p>
+	</div>
+}
+
+templ expandedMobilePlayer() {
+	<div class={ "flex", "flex-col", "justify-between", "h-full" }>
+		<div class={ "h-max" }>
+			@expandedMobilePlayerControls()
+			@expandedMobilePlayerLyrics()
+			@expandedMobilePlayerQueue()
+		</div>
+		<!-- tabs blyat -->
+		<div class={ "flex", "justify-center", "items-center", "gap-x-8", "w-full", "tabs" }>
+			<input type="radio" name="tab" id="tab1" checked onClick={ showControls() }/>
+			<label for="tab1">Controls</label>
+			<input type="radio" name="tab" id="tab2" onClick={ showLyrics() }/>
+			<label for="tab2">Lyrics</label>
+			<input type="radio" name="tab" id="tab3" onClick={ showQueue() }/>
+			<label for="tab3">Queue</label>
+		</div>
+	</div>
+}
+
+script showLyrics() {
+    document.getElementById("expanded-mobile-player-controls").style.display = "none";
+    document.getElementById("expanded-mobile-player-lyrics").style.display = "flex";
+    document.getElementById("expanded-mobile-player-queue").style.display = "none";
+
+    window.Player.loadSongLyrics();
+}
+
+script showControls() {
+    document.getElementById("expanded-mobile-player-controls").style.display = "flex";
+    document.getElementById("expanded-mobile-player-lyrics").style.display = "none";
+    document.getElementById("expanded-mobile-player-queue").style.display = "none";
+}
+
+script showQueue() {
+    document.getElementById("expanded-mobile-player-controls").style.display = "none";
+    document.getElementById("expanded-mobile-player-lyrics").style.display = "none";
+    document.getElementById("expanded-mobile-player-queue").style.display = "flex";
 }

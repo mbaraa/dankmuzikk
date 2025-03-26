@@ -134,3 +134,19 @@ div.nav-link a:hover,
 .nav-link:hover {
   text-decoration: none;
 }
+
+.tabs input[type="radio"] {
+  display: none;
+}
+
+.tabs label {
+  cursor: pointer;
+  border-radius: 6px;
+  display: inline-block;
+  margin-right: 0.2rem;
+  padding: 0.5rem 1rem;
+}
+
+.tabs input[type="radio"]:checked + label {
+  background-color: var(--accent-color-30);
+}

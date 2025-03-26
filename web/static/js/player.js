@@ -1014,6 +1014,21 @@ function setDuration(duration) {
   }
 }
 
+function loadSongLyrics() {
+  const songYtId = playerState.playlist.songs[playerState.currentSongIdx].yt_id;
+  htmx
+    .ajax("GET", "/api/song/lyrics?id=" + songYtId, {
+      target: "#current-song-lyrics",
+      swap: "outerHTML",
+      dataLoadingTarget: "#lyrics-loading",
+      dataLoadingClassRemove: "hidden",
+    })
+    .catch(() => {
+      alert("Lyrics fetching went berzerk...");
+    })
+    .finally(() => {});
+}
+
 audioPlayerEl.addEventListener("loadeddata", (event) => {
   if (!!playPauseToggleEl) playPauseToggleEl.disabled = null;
   if (!!playPauseToggleExapndedEl) playPauseToggleExapndedEl.disabled = null;
@@ -1083,11 +1098,15 @@ playerEl?.addEventListener(
 );
 
 document
-  .getElementById("collapse-player-button")
-  ?.addEventListener("click", (event) => {
+  .getElementById("expanded-mobile-player-lyrics")
+  ?.addEventListener("touchmove", (event) => {
     event.stopImmediatePropagation();
-    event.preventDefault();
-    collapse();
+  });
+
+document
+  .getElementById("expanded-mobile-player-queue")
+  ?.addEventListener("touchmove", (event) => {
+    event.stopImmediatePropagation();
   });
 
 (() => {
@@ -1164,3 +1183,4 @@ window.Player.stopMuzikk = stopMuzikk;
 window.Player.setPlaybackSpeed = setPlaybackSpeed;
 window.Player.expand = () => expand();
 window.Player.collapse = () => collapse();
+window.Player.loadSongLyrics = loadSongLyrics;

@@ -22,6 +22,7 @@ func initEnvVars() {
 		Hostname:                 getEnv("HOST_NAME"),
 		JwtSecret:                getEnv("JWT_SECRET"),
 		BlobsDir:                 getEnv("BLOBS_DIR"),
+		GeniusToken:              getEnv("GENIUS_CLIENT_TOKEN"),
 		Google: struct {
 			ClientId     string
 			ClientSecret string
@@ -66,6 +67,7 @@ type config struct {
 	Hostname                 string
 	JwtSecret                string
 	BlobsDir                 string
+	GeniusToken              string
 	Google                   struct {
 		ClientId     string
 		ClientSecret string

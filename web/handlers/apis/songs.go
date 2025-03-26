@@ -5,6 +5,9 @@ import (
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/services/history"
 	"dankmuzikk-web/services/playlists/songs"
+	"dankmuzikk-web/services/requests"
+	"dankmuzikk-web/views/components/lyrics"
+	"dankmuzikk-web/views/components/status"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -134,4 +137,35 @@ func (s *songDownloadHandler) HandleGetSong(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	_ = json.NewEncoder(w).Encode(song)
+}
+
+func (s *songDownloadHandler) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing song's yt id"))
+		return
+	}
+
+	lyricsResp, err := requests.GetRequest[struct {
+		SongTitle string   `json:"song_title"`
+		Lyrics    []string `json:"lyrics"`
+	}]("/v1/song/lyrics?id=" + id)
+	if err != nil {
+		status.BugsBunnyError("Something went wrong").Render(r.Context(), w)
+		return
+	}
+
+	// TODO: fix this unsafe garbage
+	lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics).Render(r.Context(), w)
+}
+
+func (s *songDownloadHandler) HandleGetSongWithArtistLyrics(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing song's yt id"))
+		return
+	}
+
 }

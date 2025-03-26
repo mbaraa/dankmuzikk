@@ -1,0 +1,12 @@
+package lyrics
+
+import "strings"
+
+templ Lyrics(songTitle string, lyrics []string) {
+	<h3 class={ "font-bold", "text-2xl" }>{ songTitle }</h3>
+	for _, part := range lyrics {
+		<p>
+			@templ.Raw(strings.ReplaceAll(part, "\n", "<br/>"))
+		</p>
+	}
+}

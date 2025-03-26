@@ -10,6 +10,7 @@ type Actions struct {
 	jwt         JwtManager[TokenPayload]
 	mailer      Mailer
 	youtube     YouTube
+	lyrics      Lyrics
 }
 
 func New(
@@ -20,6 +21,7 @@ func New(
 	jwt JwtManager[TokenPayload],
 	mailer Mailer,
 	youtube YouTube,
+	lyrics Lyrics,
 ) *Actions {
 	return &Actions{
 		app:         app,
@@ -29,5 +31,6 @@ func New(
 		jwt:         jwt,
 		mailer:      mailer,
 		youtube:     youtube,
+		lyrics:      lyrics,
 	}
 }
