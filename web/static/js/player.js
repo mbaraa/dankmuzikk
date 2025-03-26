@@ -65,6 +65,7 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
  * @property {string} shuffledPlaylist
  * @property {Playlist} playlist
  * @property {number} currentSongIdx
+ * @property {boolean} lyricsLoaded
  */
 
 /**
@@ -90,6 +91,7 @@ const playerState = {
     public_id: "",
     songs: [],
   },
+  lyricsLoaded: false,
 };
 
 function isSingleSong() {
@@ -717,6 +719,8 @@ async function fetchPlaylistMeta(playlistPubId) {
  * @param {Song} song
  */
 async function playSingleSong(song) {
+  playerState.lyricsLoaded = false;
+
   playerState.playlist = {
     title: "Queue",
     songs_count: 1,
@@ -766,6 +770,7 @@ async function playSingleSongNext(song) {
  * @param {string} songYtId
  */
 async function playSingleSongNextId(songYtId) {
+  playerState.lyricsLoaded = false;
   try {
     const song = await fetchSongMeta(songYtId);
     await playSingleSongNext(song);
@@ -863,6 +868,7 @@ async function playSongFromPlaylist(songYtId, playlist) {
   const songToPlay = playlist.songs[playerState.currentSongIdx];
   await highlightSongInPlaylist(songToPlay.yt_id, playlist);
   await playSong(songToPlay);
+  playerState.lyricsLoaded = false;
 }
 
 /**
@@ -872,6 +878,7 @@ async function playSongFromPlaylist(songYtId, playlist) {
 async function playSongFromPlaylistId(songYtId, playlistPubId) {
   const playlist = await fetchPlaylistMeta(playlistPubId);
   await playSongFromPlaylist(songYtId, playlist);
+  playerState.lyricsLoaded = false;
 }
 
 /**
@@ -1015,18 +1022,22 @@ function setDuration(duration) {
 }
 
 function loadSongLyrics() {
+  if (playerState.lyricsLoaded) {
+    return;
+  }
+
   const songYtId = playerState.playlist.songs[playerState.currentSongIdx].yt_id;
   htmx
     .ajax("GET", "/api/song/lyrics?id=" + songYtId, {
       target: "#current-song-lyrics",
       swap: "outerHTML",
-      dataLoadingTarget: "#lyrics-loading",
-      dataLoadingClassRemove: "hidden",
+    })
+    .then(() => {
+      playerState.lyricsLoaded = true;
     })
     .catch(() => {
       alert("Lyrics fetching went berzerk...");
-    })
-    .finally(() => {});
+    });
 }
 
 audioPlayerEl.addEventListener("loadeddata", (event) => {
