@@ -608,6 +608,8 @@ function collapse() {
  * @param {Song} song
  */
 async function playSong(song) {
+  playerState.lyricsLoaded = false;
+
   setLoading(true);
   show();
 
@@ -868,7 +870,6 @@ async function playSongFromPlaylist(songYtId, playlist) {
   const songToPlay = playlist.songs[playerState.currentSongIdx];
   await highlightSongInPlaylist(songToPlay.yt_id, playlist);
   await playSong(songToPlay);
-  playerState.lyricsLoaded = false;
 }
 
 /**
