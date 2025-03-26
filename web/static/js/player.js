@@ -1026,6 +1026,7 @@ function loadSongLyrics() {
     return;
   }
 
+  document.getElementById("current-song-lyrics").innerHTML = "";
   const songYtId = playerState.playlist.songs[playerState.currentSongIdx].yt_id;
   htmx
     .ajax("GET", "/api/song/lyrics?id=" + songYtId, {
