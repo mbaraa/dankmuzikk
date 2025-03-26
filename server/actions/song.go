@@ -8,6 +8,7 @@ import (
 	"dankmuzikk/log"
 	"errors"
 	"fmt"
+	"regexp"
 )
 
 type Song struct {
@@ -185,13 +186,15 @@ type GetLyricsForSongPayload struct {
 	Lyrics    []string `json:"lyrics"`
 }
 
+var songTitleWeirdStuff = regexp.MustCompile(`(\(.*\)|\[.*\]|\{.*\}|\<.*\>)`)
+
 func (a *Actions) GetLyricsForSong(songYtId string) (GetLyricsForSongPayload, error) {
 	song, err := a.app.GetSongByYouTubeId(songYtId)
 	if err != nil {
 		return GetLyricsForSongPayload{}, err
 	}
 
-	lyrics, err := a.lyrics.GetForSong(song.Title)
+	lyrics, err := a.lyrics.GetForSong(songTitleWeirdStuff.ReplaceAllString(song.Title, ""))
 	if err != nil {
 		return GetLyricsForSongPayload{}, err
 	}
@@ -208,7 +211,7 @@ func (a *Actions) GetLyricsForSongAndArtist(songYtId string) (GetLyricsForSongPa
 		return GetLyricsForSongPayload{}, err
 	}
 
-	lyrics, err := a.lyrics.GetForSongAndArtist(song.Title, song.Artist)
+	lyrics, err := a.lyrics.GetForSongAndArtist(songTitleWeirdStuff.ReplaceAllString(song.Title, ""), song.Artist)
 	if err != nil {
 		return GetLyricsForSongPayload{}, err
 	}
