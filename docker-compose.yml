@@ -65,6 +65,20 @@ services:
     networks:
       - danknetwork
 
+  dank-cache:
+    container_name: "dank-cache"
+    image: "redis:7.2.4"
+    restart: "always"
+    ports:
+      - "6379:6379"
+    stdin_open: true
+    env_file:
+      - .env.docker
+    networks:
+      - danknetwork
+    command: >
+      --requirepass previetcomrade
+
 networks:
   danknetwork: {}
 

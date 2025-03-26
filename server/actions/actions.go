@@ -11,6 +11,7 @@ type Actions struct {
 	mailer      Mailer
 	youtube     YouTube
 	lyrics      Lyrics
+	cache       Cache
 }
 
 func New(
@@ -22,6 +23,7 @@ func New(
 	mailer Mailer,
 	youtube YouTube,
 	lyrics Lyrics,
+	cache Cache,
 ) *Actions {
 	return &Actions{
 		app:         app,
@@ -32,5 +34,6 @@ func New(
 		mailer:      mailer,
 		youtube:     youtube,
 		lyrics:      lyrics,
+		cache:       cache,
 	}
 }

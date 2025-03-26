@@ -39,6 +39,7 @@ func init() {
 		mailer,
 		yt,
 		nil,
+		nil,
 	)
 
 	handlers = events.New(usecases)

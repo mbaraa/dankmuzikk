@@ -14,6 +14,7 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/mailer"
 	"dankmuzikk/mariadb"
+	"dankmuzikk/redis"
 	"dankmuzikk/youtube"
 	"dankmuzikk/zip"
 	"net/http"
@@ -47,6 +48,7 @@ func StartServer() error {
 	mailer := mailer.New()
 	yt := youtube.New()
 	lyrics := genius.New()
+	cache := redis.New()
 
 	usecases := actions.New(
 		app,
@@ -57,6 +59,7 @@ func StartServer() error {
 		mailer,
 		yt,
 		lyrics,
+		cache,
 	)
 
 	authMw := auth.New(usecases)

@@ -41,6 +41,13 @@ func initEnvVars() {
 			Username: getEnv("DB_USERNAME"),
 			Password: getEnv("DB_PASSWORD"),
 		},
+		Cache: struct {
+			Host     string
+			Password string
+		}{
+			Host:     getEnv("CACHE_HOST"),
+			Password: getEnv("CACHE_PASSWORD"),
+		},
 		Smtp: struct {
 			Host     string
 			Port     string
@@ -76,6 +83,10 @@ type config struct {
 		Name     string
 		Host     string
 		Username string
+		Password string
+	}
+	Cache struct {
+		Host     string
 		Password string
 	}
 	Smtp struct {
