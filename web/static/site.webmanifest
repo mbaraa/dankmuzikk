@@ -55,11 +55,11 @@
   "theme_color": "#000000",
   "background_color": "#000000",
   "start_url": "/",
-  "scope": "https://dankmuzikk-web.com",
+  "scope": "https://dankmuzikk.com",
   "display": "standalone",
   "orientation": "portrait",
   "description": "Create, Share and Play Muzikk Playlists.",
-  "id": "com.mbaraa.dankmuzikk-web",
+  "id": "com.mbaraa.dankmuzikk",
   "categories": ["muzikk"],
   "shortcuts": [
     {
