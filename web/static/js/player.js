@@ -1030,7 +1030,7 @@ function loadSongLyrics() {
   htmx
     .ajax("GET", "/api/song/lyrics?id=" + songYtId, {
       target: "#current-song-lyrics",
-      swap: "outerHTML",
+      swap: "innerHTML",
     })
     .then(() => {
       playerState.lyricsLoaded = true;
