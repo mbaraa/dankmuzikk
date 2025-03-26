@@ -15,10 +15,6 @@ func (a *App) GetProfileByAccountEmail(email string) (models.Profile, error) {
 		return models.Profile{}, err
 	}
 
-	if account.IsOAuth {
-		return models.Profile{}, &ErrDifferentLoginMethod{}
-	}
-
 	profile, err := a.repo.GetProfileForAccount(account.Id)
 	if err != nil {
 		return models.Profile{}, err

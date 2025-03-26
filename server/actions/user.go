@@ -53,6 +53,9 @@ func (a *Actions) LoginWithEmail(params LoginWithEmailParams) (LoginWithEmailPay
 	if err != nil {
 		return LoginWithEmailPayload{}, err
 	}
+	if profile.Account.IsOAuth {
+		return LoginWithEmailPayload{}, &app.ErrDifferentLoginMethod{}
+	}
 
 	verificationToken, err := a.jwt.Sign(TokenPayload{
 		Name:     profile.Name,
