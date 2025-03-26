@@ -16,6 +16,7 @@ func initEnvVars() {
 		GoEnv:         getEnv("GO_ENV"),
 		Hostname:      getEnv("HOST_NAME"),
 		ServerAddress: getEnv("SERVER_ADDRESS"),
+		CdnAddress:    getEnv("CDN_ADDRESS"),
 	}
 }
 
@@ -24,6 +25,7 @@ type config struct {
 	GoEnv         string
 	Hostname      string
 	ServerAddress string
+	CdnAddress    string
 }
 
 // Env returns the thing's config values :)

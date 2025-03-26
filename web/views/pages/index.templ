@@ -1,11 +1,11 @@
 package pages
 
 import (
-	"dankmuzikk-web/views/components/navlink"
 	"dankmuzikk-web/entities"
-	"dankmuzikk-web/views/components/song"
+	"dankmuzikk-web/views/components/navlink"
 	"dankmuzikk-web/views/components/page"
 	"dankmuzikk-web/views/components/playlist"
+	"dankmuzikk-web/views/components/song"
 )
 
 templ Index(recentPlays []entities.Song) {
@@ -28,7 +28,7 @@ templ noListensContent() {
 		@navlink.NavLink("in about page", "", "/about")
 		<br/>
 		<br/>
-		And you can check the beta features here <a href="https://beta.dankmuzikk-web.com">beta.dankmuzikk-web.com</a>
+		And you can check the beta features here <a href="https://beta.dankmuzikk.com">beta.dankmuzikk.com</a>
 		<br/>
 		<br/>
 		Happy danking 🎉✨

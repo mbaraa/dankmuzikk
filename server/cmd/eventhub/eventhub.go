@@ -142,7 +142,7 @@ func executeEvents(events []evy.EventPayload) error {
 			}
 
 			go func() {
-				err := handlers.HandleDownloadPlaylist(body)
+				err := handlers.HandleDeletePlaylistArchive(body)
 				if err != nil {
 					log.Errorln("playlist-downloaded", err)
 				}

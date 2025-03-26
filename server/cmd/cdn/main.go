@@ -35,7 +35,16 @@ func main() {
 	pixDir := config.Env().BlobsDir + "/pix/"
 	playlistsDir := config.Env().BlobsDir + "/playlists/"
 
-	applicationHandler.Handle("/muzikkx/", http.StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))))
+	applicationHandler.Handle("/muzikkx/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Icy-Metadata", "1")
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Content-Type", "audio/mpeg")
+		w.Header().Set("Content-Disposition", "inline")
+		http.
+			StripPrefix("/muzikkx", http.FileServer(http.Dir(muzikkxDir))).
+			ServeHTTP(w, r)
+	}))
+
 	applicationHandler.Handle("/muzikkx-raw/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/muzikkx-raw/"), ".mp3")
 		song, err := mariadbRepo.GetSongByYouTubeId(id)
@@ -44,7 +53,7 @@ func main() {
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Content-Type", "audio/mpeg")
 		w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+song.Title+".mp3")
 		http.
 			StripPrefix("/muzikkx-raw", http.FileServer(http.Dir(muzikkxDir))).
@@ -65,7 +74,7 @@ func main() {
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Content-Type", "application/zip")
 		w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''"+pl.Title+".zip")
 		http.
 			StripPrefix("/playlists", http.FileServer(http.Dir(playlistsDir))).

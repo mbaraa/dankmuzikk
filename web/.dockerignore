@@ -8,7 +8,7 @@ vite.config.ts.timestamp-*
 dankmuzikk-web
 static/css/tailwind.css
 google-service-account.json
-views/**/*.go
+views/**/*_templ.go
 views/**/*.txt
 docker-compose.yml
 .github
