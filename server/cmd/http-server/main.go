@@ -40,7 +40,9 @@ func StartServer() error {
 		return err
 	}
 
-	app := app.New(mariadbRepo)
+	cache := redis.New()
+
+	app := app.New(mariadbRepo, cache)
 	eventhub := evy.New()
 	zipArchiver := zip.New()
 	blobstorage := blobs.New()
@@ -48,10 +50,10 @@ func StartServer() error {
 	mailer := mailer.New()
 	yt := youtube.New()
 	lyrics := genius.New()
-	cache := redis.New()
 
 	usecases := actions.New(
 		app,
+		cache,
 		eventhub,
 		zipArchiver,
 		blobstorage,
@@ -59,7 +61,6 @@ func StartServer() error {
 		mailer,
 		yt,
 		lyrics,
-		cache,
 	)
 
 	authMw := auth.New(usecases)

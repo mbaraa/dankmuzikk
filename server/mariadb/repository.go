@@ -111,47 +111,6 @@ func (r *Repository) GetProfileForAccount(accountId uint) (models.Profile, error
 	return profile, nil
 }
 
-func (r *Repository) CreateOtp(otp models.EmailVerificationCode) error {
-	return tryWrapDbError(
-		r.client.
-			Model(new(models.EmailVerificationCode)).
-			Create(&otp).
-			Error,
-	)
-}
-
-func (r *Repository) GetOtpForAccount(id uint) (models.EmailVerificationCode, error) {
-	var otps []models.EmailVerificationCode
-
-	err := tryWrapDbError(
-		r.client.
-			Model(new(models.EmailVerificationCode)).
-			Find(&otps, "account_id = ?", id).
-			Error,
-	)
-	if _, ok := err.(ErrRecordNotFound); ok || len(otps) == 0 {
-		return models.EmailVerificationCode{}, &app.ErrNotFound{
-			ResourceName: "otp",
-		}
-	}
-	if err != nil {
-		return models.EmailVerificationCode{}, err
-	}
-
-	return otps[len(otps)-1], nil
-}
-
-func (r *Repository) DeleteOtpsForAccount(id uint) error {
-	return tryWrapDbError(
-		r.client.
-			Model(new(models.EmailVerificationCode)).
-			Delete(&models.EmailVerificationCode{
-				AccountId: id,
-			}, "account_id = ?", id).
-			Error,
-	)
-}
-
 func (r *Repository) CreateSong(song models.Song) (models.Song, error) {
 	err := tryWrapDbError(
 		r.client.

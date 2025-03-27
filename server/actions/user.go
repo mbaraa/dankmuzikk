@@ -142,7 +142,7 @@ func (a *Actions) VerifyOtp(params VerifyOtpParams) (VerifyOtpPayload, error) {
 		return VerifyOtpPayload{}, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(otp.Code), []byte(params.Code))
+	err = bcrypt.CompareHashAndPassword([]byte(otp), []byte(params.Code))
 	if err != nil {
 		return VerifyOtpPayload{}, &app.ErrInvalidVerificationToken{}
 	}
@@ -164,15 +164,12 @@ func (a *Actions) VerifyOtp(params VerifyOtpParams) (VerifyOtpPayload, error) {
 func (a *Actions) sendOtp(profile models.Profile) error {
 	otp := generateOtp()
 
-	hashed, err := bcrypt.GenerateFromPassword([]byte(otp), bcrypt.DefaultCost)
+	hashedOtp, err := bcrypt.GenerateFromPassword([]byte(otp), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	err = a.app.CreateOtp(models.EmailVerificationCode{
-		AccountId: profile.AccountId,
-		Code:      string(hashed),
-	})
+	err = a.app.CreateOtp(profile.AccountId, string(hashedOtp))
 	if err != nil {
 		return err
 	}

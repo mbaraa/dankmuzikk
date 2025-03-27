@@ -4,6 +4,7 @@ import "dankmuzikk/app"
 
 type Actions struct {
 	app         *app.App
+	cache       Cache
 	eventhub    EventHub
 	archiver    Archiver
 	blobstorage BlobStorage
@@ -11,11 +12,11 @@ type Actions struct {
 	mailer      Mailer
 	youtube     YouTube
 	lyrics      Lyrics
-	cache       Cache
 }
 
 func New(
 	app *app.App,
+	cache Cache,
 	eventhub EventHub,
 	archiver Archiver,
 	blobstorage BlobStorage,
@@ -23,10 +24,10 @@ func New(
 	mailer Mailer,
 	youtube YouTube,
 	lyrics Lyrics,
-	cache Cache,
 ) *Actions {
 	return &Actions{
 		app:         app,
+		cache:       cache,
 		eventhub:    eventhub,
 		archiver:    archiver,
 		blobstorage: blobstorage,
@@ -34,6 +35,5 @@ func New(
 		mailer:      mailer,
 		youtube:     youtube,
 		lyrics:      lyrics,
-		cache:       cache,
 	}
 }

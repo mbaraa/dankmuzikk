@@ -107,6 +107,12 @@ templ signupForm() {
 				placeholder="Enter your email"
 			/>
 		</div>
+		<button
+			type="submit"
+			class={ "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full", "text-accent" }
+		>
+			Sign up
+		</button>
 		<div class={ "flex", "flex-col", "lg:justify-between", "gap-[15px]", "lg:gap-x-[30px]" }>
 			<p class={ "flex", "justify-start", "items-center", "text-secondary" , "text-[16px]" }>Or Use OAuth</p>
 			<a class={ "w-full" } href="/api/signup/google" title="Signup with Google">
@@ -120,9 +126,9 @@ templ signupForm() {
 							height="25"
 							class={ "w-[25px]", "h-[25px]" }
 							src="/static/images/google.webp"
-							alt="Signup with Google"
+							alt="Sign up with Google"
 						/>
-						<span>Login with Google						</span>
+						<span>Sign up with Google</span>
 					</span>
 				</button>
 			</a>

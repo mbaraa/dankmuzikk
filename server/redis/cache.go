@@ -12,9 +12,12 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+const keyPrefix = "dankmuzikk:"
+
 const (
 	songLyricsTtlDays       = 7
 	userSessionTokenTtlDays = 30
+	otpTtlMinutes           = 30
 )
 
 type Cache struct {
@@ -32,7 +35,7 @@ func New() *Cache {
 }
 
 func songLyricsKey(songId uint) string {
-	return fmt.Sprintf("song:%d:lyrics", songId)
+	return fmt.Sprintf("%ssong:%d:lyrics", keyPrefix, songId)
 }
 
 func (c *Cache) StoreLyrics(songId uint, lyrics []string) error {
@@ -70,7 +73,7 @@ func (c *Cache) GetLyrics(songId uint) ([]string, error) {
 }
 
 func userTokenKey(sessionToken string) string {
-	return fmt.Sprintf("user:%s", sessionToken)
+	return fmt.Sprintf("%suser-session-token:%s", keyPrefix, sessionToken)
 }
 
 func (c *Cache) SetAuthenticatedUser(sessionToken string, profile models.Profile) error {
@@ -114,4 +117,36 @@ func (c *Cache) InvalidateAuthenticatedUser(sessionToken string) error {
 	}
 
 	return nil
+}
+
+func otpKey(userId uint) string {
+	return fmt.Sprintf("%suser-otp:%d", keyPrefix, userId)
+}
+
+func (c *Cache) CreateOtp(accountId uint, otp string) error {
+	err := c.client.Set(context.Background(), otpKey(accountId), otp, otpTtlMinutes*time.Minute).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Cache) GetOtpForAccount(id uint) (string, error) {
+	res := c.client.Get(context.Background(), otpKey(id))
+	if res == nil {
+		return "", &app.ErrNotFound{
+			ResourceName: "otp",
+		}
+	}
+	value, err := res.Result()
+	if err == redis.Nil {
+		return "", &app.ErrNotFound{
+			ResourceName: "otp",
+		}
+	} else if err != nil {
+		return "", err
+	}
+
+	return value, nil
 }
