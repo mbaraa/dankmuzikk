@@ -1,9 +1,5 @@
 package actions
 
-import (
-	"dankmuzikk/log"
-)
-
 type AuthenticateUserPayload struct {
 	Id       uint   `json:"-"`
 	Email    string `json:"email"`
@@ -22,8 +18,6 @@ func (a *Actions) AuthenticateUser(sessionToken string) (AuthenticateUserPayload
 	if err != nil {
 		return AuthenticateUserPayload{}, err
 	}
-
-	log.Infof("got profile here: %+v\n", profile)
 
 	return AuthenticateUserPayload{
 		Id:       profile.Id,
