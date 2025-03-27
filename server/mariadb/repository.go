@@ -633,14 +633,14 @@ func (r *Repository) CreatePlaylist(pl models.Playlist) (models.Playlist, error)
 	return pl, nil
 }
 
-func (r *Repository) AddProfileToPlaylist(plId, profileId uint) error {
+func (r *Repository) AddProfileToPlaylist(plId, profileId uint, permissions models.PlaylistPermissions) error {
 	return tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistOwner)).
 			Create(&models.PlaylistOwner{
 				PlaylistId:  plId,
 				ProfileId:   profileId,
-				Permissions: models.OwnerPermission | models.JoinerPermission | models.VisitorPermission,
+				Permissions: permissions,
 			}).
 			Error,
 	)

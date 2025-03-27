@@ -152,12 +152,12 @@ func (s *songsApi) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
 		Lyrics    []string `json:"lyrics"`
 	}]("/v1/song/lyrics?id=" + id)
 	if err != nil {
-		status.BugsBunnyError("Something went wrong").
+		status.BugsBunnyError("Lyrics was not found!").
 			Render(r.Context(), w)
 		return
 	}
 
-	lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics).
+	_ = lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics).
 		Render(r.Context(), w)
 }
 

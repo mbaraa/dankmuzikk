@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"dankmuzikk/app"
+	"dankmuzikk/app/models"
 	"dankmuzikk/config"
 	"encoding/json"
 	"fmt"
@@ -12,7 +13,8 @@ import (
 )
 
 const (
-	songLyricsTtlDays = 7
+	songLyricsTtlDays       = 7
+	userSessionTokenTtlDays = 30
 )
 
 type Cache struct {
@@ -30,7 +32,7 @@ func New() *Cache {
 }
 
 func songLyricsKey(songId uint) string {
-	return fmt.Sprintf("%d:lyrics", songId)
+	return fmt.Sprintf("song:%d:lyrics", songId)
 }
 
 func (c *Cache) StoreLyrics(songId uint, lyrics []string) error {
@@ -65,4 +67,46 @@ func (c *Cache) GetLyrics(songId uint) ([]string, error) {
 	}
 
 	return lyrics, nil
+}
+
+func userTokenKey(sessionToken string) string {
+	return fmt.Sprintf("user:%s", sessionToken)
+}
+
+func (c *Cache) SetAuthenticatedUser(sessionToken string, profile models.Profile) error {
+	profileJson, err := json.Marshal(profile)
+	if err != nil {
+		return err
+	}
+
+	return c.client.Set(context.Background(), userTokenKey(sessionToken), string(profileJson), userSessionTokenTtlDays*time.Hour*24).Err()
+}
+
+func (c *Cache) GetAuthenticatedUser(sessionToken string) (models.Profile, error) {
+	res := c.client.Get(context.Background(), userTokenKey(sessionToken))
+	if res == nil {
+		return models.Profile{}, &app.ErrNotFound{
+			ResourceName: "profile",
+		}
+	}
+	value, err := res.Result()
+	if err == redis.Nil {
+		return models.Profile{}, &app.ErrNotFound{
+			ResourceName: "profile",
+		}
+	} else if err != nil {
+		return models.Profile{}, err
+	}
+
+	var profile models.Profile
+	err = json.Unmarshal([]byte(value), &profile)
+	if err != nil {
+		return models.Profile{}, err
+	}
+
+	return profile, nil
+}
+
+func (c *Cache) InvalidateAuthenticatedUser(sessionToken string) error {
+	return nil
 }
