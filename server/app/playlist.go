@@ -51,7 +51,7 @@ func (a *App) CheckProfilePlaylistAccess(profileId uint, playlistPubId string) (
 		return models.Playlist{}, 0, &ErrUnauthorizedToSeePlaylist{}
 	}
 
-	return playlist, models.JoinerPermission | models.VisitorPermission, nil
+	return playlist, models.VisitorPermission, nil
 }
 
 func (a *App) TogglePublicPlaylist(playlistPubId string, ownerId uint) (madePublic bool, err error) {
