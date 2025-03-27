@@ -38,7 +38,7 @@ type Repository interface {
 
 	GetPlaylistByPublicId(pubId string) (models.Playlist, error)
 	CreatePlaylist(pl models.Playlist) (models.Playlist, error)
-	AddProfileToPlaylist(plId, profileId uint) error
+	AddProfileToPlaylist(plId, profileId uint, permissions models.PlaylistPermissions) error
 	RemoveProfileFromPlaylist(plId, profileId uint) error
 	GetPlaylistOwners(plId uint) ([]models.PlaylistOwner, error)
 	MakePlaylistPublic(id uint) error

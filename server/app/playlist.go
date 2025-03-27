@@ -22,7 +22,7 @@ func (a *App) CreatePlaylist(args CreatePlaylistArgs) (models.Playlist, error) {
 		return models.Playlist{}, err
 	}
 
-	err = a.repo.AddProfileToPlaylist(playlist.Id, args.ProfileId)
+	err = a.repo.AddProfileToPlaylist(playlist.Id, args.ProfileId, models.OwnerPermission|models.JoinerPermission)
 	if err != nil {
 		return models.Playlist{}, err
 	}
@@ -74,9 +74,13 @@ func (a *App) TogglePublicPlaylist(playlistPubId string, ownerId uint) (madePubl
 }
 
 func (a *App) ToggleProfileInPlaylist(playlistPubId string, profileId uint) (joined bool, err error) {
-	playlist, _, err := a.CheckProfilePlaylistAccess(profileId, playlistPubId)
+	playlist, permissions, err := a.CheckProfilePlaylistAccess(profileId, playlistPubId)
 	if err != nil {
-		return true, a.repo.AddProfileToPlaylist(playlist.Id, profileId)
+		return false, err
+	}
+
+	if permissions&models.JoinerPermission == 0 {
+		return true, a.repo.AddProfileToPlaylist(playlist.Id, profileId, models.JoinerPermission)
 	}
 
 	return false, a.repo.RemoveProfileFromPlaylist(playlist.Id, profileId)
