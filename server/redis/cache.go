@@ -108,5 +108,10 @@ func (c *Cache) GetAuthenticatedUser(sessionToken string) (models.Profile, error
 }
 
 func (c *Cache) InvalidateAuthenticatedUser(sessionToken string) error {
+	err := c.client.Del(context.Background(), userTokenKey(sessionToken)).Err()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
