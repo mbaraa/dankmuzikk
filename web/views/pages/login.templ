@@ -32,7 +32,17 @@ templ Login() {
 				"bg-primary-trans-20", "flex", "flex-col", "justify-center", "items-center",
 			}
 		>
-			<div class={ "block", "lg:hidden", "mb-5" }>
+			<div class={ "flex", "flex-col", "justify-start", "gap-y-4", "lg:hidden", "mb-5", "text-secondary" }>
+				<div class={ "flex", "justify-center", "items-center", "flex-row", "gap-1", "h-min" }>
+					<img
+						width="55"
+						height="55"
+						src="/static/images/logo.webp"
+						alt="DankMuzikk Logo"
+						class={ "w-[55px]", "rounded-md" }
+					/>
+					<h1 class={ "text-3xl" }>DankMuzikk</h1>
+				</div>
 				@info.Intro()
 			</div>
 			<div
