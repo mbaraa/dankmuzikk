@@ -75,11 +75,8 @@ func (a *App) TogglePublicPlaylist(playlistPubId string, ownerId uint) (madePubl
 
 func (a *App) ToggleProfileInPlaylist(playlistPubId string, profileId uint) (joined bool, err error) {
 	playlist, _, err := a.CheckProfilePlaylistAccess(profileId, playlistPubId)
-	if _, ok := err.(*ErrNotFound); ok {
-		return true, a.repo.AddProfileToPlaylist(playlist.Id, profileId)
-	}
 	if err != nil {
-		return false, err
+		return true, a.repo.AddProfileToPlaylist(playlist.Id, profileId)
 	}
 
 	return false, a.repo.RemoveProfileFromPlaylist(playlist.Id, profileId)
