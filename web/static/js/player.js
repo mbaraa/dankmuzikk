@@ -65,6 +65,7 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
  * @property {string} shuffledPlaylist
  * @property {Playlist} playlist
  * @property {number} currentSongIdx
+ * @property {boolean} lyricsLoaded
  */
 
 /**
@@ -90,6 +91,7 @@ const playerState = {
     public_id: "",
     songs: [],
   },
+  lyricsLoaded: false,
 };
 
 function isSingleSong() {
@@ -606,6 +608,8 @@ function collapse() {
  * @param {Song} song
  */
 async function playSong(song) {
+  playerState.lyricsLoaded = false;
+
   setLoading(true);
   show();
 
@@ -717,6 +721,8 @@ async function fetchPlaylistMeta(playlistPubId) {
  * @param {Song} song
  */
 async function playSingleSong(song) {
+  playerState.lyricsLoaded = false;
+
   playerState.playlist = {
     title: "Queue",
     songs_count: 1,
@@ -766,6 +772,7 @@ async function playSingleSongNext(song) {
  * @param {string} songYtId
  */
 async function playSingleSongNextId(songYtId) {
+  playerState.lyricsLoaded = false;
   try {
     const song = await fetchSongMeta(songYtId);
     await playSingleSongNext(song);
@@ -872,6 +879,7 @@ async function playSongFromPlaylist(songYtId, playlist) {
 async function playSongFromPlaylistId(songYtId, playlistPubId) {
   const playlist = await fetchPlaylistMeta(playlistPubId);
   await playSongFromPlaylist(songYtId, playlist);
+  playerState.lyricsLoaded = false;
 }
 
 /**
@@ -1014,6 +1022,26 @@ function setDuration(duration) {
   }
 }
 
+function loadSongLyrics() {
+  if (playerState.lyricsLoaded) {
+    return;
+  }
+
+  document.getElementById("current-song-lyrics").innerHTML = "";
+  const songYtId = playerState.playlist.songs[playerState.currentSongIdx].yt_id;
+  htmx
+    .ajax("GET", "/api/song/lyrics?id=" + songYtId, {
+      target: "#current-song-lyrics",
+      swap: "innerHTML",
+    })
+    .then(() => {
+      playerState.lyricsLoaded = true;
+    })
+    .catch(() => {
+      alert("Lyrics fetching went berzerk...");
+    });
+}
+
 audioPlayerEl.addEventListener("loadeddata", (event) => {
   if (!!playPauseToggleEl) playPauseToggleEl.disabled = null;
   if (!!playPauseToggleExapndedEl) playPauseToggleExapndedEl.disabled = null;
@@ -1083,11 +1111,15 @@ playerEl?.addEventListener(
 );
 
 document
-  .getElementById("collapse-player-button")
-  ?.addEventListener("click", (event) => {
+  .getElementById("expanded-mobile-player-lyrics")
+  ?.addEventListener("touchmove", (event) => {
     event.stopImmediatePropagation();
-    event.preventDefault();
-    collapse();
+  });
+
+document
+  .getElementById("expanded-mobile-player-queue")
+  ?.addEventListener("touchmove", (event) => {
+    event.stopImmediatePropagation();
   });
 
 (() => {
@@ -1164,3 +1196,4 @@ window.Player.stopMuzikk = stopMuzikk;
 window.Player.setPlaybackSpeed = setPlaybackSpeed;
 window.Player.expand = () => expand();
 window.Player.collapse = () => collapse();
+window.Player.loadSongLyrics = loadSongLyrics;

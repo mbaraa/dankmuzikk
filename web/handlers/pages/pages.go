@@ -161,6 +161,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 			status.
 				BugsBunnyError("You can't see this playlist! <br/> (don't snoop around other people's stuff or else!)").
 				Render(context.Background(), w)
+			return
 		} else {
 			layouts.Default(layouts.PageProps{
 				Title: "Error",
@@ -168,13 +169,15 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 				status.
 					BugsBunnyError("You can't see this playlist! <br/> (don't snoop around other people's stuff or else!)")).
 				Render(r.Context(), w)
+			return
 		}
-		return
 	case err != nil:
+		log.Errorln(err)
 		if htmxReq {
 			status.
 				BugsBunnyError("You can't see this playlist! <br/> (it might be John Cena)").
 				Render(context.Background(), w)
+			return
 		} else {
 			layouts.Default(layouts.PageProps{
 				Title: "Error",
@@ -182,6 +185,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 				status.
 					BugsBunnyError("You can't see this playlist! <br/> (it might be John Cena)")).
 				Render(r.Context(), w)
+			return
 		}
 	}
 	ctx := context.WithValue(r.Context(), auth.PlaylistPermission, playlist.Permissions)
@@ -253,7 +257,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
-			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		}
 		return
 	}

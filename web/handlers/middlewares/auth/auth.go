@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"dankmuzikk-web/config"
 	"dankmuzikk-web/entities"
 	"dankmuzikk-web/handlers/middlewares/contenttype"
 	"dankmuzikk-web/services/requests"
@@ -44,13 +43,13 @@ func (a *mw) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 
 		switch {
 		case authed && slices.Contains(noAuthPaths, r.URL.Path):
-			http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		case !authed && slices.Contains(noAuthPaths, r.URL.Path):
 			h(w, r.WithContext(ctx))
 		case !authed && htmxRedirect:
 			w.Header().Set("HX-Redirect", "/login")
 		case !authed && !htmxRedirect:
-			http.Redirect(w, r, config.Env().Hostname+"/login", http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 		default:
 			h(w, r.WithContext(ctx))
 		}

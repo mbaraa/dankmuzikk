@@ -1,8 +1,6 @@
 package pages
 
-import (
-	"dankmuzikk-web/views/components/info"
-)
+import "dankmuzikk-web/views/components/info"
 
 /*
    This page uses desktop design after lg (1024px)
@@ -71,15 +69,15 @@ templ Login() {
 
 templ loginForm() {
 	<form
-		class={ "flex", "flex-col", "gap-y-[15px]", "lg:gap-y-[35px]" }
+		class={ "flex", "flex-col", "gap-y-[15px]", "lg:gap-y-[25px]" }
 		hx-post="/api/login/email"
 		hx-ext="json-enc"
 		hx-target="#replaceable-login-form"
 		data-loading-target="#loading"
 		data-loading-class-remove="hidden"
 	>
-		<div class={ "flex", "flex-col", "gap-y-[10px]" }>
-			<label class={ "text-secondary", "text-[16px]" } for="email">Email</label>
+		<div class={ "flex", "flex-col", "gap-y-[15px]" }>
+			<label class={ "text-secondary", "text-[16px]" } for="email">Email Login</label>
 			<input
 				id="email"
 				type="email"
@@ -89,14 +87,21 @@ templ loginForm() {
 				placeholder="Enter your email"
 				autofocus
 			/>
+			<button
+				type="submit"
+				class={ "", "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full", "text-accent" }
+			>
+				Login
+			</button>
 		</div>
-		<div class={ "flex", "flex-col-reverse", "lg:flex-row", "lg:justify-between", "gap-[15px]", "lg:gap-x-[30px]", "mt-4" }>
+		<div class={ "flex", "flex-col", "lg:justify-between", "gap-[15px]", "lg:gap-x-[30px]" }>
+			<p class={ "flex", "justify-start", "items-center", "text-secondary" , "text-[16px]" }>Or Use OAuth</p>
 			<a class={ "w-full" } href="/api/login/google" title="Login with Google">
 				<button
 					type="button"
 					class={ "w-full", "bg-secondary", "rounded-[50px]", "p-[10px]", "flex", "justify-center", "items-center" }
 				>
-					<span class={ "font-Ubuntu" }>
+					<span class={ "flex", "gap-x-3", "text-accent", "font-Ubuntu" }>
 						<img
 							width="25"
 							height="25"
@@ -104,15 +109,10 @@ templ loginForm() {
 							src="/static/images/google.webp"
 							alt="Login with Google"
 						/>
+						<span>Login with Google						</span>
 					</span>
 				</button>
 			</a>
-			<button
-				type="submit"
-				class={ "bg-secondary", "rounded-[50px]", "p-[10px]", "px-[60px]", "w-full", "text-accent" }
-			>
-				Login
-			</button>
 		</div>
 	</form>
 }

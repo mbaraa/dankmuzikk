@@ -6,6 +6,7 @@ import (
 	"dankmuzikk/blobs"
 	"dankmuzikk/config"
 	"dankmuzikk/evy"
+	"dankmuzikk/genius"
 	"dankmuzikk/handlers/apis"
 	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/handlers/middlewares/logger"
@@ -13,6 +14,7 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/mailer"
 	"dankmuzikk/mariadb"
+	"dankmuzikk/redis"
 	"dankmuzikk/youtube"
 	"dankmuzikk/zip"
 	"net/http"
@@ -45,6 +47,8 @@ func StartServer() error {
 	jwtUtil := jwt.New[actions.TokenPayload]()
 	mailer := mailer.New()
 	yt := youtube.New()
+	lyrics := genius.New()
+	cache := redis.New()
 
 	usecases := actions.New(
 		app,
@@ -54,6 +58,8 @@ func StartServer() error {
 		jwtUtil,
 		mailer,
 		yt,
+		lyrics,
+		cache,
 	)
 
 	authMw := auth.New(usecases)
@@ -84,6 +90,7 @@ func StartServer() error {
 	v1ApisHandler.HandleFunc("PUT /song/playlist", authMw.AuthApi(playlistsApi.HandleToggleSongInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/upvote", authMw.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
+	v1ApisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
 	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
 	v1ApisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylists))
 	v1ApisHandler.HandleFunc("GET /playlist", authMw.AuthApi(playlistsApi.HandleGetPlaylist))
@@ -95,10 +102,7 @@ func StartServer() error {
 	v1ApisHandler.HandleFunc("GET /history/{page}", authMw.AuthApi(historyApi.HandleGetMoreHistoryItems))
 	v1ApisHandler.HandleFunc("GET /profile", userApi.HandleGetProfile)
 
-	pagesHandler := http.NewServeMux()
-
 	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/", pagesHandler)
 	applicationHandler.Handle("/v1/", http.StripPrefix("/v1", v1ApisHandler))
 
 	log.Info("Starting http server at port " + config.Env().Port)

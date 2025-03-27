@@ -8,7 +8,10 @@ import (
 	"text/template"
 )
 
-const mariadbImage = "mariadb:11.7"
+const (
+	mariadbImage = "mariadb:11.7"
+	redisImage   = "redis:7.2.4"
+)
 
 const dockerComposeFullTemplate = `services:
 {{- range .Services }}
@@ -43,6 +46,7 @@ type TemplateValues struct {
 	DbDataPath   string
 
 	MariaDbImage string
+	RedisImage   string
 
 	Beta            bool
 	ExternalNetwork bool
@@ -89,6 +93,10 @@ const serviceTemplate = `  {{ .ServiceName }}:
       - {{ . }}
       {{- end }}
     {{- end }}
+	{{- if .Command }}
+    command: >
+      {{ .Command }}
+	{{- end }}
 `
 
 type ServicePortsValues struct {
@@ -117,6 +125,7 @@ type ServiceValues struct {
 	Volumes        []ServiceVolumesValues
 	Networks       []string
 	DependsOn      []string
+	Command        string
 }
 
 func getService(values ServiceValues) (string, error) {
@@ -449,6 +458,28 @@ func generateComposeFile(values TemplateValues) (string, error) {
 		}
 	}
 
+	cache, err := getService(ServiceValues{
+		ServiceName:    "dank-cache",
+		ContainerImage: values.RedisImage,
+		Ports: []ServicePortsValues{
+			{
+				OutPort:       "6379",
+				ContainerPort: "6379",
+			},
+		},
+		Environment: []ServiceEnvironmentValues{},
+		EnvFile:     ".env.docker",
+		Volumes:     []ServiceVolumesValues{},
+		Networks:    []string{values.NetworkName},
+		Command:     "--requirepass previetcomrade",
+	})
+	if err != nil {
+		return "", err
+	}
+	if slices.Contains(values.EnabledServices, ServiceCache) {
+		services = append(services, cache)
+	}
+
 	out := new(strings.Builder)
 
 	template := template.Must(template.New("the-thing").Parse(dockerComposeFullTemplate))
@@ -471,11 +502,13 @@ const (
 	ServiceEventHub string = "dank-eventhub"
 	ServiceYtDl     string = "dank-ytdl"
 	ServiceDb       string = "dank-db"
+	ServiceCache    string = "dank-cache"
 )
 
 func generateAllComposeFile() error {
 	content, err := generateComposeFile(TemplateValues{
 		MariaDbImage:    mariadbImage,
+		RedisImage:      redisImage,
 		ServerPort:      "20250",
 		WebPort:         "20253",
 		CdnPort:         "20251",
@@ -493,6 +526,7 @@ func generateAllComposeFile() error {
 			ServiceEventHub,
 			ServiceYtDl,
 			ServiceDb,
+			ServiceCache,
 		},
 	})
 	if err != nil {
@@ -515,6 +549,7 @@ func generateAllComposeFile() error {
 func generateJustServicesComposeFile() error {
 	content, err := generateComposeFile(TemplateValues{
 		MariaDbImage:    mariadbImage,
+		RedisImage:      redisImage,
 		CdnPort:         "20251",
 		EventHubPort:    "20252",
 		YtDlPort:        "20254",
@@ -528,6 +563,7 @@ func generateJustServicesComposeFile() error {
 			ServiceEventHub,
 			ServiceYtDl,
 			ServiceDb,
+			ServiceCache,
 		},
 	})
 	if err != nil {
