@@ -14,5 +14,5 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Domain: config.Env().Hostname,
 		MaxAge: -1,
 	})
-	http.Redirect(w, r, config.Env().Hostname, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }

@@ -67,8 +67,8 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 	layouts.Default(layouts.PageProps{
 		Title:       "Home",
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname,
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		Url:         config.Env().Hostname,
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.Index(recentPlays)).Render(r.Context(), w)
 }
 
@@ -82,8 +82,8 @@ func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 	layouts.Default(layouts.PageProps{
 		Title:       "About",
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/about",
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		Url:         config.Env().Hostname + "/about",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.About()).Render(r.Context(), w)
 }
 
@@ -91,8 +91,8 @@ func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
 	layouts.Raw(layouts.PageProps{
 		Title:       "Login",
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/login",
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		Url:         config.Env().Hostname + "/login",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.Login()).Render(r.Context(), w)
 }
 
@@ -125,8 +125,8 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 	layouts.Default(layouts.PageProps{
 		Title:       "Playlists",
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/playlists",
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		Url:         config.Env().Hostname + "/playlists",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.Playlists(playlists)).Render(r.Context(), w)
 }
 
@@ -195,9 +195,9 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	layouts.Default(layouts.PageProps{
 		Title:       playlist.Title,
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/playlist/" + playlist.PublicId,
+		Url:         config.Env().Hostname + "/playlist/" + playlist.PublicId,
 		Type:        layouts.PlaylistPage,
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.Playlist(playlist)).Render(ctx, w)
 }
 
@@ -227,7 +227,7 @@ func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Reque
 	layouts.Default(layouts.PageProps{
 		Title:       song.Title,
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/song/" + song.YtId,
+		Url:         config.Env().Hostname + "/song/" + song.YtId,
 		Type:        layouts.SongPage,
 		ImageUrl:    song.ThumbnailUrl,
 		Audio: layouts.AudioProps{
@@ -242,8 +242,8 @@ func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request)
 	layouts.Default(layouts.PageProps{
 		Title:       "Privacy",
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/privacy",
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		Url:         config.Env().Hostname + "/privacy",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.Privacy()).Render(r.Context(), w)
 }
 
@@ -253,7 +253,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
-			http.Redirect(w, r, "https://"+config.Env().Hostname, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		}
 		return
 	}
@@ -279,9 +279,9 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 	layouts.Default(layouts.PageProps{
 		Title:       "Profile",
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/profile",
+		Url:         config.Env().Hostname + "/profile",
 		Type:        layouts.ProfilePage,
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.Profile(user)).Render(r.Context(), w)
 }
 
@@ -304,8 +304,8 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 	layouts.Default(layouts.PageProps{
 		Title:       "Results for " + query,
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/search?query=" + query,
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		Url:         config.Env().Hostname + "/search?query=" + query,
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.SearchResults(results)).Render(r.Context(), w)
 }
 
@@ -313,7 +313,7 @@ func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) 
 	layouts.Raw(layouts.PageProps{
 		Title:       "Signup",
 		Description: "", // TODO:??
-		Url:         "https://" + config.Env().Hostname + "/signup",
-		ImageUrl:    "https://" + config.Env().Hostname + "/static/favicon-32x32.png",
+		Url:         config.Env().Hostname + "/signup",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.Signup()).Render(r.Context(), w)
 }
