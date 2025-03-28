@@ -13,10 +13,6 @@ type Repository interface {
 	CreateProfile(profile models.Profile) (models.Profile, error)
 	GetProfileForAccount(id uint) (models.Profile, error)
 
-	CreateOtp(otp models.EmailVerificationCode) error
-	GetOtpForAccount(id uint) (models.EmailVerificationCode, error)
-	DeleteOtpsForAccount(id uint) error
-
 	// --------------------------------
 	// Songs v1 stuff
 	// --------------------------------
