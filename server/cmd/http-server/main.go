@@ -40,7 +40,9 @@ func StartServer() error {
 		return err
 	}
 
-	app := app.New(mariadbRepo)
+	cache := redis.New()
+
+	app := app.New(mariadbRepo, cache)
 	eventhub := evy.New()
 	zipArchiver := zip.New()
 	blobstorage := blobs.New()
@@ -48,10 +50,10 @@ func StartServer() error {
 	mailer := mailer.New()
 	yt := youtube.New()
 	lyrics := genius.New()
-	cache := redis.New()
 
 	usecases := actions.New(
 		app,
+		cache,
 		eventhub,
 		zipArchiver,
 		blobstorage,
@@ -59,7 +61,6 @@ func StartServer() error {
 		mailer,
 		yt,
 		lyrics,
-		cache,
 	)
 
 	authMw := auth.New(usecases)
@@ -83,6 +84,14 @@ func StartServer() error {
 	v1ApisHandler.HandleFunc("GET /login/google", googleLoginApi.HandleGoogleOAuthLogin)
 	v1ApisHandler.HandleFunc("GET /signup/google", googleLoginApi.HandleGoogleOAuthLogin)
 	v1ApisHandler.HandleFunc("POST /login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
+	v1ApisHandler.HandleFunc("GET /logout", func(w http.ResponseWriter, r *http.Request) {
+		sessionToken, ok := r.Header["Authorization"]
+		if !ok {
+			return
+		}
+
+		_ = cache.InvalidateAuthenticatedUser(sessionToken[0])
+	})
 	v1ApisHandler.HandleFunc("GET /search/suggestions", searchApi.HandleSearchSuggestions)
 	v1ApisHandler.HandleFunc("GET /search", searchApi.HandleSearchResults)
 	v1ApisHandler.HandleFunc("GET /song/play", authMw.OptionalAuthApi(songApi.HandlePlaySong))

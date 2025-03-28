@@ -2,7 +2,6 @@ package app
 
 import (
 	"dankmuzikk/app/models"
-	"time"
 )
 
 func (a *App) GetAccountByEmail(email string) (models.Account, error) {
@@ -63,22 +62,15 @@ func (a *App) CreateOAuthUser(args CreateOAuthUserArgs) (models.Profile, error) 
 	return a.repo.CreateProfile(profile)
 }
 
-func (a *App) CreateOtp(otp models.EmailVerificationCode) error {
-	// TODO: use cache instead.
-	return a.repo.CreateOtp(otp)
+func (a *App) CreateOtp(accountId uint, otp string) error {
+	return a.cache.CreateOtp(accountId, otp)
 }
 
-func (a *App) GetOtpForAccount(accountId uint) (models.EmailVerificationCode, error) {
-	otp, err := a.repo.GetOtpForAccount(accountId)
+func (a *App) GetOtpForAccount(accountId uint) (string, error) {
+	otp, err := a.cache.GetOtpForAccount(accountId)
 	if err != nil {
-		return models.EmailVerificationCode{}, err
+		return "", err
 	}
-
-	if otp.CreatedAt.Add(time.Hour / 2).Before(time.Now()) {
-		return models.EmailVerificationCode{}, &ErrExpiredVerificationCode{}
-	}
-
-	_ = a.repo.DeleteOtpsForAccount(accountId)
 
 	return otp, nil
 }
