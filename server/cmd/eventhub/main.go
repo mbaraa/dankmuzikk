@@ -10,6 +10,7 @@ import (
 	"dankmuzikk/log"
 	"dankmuzikk/mailer"
 	"dankmuzikk/mariadb"
+	"dankmuzikk/redis"
 	"dankmuzikk/youtube"
 	"dankmuzikk/zip"
 	"net/http"
@@ -23,7 +24,9 @@ func init() {
 
 	repo = mariadbRepo
 
-	app := app.New(mariadbRepo)
+	cache := redis.New()
+
+	app := app.New(mariadbRepo, cache)
 	zipArchiver := zip.New()
 	blobstorage := blobs.New()
 	jwtUtil := jwt.New[actions.TokenPayload]()
@@ -32,13 +35,13 @@ func init() {
 
 	usecases := actions.New(
 		app,
+		cache,
 		&eventHub{},
 		zipArchiver,
 		blobstorage,
 		jwtUtil,
 		mailer,
 		yt,
-		nil,
 		nil,
 	)
 
