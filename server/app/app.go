@@ -1,11 +1,13 @@
 package app
 
 type App struct {
-	repo Repository
+	repo  Repository
+	cache Cache
 }
 
-func New(repository Repository) *App {
+func New(repo Repository, cache Cache) *App {
 	return &App{
-		repo: repository,
+		repo:  repo,
+		cache: cache,
 	}
 }
