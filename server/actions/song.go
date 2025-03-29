@@ -126,6 +126,9 @@ func (a *Actions) DownvoteSongInPlaylist(params DownvoteSongInPlaylistParams) (D
 }
 
 func (a *Actions) AddSongToHistory(songYtId string, profileId uint) error {
+	if profileId == 0 {
+		return nil
+	}
 	return a.app.AddSongToHistory(songYtId, profileId)
 }
 
