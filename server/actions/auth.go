@@ -294,7 +294,7 @@ type googleOAuthUserInfo struct {
 }
 
 func (a *Actions) completeLoginWithGoogle(params LoginWithGoogleParams) (googleOAuthUserInfo, error) {
-	if params.State != a.CurrentRandomState() {
+	if params.State != a.CurrentGoogleLoginRandomState() {
 		log.Errorln("[GOOGLE LOGIN]: State is invalid")
 		return googleOAuthUserInfo{}, errors.New("state is not valid")
 	}
@@ -322,13 +322,13 @@ func (a *Actions) completeLoginWithGoogle(params LoginWithGoogleParams) (googleO
 	return respBody, nil
 }
 
-func (a *Actions) CurrentRandomState() string {
+func (a *Actions) CurrentGoogleLoginRandomState() string {
 	state, err := a.cache.GetGoogleLoginState()
 	if err != nil {
-		err = a.cache.SetGoogleLoginState(nanoid.NewWithLength(32))
+		state = nanoid.NewWithLength(32)
+		err = a.cache.SetGoogleLoginState(state)
 		if err != nil {
-			// in case redis failed, let google login fail :)
-			return nanoid.New()
+			return state
 		}
 	}
 
