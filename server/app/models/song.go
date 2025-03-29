@@ -19,9 +19,9 @@ type Song struct {
 
 	// Playlist only fields
 
-	AddedAt   string
-	Votes     int
-	PlayTimes int
+	AddedAt   string `gorm:"-"`
+	Votes     int    `gorm:"-"`
+	PlayTimes int    `gorm:"-"`
 }
 
 func (s Song) GetId() uint {
