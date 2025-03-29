@@ -6,8 +6,7 @@ import (
 )
 
 func main() {
-	return
-	err := mariadb.Migrate2()
+	err := mariadb.Migrate()
 	if err != nil {
 		log.Fatalln(err)
 	}
