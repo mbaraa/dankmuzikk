@@ -15,7 +15,7 @@ func (s SongsSearched) Topic() string {
 }
 
 type SongPlayed struct {
-	ProfileId     uint   `json:"profile_id"`
+	AccountId     uint   `json:"account_id"`
 	SongYtId      string `json:"song_yt_id"`
 	PlaylistPubId string `json:"playlist_pub_id"`
 }

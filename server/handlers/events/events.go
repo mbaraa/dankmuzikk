@@ -16,7 +16,7 @@ func New(usecases *actions.Actions) *EventHandlers {
 }
 
 func (e *EventHandlers) HandleAddSongToHistory(event events.SongPlayed) error {
-	return e.usecases.AddSongToHistory(event.SongYtId, event.ProfileId)
+	return e.usecases.AddSongToHistory(event.SongYtId, event.AccountId)
 }
 
 func (e *EventHandlers) HandleDownloadSongOnPlay(event events.SongPlayed) error {
@@ -24,7 +24,7 @@ func (e *EventHandlers) HandleDownloadSongOnPlay(event events.SongPlayed) error 
 }
 
 func (e *EventHandlers) HandleIncrementSongPlaysInPlaylist(event events.SongPlayed) error {
-	return e.usecases.IncrementSongPlaysInPlaylist(event.SongYtId, event.PlaylistPubId, event.ProfileId)
+	return e.usecases.IncrementSongPlaysInPlaylist(event.SongYtId, event.PlaylistPubId, event.AccountId)
 }
 
 func (e *EventHandlers) HandleMarkSongAsDownloaded(event events.SongDownloaded) error {

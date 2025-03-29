@@ -23,10 +23,14 @@ type Song struct {
 	FullyDownloaded bool   `json:"fully_downloaded"`
 }
 
-func (a *Actions) GetSongByYouTubeId(ytId string) (Song, error) {
-	song, err := a.app.GetSongByYouTubeId(ytId)
+type GetSongByYouTubeIdParams struct {
+	SongYouTubeId string
+}
+
+func (a *Actions) GetSongByYouTubeId(params GetSongByYouTubeIdParams) (Song, error) {
+	song, err := a.app.GetSongByYouTubeId(params.SongYouTubeId)
 	if err != nil && errors.As(err, &app.ErrNotFound{}) {
-		searches, err := a.SearchYouTube(ytId)
+		searches, err := a.SearchYouTube(params.SongYouTubeId)
 		if err != nil {
 			return Song{}, err
 		}
@@ -36,7 +40,7 @@ func (a *Actions) GetSongByYouTubeId(ytId string) (Song, error) {
 			}
 		}
 		for i, s := range searches {
-			if s.YtId == ytId {
+			if s.YtId == params.SongYouTubeId {
 				ss := models.Song{
 					YtId:            s.YtId,
 					Title:           s.Title,
@@ -56,7 +60,7 @@ func (a *Actions) GetSongByYouTubeId(ytId string) (Song, error) {
 			}
 		}
 		err = a.eventhub.Publish(events.SongPlayed{
-			SongYtId: ytId,
+			SongYtId: params.SongYouTubeId,
 		})
 		if err != nil {
 			return Song{}, err
@@ -79,12 +83,46 @@ func (a *Actions) IncrementSongPlaysInPlaylist(songId, playlistId string, profil
 	return a.app.IncrementSongPlaysInPlaylist(songId, playlistId, profileId)
 }
 
-func (a *Actions) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error) {
-	return a.app.UpvoteSongInPlaylist(songId, playlistPubId, ownerId)
+type UpvoteSongInPlaylistParams struct {
+	ActionContext    `json:"-"`
+	SongPublicId     string
+	PlaylistPublicId string
 }
 
-func (a *Actions) DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error) {
-	return a.app.DownvoteSongInPlaylist(songId, playlistPubId, ownerId)
+type UpvoteSongInPlaylistPayload struct {
+	VotesCount int `json:"votes_count"`
+}
+
+func (a *Actions) UpvoteSongInPlaylist(params UpvoteSongInPlaylistParams) (UpvoteSongInPlaylistPayload, error) {
+	newCount, err := a.app.UpvoteSongInPlaylist(params.SongPublicId, params.PlaylistPublicId, params.Account.Id)
+	if err != nil {
+		return UpvoteSongInPlaylistPayload{}, err
+	}
+
+	return UpvoteSongInPlaylistPayload{
+		VotesCount: newCount,
+	}, nil
+}
+
+type DownvoteSongInPlaylistParams struct {
+	ActionContext    `json:"-"`
+	SongPublicId     string
+	PlaylistPublicId string
+}
+
+type DownvoteSongInPlaylistPayload struct {
+	VotesCount int `json:"votes_count"`
+}
+
+func (a *Actions) DownvoteSongInPlaylist(params DownvoteSongInPlaylistParams) (DownvoteSongInPlaylistPayload, error) {
+	newCount, err := a.app.DownvoteSongInPlaylist(params.SongPublicId, params.PlaylistPublicId, params.Account.Id)
+	if err != nil {
+		return DownvoteSongInPlaylistPayload{}, err
+	}
+
+	return DownvoteSongInPlaylistPayload{
+		VotesCount: newCount,
+	}, nil
 }
 
 func (a *Actions) AddSongToHistory(songYtId string, profileId uint) error {
@@ -116,54 +154,74 @@ func (a *Actions) MarkSongAsDownloaded(songYtId string) error {
 	return a.app.MarkSongAsDownloaded(songYtId)
 }
 
-func (a *Actions) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {
-	added, err = a.app.ToggleSongInPlaylist(songId, playlistPubId, ownerId)
+type ToggleSongInPlaylistParams struct {
+	ActionContext    `json:"-"`
+	SongPublicId     string
+	PlaylistPublicId string
+}
+
+type ToggleSongInPlaylistPayload struct {
+	Added bool `json:"added"`
+}
+
+func (a *Actions) ToggleSongInPlaylist(params ToggleSongInPlaylistParams) (ToggleSongInPlaylistPayload, error) {
+	added, err := a.app.ToggleSongInPlaylist(params.SongPublicId, params.PlaylistPublicId, params.Account.Id)
 	if err != nil {
-		return false, err
+		return ToggleSongInPlaylistPayload{}, err
 	}
 
 	var event events.Event
 	if added {
 		event = events.SongAddedToPlaylist{
-			PlaylistPubId: playlistPubId,
-			SongYtId:      songId,
+			PlaylistPubId: params.PlaylistPublicId,
+			SongYtId:      params.SongPublicId,
 		}
 	} else {
 		event = events.SongRemovedFromPlaylist{
-			PlaylistPubId: playlistPubId,
-			SongYtId:      songId,
+			PlaylistPubId: params.PlaylistPublicId,
+			SongYtId:      params.SongPublicId,
 		}
 	}
 	err = a.eventhub.Publish(event)
 	if err != nil {
-		return false, err
+		return ToggleSongInPlaylistPayload{}, err
 	}
 
-	return added, nil
+	return ToggleSongInPlaylistPayload{
+		Added: added,
+	}, nil
 }
 
 type PlaySongParams struct {
-	Profile       models.Profile
+	ActionContext `json:"-"`
 	SongYtId      string
 	PlaylistPubId string
 }
 
-func (a *Actions) PlaySong(params PlaySongParams) (mediaUrl string, err error) {
-	_, err = a.GetSongByYouTubeId(params.SongYtId)
+type PlaySongPayload struct {
+	MediaUrl string `json:"media_url"`
+}
+
+func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
+	_, err := a.GetSongByYouTubeId(GetSongByYouTubeIdParams{
+		SongYouTubeId: params.SongYtId,
+	})
 	if err != nil {
-		return "", err
+		return PlaySongPayload{}, err
 	}
 
 	err = a.eventhub.Publish(events.SongPlayed{
-		ProfileId:     params.Profile.Id,
+		AccountId:     params.Account.Id,
 		SongYtId:      params.SongYtId,
 		PlaylistPubId: params.PlaylistPubId,
 	})
 	if err != nil {
-		return "", err
+		return PlaySongPayload{}, err
 	}
 
-	return fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, params.SongYtId), nil
+	return PlaySongPayload{
+		MediaUrl: fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, params.SongYtId),
+	}, nil
 }
 
 func (a *Actions) SaveSongsMetadataFromYouTube(songs []Song) error {
@@ -181,6 +239,10 @@ func (a *Actions) SaveSongsMetadataFromYouTube(songs []Song) error {
 	return nil
 }
 
+type GetLyricsForSongParams struct {
+	SongPublicId string
+}
+
 type GetLyricsForSongPayload struct {
 	SongTitle string   `json:"song_title"`
 	Lyrics    []string `json:"lyrics"`
@@ -188,8 +250,8 @@ type GetLyricsForSongPayload struct {
 
 var songTitleWeirdStuff = regexp.MustCompile(`(\(.*\)|\[.*\]|\{.*\}|\<.*\>)`)
 
-func (a *Actions) GetLyricsForSong(songYtId string) (GetLyricsForSongPayload, error) {
-	song, err := a.app.GetSongByYouTubeId(songYtId)
+func (a *Actions) GetLyricsForSong(params GetLyricsForSongParams) (GetLyricsForSongPayload, error) {
+	song, err := a.app.GetSongByYouTubeId(params.SongPublicId)
 	if err != nil {
 		return GetLyricsForSongPayload{}, err
 	}
@@ -218,8 +280,8 @@ func (a *Actions) GetLyricsForSong(songYtId string) (GetLyricsForSongPayload, er
 	}, nil
 }
 
-func (a *Actions) GetLyricsForSongAndArtist(songYtId string) (GetLyricsForSongPayload, error) {
-	song, err := a.app.GetSongByYouTubeId(songYtId)
+func (a *Actions) GetLyricsForSongAndArtist(params GetLyricsForSongParams) (GetLyricsForSongPayload, error) {
+	song, err := a.app.GetSongByYouTubeId(params.SongPublicId)
 	if err != nil {
 		return GetLyricsForSongPayload{}, err
 	}

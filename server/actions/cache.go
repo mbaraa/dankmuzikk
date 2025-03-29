@@ -6,7 +6,7 @@ type Cache interface {
 	StoreLyrics(songId uint, lyrics []string) error
 	GetLyrics(songId uint) ([]string, error)
 
-	SetAuthenticatedUser(sessionToken string, profile models.Profile) error
-	GetAuthenticatedUser(sessionToken string) (models.Profile, error)
-	InvalidateAuthenticatedUser(sessionToken string) error
+	SetAuthenticatedAccount(sessionToken string, account models.Account) error
+	GetAuthenticatedAccount(sessionToken string) (models.Account, error)
+	InvalidateAuthenticatedAccount(sessionToken string) error
 }

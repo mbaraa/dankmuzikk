@@ -24,7 +24,7 @@ func (u *userApi) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profile, err := u.usecases.AuthenticateUser(sessionToken[0])
+	profile, err := u.usecases.GetProfile(sessionToken[0])
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusUnauthorized)
