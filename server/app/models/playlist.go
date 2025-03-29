@@ -35,6 +35,16 @@ func (p *Playlist) BeforeDelete(tx *gorm.DB) error {
 		return err
 	}
 
+	err = tx.
+		Model(new(PlaylistSongVoter)).
+		Delete(&PlaylistSongVoter{
+			PlaylistId: p.Id,
+		}, "playlist_id = ?", p.Id).
+		Error
+	if err != nil {
+		return err
+	}
+
 	return tx.
 		Model(new(PlaylistSong)).
 		Delete(&PlaylistSong{
@@ -55,49 +65,6 @@ type PlaylistSong struct {
 
 func (p PlaylistSong) GetId() uint {
 	return p.SongId | p.PlaylistId
-}
-
-func (p *PlaylistSong) BeforeCreate(tx *gorm.DB) error {
-	var playlist Playlist
-	err := tx.
-		Select("songs_count").
-		Where("id = ?", p.PlaylistId).
-		First(&playlist).
-		Error
-	if err != nil {
-		return err
-	}
-
-	return tx.
-		Model(&playlist).
-		Where("id = ?", p.PlaylistId).
-		Update("songs_count", playlist.SongsCount+1).
-		Error
-}
-
-func (p *PlaylistSong) BeforeDelete(tx *gorm.DB) error {
-	var playlist Playlist
-	err := tx.
-		Select("songs_count").
-		Where("id = ?", p.PlaylistId).
-		First(&playlist).
-		Error
-	if err != nil {
-		return err
-	}
-
-	err = tx.
-		Model(&playlist).
-		Where("id = ?", p.PlaylistId).
-		Update("songs_count", playlist.SongsCount-1).
-		Error
-	if err != nil {
-		return err
-	}
-
-	return tx.
-		Exec("DELETE FROM playlist_song_voters WHERE playlist_id = ? AND song_id = ?", p.PlaylistId, p.SongId).
-		Error
 }
 
 type PlaylistOwner struct {

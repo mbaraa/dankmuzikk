@@ -36,11 +36,11 @@ func (e *EventHandlers) HandleDownloadSongOnAddingToPlaylist(event events.SongAd
 }
 
 func (e *EventHandlers) HandleIncrementPlaylistSongsCount(event events.SongAddedToPlaylist) error {
-	return nil
+	return e.usecases.IncrementSongsCountForPlaylist(event.PlaylistPubId, event.AccountId)
 }
 
 func (e *EventHandlers) HandleDecrementPlaylistSongsCount(event events.SongRemovedFromPlaylist) error {
-	return nil
+	return e.usecases.DecrementSongsCountForPlaylist(event.PlaylistPubId, event.AccountId)
 }
 
 func (e *EventHandlers) HandleSaveSongsMetadataOnSearchBatch(event events.SongsSearched) error {

@@ -142,3 +142,21 @@ func (a *App) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]models.Playlist, m
 
 	return playlists.Items, mappedPlaylists, nil
 }
+
+func (a *App) IncrementSongsCountForPlaylist(playlistPublicId string, accountId uint) error {
+	playlist, _, err := a.GetPlaylistByPublicId(playlistPublicId, accountId)
+	if err != nil {
+		return err
+	}
+
+	return a.repo.IncrementSongsCountForPlaylist(playlist.Id)
+}
+
+func (a *App) DecrementSongsCountForPlaylist(playlistPublicId string, accountId uint) error {
+	playlist, _, err := a.GetPlaylistByPublicId(playlistPublicId, accountId)
+	if err != nil {
+		return err
+	}
+
+	return a.repo.DecrementSongsCountForPlaylist(playlist.Id)
+}
