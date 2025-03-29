@@ -19,7 +19,7 @@ func NewGoogleLoginApi(usecases *actions.Actions) *googleLoginApi {
 }
 
 func (g *googleLoginApi) HandleGoogleOAuthLogin(w http.ResponseWriter, r *http.Request) {
-	url := config.GoogleOAuthConfig().AuthCodeURL(g.usecases.CurrentRandomState())
+	url := config.GoogleOAuthConfig().AuthCodeURL(g.usecases.CurrentGoogleLoginRandomState())
 
 	_ = json.NewEncoder(w).Encode(map[string]string{
 		"redirect_url": url,
