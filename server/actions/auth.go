@@ -22,19 +22,6 @@ const (
 	sessionTokenTtlDays         = 60
 )
 
-var (
-	randomState = nanoid.NewWithLength(32)
-)
-
-func init() {
-	timer := time.NewTicker(time.Hour / 2)
-	go func() {
-		for range timer.C {
-			randomState = nanoid.NewWithLength(32)
-		}
-	}()
-}
-
 func (a *Actions) AuthenticateAccount(sessionToken string) (models.Account, error) {
 	token, err := a.jwt.Decode(sessionToken, JwtSessionToken)
 	if err != nil {
@@ -336,8 +323,16 @@ func (a *Actions) completeLoginWithGoogle(params LoginWithGoogleParams) (googleO
 }
 
 func (a *Actions) CurrentRandomState() string {
-	// TODO: move this to cache
-	return randomState
+	state, err := a.cache.GetGoogleLoginState()
+	if err != nil {
+		err = a.cache.SetGoogleLoginState(nanoid.NewWithLength(32))
+		if err != nil {
+			// in case redis failed, let google login fail :)
+			return nanoid.New()
+		}
+	}
+
+	return state
 }
 
 func generateOtp() string {
