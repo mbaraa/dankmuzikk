@@ -454,13 +454,22 @@ func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (add
 
 		return true, nil
 	} else {
-		return false, tryWrapDbError(
+		err = tryWrapDbError(
 			r.client.
 				Model(new(models.PlaylistSong)).
 				Delete(&models.PlaylistSong{
 					PlaylistId: playlistId,
 					SongId:     songId,
 				}, "playlist_id = ? AND song_id = ?", playlistId, songId).
+				Error,
+		)
+		if err != nil {
+			return false, err
+		}
+
+		return false, tryWrapDbError(
+			r.client.
+				Exec("DELETE FROM playlist_song_voters WHERE playlist_id = ? AND song_id = ?", playlistId, songId).
 				Error,
 		)
 	}
@@ -736,6 +745,42 @@ func (r *Repository) DeletePlaylist(id uint) error {
 			ResourceName: "playlist",
 		}
 	}
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) IncrementSongsCountForPlaylist(id uint) error {
+	updateQuery := `UPDATE playlists
+		SET songs_count = songs_count + 1
+		WHERE
+			id = ?;`
+
+	err := tryWrapDbError(
+		r.client.
+			Exec(updateQuery, id).
+			Error,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) DecrementSongsCountForPlaylist(id uint) error {
+	updateQuery := `UPDATE playlists
+		SET songs_count = songs_count - 1
+		WHERE
+			id = ?;`
+
+	err := tryWrapDbError(
+		r.client.
+			Exec(updateQuery, id).
+			Error,
+	)
 	if err != nil {
 		return err
 	}

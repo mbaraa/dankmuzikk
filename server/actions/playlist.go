@@ -286,3 +286,11 @@ func (a *Actions) DeletePlaylistArchive(event events.PlaylistDownloaded) error {
 
 	return nil
 }
+
+func (a *Actions) IncrementSongsCountForPlaylist(playlistPublicId string, accountId uint) error {
+	return a.app.IncrementSongsCountForPlaylist(playlistPublicId, accountId)
+}
+
+func (a *Actions) DecrementSongsCountForPlaylist(playlistPublicId string, accountId uint) error {
+	return a.app.DecrementSongsCountForPlaylist(playlistPublicId, accountId)
+}

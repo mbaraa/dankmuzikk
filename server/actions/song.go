@@ -173,11 +173,13 @@ func (a *Actions) ToggleSongInPlaylist(params ToggleSongInPlaylistParams) (Toggl
 	var event events.Event
 	if added {
 		event = events.SongAddedToPlaylist{
+			AccountId:     params.Account.Id,
 			PlaylistPubId: params.PlaylistPublicId,
 			SongYtId:      params.SongPublicId,
 		}
 	} else {
 		event = events.SongRemovedFromPlaylist{
+			AccountId:     params.Account.Id,
 			PlaylistPubId: params.PlaylistPublicId,
 			SongYtId:      params.SongPublicId,
 		}

@@ -33,6 +33,7 @@ func (s SongDownloaded) Topic() string {
 }
 
 type SongAddedToPlaylist struct {
+	AccountId     uint   `json:"account_id"`
 	PlaylistPubId string `json:"playlist_pub_id"`
 	SongYtId      string `json:"song_yt_id"`
 }
@@ -42,6 +43,7 @@ func (s SongAddedToPlaylist) Topic() string {
 }
 
 type SongRemovedFromPlaylist struct {
+	AccountId     uint   `json:"account_id"`
 	PlaylistPubId string `json:"playlist_pub_id"`
 	SongYtId      string `json:"song_yt_id"`
 }
