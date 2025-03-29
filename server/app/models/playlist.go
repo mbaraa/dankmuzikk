@@ -15,7 +15,7 @@ type Playlist struct {
 	IsPublic   bool
 
 	Songs     []*Song    `gorm:"many2many:playlist_songs;"`
-	Owners    []*Profile `gorm:"many2many:playlist_owners;"`
+	Owners    []*Account `gorm:"many2many:playlist_owners;"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -102,7 +102,7 @@ func (p *PlaylistSong) BeforeDelete(tx *gorm.DB) error {
 
 type PlaylistOwner struct {
 	PlaylistId  uint `gorm:"primaryKey"`
-	ProfileId   uint `gorm:"primaryKey"`
+	AccountId   uint `gorm:"primaryKey"`
 	Permissions PlaylistPermissions
 
 	CreatedAt time.Time
@@ -110,7 +110,7 @@ type PlaylistOwner struct {
 }
 
 func (p PlaylistOwner) GetId() uint {
-	return p.ProfileId | p.PlaylistId
+	return p.AccountId | p.PlaylistId
 }
 
 type PlaylistPermissions int8
@@ -126,7 +126,7 @@ const (
 type PlaylistSongVoter struct {
 	PlaylistId uint `gorm:"primaryKey"`
 	SongId     uint `gorm:"primaryKey"`
-	ProfileId  uint `gorm:"primaryKey"`
+	AccountId  uint `gorm:"primaryKey"`
 	VoteUp     bool
 
 	CreatedAt time.Time
@@ -134,5 +134,5 @@ type PlaylistSongVoter struct {
 }
 
 func (p PlaylistSongVoter) GetId() uint {
-	return p.SongId | p.PlaylistId | p.ProfileId
+	return p.SongId | p.PlaylistId | p.AccountId
 }

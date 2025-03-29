@@ -49,7 +49,7 @@ func (p *playlistApi) HandleGetPlaylists(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	playlists, err := p.usecases.GetPlaylistsForProfile(actions.GetPlaylistsForProfileParams{
+	playlists, err := p.usecases.GetPlaylistsForAccount(actions.GetPlaylistsForAccountParams{
 		ActionContext: ctx,
 	})
 	if err != nil {

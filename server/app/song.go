@@ -29,7 +29,7 @@ func (a *App) AddSongToHistory(songYtId string, profileId uint) error {
 }
 
 func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {
-	playlist, profilePermissions, err := a.CheckProfilePlaylistAccess(ownerId, playlistPubId)
+	playlist, profilePermissions, err := a.CheckAccountPlaylistAccess(ownerId, playlistPubId)
 	if err != nil {
 		return false, err
 	}

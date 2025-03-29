@@ -23,7 +23,7 @@ type Playlist struct {
 type CreatePlaylistParams struct {
 	ActionContext `json:"-"`
 	Title         string `json:"title"`
-	ProfileId     uint   `json:"-"`
+	AccountId     uint   `json:"-"`
 }
 
 type CreatePlaylistPayload struct {
@@ -33,7 +33,7 @@ type CreatePlaylistPayload struct {
 func (a *Actions) CreatePlaylist(params CreatePlaylistParams) (CreatePlaylistPayload, error) {
 	playlist, err := a.app.CreatePlaylist(app.CreatePlaylistArgs{
 		Title:     params.Title,
-		ProfileId: params.ProfileId,
+		AccountId: params.AccountId,
 	})
 	if err != nil {
 		return CreatePlaylistPayload{}, err
@@ -81,7 +81,7 @@ type ToggleJoinPlaylistPayload struct {
 }
 
 func (a *Actions) ToggleJoinPlaylist(params ToggleJoinPlaylistParams) (ToggleJoinPlaylistPayload, error) {
-	joined, err := a.app.ToggleProfileInPlaylist(params.PlaylistPublicId, params.Account.Id)
+	joined, err := a.app.ToggleAccountInPlaylist(params.PlaylistPublicId, params.Account.Id)
 	if err != nil {
 		return ToggleJoinPlaylistPayload{}, err
 	}
@@ -246,17 +246,17 @@ func (a *Actions) GetAllPlaylistsMappedWithSongs(params GetAllPlaylistsMappedWit
 	}, nil
 }
 
-type GetPlaylistsForProfileParams struct {
+type GetPlaylistsForAccountParams struct {
 	ActionContext `json:"-"`
 }
 
 // TODO: use this
-type GetPlaylistsForProfilePayload struct {
+type GetPlaylistsForAccountPayload struct {
 	Data []Playlist `json:"data"`
 }
 
-func (a *Actions) GetPlaylistsForProfile(params GetPlaylistsForProfileParams) ([]Playlist, error) {
-	playlists, err := a.app.GetPlaylistsForProfile(params.Account.Id)
+func (a *Actions) GetPlaylistsForAccount(params GetPlaylistsForAccountParams) ([]Playlist, error) {
+	playlists, err := a.app.GetPlaylistsForAccount(params.Account.Id)
 	if err != nil {
 		return nil, err
 	}

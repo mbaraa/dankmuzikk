@@ -23,9 +23,9 @@ type Repository interface {
 	IncrementSongPlaysInPlaylist(songId, playlistPubId string, ownerId uint) error
 	UpvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error)
 	DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error)
-	AddSongToHistory(songYtId string, profileId uint) error
+	AddSongToHistory(songYtId string, accountId uint) error
 	ToggleSongInPlaylist(songId, playlistId, ownerId uint) (added bool, err error)
-	GetHistory(profileId, page uint) (models.List[models.Song], error)
+	GetHistory(accountId, page uint) (models.List[models.Song], error)
 	MarkSongAsDownloaded(songYtId string) error
 
 	// --------------------------------
@@ -34,13 +34,13 @@ type Repository interface {
 
 	GetPlaylistByPublicId(pubId string) (models.Playlist, error)
 	CreatePlaylist(pl models.Playlist) (models.Playlist, error)
-	AddProfileToPlaylist(plId, profileId uint, permissions models.PlaylistPermissions) error
-	RemoveProfileFromPlaylist(plId, profileId uint) error
+	AddAccountToPlaylist(plId, accountId uint, permissions models.PlaylistPermissions) error
+	RemoveAccountFromPlaylist(plId, accountId uint) error
 	GetPlaylistOwners(plId uint) ([]models.PlaylistOwner, error)
 	MakePlaylistPublic(id uint) error
 	MakePlaylistPrivate(id uint) error
 	GetPlaylistSongs(playlistId uint) (models.List[*models.Song], error)
-	GetPlaylistsForProfile(ownerId uint) (models.List[models.Playlist], error)
-	GetPlaylistsWithSongsForProfile(profileId uint) (models.List[models.Playlist], error)
+	GetPlaylistsForAccount(accountId uint) (models.List[models.Playlist], error)
+	GetPlaylistsWithSongsForAccount(account uint) (models.List[models.Playlist], error)
 	DeletePlaylist(id uint) error
 }

@@ -9,7 +9,7 @@ import (
 
 type CreatePlaylistArgs struct {
 	Title     string
-	ProfileId uint
+	AccountId uint
 }
 
 func (a *App) CreatePlaylist(args CreatePlaylistArgs) (models.Playlist, error) {
@@ -22,7 +22,7 @@ func (a *App) CreatePlaylist(args CreatePlaylistArgs) (models.Playlist, error) {
 		return models.Playlist{}, err
 	}
 
-	err = a.repo.AddProfileToPlaylist(playlist.Id, args.ProfileId, models.OwnerPermission|models.JoinerPermission)
+	err = a.repo.AddAccountToPlaylist(playlist.Id, args.AccountId, models.OwnerPermission|models.JoinerPermission)
 	if err != nil {
 		return models.Playlist{}, err
 	}
@@ -30,7 +30,7 @@ func (a *App) CreatePlaylist(args CreatePlaylistArgs) (models.Playlist, error) {
 	return playlist, nil
 }
 
-func (a *App) CheckProfilePlaylistAccess(profileId uint, playlistPubId string) (models.Playlist, models.PlaylistPermissions, error) {
+func (a *App) CheckAccountPlaylistAccess(profileId uint, playlistPubId string) (models.Playlist, models.PlaylistPermissions, error) {
 	playlist, err := a.repo.GetPlaylistByPublicId(playlistPubId)
 	if err != nil {
 		return models.Playlist{}, 0, nil
@@ -42,7 +42,7 @@ func (a *App) CheckProfilePlaylistAccess(profileId uint, playlistPubId string) (
 	}
 
 	for _, owner := range owners {
-		if owner.ProfileId == profileId {
+		if owner.AccountId == profileId {
 			return playlist, owner.Permissions, nil
 		}
 	}
@@ -55,7 +55,7 @@ func (a *App) CheckProfilePlaylistAccess(profileId uint, playlistPubId string) (
 }
 
 func (a *App) TogglePublicPlaylist(playlistPubId string, ownerId uint) (madePublic bool, err error) {
-	playlist, profilePermissions, err := a.CheckProfilePlaylistAccess(ownerId, playlistPubId)
+	playlist, profilePermissions, err := a.CheckAccountPlaylistAccess(ownerId, playlistPubId)
 	if err != nil {
 		return false, err
 	}
@@ -73,21 +73,21 @@ func (a *App) TogglePublicPlaylist(playlistPubId string, ownerId uint) (madePubl
 	}
 }
 
-func (a *App) ToggleProfileInPlaylist(playlistPubId string, profileId uint) (joined bool, err error) {
-	playlist, permissions, err := a.CheckProfilePlaylistAccess(profileId, playlistPubId)
+func (a *App) ToggleAccountInPlaylist(playlistPubId string, profileId uint) (joined bool, err error) {
+	playlist, permissions, err := a.CheckAccountPlaylistAccess(profileId, playlistPubId)
 	if err != nil {
 		return false, err
 	}
 
 	if permissions&models.JoinerPermission == 0 {
-		return true, a.repo.AddProfileToPlaylist(playlist.Id, profileId, models.JoinerPermission)
+		return true, a.repo.AddAccountToPlaylist(playlist.Id, profileId, models.JoinerPermission)
 	}
 
-	return false, a.repo.RemoveProfileFromPlaylist(playlist.Id, profileId)
+	return false, a.repo.RemoveAccountFromPlaylist(playlist.Id, profileId)
 }
 
 func (a *App) GetPlaylistByPublicId(playlistPubId string, profileId uint) (models.Playlist, models.PlaylistPermissions, error) {
-	playlist, permissions, err := a.CheckProfilePlaylistAccess(profileId, playlistPubId)
+	playlist, permissions, err := a.CheckAccountPlaylistAccess(profileId, playlistPubId)
 	if err != nil {
 		return models.Playlist{}, 0, err
 	}
@@ -102,7 +102,7 @@ func (a *App) GetPlaylistByPublicId(playlistPubId string, profileId uint) (model
 }
 
 func (a *App) DeletePlaylist(playlistPubId string, profileId uint) error {
-	playlist, permissions, err := a.CheckProfilePlaylistAccess(profileId, playlistPubId)
+	playlist, permissions, err := a.CheckAccountPlaylistAccess(profileId, playlistPubId)
 	if err != nil {
 		return err
 	}
@@ -115,12 +115,12 @@ func (a *App) DeletePlaylist(playlistPubId string, profileId uint) error {
 	return a.repo.DeletePlaylist(playlist.Id)
 }
 
-func (a *App) GetPlaylistsForProfile(ownerId uint) (models.List[models.Playlist], error) {
-	return a.repo.GetPlaylistsForProfile(ownerId)
+func (a *App) GetPlaylistsForAccount(ownerId uint) (models.List[models.Playlist], error) {
+	return a.repo.GetPlaylistsForAccount(ownerId)
 }
 
 func (a *App) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]models.Playlist, map[string]bool, error) {
-	playlists, err := a.repo.GetPlaylistsWithSongsForProfile(ownerId)
+	playlists, err := a.repo.GetPlaylistsWithSongsForAccount(ownerId)
 	if err != nil {
 		return nil, nil, err
 	}
