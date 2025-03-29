@@ -24,17 +24,17 @@ func (a *App) DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint)
 	return a.repo.DownvoteSongInPlaylist(songId, playlistPubId, ownerId)
 }
 
-func (a *App) AddSongToHistory(songYtId string, profileId uint) error {
-	return a.repo.AddSongToHistory(songYtId, profileId)
+func (a *App) AddSongToHistory(songYtId string, accountId uint) error {
+	return a.repo.AddSongToHistory(songYtId, accountId)
 }
 
 func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {
-	playlist, profilePermissions, err := a.CheckAccountPlaylistAccess(ownerId, playlistPubId)
+	playlist, accountPermissions, err := a.CheckAccountPlaylistAccess(ownerId, playlistPubId)
 	if err != nil {
 		return false, err
 	}
 
-	if profilePermissions&models.JoinerPermission == 0 && profilePermissions&models.OwnerPermission == 0 {
+	if accountPermissions&models.JoinerPermission == 0 && accountPermissions&models.OwnerPermission == 0 {
 		return false, &ErrNotEnoughPermissionToAddSongToPlaylist{}
 	}
 
