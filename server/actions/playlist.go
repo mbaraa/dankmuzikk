@@ -11,11 +11,6 @@ import (
 	"time"
 )
 
-type CreatePlaylistParams struct {
-	Title     string `json:"title"`
-	ProfileId uint   `json:"-"`
-}
-
 type Playlist struct {
 	PublicId    string                     `json:"public_id"`
 	Title       string                     `json:"title"`
@@ -23,6 +18,12 @@ type Playlist struct {
 	Songs       []Song                     `json:"songs"`
 	IsPublic    bool                       `json:"is_public"`
 	Permissions models.PlaylistPermissions `json:"permissions"`
+}
+
+type CreatePlaylistParams struct {
+	ActionContext `json:"-"`
+	Title         string `json:"title"`
+	ProfileId     uint   `json:"-"`
 }
 
 type CreatePlaylistPayload struct {
@@ -48,16 +49,55 @@ func (a *Actions) CreatePlaylist(params CreatePlaylistParams) (CreatePlaylistPay
 	}, nil
 }
 
-func (a *Actions) TogglePublicPlaylist(playlistPubId string, ownerId uint) (madePublic bool, err error) {
-	return a.app.TogglePublicPlaylist(playlistPubId, ownerId)
+type TogglePublicPlaylistParams struct {
+	ActionContext    `json:"-"`
+	PlaylistPublicId string
 }
 
-func (a *Actions) ToggleProfileInPlaylist(playlistPubId string, profileId uint) (joined bool, err error) {
-	return a.app.ToggleProfileInPlaylist(playlistPubId, profileId)
+type TogglePublicPlaylistPayload struct {
+	ActionContext `json:"-"`
+	Public        bool `json:"public"`
 }
 
-func (a *Actions) GetPlaylistByPublicId(playlistPubId string, profileId uint) (Playlist, error) {
-	playlist, permissions, err := a.app.GetPlaylistByPublicId(playlistPubId, profileId)
+func (a *Actions) TogglePublicPlaylist(params TogglePublicPlaylistParams) (TogglePublicPlaylistPayload, error) {
+	madePublic, err := a.app.TogglePublicPlaylist(params.PlaylistPublicId, params.Account.Id)
+	if err != nil {
+		return TogglePublicPlaylistPayload{}, err
+	}
+
+	return TogglePublicPlaylistPayload{
+		Public: madePublic,
+	}, nil
+
+}
+
+type ToggleJoinPlaylistParams struct {
+	ActionContext    `json:"-"`
+	PlaylistPublicId string
+}
+
+type ToggleJoinPlaylistPayload struct {
+	Joined bool `json:"joined"`
+}
+
+func (a *Actions) ToggleJoinPlaylist(params ToggleJoinPlaylistParams) (ToggleJoinPlaylistPayload, error) {
+	joined, err := a.app.ToggleProfileInPlaylist(params.PlaylistPublicId, params.Account.Id)
+	if err != nil {
+		return ToggleJoinPlaylistPayload{}, err
+	}
+
+	return ToggleJoinPlaylistPayload{
+		Joined: joined,
+	}, nil
+}
+
+type GetPlaylistByPublicIdParams struct {
+	ActionContext    `json:"-"`
+	PlaylistPublicId string
+}
+
+func (a *Actions) GetPlaylistByPublicId(params GetPlaylistByPublicIdParams) (Playlist, error) {
+	playlist, permissions, err := a.app.GetPlaylistByPublicId(params.PlaylistPublicId, params.Account.Id)
 	if err != nil {
 		return Playlist{}, err
 	}
@@ -86,14 +126,28 @@ func (a *Actions) GetPlaylistByPublicId(playlistPubId string, profileId uint) (P
 	}, nil
 }
 
-func (a *Actions) DeletePlaylist(playlistPubId string, profileId uint) error {
-	return a.app.DeletePlaylist(playlistPubId, profileId)
+type DeletePlaylistParams struct {
+	ActionContext    `json:"-"`
+	PlaylistPublicId string
 }
 
-func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string, error) {
-	playlist, _, err := a.app.GetPlaylistByPublicId(playlistPubId, profileId)
+func (a *Actions) DeletePlaylist(params DeletePlaylistParams) error {
+	return a.app.DeletePlaylist(params.PlaylistPublicId, params.Account.Id)
+}
+
+type DownloadPlaylistParams struct {
+	ActionContext    `json:"-"`
+	PlaylistPublicId string
+}
+
+type DownloadPlaylistPayload struct {
+	PlaylistDownloadUrl string `json:"playlist_download_url"`
+}
+
+func (a *Actions) DownloadPlaylist(params DownloadPlaylistParams) (DownloadPlaylistPayload, error) {
+	playlist, _, err := a.app.GetPlaylistByPublicId(params.PlaylistPublicId, params.Account.Id)
 	if err != nil {
-		return "", err
+		return DownloadPlaylistPayload{}, err
 	}
 
 	fileNames := make([]string, 0, playlist.SongsCount)
@@ -117,22 +171,22 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 		fileNames = append(fileNames, newPath)
 	}
 	if len(errs) != 0 {
-		return "", errors.Join(errs...)
+		return DownloadPlaylistPayload{}, errors.Join(errs...)
 	}
 
 	archive, err := a.archiver.CreateArchive(playlist.Title)
 	if err != nil {
-		return "", err
+		return DownloadPlaylistPayload{}, err
 	}
 
 	for _, fileName := range fileNames {
 		file, err := a.blobstorage.GetFile(fileName)
 		if err != nil {
-			return "", err
+			return DownloadPlaylistPayload{}, err
 		}
 		err = archive.AddFile(file)
 		if err != nil {
-			return "", err
+			return DownloadPlaylistPayload{}, err
 		}
 
 		_ = a.blobstorage.DeleteFile(file.Name())
@@ -141,40 +195,39 @@ func (a *Actions) DownloadPlaylist(playlistPubId string, profileId uint) (string
 
 	playlistZip, err := archive.Deflate()
 	if err != nil {
-		return "", err
+		return DownloadPlaylistPayload{}, err
 	}
 
 	playlistsArchivePath := fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, playlist.PublicId)
 	err = a.blobstorage.CreateFile(playlistsArchivePath)
 	if err != nil {
-		return "", err
+		return DownloadPlaylistPayload{}, err
 	}
 
 	err = a.blobstorage.WriteToFile(playlistsArchivePath, playlistZip)
 	if err != nil {
-		return "", err
+		return DownloadPlaylistPayload{}, err
 	}
 
-	return fmt.Sprintf("%s/playlists/%s.zip", config.Env().CdnAddress, playlist.PublicId), nil
+	return DownloadPlaylistPayload{
+		PlaylistDownloadUrl: fmt.Sprintf("%s/playlists/%s.zip", config.Env().CdnAddress, playlist.PublicId),
+	}, nil
 }
 
-func (a *Actions) DeletePlaylistArchive(event events.PlaylistDownloaded) error {
-	if event.DeleteAt.Before(time.Now().UTC()) {
-		return a.eventhub.Publish(event)
-	}
-
-	err := a.blobstorage.DeleteFile(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, event.PlaylistId))
-	if err != nil {
-		return err
-	}
-
-	return nil
+type GetAllPlaylistsMappedWithSongsParams struct {
+	ActionContext `json:"-"`
 }
 
-func (a *Actions) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]Playlist, map[string]bool, error) {
-	playlists, mapping, err := a.app.GetAllPlaylistsMappedWithSongs(ownerId)
+type GetAllPlaylistsMappedWithSongsPayload struct {
+	Playlists []Playlist `json:"playlists"`
+	// TODO: maybe just send the playlists mapped :)
+	SongsInPlaylists map[string]bool `json:"songs_in_playlists"`
+}
+
+func (a *Actions) GetAllPlaylistsMappedWithSongs(params GetAllPlaylistsMappedWithSongsParams) (GetAllPlaylistsMappedWithSongsPayload, error) {
+	playlists, mapping, err := a.app.GetAllPlaylistsMappedWithSongs(params.Account.Id)
 	if err != nil {
-		return nil, nil, err
+		return GetAllPlaylistsMappedWithSongsPayload{}, err
 	}
 
 	outPlaylists := make([]Playlist, 0, len(playlists))
@@ -187,11 +240,23 @@ func (a *Actions) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]Playlist, map[
 		})
 	}
 
-	return outPlaylists, mapping, nil
+	return GetAllPlaylistsMappedWithSongsPayload{
+		Playlists:        outPlaylists,
+		SongsInPlaylists: mapping,
+	}, nil
 }
 
-func (a *Actions) GetPlaylistsForProfile(ownerId uint) ([]Playlist, error) {
-	playlists, err := a.app.GetPlaylistsForProfile(ownerId)
+type GetPlaylistsForProfileParams struct {
+	ActionContext `json:"-"`
+}
+
+// TODO: use this
+type GetPlaylistsForProfilePayload struct {
+	Data []Playlist `json:"data"`
+}
+
+func (a *Actions) GetPlaylistsForProfile(params GetPlaylistsForProfileParams) ([]Playlist, error) {
+	playlists, err := a.app.GetPlaylistsForProfile(params.Account.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -207,4 +272,17 @@ func (a *Actions) GetPlaylistsForProfile(ownerId uint) ([]Playlist, error) {
 	}
 
 	return outPlaylists, nil
+}
+
+func (a *Actions) DeletePlaylistArchive(event events.PlaylistDownloaded) error {
+	if event.DeleteAt.Before(time.Now().UTC()) {
+		return a.eventhub.Publish(event)
+	}
+
+	err := a.blobstorage.DeleteFile(fmt.Sprintf("%s/playlists/%s.zip", config.Env().BlobsDir, event.PlaylistId))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

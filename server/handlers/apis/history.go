@@ -2,7 +2,6 @@ package apis
 
 import (
 	"dankmuzikk/actions"
-	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/log"
 	"encoding/json"
 	"net/http"
@@ -20,19 +19,26 @@ func NewHistoryApi(usecases *actions.Actions) *historyApi {
 }
 
 func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Request) {
-	profileId, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.WriteHeader(http.StatusUnauthorized)
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		handleErrorResponse(w, err)
 		return
 	}
+
 	page, err := strconv.Atoi(r.PathValue("page"))
-	if err != nil {
-		page = 1
+	if err != nil || page <= 0 {
+		handleErrorResponse(w, &ErrBadRequest{
+			FieldName: "page",
+		})
+		return
 	}
-	if page <= 0 {
-		page *= -1
+
+	params := actions.GetHistoryItemsParams{
+		ActionContext: ctx,
+		PageIndex:     uint(page),
 	}
-	recentPlays, err := h.usecases.GetHistoryItems(profileId, uint(page))
+
+	recentPlays, err := h.usecases.GetHistoryItems(params)
 	if err != nil {
 		log.Error(err)
 		handleErrorResponse(w, err)
