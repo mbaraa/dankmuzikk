@@ -18,6 +18,7 @@ const (
 	songLyricsTtlDays          = 7
 	accountSessionTokenTtlDays = 30
 	otpTtlMinutes              = 30
+	googleLoginStateTtlMinutes = 30
 )
 
 type Cache struct {
@@ -143,6 +144,38 @@ func (c *Cache) GetOtpForAccount(id uint) (string, error) {
 	if err == redis.Nil {
 		return "", &app.ErrNotFound{
 			ResourceName: "otp",
+		}
+	} else if err != nil {
+		return "", err
+	}
+
+	return value, nil
+}
+
+func googleLoginStateKey() string {
+	return fmt.Sprintf("%sgoogle-login-state", keyPrefix)
+}
+
+func (c *Cache) SetGoogleLoginState(state string) error {
+	err := c.client.Set(context.Background(), googleLoginStateKey(), state, googleLoginStateTtlMinutes*time.Minute).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Cache) GetGoogleLoginState() (string, error) {
+	res := c.client.Get(context.Background(), googleLoginStateKey())
+	if res == nil {
+		return "", &app.ErrNotFound{
+			ResourceName: "google-login-state",
+		}
+	}
+	value, err := res.Result()
+	if err == redis.Nil {
+		return "", &app.ErrNotFound{
+			ResourceName: "google-login-state",
 		}
 	} else if err != nil {
 		return "", err

@@ -126,6 +126,9 @@ func (a *Actions) DownvoteSongInPlaylist(params DownvoteSongInPlaylistParams) (D
 }
 
 func (a *Actions) AddSongToHistory(songYtId string, profileId uint) error {
+	if profileId == 0 {
+		return nil
+	}
 	return a.app.AddSongToHistory(songYtId, profileId)
 }
 
@@ -173,11 +176,13 @@ func (a *Actions) ToggleSongInPlaylist(params ToggleSongInPlaylistParams) (Toggl
 	var event events.Event
 	if added {
 		event = events.SongAddedToPlaylist{
+			AccountId:     params.Account.Id,
 			PlaylistPubId: params.PlaylistPublicId,
 			SongYtId:      params.SongPublicId,
 		}
 	} else {
 		event = events.SongRemovedFromPlaylist{
+			AccountId:     params.Account.Id,
 			PlaylistPubId: params.PlaylistPublicId,
 			SongYtId:      params.SongPublicId,
 		}

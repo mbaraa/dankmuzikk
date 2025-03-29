@@ -22,19 +22,6 @@ const (
 	sessionTokenTtlDays         = 60
 )
 
-var (
-	randomState = nanoid.NewWithLength(32)
-)
-
-func init() {
-	timer := time.NewTicker(time.Hour / 2)
-	go func() {
-		for range timer.C {
-			randomState = nanoid.NewWithLength(32)
-		}
-	}()
-}
-
 func (a *Actions) AuthenticateAccount(sessionToken string) (models.Account, error) {
 	token, err := a.jwt.Decode(sessionToken, JwtSessionToken)
 	if err != nil {
@@ -307,7 +294,7 @@ type googleOAuthUserInfo struct {
 }
 
 func (a *Actions) completeLoginWithGoogle(params LoginWithGoogleParams) (googleOAuthUserInfo, error) {
-	if params.State != a.CurrentRandomState() {
+	if params.State != a.CurrentGoogleLoginRandomState() {
 		log.Errorln("[GOOGLE LOGIN]: State is invalid")
 		return googleOAuthUserInfo{}, errors.New("state is not valid")
 	}
@@ -335,9 +322,17 @@ func (a *Actions) completeLoginWithGoogle(params LoginWithGoogleParams) (googleO
 	return respBody, nil
 }
 
-func (a *Actions) CurrentRandomState() string {
-	// TODO: move this to cache
-	return randomState
+func (a *Actions) CurrentGoogleLoginRandomState() string {
+	state, err := a.cache.GetGoogleLoginState()
+	if err != nil {
+		state = nanoid.NewWithLength(32)
+		err = a.cache.SetGoogleLoginState(state)
+		if err != nil {
+			return state
+		}
+	}
+
+	return state
 }
 
 func generateOtp() string {

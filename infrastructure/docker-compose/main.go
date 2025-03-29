@@ -390,11 +390,11 @@ func generateComposeFile(values TemplateValues) (string, error) {
 		Volumes: []ServiceVolumesValues{
 			{
 				VolumeName: dbConfigVolumeName,
-				MountPath:  "/var/lib/mysql",
+				MountPath:  "/etc/mysql",
 			},
 			{
 				VolumeName: dbDataVolumeName,
-				MountPath:  "/etc/mysql",
+				MountPath:  "/var/lib/mysql",
 			},
 		},
 		Networks: []string{values.NetworkName},

@@ -43,4 +43,6 @@ type Repository interface {
 	GetPlaylistsForAccount(accountId uint) (models.List[models.Playlist], error)
 	GetPlaylistsWithSongsForAccount(account uint) (models.List[models.Playlist], error)
 	DeletePlaylist(id uint) error
+	IncrementSongsCountForPlaylist(id uint) error
+	DecrementSongsCountForPlaylist(id uint) error
 }
