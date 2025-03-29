@@ -4,8 +4,18 @@ import (
 	"fmt"
 )
 
-func (a *Actions) GetHistoryItems(profileId, page uint) ([]Song, error) {
-	songs, err := a.app.GetHistory(profileId, page)
+type GetHistoryItemsParams struct {
+	ActionContext `json:"-"`
+	PageIndex     uint `json:"page_index"`
+}
+
+// TODO: use this
+type GetHistoryItemsPayload struct {
+	Data []Song `json:"data"`
+}
+
+func (a *Actions) GetHistoryItems(params GetHistoryItemsParams) ([]Song, error) {
+	songs, err := a.app.GetHistory(params.Account.Id, params.PageIndex)
 	if err != nil {
 		return nil, err
 	}

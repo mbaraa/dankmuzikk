@@ -15,9 +15,9 @@ import (
 const keyPrefix = "dankmuzikk:"
 
 const (
-	songLyricsTtlDays       = 7
-	userSessionTokenTtlDays = 30
-	otpTtlMinutes           = 30
+	songLyricsTtlDays          = 7
+	accountSessionTokenTtlDays = 30
+	otpTtlMinutes              = 30
 )
 
 type Cache struct {
@@ -72,46 +72,46 @@ func (c *Cache) GetLyrics(songId uint) ([]string, error) {
 	return lyrics, nil
 }
 
-func userTokenKey(sessionToken string) string {
-	return fmt.Sprintf("%suser-session-token:%s", keyPrefix, sessionToken)
+func accountTokenKey(sessionToken string) string {
+	return fmt.Sprintf("%saccount-session-token:%s", keyPrefix, sessionToken)
 }
 
-func (c *Cache) SetAuthenticatedUser(sessionToken string, profile models.Profile) error {
-	profileJson, err := json.Marshal(profile)
+func (c *Cache) SetAuthenticatedAccount(sessionToken string, account models.Account) error {
+	accountJson, err := json.Marshal(account)
 	if err != nil {
 		return err
 	}
 
-	return c.client.Set(context.Background(), userTokenKey(sessionToken), string(profileJson), userSessionTokenTtlDays*time.Hour*24).Err()
+	return c.client.Set(context.Background(), accountTokenKey(sessionToken), string(accountJson), accountSessionTokenTtlDays*time.Hour*24).Err()
 }
 
-func (c *Cache) GetAuthenticatedUser(sessionToken string) (models.Profile, error) {
-	res := c.client.Get(context.Background(), userTokenKey(sessionToken))
+func (c *Cache) GetAuthenticatedAccount(sessionToken string) (models.Account, error) {
+	res := c.client.Get(context.Background(), accountTokenKey(sessionToken))
 	if res == nil {
-		return models.Profile{}, &app.ErrNotFound{
-			ResourceName: "profile",
+		return models.Account{}, &app.ErrNotFound{
+			ResourceName: "account",
 		}
 	}
 	value, err := res.Result()
 	if err == redis.Nil {
-		return models.Profile{}, &app.ErrNotFound{
-			ResourceName: "profile",
+		return models.Account{}, &app.ErrNotFound{
+			ResourceName: "account",
 		}
 	} else if err != nil {
-		return models.Profile{}, err
+		return models.Account{}, err
 	}
 
-	var profile models.Profile
-	err = json.Unmarshal([]byte(value), &profile)
+	var account models.Account
+	err = json.Unmarshal([]byte(value), &account)
 	if err != nil {
-		return models.Profile{}, err
+		return models.Account{}, err
 	}
 
-	return profile, nil
+	return account, nil
 }
 
-func (c *Cache) InvalidateAuthenticatedUser(sessionToken string) error {
-	err := c.client.Del(context.Background(), userTokenKey(sessionToken)).Err()
+func (c *Cache) InvalidateAuthenticatedAccount(sessionToken string) error {
+	err := c.client.Del(context.Background(), accountTokenKey(sessionToken)).Err()
 	if err != nil {
 		return err
 	}
@@ -119,8 +119,8 @@ func (c *Cache) InvalidateAuthenticatedUser(sessionToken string) error {
 	return nil
 }
 
-func otpKey(userId uint) string {
-	return fmt.Sprintf("%suser-otp:%d", keyPrefix, userId)
+func otpKey(accountId uint) string {
+	return fmt.Sprintf("%saccount-otp:%d", keyPrefix, accountId)
 }
 
 func (c *Cache) CreateOtp(accountId uint, otp string) error {

@@ -14,7 +14,6 @@ type Profile struct {
 	PfpLink   string
 	Username  string `gorm:"unique;not null;index"`
 
-	Playlist  []*Playlist `gorm:"many2many:playlist_owners"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

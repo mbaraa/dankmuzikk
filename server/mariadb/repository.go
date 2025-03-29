@@ -187,7 +187,7 @@ func (r *Repository) IncrementSongPlaysInPlaylist(songId, playlistPubId string, 
 				AND
 			s.yt_id = ?
 				AND
-			po.profile_id = ?
+			po.account_id = ?
 		LIMIT 1;`
 
 	var songDbId, playlistDbId uint
@@ -218,7 +218,7 @@ func (r *Repository) IncrementSongPlaysInPlaylist(songId, playlistPubId string, 
 	return nil
 }
 
-func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error) {
+func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, accountId uint) (int, error) {
 	gigaQuery := `SELECT pl.id, s.id
 		FROM
 			playlist_owners po
@@ -233,13 +233,13 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 				AND
 			s.yt_id = ?
 				AND
-			po.profile_id = ?
+			po.account_id = ?
 		LIMIT 1;`
 
 	var songDbId, playlistDbId uint
 	err := tryWrapDbError(
 		r.client.
-			Raw(gigaQuery, playlistPubId, songId, ownerId).
+			Raw(gigaQuery, playlistPubId, songId, accountId).
 			Row().
 			Scan(&playlistDbId, &songDbId),
 	)
@@ -252,10 +252,10 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 		r.client.
 			Model(&voter).
 			First(&voter,
-				"playlist_id = ? AND song_id = ? AND profile_id = ? AND vote_up = 1",
+				"playlist_id = ? AND song_id = ? AND account_id = ? AND vote_up = 1",
 				playlistDbId,
 				songDbId,
-				ownerId,
+				accountId,
 			).Error,
 	)
 	if err == nil {
@@ -297,7 +297,7 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 				&models.PlaylistSongVoter{
 					PlaylistId: playlistDbId,
 					SongId:     songDbId,
-					ProfileId:  ownerId,
+					AccountId:  accountId,
 					VoteUp:     true,
 				}).
 			Error,
@@ -305,14 +305,14 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId 
 	if _, ok := err.(*ErrRecordExists); ok {
 		return ps.Votes,
 			r.client.
-				Exec("UPDATE playlist_song_voters SET vote_up = 1 WHERE playlist_id = ? AND song_id = ? AND profile_id = ?", playlistDbId, songDbId, ownerId).
+				Exec("UPDATE playlist_song_voters SET vote_up = 1 WHERE playlist_id = ? AND song_id = ? AND account_id = ?", playlistDbId, songDbId, accountId).
 				Error
 	} else {
 		return ps.Votes, err
 	}
 }
 
-func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error) {
+func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, accountId uint) (int, error) {
 	gigaQuery := `SELECT pl.id, s.id
 		FROM
 			playlist_owners po
@@ -327,13 +327,13 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 				AND
 			s.yt_id = ?
 				AND
-			po.profile_id = ?
+			po.account_id = ?
 		LIMIT 1;`
 
 	var songDbId, playlistDbId uint
 	err := tryWrapDbError(
 		r.client.
-			Raw(gigaQuery, playlistPubId, songId, ownerId).
+			Raw(gigaQuery, playlistPubId, songId, accountId).
 			Row().
 			Scan(&playlistDbId, &songDbId),
 	)
@@ -346,10 +346,10 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 		r.client.
 			Model(&voter).
 			First(&voter,
-				"playlist_id = ? AND song_id = ? AND profile_id = ? AND vote_up = 0",
+				"playlist_id = ? AND song_id = ? AND account_id = ? AND vote_up = 0",
 				playlistDbId,
 				songDbId,
-				ownerId,
+				accountId,
 			).Error,
 	)
 	if err == nil {
@@ -391,7 +391,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 				&models.PlaylistSongVoter{
 					PlaylistId: playlistDbId,
 					SongId:     songDbId,
-					ProfileId:  ownerId,
+					AccountId:  accountId,
 					VoteUp:     true,
 				}).
 			Error,
@@ -399,14 +399,14 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, ownerI
 	if _, ok := err.(*ErrRecordExists); ok {
 		return ps.Votes,
 			r.client.
-				Exec("UPDATE playlist_song_voters SET vote_up = 0 WHERE playlist_id = ? AND song_id = ? AND profile_id = ?", playlistDbId, songDbId, ownerId).
+				Exec("UPDATE playlist_song_voters SET vote_up = 0 WHERE playlist_id = ? AND song_id = ? AND account_id = ?", playlistDbId, songDbId, accountId).
 				Error
 	} else {
 		return ps.Votes, err
 	}
 }
 
-func (r *Repository) AddSongToHistory(songYtId string, profileId uint) error {
+func (r *Repository) AddSongToHistory(songYtId string, accountId uint) error {
 	var song models.Song
 	err := tryWrapDbError(
 		r.client.
@@ -423,7 +423,7 @@ func (r *Repository) AddSongToHistory(songYtId string, profileId uint) error {
 			Model(new(models.History)).
 			Create(
 				&models.History{
-					ProfileId: profileId,
+					AccountId: accountId,
 					SongId:    song.Id,
 				}).
 			Error,
@@ -466,21 +466,21 @@ func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (add
 	}
 }
 
-func (r *Repository) GetHistory(profileId, page uint) (models.List[models.Song], error) {
+func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song], error) {
 	gigaQuery := fmt.Sprintf(
 		`SELECT yt_id, title, artist, thumbnail_url, duration, h.created_at
 		FROM
 			histories h JOIN songs
 		ON
 				songs.id = h.song_id
-		WHERE h.profile_id = ?
+		WHERE h.account_id = ?
 		ORDER BY h.created_at DESC
 		LIMIT %d,%d;`,
 		(page-1)*20, page*20,
 	)
 
 	rows, err := r.client.
-		Raw(gigaQuery, profileId).
+		Raw(gigaQuery, accountId).
 		Rows()
 	if err != nil {
 		return models.List[models.Song]{}, err
@@ -592,25 +592,25 @@ func (r *Repository) CreatePlaylist(pl models.Playlist) (models.Playlist, error)
 	return pl, nil
 }
 
-func (r *Repository) AddProfileToPlaylist(plId, profileId uint, permissions models.PlaylistPermissions) error {
+func (r *Repository) AddAccountToPlaylist(plId, accountId uint, permissions models.PlaylistPermissions) error {
 	return tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistOwner)).
 			Create(&models.PlaylistOwner{
 				PlaylistId:  plId,
-				ProfileId:   profileId,
+				AccountId:   accountId,
 				Permissions: permissions,
 			}).
 			Error,
 	)
 }
 
-func (r *Repository) RemoveProfileFromPlaylist(plId, profileId uint) error {
+func (r *Repository) RemoveAccountFromPlaylist(plId, accountId uint) error {
 	return tryWrapDbError(
 		r.client.
 			Model(new(models.PlaylistOwner)).
 			Delete(&models.PlaylistOwner{},
-				"profile_id = ? AND playlist_id = ?", profileId, plId,
+				"account_id = ? AND playlist_id = ?", accountId, plId,
 			).
 			Error,
 	)
@@ -676,12 +676,12 @@ func (r *Repository) MakePlaylistPrivate(id uint) error {
 	return nil
 }
 
-func (r *Repository) GetPlaylistsForProfile(ownerId uint) (models.List[models.Playlist], error) {
+func (r *Repository) GetPlaylistsForAccount(accountId uint) (models.List[models.Playlist], error) {
 	var playlists []models.Playlist
 	err := tryWrapDbError(
 		r.client.
-			Model(&models.Profile{
-				Id: ownerId,
+			Model(&models.Account{
+				Id: accountId,
 			}).
 			Association("Playlist").
 			Find(&playlists),
@@ -701,12 +701,12 @@ func (r *Repository) GetPlaylistsForProfile(ownerId uint) (models.List[models.Pl
 	return models.NewList(playlists, ""), nil
 }
 
-func (r *Repository) GetPlaylistsWithSongsForProfile(profileId uint) (models.List[models.Playlist], error) {
+func (r *Repository) GetPlaylistsWithSongsForAccount(accountId uint) (models.List[models.Playlist], error) {
 	var dbPlaylists []models.Playlist
 	err := tryWrapDbError(
 		r.client.
-			Model(&models.Profile{
-				Id: profileId,
+			Model(&models.Account{
+				Id: accountId,
 			}).
 			Preload("Songs").
 			Select("id", "public_id", "title").
