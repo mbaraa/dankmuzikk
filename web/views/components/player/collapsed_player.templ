@@ -27,7 +27,7 @@ templ collapsedPlayer() {
 					}
 				>
 					<div
-						class={ "loader", "h-[25px]!", "w-[25px]!", "!md:h-[50px]", "!md:w-[50px]", }
+						class={ "loader", "!h-[25px]", "!w-[25px]", "!md:h-[50px]", "!md:w-[50px]", }
 					></div>
 				</div>
 				<div
@@ -97,7 +97,7 @@ templ collapsedPlayer() {
 				</button>
 			}
 			<button id="play" type="button" title="Play/Pause" disabled>
-				<div class="loader h-10! w-10!"></div>
+				<div class="loader !h-10 !w-10"></div>
 			</button>
 			@ui.DesktopOnly() {
 				<button id="next" class={ "hidden", "md:inline-block" } type="button" title="Next song" disabled>

@@ -25,7 +25,7 @@ templ playlistSelector(songId string) {
 		hx-on::error={ showNoPlaylists("playlists-" + songId) }
 	>
 		<div id="playlist-loading" class={ "w-full", "flex", "flex-col", "items-center", "justify-center" }>
-			<div class={ "loader", "h-20!", "w-20!" }></div>
+			<div class={ "loader", "!h-20", "!w-20" }></div>
 			<span class={ "text-secondary", "text-xl" }>Loading playlists...</span>
 		</div>
 	</div>
