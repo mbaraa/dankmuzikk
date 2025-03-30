@@ -1,18 +1,25 @@
 package apis
 
 import (
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/config"
 	"dankmuzikk-web/handlers/middlewares/auth"
-	"dankmuzikk-web/services/requests"
 	"net/http"
 )
 
-func HandleLogout(w http.ResponseWriter, r *http.Request) {
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		return
+type logoutApi struct {
+	usecases *actions.Actions
+}
+
+func NewLogoutApi(usecases *actions.Actions) *logoutApi {
+	return &logoutApi{
+		usecases: usecases,
 	}
-	_ = requests.GetRequestAuthNoRespBody("/v1/logout", sessionToken.Value)
+}
+
+func (l *logoutApi) HandleLogout(w http.ResponseWriter, r *http.Request) {
+	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	_ = l.usecases.Logout(sessionToken)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:   auth.SessionTokenKey,
@@ -21,5 +28,6 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 		Domain: config.Env().Hostname,
 		MaxAge: -1,
 	})
+
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }

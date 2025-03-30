@@ -2,20 +2,30 @@ package apis
 
 import (
 	"context"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/log"
-	"dankmuzikk-web/services/youtube/search/suggestions"
 	"dankmuzikk-web/views/components/search"
 	"net/http"
 )
 
-func HandleSearchSuggestions(w http.ResponseWriter, r *http.Request) {
+type searchSuggestionsApi struct {
+	usecases *actions.Actions
+}
+
+func NewSearchSiggestionsApi(usecases *actions.Actions) *searchSuggestionsApi {
+	return &searchSuggestionsApi{
+		usecases: usecases,
+	}
+}
+
+func (s *searchSuggestionsApi) HandleSearchSuggestions(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("query")
 	if q == "" {
 		_, _ = w.Write(nil)
 		return
 	}
 
-	sug, err := suggestions.SearchSuggestions(q)
+	sug, err := s.usecases.SearchYouTubeSuggestions(q)
 	if err != nil {
 		log.Warningln(err)
 		w.WriteHeader(http.StatusBadRequest)

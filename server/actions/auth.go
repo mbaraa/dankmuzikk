@@ -51,13 +51,8 @@ type GetProfilePayload struct {
 	Username string `json:"username"`
 }
 
-func (a *Actions) GetProfile(sessionToken string) (GetProfilePayload, error) {
-	token, err := a.jwt.Decode(sessionToken, JwtSessionToken)
-	if err != nil {
-		return GetProfilePayload{}, err
-	}
-
-	profile, err := a.app.GetProfileByAccountEmail(token.Payload.Email)
+func (a *Actions) GetProfile(email string) (GetProfilePayload, error) {
+	profile, err := a.app.GetProfileByAccountEmail(email)
 	if err != nil {
 		return GetProfilePayload{}, err
 	}
@@ -214,9 +209,13 @@ func (a *Actions) sendOtp(profile models.Profile) error {
 		return err
 	}
 
-	err = a.mailer.SendOtpEmail(profile, otp)
-	if err != nil {
-		return err
+	if config.Env().GoEnv == "dev" {
+		log.Warningf("\n\n################################\n#### OTP SUKA: %s\n################################\n\n", otp)
+	} else {
+		err = a.mailer.SendOtpEmail(profile, otp)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

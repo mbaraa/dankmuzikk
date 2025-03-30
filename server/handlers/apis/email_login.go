@@ -22,6 +22,7 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		handleErrorResponse(w, err)
 		return
 	}
 
@@ -40,6 +41,7 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		handleErrorResponse(w, err)
 		return
 	}
 
@@ -58,6 +60,7 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		handleErrorResponse(w, err)
 		return
 	}
 

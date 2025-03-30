@@ -96,11 +96,11 @@ func (e ErrExpiredVerificationCode) ExposeToClients() bool {
 type ErrInvalidSessionToken struct{}
 
 func (e ErrInvalidSessionToken) Error() string {
-	return "invalid-session-code"
+	return "invalid-session-token"
 }
 
 func (e ErrInvalidSessionToken) ClientStatusCode() int {
-	return http.StatusBadRequest
+	return http.StatusUnauthorized
 }
 
 func (e ErrInvalidSessionToken) ExtraData() map[string]any {

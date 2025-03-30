@@ -1,21 +1,21 @@
 package pages
 
 import (
-	"dankmuzikk-web/entities"
-	"fmt"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/navlink"
+	"dankmuzikk-web/views/components/page"
 	"dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/song"
-	"dankmuzikk-web/views/components/page"
-	"dankmuzikk-web/views/icons"
 	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
+	"fmt"
 )
 
-templ Playlist(pl entities.Playlist) {
+templ Playlist(pl actions.Playlist) {
 	@page.Container(playlistHeader(pl), playlistContent(pl))
 }
 
-templ playlistHeader(pl entities.Playlist) {
+templ playlistHeader(pl actions.Playlist) {
 	<div class={ "mb-4", "flex", "justify-between", "items-center" }>
 		@navlink.LinkContainer("/playlists", "Playlists", backButton())
 		<div class={ "flex", "gap-x-2", "items-center" }>
@@ -40,7 +40,7 @@ templ playlistHeader(pl entities.Playlist) {
 	</div>
 }
 
-templ playlistContent(pl entities.Playlist) {
+templ playlistContent(pl actions.Playlist) {
 	<div id="playlists-listing">
 		if pl.Songs == nil || len(pl.Songs) == 0 {
 			<p>Hmm... This playlist looks empty, you can add songs from the search!</p>

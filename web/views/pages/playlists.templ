@@ -1,16 +1,15 @@
 package pages
 
 import (
-	"dankmuzikk-web/entities"
-	"dankmuzikk-web/views/components/playlist"
-	"fmt"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/navlink"
 	"dankmuzikk-web/views/components/page"
-	"dankmuzikk-web/views/icons"
+	"dankmuzikk-web/views/components/playlist"
+	"fmt"
 )
 
-templ Playlists(pls []entities.Playlist) {
-	@page.Container(playlistsHeader(), playlistsContent(pls))
+templ Playlists(pls []actions.Playlist) {
+	@page.Container(playlistsHeader(), JustPlaylists(pls))
 }
 
 templ playlistsHeader() {
@@ -20,40 +19,20 @@ templ playlistsHeader() {
 	</div>
 }
 
-templ playlistsContent(pls []entities.Playlist) {
-	<div id="playlists-listing">
-		if pls == nil || len(pls) == 0 {
-			<p>Hmm... You don't have any playlists yet, you can create from the button above!</p>
-		} else {
-			@JustPlaylists(pls)
-		}
-	</div>
-}
-
-templ JustPlaylists(pls []entities.Playlist) {
+templ JustPlaylists(pls []actions.Playlist) {
 	<div
+		id="playlists-listing"
 		class={
 			"w-full", "overflow-y-scroll", "max-h-[55vh]", "md:max-h-[65vh]",
 			"flex", "flex-col", "gap-x-5", "gap-y-2", "lg:mt-10",
 		}
 	>
-		for _, playlist := range pls {
-			@navlink.JustLink(fmt.Sprintf("/playlist/%s", playlist.PublicId), playlist.Title, singlePlaylist(playlist))
+		if pls == nil || len(pls) == 0 {
+			<p id="no-playlists">Hmm... You don't have any playlists yet, you can create from the button above!</p>
+		} else {
+			for _, pl := range pls {
+				@navlink.JustLink(fmt.Sprintf("/playlist/%s", pl.PublicId), pl.Title, playlist.Playlist(pl))
+			}
 		}
-	</div>
-}
-
-templ singlePlaylist(pl entities.Playlist) {
-	<div
-		class={
-			"hover:bg-secondary-trans-30", "rounded-[10px]", "py-4", "pe-2",
-			"flex", "justify-between", "items-center", "gap-x-5", "lg:gap-x-0",
-		}
-	>
-		<div class={ "flex", "items-center", "gap-x-4" }>
-			@icons.Playlist()
-			<p class={ "text-lg", "max-w-[230px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "font-bold" }>{ pl.Title }</p>
-		</div>
-		<p class={ "text-md", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
 	</div>
 }

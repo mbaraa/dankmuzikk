@@ -85,8 +85,7 @@ func Printf(prefix logLevel, format string, v ...any) {
 
 // Fatalln prints a log with a specific prefix with a new line,
 // and terminates the application with an error code (1).
-func Fatalln(prefix logLevel, v ...any) {
-	log.SetPrefix(string(prefix) + " ")
+func Fatalln(v ...any) {
 	log.Fatalln(v...)
 	log.SetPrefix("")
 }

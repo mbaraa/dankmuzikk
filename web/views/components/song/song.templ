@@ -1,21 +1,21 @@
 package song
 
 import (
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
+	"dankmuzikk-web/views/components/menus"
+	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
 	"fmt"
-	"dankmuzikk-web/views/components/menus"
 	"math/rand"
-	"dankmuzikk-web/views/components/ui"
 )
 
-templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, playlist entities.Playlist) {
+templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Component, playlist actions.Playlist) {
 	<div
 		if playlist.PublicId != "" {
 			id={ "song-" + s.YtId }
 		}
 		class={
-			"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "flex", "justify-between",
+			"font-Ubuntu!", "w-full", "bg-[#ffffff00]", "flex", "justify-between",
 			"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10", "p-2",
 		}
 	>
@@ -40,7 +40,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 				>
 					<p
 						class={
-							"leading-3", "bg-[#000000ab]", "rounded-sm",
+							"leading-3", "bg-[#000000ab]", "rounded-xs",
 							"text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]",
 						}
 					>
@@ -90,7 +90,7 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 	</div>
 }
 
-templ options(song entities.Song, additionalOptions []templ.Component) {
+templ options(song actions.Song, additionalOptions []templ.Component) {
 	<div
 		class={
 			"min-w-[250px]", "bg-accent-trans-20", "p-[15px]", "rounded-[10px]",

@@ -23,7 +23,6 @@ type Playlist struct {
 type CreatePlaylistParams struct {
 	ActionContext `json:"-"`
 	Title         string `json:"title"`
-	AccountId     uint   `json:"-"`
 }
 
 type CreatePlaylistPayload struct {
@@ -33,7 +32,7 @@ type CreatePlaylistPayload struct {
 func (a *Actions) CreatePlaylist(params CreatePlaylistParams) (CreatePlaylistPayload, error) {
 	playlist, err := a.app.CreatePlaylist(app.CreatePlaylistArgs{
 		Title:     params.Title,
-		AccountId: params.AccountId,
+		AccountId: params.Account.Id,
 	})
 	if err != nil {
 		return CreatePlaylistPayload{}, err

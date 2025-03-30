@@ -1,4 +1,4 @@
-package requests
+package errors
 
 import "errors"
 
@@ -21,49 +21,7 @@ var (
 	ErrUnauthorizedToSeePlaylist              = errors.New("unauthorized-to-see-playlist")
 	ErrUserHasAlreadyVoted                    = errors.New("user-has-already-voted")
 	ErrNotEnoughPermissionToAddSongToPlaylist = errors.New("not-enough-permission-to-add-song-to-playlist")
+	ErrInvalidSessionToken                    = errors.New("invalid-session-token")
 
 	ErrSomethingWentWrong = errors.New("something went wrong")
 )
-
-func mapError(errorId string) error {
-	switch errorId {
-	case "invalid-token":
-		return ErrInvalidToken
-	case "expired-token":
-		return ErrExpiredToken
-	case "account-not-found":
-		return ErrAccountNotFound
-	case "profile-not-found":
-		return ErrProfileNotFound
-	case "song-not-found":
-		return ErrSongNotFound
-	case "playlist-not-found":
-		return ErrPlaylistNotFound
-	case "account-exists":
-		return ErrAccountExists
-	case "profile-exists":
-		return ErrProfileExists
-	case "song-exists":
-		return ErrSongExists
-	case "playlist-exists":
-		return ErrPlaylistExists
-	case "different-login-method-used":
-		return ErrDifferentLoginMethodUsed
-	case "verification-code-expired":
-		return ErrVerificationCodeExpired
-	case "invalid-verification-code":
-		return ErrInvalidVerificationCode
-	case "non-owner-cant-delete-playlists":
-		return ErrNonOwnerCantDeletePlaylists
-	case "non-owner-cant-change-playlist-visibility":
-		return ErrNonOwnerCantChangePlaylistVisibility
-	case "unauthorized-to-see-playlist":
-		return ErrUnauthorizedToSeePlaylist
-	case "user-has-already-voted":
-		return ErrUserHasAlreadyVoted
-	case "not-enough-permission-to-add-song-to-playlist":
-		return ErrNotEnoughPermissionToAddSongToPlaylist
-	default:
-		return ErrSomethingWentWrong
-	}
-}
