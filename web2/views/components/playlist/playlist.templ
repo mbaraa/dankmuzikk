@@ -1,0 +1,22 @@
+package playlist
+
+import (
+	"dankmuzikk-web/actions"
+	"dankmuzikk-web/views/icons"
+	"fmt"
+)
+
+templ Playlist(pl actions.Playlist) {
+	<div
+		class={
+			"hover:bg-secondary-trans-30", "rounded-[10px]", "py-4", "pe-2",
+			"flex", "justify-between", "items-center", "gap-x-5", "lg:gap-x-0",
+		}
+	>
+		<div class={ "flex", "items-center", "gap-x-4" }>
+			@icons.Playlist()
+			<p class={ "text-lg", "max-w-[230px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "font-bold" }>{ pl.Title }</p>
+		</div>
+		<p class={ "text-md", "max-w-[190px]", "overflow-hidden", "text-nowrap", "text-ellipsis" }>{ fmt.Sprint(pl.SongsCount) } Songs</p>
+	</div>
+}

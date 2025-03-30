@@ -1,0 +1,190 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-Ubuntu: Ubuntu, sans;
+
+  --color-primary: var(--primary-color);
+
+  --color-primary-trans-20: var(--primary-color-20);
+  --color-primary-trans-30: var(--primary-color-30);
+  --color-primary-trans-69: var(--primary-color-69);
+
+  --color-secondary: var(--secondary-color);
+
+  --color-secondary-trans-20: var(--secondary-color-20);
+  --color-secondary-trans-30: var(--secondary-color-30);
+  --color-secondary-trans-69: var(--secondary-color-69);
+
+  --color-accent: var(--accent-color);
+
+  --color-accent-trans-20: var(--accent-color-20);
+  --color-accent-trans-30: var(--accent-color-30);
+  --color-accent-trans-69: var(--accent-color-69);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+:root {
+  --animation-duration: 0.4s;
+}
+
+.animate-in {
+  animation: animate-down calc(var(--animation-duration) -0.1s) ease-in-out;
+}
+
+main,
+.animate-up {
+  animation: animate-up calc(var(--animation-duration) -0.1s) ease-in-out;
+}
+
+@keyframes animate-down {
+  0% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes animate-up {
+  0% {
+    transform: translateY(10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
+html,
+body,
+div,
+ul,
+table {
+  scroll-behavior: smooth;
+}
+
+* {
+  -webkit-transition:
+    all var(--animation-duration),
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -moz-transition:
+    all var(--animation-duration),
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -o-transition:
+    all var(--animation-duration),
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  -ms-transition:
+    all var(--animation-duration),
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+  transition:
+    all var(--animation-duration),
+    background-color var(--animation-duration),
+    opacity var(--animation-duration);
+}
+
+.loader {
+  height: 100%;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--secondary-color);
+  border-top-color: transparent;
+  border-top-width: 2px;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 5px;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.marquee {
+  margin: 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.marquee span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 15s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-100%, 0);
+  }
+}
+
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Ubuntu";
+}
+
+div.nav-link a,
+.nav-link {
+  text-decoration: underline;
+}
+
+div.nav-link a:hover,
+.nav-link:hover {
+  text-decoration: none;
+}
+
+.tabs input[type="radio"] {
+  display: none;
+}
+
+.tabs label {
+  cursor: pointer;
+  border-radius: 6px;
+  display: inline-block;
+  margin-right: 0.2rem;
+  padding: 0.5rem 1rem;
+}
+
+.tabs input[type="radio"]:checked + label {
+  background-color: var(--accent-color-30);
+}

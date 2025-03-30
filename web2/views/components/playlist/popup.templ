@@ -1,0 +1,102 @@
+package playlist
+
+import (
+	"dankmuzikk-web/actions"
+	"dankmuzikk-web/views/components/menus"
+	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
+	"fmt"
+)
+
+templ PlaylistsPopup(index int, songId string) {
+	@menus.Popup(fmt.Sprint(index), "Add to playlist", popupButton(), playlistSelector(songId))
+}
+
+templ playlistSelector(songId string) {
+	<div
+		id={ "playlists-" + songId }
+		class={
+			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-xl", "p-3", "text-secondary",
+			"rounded-b-[10px]", "rounded-l-[10px]",
+		}
+		hx-get={ "/api/playlist/all?song-id=" + songId }
+		hx-swap="outerHTML"
+		hx-trigger="intersect"
+		hx-on::error={ showNoPlaylists("playlists-" + songId) }
+	>
+		<div id="playlist-loading" class={ "w-full", "flex", "flex-col", "items-center", "justify-center" }>
+			<div class={ "loader", "h-20!", "w-20!" }></div>
+			<span class={ "text-secondary", "text-xl" }>Loading playlists...</span>
+		</div>
+	</div>
+}
+
+templ PlaylistsSelector(songId string, playlists []actions.Playlist, songsInPlaylists map[string]bool) {
+	<div
+		class={
+			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-xl", "p-3", "text-secondary",
+			"rounded-b-[10px]", "rounded-l-[10px]",
+		}
+	>
+		<h2 class={ "text-xl", "font-bold" }>Save this song to...</h2>
+		<div class={ "my-2" }></div>
+		<ul class={ "flex", "flex-col", "gap-y-2" }>
+			if  len(playlists) == 0 {
+				<p>
+					No playlists were found
+				</p>
+			} else {
+				for _, playlist := range playlists {
+					<li
+						class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
+						hx-put={
+							fmt.Sprintf(
+								"/api/song/playlist?song-id=%s&playlist-id=%s",
+								songId,
+								playlist.PublicId,
+							),
+						}
+						hx-swap="innerHTML"
+						hx-target={ fmt.Sprintf("#song-in-playlist-%s-%s", playlist.PublicId, songId) }
+						hx-trigger="click"
+						data-loading-target="#loading"
+						data-loading-class-remove="hidden"
+						data-loading-path={
+							fmt.Sprintf(
+								"/api/song/playlist?song-id=%s&playlist-id=%s",
+								songId,
+								playlist.PublicId,
+							),
+						}
+					>
+						<div
+							id={ fmt.Sprintf("song-in-playlist-%s-%s", playlist.PublicId, songId) }
+						>
+							if songsInPlaylists[songId+"-"+playlist.PublicId] {
+								@ui.CheckedCheckbox()
+							} else {
+								@ui.UncheckedCheckbox()
+							}
+						</div>
+						<p class={ "max-w-[300px]", "overflow-hidden", "text-nowrap", "text-ellipsis", "text-secondary" }>
+							{ playlist.Title }
+						</p>
+					</li>
+				}
+			}
+		</ul>
+	</div>
+}
+
+templ popupButton() {
+	<div
+		class={ "flex", "gap-x-2", "items-center", "p-2", "w-full" }
+	>
+		@icons.AddToPlaytlist()
+		<span>Save to a playlist</span>
+	</div>
+}
+
+script showNoPlaylists(id string) {
+    document.getElementById(id).innerHTML = "No playlists were found!";
+}

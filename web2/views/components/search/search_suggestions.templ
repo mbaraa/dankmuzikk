@@ -1,0 +1,45 @@
+package search
+
+import "fmt"
+import "strings"
+
+templ SearchSuggestions(suggestions []string, originalQuery string) {
+	<ul
+		id="search-suggestions"
+		class={ "grid", "grid-cols-1", "w-full", "bg-secondary-trans-20", "backdrop-blur-md", "rounded-lg", "p-[10px]" }
+	>
+		for i, suggestion := range suggestions {
+			<li
+				class={ "focus-within:bg-secondary", "focus-within:text-primary", "text-secondary",
+                        "text-lg", "p-2", "first:rounded-t", "last:rounded-b",
+                        "border-b", "border-b-secondary", "last:border-b-0" }
+			>
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/search?query=%s", suggestion)) }
+					hx-get={ fmt.Sprintf("/search?no_layout=true&query=%s", suggestion) }
+					hx-swap="innerHTML"
+					hx-target="#main-contents"
+					hx-trigger="click,submit"
+					data-loading-target="#loading"
+					data-loading-class-remove="hidden"
+					data-loading-path={ fmt.Sprintf("/search?no_layout=true&query=%s", suggestion) }
+					class={ "w-full", "p-[10px]", "no-underline" }
+					id={ fmt.Sprintf("search-suggestion-%d", i) }
+					hx-on::after-request={ searchNoRealod(suggestion) }
+				>
+					if len(suggestion) <= len(originalQuery) {
+						<span><b>{ suggestion }</b></span>
+					} else if strings.Contains(suggestion, originalQuery) {
+						<span><b>{ originalQuery }</b>{ suggestion[len(originalQuery):] }</span>
+					} else {
+						<span>{ suggestion }</span>
+					}
+				</a>
+			</li>
+		}
+	</ul>
+}
+
+script searchNoRealod(searchQuery string) {
+    window.Search.searchNoReload(searchQuery);
+}

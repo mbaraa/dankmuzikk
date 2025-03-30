@@ -1,0 +1,60 @@
+package player
+
+import "dankmuzikk-web/views/components/ui"
+
+templ PlayerSticky() {
+	<div id="muzikk" class="hidden">
+		<div
+			if ui.IsMobile(ctx) {
+				onClick={ expand() }
+			}
+			class={
+				"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
+				"fixed", "z-20", "bottom-[65px]", "md:bottom-0", "left-0",
+			}
+		>
+			<div
+				id="ze-player"
+				class={
+					"h-full", "collapsed",
+					"text-secondary", "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-secondary",
+					"rounded-t-[15px]", "rounded-b-[15px]", "md:rounded-b-[0px]", "md:rounded-t-3xl",
+					"mx-[5px]", "md:mx-0", "p-[10px]", "md:p-[20px]",
+				}
+			>
+				<div class={ "contents" } id="ze-collapsed-mobile-player">
+					@collapsedPlayer()
+				</div>
+				<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
+					@expandedMobilePlayer()
+				</div>
+			</div>
+		</div>
+	</div>
+	<audio
+		class="hidden"
+		id="audio-player"
+		controls
+		preload="none"
+		muted
+	></audio>
+	///
+	<style>
+        .collapsed {
+            height: 90px;
+            max-height: 90px;
+        }
+        .exapnded {
+            height: 550px;
+            max-height: 550px;
+        }
+    </style>
+	///
+	<script src="/static/js/player.js" lang="javascript"></script>
+	<script defer src="/static/js/player_icons.js" lang="javascript"></script>
+	<script defer src="/static/js/player_shortcuts.js" lang="javascript"></script>
+}
+
+script expand() {
+    Player.expand();
+}

@@ -1,0 +1,52 @@
+package search
+
+import "dankmuzikk-web/views/icons"
+
+templ Search() {
+	<div class={ "text-primary!", "font-Ubuntu!", "w-full", "md:w-[300px]", "xl:w-[500px]" }>
+		<form
+			id="search-form"
+			action="/search"
+			class={ "w-full" }
+			hx-get="/search?no_layout=true"
+			hx-swap="innerHTML"
+			hx-target="#main-contents"
+			hx-trigger="submit"
+			data-loading-target="#loading"
+			data-loading-class-remove="hidden"
+			data-loading-path="/search?no_layout=true"
+		>
+			<div class={ "flex", "bg-secondary", "rounded-[8px]", "border", "border-b-[3px]", "border-accent" }>
+				<input
+					id="search-input"
+					class={
+						"w-full", "p-[10px]", "ps-[15px]", "rounded-l-[8px]",
+						"bg-secondary", "text-primary",
+					}
+					type="search"
+					name="query"
+					autofocus
+					autocomplete="off"
+					placeholder="Search for some tunes"
+					hx-get="/api/search-suggestion"
+					hx-swap="innerHTML"
+					hx-target="#search-suggestions-container"
+					hx-trigger="keyup"
+				/>
+				<button
+					type="submit"
+					id="search-icon"
+					class={ "rounded-r-[8px]", "px-[10px]", "bg-secondary" }
+					aria-label="Search"
+				>
+					@icons.Search()
+				</button>
+			</div>
+		</form>
+		<div
+			class={ "absolute", "top-[135px]", "md:top-[70px]", "z-30", "w-[92vw]", "md:w-[300px]", "xl:w-[500px]" }
+			id="search-suggestions-container"
+		></div>
+	</div>
+	// script is in /static/js/search.js
+}
