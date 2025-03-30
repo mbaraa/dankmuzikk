@@ -9,7 +9,7 @@ import (
 )
 
 templ Playlists(pls []actions.Playlist) {
-	@page.Container(playlistsHeader(), playlistsContent(pls))
+	@page.Container(playlistsHeader(), JustPlaylists(pls))
 }
 
 templ playlistsHeader() {
@@ -19,25 +19,20 @@ templ playlistsHeader() {
 	</div>
 }
 
-templ playlistsContent(pls []actions.Playlist) {
-	<div id="playlists-listing">
-		if pls == nil || len(pls) == 0 {
-			<p>Hmm... You don't have any playlists yet, you can create from the button above!</p>
-		} else {
-			@JustPlaylists(pls)
-		}
-	</div>
-}
-
 templ JustPlaylists(pls []actions.Playlist) {
 	<div
+		id="playlists-listing"
 		class={
 			"w-full", "overflow-y-scroll", "max-h-[55vh]", "md:max-h-[65vh]",
 			"flex", "flex-col", "gap-x-5", "gap-y-2", "lg:mt-10",
 		}
 	>
-		for _, pl := range pls {
-			@navlink.JustLink(fmt.Sprintf("/playlist/%s", pl.PublicId), pl.Title, playlist.Playlist(pl))
+		if pls == nil || len(pls) == 0 {
+			<p id="no-playlists">Hmm... You don't have any playlists yet, you can create from the button above!</p>
+		} else {
+			for _, pl := range pls {
+				@navlink.JustLink(fmt.Sprintf("/playlist/%s", pl.PublicId), pl.Title, playlist.Playlist(pl))
+			}
 		}
 	</div>
 }

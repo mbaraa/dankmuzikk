@@ -56,7 +56,7 @@ func (r *Requests) EmailLogin(params actions.LoginUsingEmailParams) (actions.Log
 func (r *Requests) EmailSignup(params actions.SignupUsingEmailParams) (actions.SignupUsingEmailPayload, error) {
 	return makeRequest[actions.SignupUsingEmailParams, actions.SignupUsingEmailPayload](makeRequestConfig[actions.SignupUsingEmailParams]{
 		method:   http.MethodPost,
-		endpoint: "/v1/singup/email",
+		endpoint: "/v1/signup/email",
 		body:     params,
 	})
 }

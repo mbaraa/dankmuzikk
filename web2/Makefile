@@ -10,20 +10,24 @@ build:
 generate: tailwindcss-build
 	go generate
 
-init: tailwindcss-init
-	mkdir -p static/css &&\
-	mkdir -p static/js/htmx &&\
-	wget https://unpkg.com/htmx-ext-loading-states@2.0.0/loading-states.js -O static/js/htmx/loading-states.js &&\
-	wget https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js -O static/js/htmx/htmx.min.js &&\
+init: htmx-init tailwindcss-init
 	go get && \
 	go generate
 
+htmx-init:
+	mkdir -p static/js/htmx && \
+	wget https://unpkg.com/hyperscript.org@0.9.14/dist/_hyperscript.min.js -O static/js/htmx/hyperscript.min.js &&\
+	wget https://unpkg.com/htmx-ext-json-enc@2.0.2/dist/json-enc.min.js -O static/js/htmx/json-enc.js &&\
+	wget https://unpkg.com/htmx-ext-loading-states@2.0.1/dist/loading-states.min.js -O static/js/htmx/loading-states.js &&\
+	wget https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js -O static/js/htmx/htmx.min.js
+
 tailwindcss-init:
+	mkdir -p static/css &&\
 	npm i &&\
-	npx @tailwindcss/cli -i static/css/style.css -o static/css/tailwind.css -m
+	npx tailwindcss@3.4.1 build -i static/css/style.css -o static/css/tailwind.css -m
 
 tailwindcss-build:
-	npx @tailwindcss/cli -i static/css/style.css -o static/css/tailwind.css -m
+	npx tailwindcss@3.4.1 build -i static/css/style.css -o static/css/tailwind.css -m
 
 dev:
 	air -v > /dev/null

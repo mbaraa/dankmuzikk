@@ -4,12 +4,14 @@ import (
 	"dankmuzikk-web/actions"
 	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
+	"dankmuzikk-web/views/components/navlink"
 	"dankmuzikk-web/views/components/playlist"
 	playlistviews "dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/status"
 	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -47,7 +49,7 @@ func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	playlistviews.Playlist(newPlaylist).
+	navlink.JustLink(fmt.Sprintf("/playlist/%s", newPlaylist.PublicId), newPlaylist.Title, playlistviews.Playlist(newPlaylist)).
 		Render(r.Context(), w)
 }
 

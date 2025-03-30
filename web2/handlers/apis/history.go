@@ -69,7 +69,7 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 			data-hx-revealed="true"
 			data-loading-target="#history-loading"
 			data-loading-class-remove="hidden"
-			data-loading-path="/api/history?page=%d"
+			data-loading-path="/api/history/%d"
 		></div>`, page+1, page+1))
 
 	_, _ = w.Write(outBuf.Bytes())

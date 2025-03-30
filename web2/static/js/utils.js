@@ -87,7 +87,7 @@ function menuer() {
       return;
     }
     if (!!lastEl) {
-      lastEl.style.display = "none";
+      lastEl.classList.add("hidden");
       document.body.removeEventListener("click", __removePopover);
     }
     lastEl = document.getElementById(id);
@@ -118,7 +118,7 @@ function menuer() {
       e.clientY + parentRect.height + 5 < rect.top ||
       e.clientY > rect.bottom + parentRect.height + 5
     ) {
-      lastEl.style.display = "none";
+      lastEl.classList.add("hidden");
       lastEl = null;
       document.body.removeEventListener("click", __removePopover);
     }

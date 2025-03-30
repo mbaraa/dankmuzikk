@@ -1,7 +1,6 @@
 package apis
 
 import (
-	"context"
 	"dankmuzikk-web/actions"
 	"dankmuzikk-web/config"
 	dankerrors "dankmuzikk-web/errors"
@@ -39,13 +38,13 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
 		status.
 			BugsBunnyError("This account uses Google Auth to login!").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	} else if err != nil {
 		log.Errorf("[EMAIL LOGIN API]: Failed to login user: %+v, error: %s\n", reqBody, err.Error())
 		status.
 			BugsBunnyError(fmt.Sprintf("No account associated with the email \"%s\" was found", reqBody.Email)).
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 
@@ -57,7 +56,7 @@ func (e *emailLoginApi) HandleEmailLogin(w http.ResponseWriter, r *http.Request)
 		Domain:   config.Env().Hostname,
 		Expires:  time.Now().UTC().Add(time.Hour / 2),
 	})
-	otp.VerifyOtp().Render(context.Background(), w)
+	otp.VerifyOtp().Render(r.Context(), w)
 }
 
 func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request) {
@@ -73,12 +72,14 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 		log.Errorf("[EMAIL LOGIN API]: Failed to sign up a new user: %+v, error: %s\n", reqBody, err.Error())
 		status.
 			BugsBunnyError(fmt.Sprintf("An account associated with the email \"%s\" already exists", reqBody.Email)).
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 	if err != nil {
 		log.Errorf("[EMAIL LOGIN API]: Failed to sign up a new user: %+v, error: %s\n", reqBody, err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
+		status.
+			GenericError("Something went wrong...").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -90,7 +91,7 @@ func (e *emailLoginApi) HandleEmailSignup(w http.ResponseWriter, r *http.Request
 		Domain:   config.Env().Hostname,
 		Expires:  time.Now().UTC().Add(time.Hour / 2),
 	})
-	otp.VerifyOtp().Render(context.Background(), w)
+	otp.VerifyOtp().Render(r.Context(), w)
 }
 
 func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *http.Request) {
@@ -98,13 +99,13 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	if err != nil {
 		status.
 			BugsBunnyError("Invalid verification token").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 	if verificationToken.Expires.After(time.Now().UTC()) {
 		status.
 			BugsBunnyError("Expired verification token").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 
@@ -114,7 +115,7 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 		log.Error(err)
 		status.
 			BugsBunnyError("Invalid verification token").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 
@@ -123,20 +124,20 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 	if errors.Is(err, dankerrors.ErrExpiredToken) {
 		status.
 			BugsBunnyError("Expired verification code!").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 	if errors.Is(err, dankerrors.ErrInvalidVerificationCode) {
 		status.
 			BugsBunnyError("Invalid verification code!").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 	if err != nil {
 		log.Error(err)
 		status.
 			BugsBunnyError("Something went wrong...").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 

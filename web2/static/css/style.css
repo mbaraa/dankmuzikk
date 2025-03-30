@@ -1,44 +1,6 @@
-@import 'tailwindcss';
-
-@theme {
-  --font-Ubuntu: Ubuntu, sans;
-
-  --color-primary: var(--primary-color);
-
-  --color-primary-trans-20: var(--primary-color-20);
-  --color-primary-trans-30: var(--primary-color-30);
-  --color-primary-trans-69: var(--primary-color-69);
-
-  --color-secondary: var(--secondary-color);
-
-  --color-secondary-trans-20: var(--secondary-color-20);
-  --color-secondary-trans-30: var(--secondary-color-30);
-  --color-secondary-trans-69: var(--secondary-color-69);
-
-  --color-accent: var(--accent-color);
-
-  --color-accent-trans-20: var(--accent-color-20);
-  --color-accent-trans-30: var(--accent-color-30);
-  --color-accent-trans-69: var(--accent-color-69);
-}
-
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --animation-duration: 0.4s;
