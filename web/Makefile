@@ -2,7 +2,7 @@
 
 BINARY_NAME=dankmuzikk-web
 
-build:
+build: htmx-init tailwindcss-init
 	go mod tidy && \
 	go generate && \
 	go build -ldflags="-w -s" -o ${BINARY_NAME}
