@@ -76,7 +76,6 @@ func main() {
 	v1ApisHandler.HandleFunc("POST /signup/email", emailLoginApi.HandleEmailSignup)
 	v1ApisHandler.HandleFunc("POST /verify-otp", emailLoginApi.HandleEmailOTPVerification)
 	v1ApisHandler.HandleFunc("GET /login/google", googleLoginApi.HandleGoogleOAuthLogin)
-	v1ApisHandler.HandleFunc("GET /signup/google", googleLoginApi.HandleGoogleOAuthLogin)
 	v1ApisHandler.HandleFunc("POST /login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	v1ApisHandler.HandleFunc("GET /search/suggestions", searchApi.HandleSearchSuggestions)
 	v1ApisHandler.HandleFunc("GET /search", searchApi.HandleSearchResults)
@@ -88,19 +87,17 @@ func main() {
 	v1ApisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
 
-	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
-	v1ApisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylists))
 	v1ApisHandler.HandleFunc("GET /playlist", authMw.AuthApi(playlistsApi.HandleGetPlaylist))
 	v1ApisHandler.HandleFunc("POST /playlist", authMw.AuthApi(playlistsApi.HandleCreatePlaylist))
+	v1ApisHandler.HandleFunc("DELETE /playlist", authMw.AuthApi(playlistsApi.HandleDeletePlaylist))
+	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
+	v1ApisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylists))
 	v1ApisHandler.HandleFunc("PUT /playlist/public", authMw.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
 	v1ApisHandler.HandleFunc("PUT /playlist/join", authMw.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
-	v1ApisHandler.HandleFunc("DELETE /playlist", authMw.AuthApi(playlistsApi.HandleDeletePlaylist))
 	v1ApisHandler.HandleFunc("GET /playlist/zip", authMw.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
 
-	v1ApisHandler.HandleFunc("GET /history/{page}", authMw.AuthApi(historyApi.HandleGetHistoryItems))
 	v1ApisHandler.HandleFunc("GET /history", authMw.AuthApi(historyApi.HandleGetHistoryItems))
 
-	v1ApisHandler.HandleFunc("GET /profile", authMw.AuthApi(accountApi.HandleGetProfile))
 	v1ApisHandler.HandleFunc("GET /me/profile", authMw.AuthApi(accountApi.HandleGetProfile))
 	v1ApisHandler.HandleFunc("GET /me/auth", authMw.AuthApi(accountApi.HandleAuthCheck))
 	v1ApisHandler.HandleFunc("GET /me/logout", func(w http.ResponseWriter, r *http.Request) {
