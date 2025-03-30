@@ -209,9 +209,13 @@ func (a *Actions) sendOtp(profile models.Profile) error {
 		return err
 	}
 
-	err = a.mailer.SendOtpEmail(profile, otp)
-	if err != nil {
-		return err
+	if config.Env().GoEnv == "dev" {
+		log.Warningf("\n\n################################\n#### OTP SUKA: %s\n################################\n\n", otp)
+	} else {
+		err = a.mailer.SendOtpEmail(profile, otp)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

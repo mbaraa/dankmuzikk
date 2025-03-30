@@ -9,6 +9,7 @@ import (
 	"dankmuzikk/genius"
 	"dankmuzikk/handlers/apis"
 	"dankmuzikk/handlers/middlewares/auth"
+	"dankmuzikk/handlers/middlewares/contenttype"
 	"dankmuzikk/handlers/middlewares/logger"
 	"dankmuzikk/jwt"
 	"dankmuzikk/log"
@@ -111,7 +112,7 @@ func main() {
 	})
 
 	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/v1/", http.StripPrefix("/v1", v1ApisHandler))
+	applicationHandler.Handle("/v1/", http.StripPrefix("/v1", contenttype.Json(v1ApisHandler)))
 
 	log.Info("Starting http server at port " + config.Env().Port)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
