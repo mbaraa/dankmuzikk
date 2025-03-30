@@ -28,16 +28,9 @@ import (
 //go:generate templ generate -path ../../mailer/
 
 func main() {
-	err := StartServer()
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func StartServer() error {
 	mariadbRepo, err := mariadb.New()
 	if err != nil {
-		return err
+		log.Fatalln(err)
 	}
 
 	cache := redis.New()
@@ -75,7 +68,7 @@ func StartServer() error {
 	songApi := apis.NewSongsHandler(usecases)
 	playlistsApi := apis.NewPlaylistApi(usecases)
 	historyApi := apis.NewHistoryApi(usecases)
-	userApi := apis.NewUserApi(usecases)
+	accountApi := apis.NewAccountApi(usecases)
 
 	v1ApisHandler := http.NewServeMux()
 	v1ApisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -84,22 +77,16 @@ func StartServer() error {
 	v1ApisHandler.HandleFunc("GET /login/google", googleLoginApi.HandleGoogleOAuthLogin)
 	v1ApisHandler.HandleFunc("GET /signup/google", googleLoginApi.HandleGoogleOAuthLogin)
 	v1ApisHandler.HandleFunc("POST /login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
-	v1ApisHandler.HandleFunc("GET /logout", func(w http.ResponseWriter, r *http.Request) {
-		sessionToken, ok := r.Header["Authorization"]
-		if !ok {
-			return
-		}
-
-		_ = cache.InvalidateAuthenticatedAccount(sessionToken[0])
-	})
 	v1ApisHandler.HandleFunc("GET /search/suggestions", searchApi.HandleSearchSuggestions)
 	v1ApisHandler.HandleFunc("GET /search", searchApi.HandleSearchResults)
+
 	v1ApisHandler.HandleFunc("GET /song/play", authMw.OptionalAuthApi(songApi.HandlePlaySong))
 	v1ApisHandler.HandleFunc("GET /song/single", authMw.OptionalAuthApi(songApi.HandleGetSong))
 	v1ApisHandler.HandleFunc("PUT /song/playlist", authMw.AuthApi(songApi.HandleToggleSongInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/upvote", authMw.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
+
 	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
 	v1ApisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylists))
 	v1ApisHandler.HandleFunc("GET /playlist", authMw.AuthApi(playlistsApi.HandleGetPlaylist))
@@ -108,15 +95,28 @@ func StartServer() error {
 	v1ApisHandler.HandleFunc("PUT /playlist/join", authMw.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
 	v1ApisHandler.HandleFunc("DELETE /playlist", authMw.AuthApi(playlistsApi.HandleDeletePlaylist))
 	v1ApisHandler.HandleFunc("GET /playlist/zip", authMw.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
-	v1ApisHandler.HandleFunc("GET /history/{page}", authMw.AuthApi(historyApi.HandleGetMoreHistoryItems))
-	v1ApisHandler.HandleFunc("GET /profile", userApi.HandleGetProfile)
+
+	v1ApisHandler.HandleFunc("GET /history/{page}", authMw.AuthApi(historyApi.HandleGetHistoryItems))
+	v1ApisHandler.HandleFunc("GET /history", authMw.AuthApi(historyApi.HandleGetHistoryItems))
+
+	v1ApisHandler.HandleFunc("GET /profile", authMw.AuthApi(accountApi.HandleGetProfile))
+	v1ApisHandler.HandleFunc("GET /me/profile", authMw.AuthApi(accountApi.HandleGetProfile))
+	v1ApisHandler.HandleFunc("GET /me/auth", authMw.AuthApi(accountApi.HandleAuthCheck))
+	v1ApisHandler.HandleFunc("GET /me/logout", func(w http.ResponseWriter, r *http.Request) {
+		sessionToken, ok := r.Header["Authorization"]
+		if !ok {
+			return
+		}
+		_ = cache.InvalidateAuthenticatedAccount(sessionToken[0])
+	})
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/v1/", http.StripPrefix("/v1", v1ApisHandler))
 
 	log.Info("Starting http server at port " + config.Env().Port)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
-		return http.ListenAndServe(":"+config.Env().Port, logger.Handler(applicationHandler))
+		log.Fatalln(http.ListenAndServe(":"+config.Env().Port, logger.Handler(applicationHandler)))
 	}
-	return http.ListenAndServe(":"+config.Env().Port, minfyer.Middleware(applicationHandler))
+
+	log.Fatalln(http.ListenAndServe(":"+config.Env().Port, minfyer.Middleware(applicationHandler)))
 }

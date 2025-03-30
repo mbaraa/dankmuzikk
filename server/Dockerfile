@@ -4,8 +4,9 @@ WORKDIR /app
 COPY . .
 
 RUN go install github.com/a-h/templ/cmd/templ@v0.2.731 &&\
-    apk add --no-cache make &&\
-    make init &&\
+    apk add --no-cache make
+
+RUN make init &&\
     make build-server &&\
     make build-migrator
 

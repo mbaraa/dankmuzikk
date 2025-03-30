@@ -18,7 +18,7 @@ func NewHistoryApi(usecases *actions.Actions) *historyApi {
 	}
 }
 
-func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Request) {
+func (h *historyApi) HandleGetHistoryItems(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
 		handleErrorResponse(w, err)
@@ -27,10 +27,13 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 
 	page, err := strconv.Atoi(r.PathValue("page"))
 	if err != nil || page <= 0 {
-		handleErrorResponse(w, &ErrBadRequest{
-			FieldName: "page",
-		})
-		return
+		page, err = strconv.Atoi(r.URL.Query().Get("page"))
+		if err != nil {
+			handleErrorResponse(w, &ErrBadRequest{
+				FieldName: "page",
+			})
+			return
+		}
 	}
 
 	params := actions.GetHistoryItemsParams{

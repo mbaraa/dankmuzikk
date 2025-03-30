@@ -11,20 +11,20 @@ type userApi struct {
 	usecases *actions.Actions
 }
 
-func NewUserApi(usecases *actions.Actions) *userApi {
+func NewAccountApi(usecases *actions.Actions) *userApi {
 	return &userApi{
 		usecases: usecases,
 	}
 }
 
 func (u *userApi) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Header["Authorization"]
-	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		handleErrorResponse(w, err)
 		return
 	}
 
-	profile, err := u.usecases.GetProfile(sessionToken[0])
+	profile, err := u.usecases.GetProfile(ctx.Account.Email)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusUnauthorized)
@@ -32,4 +32,12 @@ func (u *userApi) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.NewEncoder(w).Encode(profile)
+}
+
+func (u *userApi) HandleAuthCheck(w http.ResponseWriter, r *http.Request) {
+	_, err := parseContext(r.Context())
+	if err != nil {
+		handleErrorResponse(w, err)
+		return
+	}
 }

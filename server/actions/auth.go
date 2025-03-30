@@ -51,13 +51,8 @@ type GetProfilePayload struct {
 	Username string `json:"username"`
 }
 
-func (a *Actions) GetProfile(sessionToken string) (GetProfilePayload, error) {
-	token, err := a.jwt.Decode(sessionToken, JwtSessionToken)
-	if err != nil {
-		return GetProfilePayload{}, err
-	}
-
-	profile, err := a.app.GetProfileByAccountEmail(token.Payload.Email)
+func (a *Actions) GetProfile(email string) (GetProfilePayload, error) {
+	profile, err := a.app.GetProfileByAccountEmail(email)
 	if err != nil {
 		return GetProfilePayload{}, err
 	}
