@@ -1,21 +1,21 @@
 package pages
 
 import (
-	"dankmuzikk-web/entities"
-	"dankmuzikk-web/views/components/page"
-	"fmt"
-	"dankmuzikk-web/views/icons"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/menus"
-	"math/rand"
+	"dankmuzikk-web/views/components/page"
 	"dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
+	"fmt"
+	"math/rand"
 )
 
-templ Song(song entities.Song) {
+templ Song(song actions.Song) {
 	@page.Container(templ.NopComponent, songContent(song))
 }
 
-templ songContent(song entities.Song) {
+templ songContent(song actions.Song) {
 	<div class={ "flex", "flex-col", "justify-center", "items-center", "gap-6" }>
 		<div
 			class={
@@ -49,11 +49,11 @@ templ songContent(song entities.Song) {
 }
 
 // TODO: generalize this and the same shit under components/song/song.templ
-templ options(song entities.Song) {
+templ options(song actions.Song) {
 	<div
 		class={
 			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md", "min-w-[250px]",
-			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
+			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-accent",
 		}
 	>
 		@playlist.PlaylistsPopup(0, song.YtId)
@@ -108,11 +108,11 @@ templ options(song entities.Song) {
 	</div>
 }
 
-script playSong(song entities.Song) {
+script playSong(song actions.Song) {
     Player.playSingleSong(song)
 }
 
-script playSongNext(song entities.Song) {
+script playSongNext(song actions.Song) {
     Player.playSingleSongNext(song)
 }
 
@@ -121,7 +121,7 @@ script shareSong(songYtId string) {
     alert("Song's links was copied!");
 }
 
-script addSongToQueue(song entities.Song) {
+script addSongToQueue(song actions.Song) {
     window.Player.addSongToQueue(song);
 }
 

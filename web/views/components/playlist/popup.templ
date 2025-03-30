@@ -1,7 +1,7 @@
 package playlist
 
 import (
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/menus"
 	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
@@ -25,13 +25,13 @@ templ playlistSelector(songId string) {
 		hx-on::error={ showNoPlaylists("playlists-" + songId) }
 	>
 		<div id="playlist-loading" class={ "w-full", "flex", "flex-col", "items-center", "justify-center" }>
-			<div class={ "loader", "!h-20", "!w-20" }></div>
+			<div class={ "loader", "h-20!", "w-20!" }></div>
 			<span class={ "text-secondary", "text-xl" }>Loading playlists...</span>
 		</div>
 	</div>
 }
 
-templ PlaylistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
+templ PlaylistsSelector(songId string, playlists []actions.Playlist, songsInPlaylists map[string]bool) {
 	<div
 		class={
 			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-xl", "p-3", "text-secondary",

@@ -2,9 +2,8 @@ package auth
 
 import (
 	"context"
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/handlers/middlewares/contenttype"
-	"dankmuzikk-web/services/requests"
 	"net/http"
 	"slices"
 )
@@ -17,29 +16,30 @@ const (
 
 // Context keys
 const (
-	ProfileIdKey       = "profile-id"
+	CtxSessionTokenKey = "session-token"
 	PlaylistPermission = "playlist-permission"
 )
 
 var noAuthPaths = []string{"/login", "/signup"}
 
-type mw struct {
+type Middleware struct {
+	usecases *actions.Actions
 }
 
 // New returns a new auth middle ware instance.
-// Using a GORMDBGetter because this is supposed to be a light fetch,
-// Where BaseDB doesn't provide column selection yet :(
-func New() *mw {
-	return &mw{}
+func New(usecases *actions.Actions) *Middleware {
+	return &Middleware{
+		usecases: usecases,
+	}
 }
 
 // AuthPage authenticates a page's handler.
-func (a *mw) AuthPage(h http.HandlerFunc) http.HandlerFunc {
+func (a *Middleware) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		htmxRedirect := contenttype.IsNoLayoutPage(r)
-		profile, err := a.authenticate(r)
+		sessionToken, err := a.authenticate(r)
 		authed := err == nil
-		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx := context.WithValue(r.Context(), CtxSessionTokenKey, sessionToken)
 
 		switch {
 		case authed && slices.Contains(noAuthPaths, r.URL.Path):
@@ -57,54 +57,49 @@ func (a *mw) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 }
 
 // OptionalAuthPage authenticates a page's handler optionally (without redirection).
-func (a *mw) OptionalAuthPage(h http.HandlerFunc) http.HandlerFunc {
+func (a *Middleware) OptionalAuthPage(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		profile, err := a.authenticate(r)
+		sessionToken, err := a.authenticate(r)
 		if err != nil {
 			h(w, r)
 			return
 		}
-		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx := context.WithValue(r.Context(), CtxSessionTokenKey, sessionToken)
 		h(w, r.WithContext(ctx))
 	}
 }
 
 // AuthApi authenticates an API's handler.
-func (a *mw) AuthApi(h http.HandlerFunc) http.HandlerFunc {
+func (a *Middleware) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		profile, err := a.authenticate(r)
+		sessionToken, err := a.authenticate(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx := context.WithValue(r.Context(), CtxSessionTokenKey, sessionToken)
 		h(w, r.WithContext(ctx))
 	}
 }
 
 // OptionalAuthApi authenticates a page's handler optionally (without 401).
-func (a *mw) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
+func (a *Middleware) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		profile, err := a.authenticate(r)
+		sessionToken, err := a.authenticate(r)
 		if err != nil {
 			h(w, r)
 			return
 		}
-		ctx := context.WithValue(r.Context(), ProfileIdKey, profile.Id)
+		ctx := context.WithValue(r.Context(), CtxSessionTokenKey, sessionToken)
 		h(w, r.WithContext(ctx))
 	}
 }
 
-func (a *mw) authenticate(r *http.Request) (entities.Profile, error) {
+func (a *Middleware) authenticate(r *http.Request) (string, error) {
 	sessionToken, err := r.Cookie(SessionTokenKey)
 	if err != nil {
-		return entities.Profile{}, err
+		return "", err
 	}
 
-	user, err := requests.GetRequestAuth[entities.Profile]("/v1/profile", sessionToken.Value)
-	if err != nil {
-		return entities.Profile{}, err
-	}
-
-	return user, nil
+	return sessionToken.Value, a.usecases.CheckAuth(sessionToken.Value)
 }

@@ -1,13 +1,13 @@
 package pages
 
 import (
-	"dankmuzikk-web/views/components/playlist"
-	"dankmuzikk-web/entities"
-	"dankmuzikk-web/views/components/song"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/page"
+	"dankmuzikk-web/views/components/playlist"
+	"dankmuzikk-web/views/components/song"
 )
 
-templ SearchResults(results []entities.Song) {
+templ SearchResults(results []actions.Song) {
 	if len(results) == 0 {
 		@page.Container(templ.NopComponent, noResultsHeader())
 	} else {
@@ -23,7 +23,7 @@ templ searchHeader() {
 	<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl", "mb-4" }>Search results</h1>
 }
 
-templ searchContent(results []entities.Song) {
+templ searchContent(results []actions.Song) {
 	<div
 		class={
 			"w-full", "overflow-y-scroll", "max-h-[55vh]", "md:max-h-[65vh]",
@@ -31,7 +31,7 @@ templ searchContent(results []entities.Song) {
 		}
 	>
 		for idx, res := range results {
-			@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId)}, entities.Playlist{})
+			@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId)}, actions.Playlist{})
 		}
 	</div>
 }

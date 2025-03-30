@@ -8,9 +8,12 @@ templ NewPlaylistPopover() {
 
 templ newPlaylistPopover() {
 	<form
+		_={ `on submit toggle .hidden on the closest <div/>
+        then
+        if #no-playlists remove #no-playlists` }
 		class={ "flex", "flex-col", "gap-3", "w-[250px]", "bg-accent-trans-30", "backdrop-blur-md", "p-3", "rounded-[5px]" }
 		hx-post="/api/playlist"
-		hx-swap="innerHTML"
+		hx-swap="beforeend"
 		hx-target="#playlists-listing"
 		hx-trigger="submit"
 		hx-ext="json-enc"

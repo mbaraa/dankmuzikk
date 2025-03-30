@@ -4,8 +4,9 @@ WORKDIR /app
 COPY . .
 
 RUN go install github.com/a-h/templ/cmd/templ@v0.3.857 &&\
-    apk add --no-cache make npm nodejs &&\
-    make
+    apk add --no-cache make
+
+RUN make
 
 FROM alpine:latest AS run
 

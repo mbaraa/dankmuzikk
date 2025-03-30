@@ -13,7 +13,7 @@ templ expandedMobilePlayerControls() {
 					"bg-repeat", "bg-cover", "bg-center",
 				}
 			>
-				<div class="loader !h-[30px] !w-[30px]"></div>
+				<div class="loader h-[30px]! w-[30px]!"></div>
 			</div>
 		</div>
 		<!-- details -->
@@ -47,7 +47,7 @@ templ expandedMobilePlayerControls() {
 				</svg>
 			</button>
 			<button id="play-expand" type="button" title="Play/Pause" disabled>
-				<div id="loading" class="loader !h-10 !w-10"></div>
+				<div id="loading" class="loader h-10! w-10!"></div>
 			</button>
 			<button id="next-expand" type="button" title="Next song" disabled>
 				<svg class={ "w-[50px]" } width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -120,7 +120,7 @@ templ expandedMobilePlayerLyrics() {
 			data-loading-class-remove="hidden"
 		></div>
 		<div id="lyrics-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
-			<div class={ "loader", "!h-20", "!w-20" }></div>
+			<div class={ "loader", "h-20!", "w-20!" }></div>
 		</div>
 	</div>
 }
