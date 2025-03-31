@@ -32,7 +32,7 @@ templ playlistHeader(pl actions.Playlist) {
 				id="play-playlist-button"
 				type="button"
 				title="Play playlist"
-				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl.PublicId) }
+				_={ fmt.Sprintf("on click call Player.playSongFromPlaylist('%s', '%s')", pl.Songs[0].YtId, pl.PublicId) }
 			>
 				@icons.PlayPlaylist()
 			</button>
@@ -108,17 +108,4 @@ func playedTimes(times int) string {
 	default:
 		return ""
 	}
-}
-
-script copyLink(isPublic bool) {
-    window.Utils.copyTextToClipboard(location.href)
-    if (isPublic) {
-        alert("Playlist's links was copied!");
-    } else {
-        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
-    }
-}
-
-script playSongFromPlaylist(songId, playlistPubId string) {
-    window.Player.playSongFromPlaylistId(songId, playlistPubId)
 }

@@ -170,15 +170,11 @@ templ playbackSpeedMenu() {
 				}
 				title={ fmt.Sprintf("Change playback speed to %.2f", speed) }
 				type="button"
-				onClick={ setPlaybackSpeed(speed) }
+				_={ fmt.Sprintf("on click Player.setPlaybackSpeed('%f')", speed) }
 			>
 				@icons.PlaybackSpeed()
 				x{ fmt.Sprint(speed) }
 			</button>
 		}
 	</div>
-}
-
-script setPlaybackSpeed(speed float32) {
-    window.Player.setPlaybackSpeed(speed)
 }

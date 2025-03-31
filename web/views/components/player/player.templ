@@ -6,7 +6,7 @@ templ PlayerSticky() {
 	<div id="muzikk" class="hidden">
 		<div
 			if ui.IsMobile(ctx) {
-				onClick={ expand() }
+				_="on click Player.expand()"
 			}
 			class={
 				"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
@@ -53,8 +53,4 @@ templ PlayerSticky() {
 	<script src="/static/js/player.js" lang="javascript"></script>
 	<script defer src="/static/js/player_icons.js" lang="javascript"></script>
 	<script defer src="/static/js/player_shortcuts.js" lang="javascript"></script>
-}
-
-script expand() {
-    Player.expand();
 }

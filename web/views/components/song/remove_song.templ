@@ -3,6 +3,7 @@ package song
 import (
 	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/icons"
+	"fmt"
 )
 
 templ RemoveSong(song actions.Song, playlistId string) {
@@ -14,14 +15,10 @@ templ RemoveSong(song actions.Song, playlistId string) {
 			}
 			title={ "Remove " + song.Title + "!" }
 			type="button"
-			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+			_={ fmt.Sprintf("on click Player.removeSongFromPlaylist('%s', '%s')", song.YtId, playlistId) }
 		>
 			@icons.Trash()
 			<span>Remove from playlist</span>
 		</button>
 	}
-}
-
-script removeSongFromPlaylist(songId, playlistId string) {
-    Player.removeSongFromPlaylist(songId, playlistId);
 }
