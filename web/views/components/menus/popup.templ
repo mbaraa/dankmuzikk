@@ -18,9 +18,7 @@ templ Popup(id, title string, button, child templ.Component) {
 		id={ fmt.Sprintf("popup-%s", id) }
 		class={ "bg-[#ffffff00]" }
 	>
-		<form
-			class={  }
-		>
+		<form>
 			<div class={ "w-full","flex", "justify-end" }>
 				<button
 					formmethod="dialog"

@@ -25,7 +25,16 @@ templ SearchSuggestions(suggestions []string, originalQuery string) {
 					data-loading-path={ fmt.Sprintf("/search?no_layout=true&query=%s", suggestion) }
 					class={ "w-full", "p-[10px]", "no-underline" }
 					id={ fmt.Sprintf("search-suggestion-%d", i) }
-					hx-on::after-request={ searchNoRealod(suggestion) }
+					_="
+                        on keydown
+                            call Search.moveInSuggestions(event)
+                        end
+                        on htmx:afterRequest
+                            put '' into #search-suggestions-container then
+                            call #search-form.blur() then
+                            call #search-input.blur()
+                        end
+                    "
 				>
 					if len(suggestion) <= len(originalQuery) {
 						<span><b>{ suggestion }</b></span>
@@ -38,8 +47,4 @@ templ SearchSuggestions(suggestions []string, originalQuery string) {
 			</li>
 		}
 	</ul>
-}
-
-script searchNoRealod(searchQuery string) {
-    window.Search.searchNoReload(searchQuery);
 }

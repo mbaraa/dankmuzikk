@@ -22,7 +22,7 @@ templ playlistSelector(songId string) {
 		hx-get={ "/api/playlist/all?song-id=" + songId }
 		hx-swap="outerHTML"
 		hx-trigger="intersect"
-		hx-on::error={ showNoPlaylists("playlists-" + songId) }
+		_="on htmx:error put 'No playlists were found!' into me"
 	>
 		<div id="playlist-loading" class={ "w-full", "flex", "flex-col", "items-center", "justify-center" }>
 			<div class={ "loader", "!h-20", "!w-20" }></div>
@@ -95,8 +95,4 @@ templ popupButton() {
 		@icons.AddToPlaytlist()
 		<span>Save to a playlist</span>
 	</div>
-}
-
-script showNoPlaylists(id string) {
-    document.getElementById(id).innerHTML = "No playlists were found!";
 }

@@ -36,7 +36,15 @@ templ playlistOptions(playlist actions.Playlist) {
 			}
 			title="Copy link to this playlist"
 			type="button"
-			onClick={ copyLink(playlist.IsPublic, playlist.PublicId) }
+			_={ fmt.Sprintf(`on click
+                call Utils.copyTextToClipboard(%s)
+                js
+                    if (%v) {
+                        alert("Playlist's links was copied!");
+                    } else {
+                        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
+                    }
+                end`, playlist.PublicId,playlist.IsPublic) }
 		>
 			@icons.ShareLink()
 			<span>Share playlist</span>
@@ -211,13 +219,4 @@ script addToQueue(plPubId string) {
 
 script downloadPlaylist(plId, title string) {
     Player.downloadPlaylistToDevice(plId, title)
-}
-
-script copyLink(isPublic bool, plPubId string) {
-    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/playlist/${plPubId}`)
-    if (isPublic) {
-        alert("Playlist's links was copied!");
-    } else {
-        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
-    }
 }

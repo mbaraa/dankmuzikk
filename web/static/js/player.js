@@ -1023,6 +1023,7 @@ function setDuration(duration) {
 }
 
 function loadSongLyrics() {
+  console.log("loading lyrics");
   if (playerState.lyricsLoaded) {
     return;
   }
