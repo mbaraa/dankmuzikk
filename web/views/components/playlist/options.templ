@@ -39,11 +39,7 @@ templ playlistOptions(playlist actions.Playlist) {
 			_={ fmt.Sprintf(`on click
                 call Utils.copyTextToClipboard(%s)
                 js
-                    if (%v) {
-                        alert("Playlist's links was copied!");
-                    } else {
-                        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
-                    }
+                    alert("Playlist's links was copied!" + (%v ? "": "\nMake sure to make it public before sharing the link 😁"))
                 end`, playlist.PublicId,playlist.IsPublic) }
 		>
 			@icons.ShareLink()
