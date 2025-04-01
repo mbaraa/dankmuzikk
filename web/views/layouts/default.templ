@@ -71,10 +71,10 @@ templ Default(props PageProps, children ...templ.Component) {
 			<link defer href="/static/css/refresher.css" rel="stylesheet"/>
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
 			<link href={ fmt.Sprintf("/static/css/themes/%s.css", ctx.Value("theme-name").(string)) } rel="stylesheet"/>
-			<script src="/static/js/htmx/htmx.min.js"></script>
+			<script defer src="/static/js/htmx/htmx.min.js"></script>
 			<script defer src="/static/js/htmx/json-enc.js"></script>
 			<script defer src="/static/js/htmx/loading-states.js"></script>
-			<script src="/static/js/htmx/hyperscript.min.js"></script>
+			<script defer src="/static/js/htmx/hyperscript.min.js"></script>
 		</head>
 		<body
 			hx-ext="loading-states"
@@ -108,10 +108,10 @@ templ Default(props PageProps, children ...templ.Component) {
 			@icons.IconsLoader()
 			<input id="clipboard-text-blyat" type="text" hidden/>
 			//
-			<script src="/static/js/utils.js"></script>
-			<script src="/static/js/router.js"></script>
-			<script src="/static/js/refresher.js"></script>
-			<script src="/static/js/theme.js"></script>
+			<script defer src="/static/js/utils.js"></script>
+			<script defer src="/static/js/router.js"></script>
+			<script defer src="/static/js/refresher.js"></script>
+			<script defer src="/static/js/theme.js"></script>
 			<script type="module">
 			    function registerServiceWorkers() {
 			    	if (!("serviceWorker" in navigator)) {
