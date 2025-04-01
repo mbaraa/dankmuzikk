@@ -15,6 +15,7 @@ import (
 	"embed"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/minify/v2/css"
@@ -53,10 +54,34 @@ func init() {
 
 func main() {
 	pagesHandler := http.NewServeMux()
-	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
-		pagesHandler.Handle("/static/", http.FileServer(http.FS(static)))
+	if config.Env().GoEnv == "prod" {
+		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch {
+			case strings.HasPrefix(r.URL.Path, "/static/js"):
+				w.Header().Set("Cache-Control", "public, max-age=7200, stale-while-revalidate=5")
+			case strings.HasPrefix(r.URL.Path, "/static/css"):
+				w.Header().Set("Cache-Control", "public, max-age=7200, stale-while-revalidate=5")
+			default:
+				w.Header().Set("Cache-Control", "public, max-age=86400, stale-while-revalidate=5")
+			}
+
+			minifyer.Middleware(http.FileServer(http.FS(static))).
+				ServeHTTP(w, r)
+		}))
 	} else {
-		pagesHandler.Handle("/static/", minifyer.Middleware(http.FileServer(http.FS(static))))
+		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch {
+			case strings.HasPrefix(r.URL.Path, "/static/js"):
+				w.Header().Set("Cache-Control", "public, max-age=300, stale-while-revalidate=5")
+			case strings.HasPrefix(r.URL.Path, "/static/css"):
+				w.Header().Set("Cache-Control", "public, max-age=600, stale-while-revalidate=5")
+			default:
+				w.Header().Set("Cache-Control", "public, max-age=3600, stale-while-revalidate=5")
+			}
+
+			http.FileServer(http.FS(static)).
+				ServeHTTP(w, r)
+		}))
 	}
 	pagesHandler.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		robotsFile, _ := static.ReadFile("static/robots.txt")
