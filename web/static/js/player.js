@@ -1,39 +1,6 @@
 "use strict";
 
-// collapsed player's elements
-const playPauseToggleEl = document.getElementById("play"),
-  shuffleEl = document.getElementById("shuffle"),
-  nextEl = document.getElementById("next"),
-  prevEl = document.getElementById("prev"),
-  loopEl = document.getElementById("loop"),
-  songNameEl = document.getElementById("song-name"),
-  artistNameEl = document.getElementById("artist-name"),
-  songSeekBarEl = document.getElementById("song-seek-bar"),
-  volumeSeekBarEl = document.getElementById("volume-seek-bar"),
-  songDurationEl = document.getElementById("song-duration"),
-  songCurrentTimeEl = document.getElementById("song-current-time"),
-  songImageEl = document.getElementById("song-image"),
-  audioPlayerEl = document.getElementById("audio-player"),
-  muzikkContainerEl = document.getElementById("muzikk"),
-  playerEl = document.getElementById("ze-player"),
-  collapsedMobilePlayer = document.getElementById("ze-collapsed-mobile-player");
-
-// expanded player's elements
-const playPauseToggleExapndedEl = document.getElementById("play-expand"),
-  shuffleExpandEl = document.getElementById("shuffle-expand"),
-  nextExpandEl = document.getElementById("next-expand"),
-  prevExpandEl = document.getElementById("prev-expand"),
-  loopExpandEl = document.getElementById("loop-expand"),
-  songNameExpandedEl = document.getElementById("song-name-expanded"),
-  artistNameExpandedEl = document.getElementById("artist-name-expanded"),
-  songSeekBarExpandedEl = document.getElementById("song-seek-bar-expanded"),
-  volumeSeekBarExpandedEl = document.getElementById("volume-seek-bar-expanded"),
-  songDurationExpandedEl = document.getElementById("song-duration-expanded"),
-  songCurrentTimeExpandedEl = document.getElementById(
-    "song-current-time-expanded",
-  ),
-  songImageExpandedEl = document.getElementById("song-image-expanded"),
-  expandedMobilePlayer = document.getElementById("ze-expanded-mobile-player");
+const audioPlayerEl = document.getElementById("muzikk-player");
 
 /**
  * @typedef {object} Song
@@ -111,18 +78,15 @@ function looper() {
     } else {
       currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
     }
-    const icon =
-      Player.icons[
-        loopModes[currentLoopIdx] === LOOP_MODES.ALL
-          ? "loop"
-          : loopModes[currentLoopIdx] === LOOP_MODES.ONCE
-            ? "loopOnce"
-            : loopModes[currentLoopIdx] === LOOP_MODES.OFF
-              ? "loopOff"
-              : "loopOff"
-      ];
-    setPlayerButtonIcon(loopEl, icon);
-    setPlayerButtonIcon(loopExpandEl, icon);
+    if (__check(LOOP_MODES.ONCE)) {
+      PlayerUI.setLoopOnce();
+    } else if (__check(LOOP_MODES.ALL)) {
+      PlayerUI.setLoopAll();
+    } else if (__check(LOOP_MODES.OFF)) {
+      PlayerUI.setLoopOff();
+    } else {
+      PlayerUI.setLoopOff();
+    }
   };
 
   const __handle = () => {
@@ -153,34 +117,6 @@ function looper() {
 
   return [__toggle, __handle, __check];
 }
-/**
- * @param {HTMLElement} el
- * @param {string} icon
- */
-const setPlayerButtonIcon = (el, icon) => {
-  if (!!el && !!icon) {
-    el.innerHTML = icon;
-  }
-};
-
-/**
- * @param {boolean} loading
- * @param {string} fallback is used when loading is false, that is to reset
- *     the loading thingy
- */
-function setLoading(loading, fallback) {
-  if (loading) {
-    setPlayerButtonIcon(playPauseToggleEl, Player.icons.loading);
-    setPlayerButtonIcon(playPauseToggleExapndedEl, Player.icons.loading);
-    document.body.style.cursor = "progress";
-    return;
-  }
-  if (fallback) {
-    setPlayerButtonIcon(playPauseToggleEl, fallback);
-    setPlayerButtonIcon(playPauseToggleExapndedEl, fallback);
-  }
-  document.body.style.cursor = "auto";
-}
 
 /**
  * @param {HTMLAudioElement} audioEl
@@ -191,19 +127,14 @@ function playPauser(audioEl) {
   const __play = () => {
     audioEl.muted = null;
     audioEl.play();
-    const songEl = document.getElementById(
-      "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
+    PlayerUI.highlightSong(
+      playerState.playlist.songs[playerState.currentSongIdx].yt_id,
     );
-    if (!!songEl) {
-      songEl.style.backgroundColor = "var(--accent-color-30)";
-    }
-    setPlayerButtonIcon(playPauseToggleEl, Player.icons.pause);
-    setPlayerButtonIcon(playPauseToggleExapndedEl, Player.icons.pause);
+    PlayerUI.setPauseIcon();
   };
   const __pause = () => {
     audioEl.pause();
-    setPlayerButtonIcon(playPauseToggleEl, Player.icons.play);
-    setPlayerButtonIcon(playPauseToggleExapndedEl, Player.icons.play);
+    PlayerUI.setPlayIcon();
   };
   const __toggle = () => {
     if (audioEl.paused) {
@@ -224,14 +155,10 @@ function stopper(audioEl) {
   return () => {
     audioEl.pause();
     audioEl.currentTime = 0;
-    const songEl = document.getElementById(
-      "song-" + playerState.playlist.songs[playerState.currentSongIdx].yt_id,
+    PlayerUI.unHighlightSong(
+      playerState.playlist.songs[playerState.currentSongIdx].yt_id,
     );
-    if (!!songEl) {
-      songEl.style.backgroundColor = "#ffffff00";
-    }
-    setPlayerButtonIcon(playPauseToggleEl, Player.icons.play);
-    setPlayerButtonIcon(playPauseToggleExapndedEl, Player.icons.play);
+    PlayerUI.setPlayIcon();
   };
 }
 
@@ -309,14 +236,11 @@ function shuffler(state) {
         );
       }
     }
-    setPlayerButtonIcon(
-      shuffleEl,
-      state.shuffled ? Player.icons.shuffle : Player.icons.shuffleOff,
-    );
-    setPlayerButtonIcon(
-      shuffleExpandEl,
-      state.shuffled ? Player.icons.shuffle : Player.icons.shuffleOff,
-    );
+    if (state.shuffled) {
+      PlayerUI.setShuffleOn();
+    } else {
+      PlayerUI.setShuffleOff();
+    }
   };
 
   return [__shuffle, __toggleShuffle];
@@ -328,32 +252,13 @@ function shuffler(state) {
  * @returns {[Function, Function, Function, Function]}
  */
 function playlister(state) {
-  /**
-   * @param {string} songYtId
-   * @param {Playlist} playlist
-   */
-  const __setSongInPlaylistStyle = (songYtId, playlist) => {
-    for (const _song of playlist.songs) {
-      const songEl = document.getElementById("song-" + _song.yt_id);
-      if (!songEl) {
-        continue;
-      }
-      if (songYtId === _song.yt_id) {
-        songEl.style.backgroundColor = "var(--accent-color-30)";
-        songEl.scrollIntoView();
-      } else {
-        songEl.style.backgroundColor = "#ffffff00";
-      }
-    }
-  };
-
   const __next = async () => {
     if (checkLoop(LOOP_MODES.ONCE)) {
       stopMuzikk();
       playMuzikk();
       return;
     }
-    // chack votes to whether repeat the song or not.
+    // check votes to whether repeat the song or not.
     if (
       state.playlist.songs[state.currentSongIdx].votes > 1 &&
       !state.shuffled
@@ -362,7 +267,10 @@ function playlister(state) {
       songToPlay.votes--;
       songToPlay.plays++;
       playSongFromPlaylist(songToPlay.yt_id, state.playlist);
-      __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
+      PlayerUI.highlightSongInPlaylist(
+        songToPlay.yt_id,
+        state.playlist.songs.map((s) => s.yt_id),
+      );
       return;
     }
 
@@ -387,9 +295,11 @@ function playlister(state) {
         ? 0
         : state.currentSongIdx + 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
-    await highlightSongInPlaylist(songToPlay.yt_id, state.playlist);
+    PlayerUI.highlightSongInPlaylist(
+      songToPlay.yt_id,
+      state.playlist.songs.map((s) => s.yt_id),
+    );
     await playSong(songToPlay);
-    __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
   const __prev = async () => {
@@ -407,7 +317,10 @@ function playlister(state) {
       songToPlay.votes--;
       songToPlay.plays++;
       playSongFromPlaylist(songToPlay.yt_id, state.playlist);
-      __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
+      PlayerUI.highlightSongInPlaylist(
+        songToPlay.yt_id,
+        state.playlist.songs.map((s) => s.yt_id),
+      );
       return;
     }
     if (!checkLoop(LOOP_MODES.ALL) && state.currentSongIdx - 1 < 0) {
@@ -426,9 +339,11 @@ function playlister(state) {
         ? state.playlist.songs.length - 1
         : state.currentSongIdx - 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
-    await highlightSongInPlaylist(songToPlay.yt_id, state.playlist);
+    PlayerUI.highlightSongInPlaylist(
+      songToPlay.yt_id,
+      state.playlist.songs.map((s) => s.yt_id),
+    );
     await playSong(songToPlay);
-    __setSongInPlaylistStyle(songToPlay.yt_id, state.playlist);
   };
 
   const __remove = (songYtId, playlistId) => {
@@ -452,6 +367,7 @@ function playlister(state) {
     )
       .then((res) => {
         if (res.ok) {
+          // TODO: do something about this UI leak
           const songEl = document.getElementById("song-" + songYtId);
           if (!!songEl) {
             songEl.remove();
@@ -468,7 +384,7 @@ function playlister(state) {
       });
   };
 
-  return [__next, __prev, __remove, __setSongInPlaylistStyle];
+  return [__next, __prev, __remove];
 }
 
 function volumer() {
@@ -480,12 +396,7 @@ function volumer() {
       level = 0;
     }
     audioPlayerEl.volume = level;
-    if (volumeSeekBarEl) {
-      volumeSeekBarEl.value = Math.floor(level * 100);
-    }
-    if (volumeSeekBarExpandedEl) {
-      volumeSeekBarExpandedEl.value = Math.floor(level * 100);
-    }
+    PlayerUI.setVolumeLevel(level);
   };
 
   const __muter = () => {
@@ -580,38 +491,14 @@ async function downloadPlaylistToDevice(plPubId, plTitle) {
     });
 }
 
-function show() {
-  muzikkContainerEl.style.display = "block";
-}
-
-function hide() {
-  muzikkContainerEl.style.display = "none";
-}
-
-function expand() {
-  if (!playerEl.classList.contains("exapnded")) {
-    playerEl.classList.add("exapnded");
-    collapsedMobilePlayer.classList.add("hidden");
-    expandedMobilePlayer.classList.remove("hidden");
-  }
-}
-
-function collapse() {
-  if (playerEl.classList.contains("exapnded")) {
-    playerEl.classList.remove("exapnded");
-    collapsedMobilePlayer.classList.remove("hidden");
-    expandedMobilePlayer.classList.add("hidden");
-  }
-}
-
 /**
  * @param {Song} song
  */
 async function playSong(song) {
   playerState.lyricsLoaded = false;
 
-  setLoading(true);
-  show();
+  PlayerUI.setLoadingOn();
+  PlayerUI.show();
 
   let resp = await downloadSong(song.yt_id);
   if (!resp.ok) {
@@ -633,46 +520,9 @@ async function playSong(song) {
   }
   audioPlayerEl.load();
 
-  // song's details setting, yada yada
-  {
-    if (song.title) {
-      songNameEl.innerHTML = song.title;
-      songNameEl.title = song.title;
-      if (song.title.length > Utils.getTextWidth()) {
-        songNameEl.parentElement.classList.add("marquee");
-      } else {
-        songNameEl.parentElement.classList.remove("marquee");
-      }
-
-      if (songNameExpandedEl) {
-        songNameExpandedEl.innerHTML = song.title;
-        songNameExpandedEl.title = song.title;
-        if (song.title.length > Utils.getTextWidth()) {
-          songNameExpandedEl.parentElement.classList.add("marquee");
-        } else {
-          songNameExpandedEl.parentElement.classList.remove("marquee");
-        }
-      }
-    }
-    if (song.artist) {
-      if (!!artistNameEl) {
-        artistNameEl.innerHTML = song.artist;
-        artistNameEl.title = song.artist;
-      }
-
-      if (artistNameExpandedEl) {
-        artistNameExpandedEl.innerHTML = song.artist;
-        artistNameExpandedEl.title = song.artist;
-      }
-    }
-    songImageEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
-    songImageEl.innerHTML = "";
-
-    if (songImageExpandedEl) {
-      songImageExpandedEl.style.backgroundImage = `url("${song.thumbnail_url}")`;
-      songImageExpandedEl.innerHTML = "";
-    }
-  }
+  PlayerUI.setSongName(song.title);
+  PlayerUI.setArtistName(song.artist);
+  PlayerUI.setSongThumbnail(song.thumbnail_url);
   setMediaSessionMetadata(song);
   playMuzikk();
 }
@@ -868,7 +718,10 @@ async function playSongFromPlaylist(songYtId, playlist) {
     playerState.currentSongIdx++;
   }
   const songToPlay = playlist.songs[playerState.currentSongIdx];
-  await highlightSongInPlaylist(songToPlay.yt_id, playlist);
+  PlayerUI.highlightSongInPlaylist(
+    songToPlay.yt_id,
+    state.playlist.songs.map((s) => s.yt_id),
+  );
   await playSong(songToPlay);
 }
 
@@ -948,35 +801,34 @@ const [toggleLoop, handleLoop, checkLoop] = looper();
 const [playMuzikk, pauseMuzikk, togglePP] = playPauser(audioPlayerEl);
 const stopMuzikk = stopper(audioPlayerEl);
 const [shuffle, toggleShuffle] = shuffler(playerState);
-const [
-  nextMuzikk,
-  previousMuzikk,
-  removeSongFromPlaylist,
-  highlightSongInPlaylist,
-] = playlister(playerState);
+const [nextMuzikk, previousMuzikk, removeSongFromPlaylist] =
+  playlister(playerState);
 const [setVolume, mute] = volumer();
 const [setPlaybackSpeed] = playebackSpeeder();
 
-playPauseToggleEl.addEventListener("click", (event) => {
+PlayerUI.__elements.playPauseToggleEl.addEventListener("click", (event) => {
   event.stopImmediatePropagation();
   event.preventDefault();
   togglePP();
 });
 
-playPauseToggleExapndedEl?.addEventListener("click", (event) => {
-  event.stopImmediatePropagation();
-  event.preventDefault();
-  togglePP();
-});
+PlayerUI.__elements.playPauseToggleExapndedEl?.addEventListener(
+  "click",
+  (event) => {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+    togglePP();
+  },
+);
 
-nextEl?.addEventListener("click", nextMuzikk);
-nextExpandEl?.addEventListener("click", nextMuzikk);
-prevEl?.addEventListener("click", previousMuzikk);
-prevExpandEl?.addEventListener("click", previousMuzikk);
-shuffleEl?.addEventListener("click", toggleShuffle);
-shuffleExpandEl?.addEventListener("click", toggleShuffle);
-loopEl?.addEventListener("click", toggleLoop);
-loopExpandEl?.addEventListener("click", toggleLoop);
+PlayerUI.__elements.nextEl?.addEventListener("click", nextMuzikk);
+PlayerUI.__elements.nextExpandEl?.addEventListener("click", nextMuzikk);
+PlayerUI.__elements.prevEl?.addEventListener("click", previousMuzikk);
+PlayerUI.__elements.prevExpandEl?.addEventListener("click", previousMuzikk);
+PlayerUI.__elements.shuffleEl?.addEventListener("click", toggleShuffle);
+PlayerUI.__elements.shuffleExpandEl?.addEventListener("click", toggleShuffle);
+PlayerUI.__elements.loopEl?.addEventListener("click", toggleLoop);
+PlayerUI.__elements.loopExpandEl?.addEventListener("click", toggleLoop);
 
 (() => {
   const __handler = (e) => {
@@ -986,8 +838,11 @@ loopExpandEl?.addEventListener("click", toggleLoop);
     audioPlayerEl.currentTime = seekTime;
   };
   for (const event of ["change", "click"]) {
-    songSeekBarEl?.addEventListener(event, __handler);
-    songSeekBarExpandedEl?.addEventListener(event, __handler);
+    PlayerUI.__elements.songSeekBarEl?.addEventListener(event, __handler);
+    PlayerUI.__elements.songSeekBarExpandedEl?.addEventListener(
+      event,
+      __handler,
+    );
   }
 })();
 
@@ -999,28 +854,13 @@ loopExpandEl?.addEventListener("click", toggleLoop);
     audioPlayerEl.volume = volume;
   };
   for (const event of ["change", "click"]) {
-    volumeSeekBarEl?.addEventListener(event, __handler);
-    volumeSeekBarExpandedEl?.addEventListener(event, __handler);
+    PlayerUI.__elements.volumeSeekBarEl?.addEventListener(event, __handler);
+    PlayerUI.__elements.volumeSeekBarExpandedEl?.addEventListener(
+      event,
+      __handler,
+    );
   }
 })();
-
-function setDuration(duration) {
-  if (Number.isNaN(duration) || !Number.isFinite(duration)) {
-    duration = 0;
-  }
-  songSeekBarEl.max = Math.ceil(duration);
-  songSeekBarEl.value = 0;
-  if (!!songSeekBarExpandedEl) {
-    songSeekBarExpandedEl.max = Math.ceil(duration);
-    songSeekBarExpandedEl.value = 0;
-  }
-  if (!!songDurationEl) {
-    songDurationEl.innerHTML = Utils.formatTime(duration);
-  }
-  if (!!songDurationExpandedEl) {
-    songDurationExpandedEl.innerHTML = Utils.formatTime(duration);
-  }
-}
 
 function loadSongLyrics() {
   console.log("loading lyrics");
@@ -1044,39 +884,14 @@ function loadSongLyrics() {
 }
 
 audioPlayerEl.addEventListener("loadeddata", (event) => {
-  if (!!playPauseToggleEl) playPauseToggleEl.disabled = null;
-  if (!!playPauseToggleExapndedEl) playPauseToggleExapndedEl.disabled = null;
-  if (!!shuffleEl) shuffleEl.disabled = null;
-  if (!!shuffleExpandEl) shuffleExpandEl.disabled = null;
-  if (!!nextEl) nextEl.disabled = null;
-  if (!!nextExpandEl) nextExpandEl.disabled = null;
-  if (!!prevEl) prevEl.disabled = null;
-  if (!!prevExpandEl) prevExpandEl.disabled = null;
-  if (!!loopEl) loopEl.disabled = null;
-  if (!!loopExpandEl) loopExpandEl.disabled = null;
+  PlayerUI.enableButtons();
+  PlayerUI.setSongDuration(event.target.duration);
 
-  setDuration(event.target.duration);
-
-  setLoading(false, Player.icons.pause);
+  PlayerUI.setLoadingOff();
 });
 
 audioPlayerEl.addEventListener("timeupdate", (event) => {
-  const currentTime = Math.floor(event.target.currentTime);
-  if (isSafari()) {
-    // setDuration(currentTime);
-  }
-  if (songCurrentTimeEl) {
-    songCurrentTimeEl.innerHTML = Utils.formatTime(currentTime);
-  }
-  if (songCurrentTimeExpandedEl) {
-    songCurrentTimeExpandedEl.innerHTML = Utils.formatTime(currentTime);
-  }
-  if (songSeekBarEl) {
-    songSeekBarEl.value = Math.ceil(currentTime);
-  }
-  if (songSeekBarExpandedEl) {
-    songSeekBarExpandedEl.value = Math.ceil(currentTime);
-  }
+  PlayerUI.setSongCurrentTime(event.target.currentTime);
 });
 
 audioPlayerEl.addEventListener("ended", () => {
@@ -1086,42 +901,6 @@ audioPlayerEl.addEventListener("ended", () => {
 audioPlayerEl.addEventListener("progress", () => {
   console.log("downloading...");
 });
-
-let playerStartY = 0;
-
-playerEl?.addEventListener(
-  "touchstart",
-  (e) => {
-    playerStartY = e.touches[0].pageY;
-  },
-  { passive: true },
-);
-
-playerEl?.addEventListener(
-  "touchmove",
-  async (e) => {
-    const y = e.touches[0].pageY;
-    if (y > playerStartY + 75) {
-      collapse();
-    }
-    if (y < playerStartY - 25) {
-      expand();
-    }
-  },
-  { passive: true },
-);
-
-document
-  .getElementById("expanded-mobile-player-lyrics")
-  ?.addEventListener("touchmove", (event) => {
-    event.stopImmediatePropagation();
-  });
-
-document
-  .getElementById("expanded-mobile-player-queue")
-  ?.addEventListener("touchmove", (event) => {
-    event.stopImmediatePropagation();
-  });
 
 (() => {
   if (!("mediaSession" in navigator)) {
@@ -1175,26 +954,23 @@ document
   });
 })();
 
-window.Player = {};
-window.Player.downloadSongToDevice = downloadSongToDevice;
-window.Player.downloadPlaylistToDevice = downloadPlaylistToDevice;
-window.Player.showPlayer = show;
-window.Player.hidePlayer = hide;
-window.Player.playSingleSong = playSingleSong;
-window.Player.playSingleSongId = playSingleSongId;
-window.Player.playSingleSongNext = playSingleSongNext;
-window.Player.playSingleSongNextId = playSingleSongNextId;
-window.Player.playSongFromPlaylist = playSongFromPlaylist;
-window.Player.playSongFromPlaylistId = playSongFromPlaylistId;
-window.Player.playPlaylistNext = playPlaylistNext;
-window.Player.playPlaylistNextId = playPlaylistNextId;
-window.Player.removeSongFromPlaylist = removeSongFromPlaylist;
-window.Player.addSongToQueue = appendSongToCurrentQueue;
-window.Player.addSongToQueueId = appendSongToCurrentQueueId;
-window.Player.appendPlaylistToCurrentQueue = appendPlaylistToCurrentQueue;
-window.Player.appendPlaylistToCurrentQueueId = appendPlaylistToCurrentQueueId;
-window.Player.stopMuzikk = stopMuzikk;
-window.Player.setPlaybackSpeed = setPlaybackSpeed;
-window.Player.expand = () => expand();
-window.Player.collapse = () => collapse();
-window.Player.loadSongLyrics = loadSongLyrics;
+window.Player = {
+  downloadSongToDevice,
+  downloadPlaylistToDevice,
+  playSingleSong,
+  playSingleSongId,
+  playSingleSongNext,
+  playSingleSongNextId,
+  playSongFromPlaylist,
+  playSongFromPlaylistId,
+  playPlaylistNext,
+  playPlaylistNextId,
+  removeSongFromPlaylist,
+  addSongToQueue: appendSongToCurrentQueue,
+  addSongToQueueId: appendSongToCurrentQueueId,
+  appendPlaylistToCurrentQueue,
+  appendPlaylistToCurrentQueueId,
+  stopMuzikk,
+  setPlaybackSpeed,
+  loadSongLyrics,
+};

@@ -139,6 +139,7 @@ async function retryer(func, times = 3) {
   try {
     return await func();
   } catch (err) {
+    console.error(err);
     if (times > 0) {
       console.log("retrying ", times);
       await sleep(3500);

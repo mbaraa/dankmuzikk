@@ -6,7 +6,7 @@ templ PlayerSticky() {
 	<div id="muzikk" class="hidden">
 		<div
 			if ui.IsMobile(ctx) {
-				_="on click Player.expand()"
+				_="on click PlayerUI.expandMobilePlayer()"
 			}
 			class={
 				"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
@@ -33,7 +33,7 @@ templ PlayerSticky() {
 	</div>
 	<audio
 		class="hidden"
-		id="audio-player"
+		id="muzikk-player"
 		controls
 		preload="none"
 		muted
@@ -50,6 +50,7 @@ templ PlayerSticky() {
         }
     </style>
 	///
+	<script src="/static/js/player_ui.js" lang="javascript"></script>
 	<script src="/static/js/player.js" lang="javascript"></script>
 	<script defer src="/static/js/player_icons.js" lang="javascript"></script>
 	<script defer src="/static/js/player_shortcuts.js" lang="javascript"></script>

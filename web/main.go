@@ -54,7 +54,8 @@ func init() {
 
 func main() {
 	pagesHandler := http.NewServeMux()
-	if config.Env().GoEnv == "prod" {
+	switch config.Env().GoEnv {
+	case "prod":
 		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			switch {
 			case strings.HasPrefix(r.URL.Path, "/static/js"):
@@ -68,21 +69,29 @@ func main() {
 			minifyer.Middleware(http.FileServer(http.FS(static))).
 				ServeHTTP(w, r)
 		}))
-	} else {
+	case "beta":
 		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch {
-			case strings.HasPrefix(r.URL.Path, "/static/js"):
-				w.Header().Set("Cache-Control", "public, max-age=300, stale-while-revalidate=5")
-			case strings.HasPrefix(r.URL.Path, "/static/css"):
-				w.Header().Set("Cache-Control", "public, max-age=600, stale-while-revalidate=5")
-			default:
-				w.Header().Set("Cache-Control", "public, max-age=3600, stale-while-revalidate=5")
+			if config.Env().GoEnv != "dev" {
+				switch {
+				case strings.HasPrefix(r.URL.Path, "/static/js"):
+					w.Header().Set("Cache-Control", "public, max-age=300, stale-while-revalidate=5")
+				case strings.HasPrefix(r.URL.Path, "/static/css"):
+					w.Header().Set("Cache-Control", "public, max-age=600, stale-while-revalidate=5")
+				default:
+					w.Header().Set("Cache-Control", "public, max-age=3600, stale-while-revalidate=5")
+				}
 			}
 
 			http.FileServer(http.FS(static)).
 				ServeHTTP(w, r)
 		}))
+	default:
+		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.FileServer(http.FS(static)).
+				ServeHTTP(w, r)
+		}))
 	}
+
 	pagesHandler.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		robotsFile, _ := static.ReadFile("static/robots.txt")
 		w.Header().Set("Content-Type", "text/plain")
