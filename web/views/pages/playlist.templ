@@ -32,7 +32,7 @@ templ playlistHeader(pl actions.Playlist) {
 				id="play-playlist-button"
 				type="button"
 				title="Play playlist"
-				_={ fmt.Sprintf("on click call Player.playSongFromPlaylist('%s', '%s')", pl.Songs[0].YtId, pl.PublicId) }
+				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
 			>
 				@icons.PlayPlaylist()
 			</button>
@@ -108,4 +108,8 @@ func playedTimes(times int) string {
 	default:
 		return ""
 	}
+}
+
+script playSongFromPlaylist(songPublicId string, playlist actions.Playlist) {
+    Player.playSongFromPlaylist(songPublicId, playlist)
 }
