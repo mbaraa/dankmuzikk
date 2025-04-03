@@ -136,6 +136,8 @@ func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	log.Warningln(playlist)
+
 	_ = json.NewEncoder(w).Encode(playlist)
 }
 

@@ -499,7 +499,7 @@ func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song],
 	for rows.Next() {
 		var song models.Song
 		var addedAt time.Time
-		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.Duration, &addedAt)
+		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt)
 		if err != nil {
 			continue
 		}
@@ -532,7 +532,7 @@ func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song
 	for rows.Next() {
 		var song models.Song
 		var addedAt time.Time
-		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.Duration, &addedAt, &song.PlayTimes, &song.Votes)
+		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt, &song.PlayTimes, &song.Votes)
 		if err != nil {
 			continue
 		}

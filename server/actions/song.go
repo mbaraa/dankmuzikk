@@ -9,18 +9,19 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
 )
 
 type Song struct {
-	PublicId        string `json:"public_id"`
-	Title           string `json:"title"`
-	Artist          string `json:"artist"`
-	ThumbnailUrl    string `json:"thumbnail_url"`
-	Duration        string `json:"duration"`
-	PlayTimes       int    `json:"play_times,omitempty"`
-	Votes           int    `json:"votes,omitempty"`
-	AddedAt         string `json:"added_at,omitempty"`
-	FullyDownloaded bool   `json:"fully_downloaded"`
+	PublicId        string        `json:"public_id"`
+	Title           string        `json:"title"`
+	Artist          string        `json:"artist"`
+	ThumbnailUrl    string        `json:"thumbnail_url"`
+	Duration        time.Duration `json:"duration"`
+	PlayTimes       int           `json:"play_times,omitempty"`
+	Votes           int           `json:"votes,omitempty"`
+	AddedAt         string        `json:"added_at,omitempty"`
+	FullyDownloaded bool          `json:"fully_downloaded"`
 }
 
 type GetSongByPublicIdParams struct {
@@ -46,7 +47,7 @@ func (a *Actions) GetSongByPublicId(params GetSongByPublicIdParams) (Song, error
 					Title:           s.Title,
 					Artist:          s.Artist,
 					ThumbnailUrl:    fmt.Sprintf("%s/pix/%s.webp", config.CdnAddress(), s.PublicId),
-					Duration:        s.Duration,
+					RealDuration:    s.Duration,
 					FullyDownloaded: false,
 				}
 				newSong, err := a.app.CreateSong(ss)
@@ -74,7 +75,7 @@ func (a *Actions) GetSongByPublicId(params GetSongByPublicIdParams) (Song, error
 		Title:           song.Title,
 		Artist:          song.Artist,
 		ThumbnailUrl:    song.ThumbnailUrl,
-		Duration:        song.Duration,
+		Duration:        song.RealDuration,
 		FullyDownloaded: song.FullyDownloaded,
 	}, nil
 }
@@ -236,7 +237,7 @@ func (a *Actions) SaveSongsMetadataFromYouTube(songs []Song) error {
 			Title:           newSong.Title,
 			Artist:          newSong.Artist,
 			ThumbnailUrl:    fmt.Sprintf("%s/pix/%s.webp", config.CdnAddress(), newSong.PublicId),
-			Duration:        newSong.Duration,
+			RealDuration:    newSong.Duration,
 			FullyDownloaded: false,
 		})
 	}

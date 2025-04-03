@@ -31,7 +31,7 @@ func (a *Actions) GetHistoryItems(params GetHistoryItemsParams) ([]Song, error) 
 			Title:        songs.Items[i].Title,
 			Artist:       songs.Items[i].Artist,
 			ThumbnailUrl: songs.Items[i].ThumbnailUrl,
-			Duration:     songs.Items[i].Duration,
+			Duration:     songs.Items[i].RealDuration,
 			// whatever that is :)
 			AddedAt: fmt.Sprintf("Played %s - %s", times(playTimes), songs.Items[i].AddedAt),
 		})

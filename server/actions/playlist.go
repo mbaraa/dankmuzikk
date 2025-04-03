@@ -108,7 +108,7 @@ func (a *Actions) GetPlaylistByPublicId(params GetPlaylistByPublicIdParams) (Pla
 			Title:        song.Title,
 			Artist:       song.Artist,
 			ThumbnailUrl: song.ThumbnailUrl,
-			Duration:     song.Duration,
+			Duration:     song.RealDuration,
 			PlayTimes:    song.PlayTimes,
 			Votes:        song.Votes,
 			AddedAt:      song.AddedAt,

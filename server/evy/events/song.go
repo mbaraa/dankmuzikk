@@ -1,12 +1,14 @@
 package events
 
+import "time"
+
 type SongsSearched struct {
 	Songs []struct {
-		YouTubeId    string `json:"youtube_id"`
-		Title        string `json:"title"`
-		Artist       string `json:"artist"`
-		ThumbnailUrl string `json:"thumbnail_url"`
-		Duration     string `json:"duration"`
+		YouTubeId    string        `json:"youtube_id"`
+		Title        string        `json:"title"`
+		Artist       string        `json:"artist"`
+		ThumbnailUrl string        `json:"thumbnail_url"`
+		Duration     time.Duration `json:"duration"`
 	} `json:"songs"`
 }
 

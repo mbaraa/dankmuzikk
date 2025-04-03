@@ -44,7 +44,7 @@ templ songContent(song actions.Song) {
 		</div>
 		<h1 class={ "text-secondary", "text-xl", "lg:text-4xl" }>{ song.Title }</h1>
 		<p class={ "text-secondary", "text-md" }>By { song.Artist }</p>
-		<p class={ "text-secondary", "text-md" }>Duration { song.Duration }</p>
+		<p class={ "text-secondary", "text-md" }>Duration { song.Duration() }</p>
 	</div>
 }
 
