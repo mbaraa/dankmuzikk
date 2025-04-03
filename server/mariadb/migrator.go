@@ -59,7 +59,7 @@ func Migrate() error {
 			continue
 		}
 
-		err = dbConn.Exec(`update songs set real_duration = ?, where id = ?;`,
+		err = dbConn.Exec(`update songs set real_duration = ? where id = ?;`,
 			dur, h.Id,
 		).Error
 
