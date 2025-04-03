@@ -48,7 +48,5 @@ func (h *historyApi) HandleGetHistoryItems(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	log.Warningln(recentPlays)
-
 	_ = json.NewEncoder(w).Encode(recentPlays)
 }

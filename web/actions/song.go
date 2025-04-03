@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -15,6 +16,27 @@ type Song struct {
 	Votes           int           `json:"votes"`
 	AddedAt         string        `json:"added_at"`
 	FullyDownloaded bool          `json:"fully_downloaded"`
+}
+
+type fakeSong struct {
+	PublicId        string  `json:"public_id"`
+	Title           string  `json:"title"`
+	Artist          string  `json:"artist"`
+	ThumbnailUrl    string  `json:"thumbnail_url"`
+	Duration        float64 `json:"duration"`
+	PlayTimes       int     `json:"play_times"`
+	Votes           int     `json:"votes"`
+	AddedAt         string  `json:"added_at"`
+	FullyDownloaded bool    `json:"fully_downloaded"`
+}
+
+func (s *Song) UnmarshalJSON(data []byte) error {
+	helper := fakeSong{}
+	if err := json.Unmarshal(data, &helper); err != nil {
+		return err
+	}
+	s.RealDuration = time.Duration(helper.Duration) * time.Nanosecond
+	return nil
 }
 
 func (song Song) Duration() string {

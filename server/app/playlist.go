@@ -2,7 +2,6 @@ package app
 
 import (
 	"dankmuzikk/app/models"
-	"dankmuzikk/log"
 	"dankmuzikk/nanoid"
 	"fmt"
 )
@@ -109,8 +108,6 @@ func (a *App) DeletePlaylist(playlistPubId string, accountId uint) error {
 	if permissions&models.OwnerPermission == 0 {
 		return &ErrNonOwnerCantDeletePlaylists{}
 	}
-
-	log.Warning("playlist", playlist.Id)
 
 	return a.repo.DeletePlaylist(playlist.Id)
 }

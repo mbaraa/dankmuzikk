@@ -50,7 +50,6 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	log.Warningln(recentPlays)
 
 	outBuf := bytes.NewBuffer([]byte{})
 	for idx, s := range recentPlays {
