@@ -15,9 +15,9 @@ func (s SongsSearched) Topic() string {
 }
 
 type SongPlayed struct {
-	AccountId     uint   `json:"account_id"`
-	SongYtId      string `json:"song_yt_id"`
-	PlaylistPubId string `json:"playlist_pub_id"`
+	AccountId        uint   `json:"account_id"`
+	SongPublicId     string `json:"song_public_id"`
+	PlaylistPublicId string `json:"playlist_public_id"`
 }
 
 func (s SongPlayed) Topic() string {
@@ -25,7 +25,7 @@ func (s SongPlayed) Topic() string {
 }
 
 type SongDownloaded struct {
-	SongYtId string `json:"song_yt_id"`
+	SongPublicId string `json:"song_public_id"`
 }
 
 func (s SongDownloaded) Topic() string {
@@ -35,7 +35,7 @@ func (s SongDownloaded) Topic() string {
 type SongAddedToPlaylist struct {
 	AccountId     uint   `json:"account_id"`
 	PlaylistPubId string `json:"playlist_pub_id"`
-	SongYtId      string `json:"song_yt_id"`
+	SongPublicId  string `json:"song_public_id"`
 }
 
 func (s SongAddedToPlaylist) Topic() string {
@@ -45,7 +45,7 @@ func (s SongAddedToPlaylist) Topic() string {
 type SongRemovedFromPlaylist struct {
 	AccountId     uint   `json:"account_id"`
 	PlaylistPubId string `json:"playlist_pub_id"`
-	SongYtId      string `json:"song_yt_id"`
+	SongPublicId  string `json:"song_public_id"`
 }
 
 func (s SongRemovedFromPlaylist) Topic() string {

@@ -24,7 +24,7 @@ func (a *Actions) SearchSuggestions(q string) ([]string, error) {
 	return a.youtube.SearchSuggestions(q)
 }
 
-func (a *Actions) SearchYouTube(q string) ([]YouTubeSong, error) {
+func (a *Actions) SearchYouTube(q string) ([]Song, error) {
 	results, err := a.youtube.Search(q)
 	if err != nil {
 		return nil, err
@@ -60,5 +60,17 @@ func (a *Actions) SearchYouTube(q string) ([]YouTubeSong, error) {
 		return nil, err
 	}
 
-	return results, nil
+	foundSongs := make([]Song, 0, len(results))
+	for _, song := range results {
+		foundSongs = append(foundSongs, Song{
+			PublicId:        song.YtId,
+			Title:           song.Title,
+			Artist:          song.Artist,
+			ThumbnailUrl:    song.ThumbnailUrl,
+			Duration:        song.Duration,
+			FullyDownloaded: false,
+		})
+	}
+
+	return foundSongs, nil
 }

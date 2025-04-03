@@ -46,7 +46,7 @@ var songs = []models.Song{
 
 func RandomSong() models.Song {
 	song := songs[random.Intn(len(songs))]
-	song.YtId = nanoid.New()
+	song.PublicId = nanoid.New()
 	return song
 }
 

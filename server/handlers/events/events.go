@@ -16,23 +16,23 @@ func New(usecases *actions.Actions) *EventHandlers {
 }
 
 func (e *EventHandlers) HandleAddSongToHistory(event events.SongPlayed) error {
-	return e.usecases.AddSongToHistory(event.SongYtId, event.AccountId)
+	return e.usecases.AddSongToHistory(event.SongPublicId, event.AccountId)
 }
 
 func (e *EventHandlers) HandleDownloadSongOnPlay(event events.SongPlayed) error {
-	return e.usecases.DownloadYouTubeSong(event.SongYtId)
+	return e.usecases.DownloadYouTubeSong(event.SongPublicId)
 }
 
 func (e *EventHandlers) HandleIncrementSongPlaysInPlaylist(event events.SongPlayed) error {
-	return e.usecases.IncrementSongPlaysInPlaylist(event.SongYtId, event.PlaylistPubId, event.AccountId)
+	return e.usecases.IncrementSongPlaysInPlaylist(event.SongPublicId, event.PlaylistPublicId, event.AccountId)
 }
 
 func (e *EventHandlers) HandleMarkSongAsDownloaded(event events.SongDownloaded) error {
-	return e.usecases.MarkSongAsDownloaded(event.SongYtId)
+	return e.usecases.MarkSongAsDownloaded(event.SongPublicId)
 }
 
 func (e *EventHandlers) HandleDownloadSongOnAddingToPlaylist(event events.SongAddedToPlaylist) error {
-	return e.usecases.DownloadYouTubeSong(event.SongYtId)
+	return e.usecases.DownloadYouTubeSong(event.SongPublicId)
 }
 
 func (e *EventHandlers) HandleIncrementPlaylistSongsCount(event events.SongAddedToPlaylist) error {
@@ -47,7 +47,7 @@ func (e *EventHandlers) HandleSaveSongsMetadataOnSearchBatch(event events.SongsS
 	songs := make([]actions.Song, 0, len(event.Songs))
 	for _, newSong := range event.Songs {
 		songs = append(songs, actions.Song{
-			YtId:         newSong.YouTubeId,
+			PublicId:     newSong.YouTubeId,
 			Title:        newSong.Title,
 			Artist:       newSong.Artist,
 			ThumbnailUrl: newSong.ThumbnailUrl,

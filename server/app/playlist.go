@@ -128,12 +128,12 @@ func (a *App) GetAllPlaylistsMappedWithSongs(ownerId uint) ([]models.Playlist, m
 	mappedPlaylists := make(map[string]bool)
 	for _, playlist := range playlists.Items {
 		for _, song := range playlist.Songs {
-			mappedPlaylists[song.YtId+"-"+playlist.PublicId] = true
+			mappedPlaylists[song.PublicId+"-"+playlist.PublicId] = true
 		}
 	}
 	for i, playlist := range playlists.Items {
 		for _, song := range playlist.Songs {
-			if mappedPlaylists[song.YtId+"-"+playlist.PublicId] {
+			if mappedPlaylists[song.PublicId+"-"+playlist.PublicId] {
 				continue
 			}
 			mappedPlaylists[fmt.Sprintf("unmapped-%d", i)] = false

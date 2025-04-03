@@ -8,6 +8,7 @@ type Song struct {
 	Id uint `gorm:"primaryKey;autoIncrement"`
 
 	YtId            string `gorm:"unique;not null;index"`
+	PublicId        string `gorm:"unique;not null;index"`
 	Title           string
 	Artist          string
 	ThumbnailUrl    string

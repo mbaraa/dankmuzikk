@@ -23,11 +23,11 @@ func (a *Actions) GetHistoryItems(params GetHistoryItemsParams) ([]Song, error) 
 	songsFr := make([]Song, 0, songs.Size)
 	for i := 0; i < songs.Size; i++ {
 		playTimes := 1
-		for ; i < songs.Size-1 && songs.Items[i+1].YtId == songs.Items[i].YtId; i++ {
+		for ; i < songs.Size-1 && songs.Items[i+1].PublicId == songs.Items[i].PublicId; i++ {
 			playTimes++
 		}
 		songsFr = append(songsFr, Song{
-			YtId:         songs.Items[i].YtId,
+			PublicId:     songs.Items[i].PublicId,
 			Title:        songs.Items[i].Title,
 			Artist:       songs.Items[i].Artist,
 			ThumbnailUrl: songs.Items[i].ThumbnailUrl,

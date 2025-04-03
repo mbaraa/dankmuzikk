@@ -1,7 +1,7 @@
 package actions
 
 type Song struct {
-	YtId            string `json:"yt_id"`
+	PublicId        string `json:"public_id"`
 	Title           string `json:"title"`
 	Artist          string `json:"artist"`
 	ThumbnailUrl    string `json:"thumbnail_url"`
