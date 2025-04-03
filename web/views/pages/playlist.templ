@@ -32,7 +32,7 @@ templ playlistHeader(pl actions.Playlist) {
 				id="play-playlist-button"
 				type="button"
 				title="Play playlist"
-				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl) }
+				onClick={ playSongFromPlaylist(pl.Songs[0].PublicId, pl) }
 			>
 				@icons.PlayPlaylist()
 			</button>
@@ -58,9 +58,9 @@ templ playlistContent(pl actions.Playlist) {
 							[]string{},
 							[]templ.Component{
 								song.DetailsMobile(s),
-								song.Vote(s.YtId, pl.PublicId, s.Votes),
+								song.Vote(s.PublicId, pl.PublicId, s.Votes),
 								song.RemoveSong(s, pl.PublicId),
-								playlist.PlaylistsPopup(idx, s.YtId),
+								playlist.PlaylistsPopup(idx, s.PublicId),
 							},
 							pl,
 						)
@@ -73,9 +73,9 @@ templ playlistContent(pl actions.Playlist) {
 								"Added on " + s.AddedAt,
 							},
 							[]templ.Component{
-								song.Vote(s.YtId, pl.PublicId, s.Votes),
+								song.Vote(s.PublicId, pl.PublicId, s.Votes),
 								song.RemoveSong(s, pl.PublicId),
-								playlist.PlaylistsPopup(idx, s.YtId),
+								playlist.PlaylistsPopup(idx, s.PublicId),
 							},
 							pl,
 						)

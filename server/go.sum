@@ -49,6 +49,8 @@ github.com/kennygrant/sanitize v1.2.4 h1:gN25/otpP5vAsO2djbMhF/LQX6R7+O1TB4yv8Nz
 github.com/kennygrant/sanitize v1.2.4/go.mod h1:LGsjYYtgxbetdg5owWB2mpgUL6e2nfw2eObZ0u0qvak=
 github.com/mbaraa/gonius v0.0.2 h1:UYWfBW/7vfodidabL3zCYDDR2SaZU6PaKjQNdOamDYQ=
 github.com/mbaraa/gonius v0.0.2/go.mod h1:/kq0yxOXpB6b2Ao2lyVWQpfrUDws7vijJhbCIarb+SY=
+github.com/mbaraa/ytscrape v0.0.1 h1:e0HO2wUoLsIThgNITlDfsCwNORihmIEnu/Uhv5jdILI=
+github.com/mbaraa/ytscrape v0.0.1/go.mod h1:v+nAwTxhyi8/g+s9AQ2c1XNMZo3Zd5OqAt46Z6hZ6aY=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/redis/go-redis/v9 v9.7.3 h1:YpPyAayJV+XErNsatSElgRZZVCwXX9QzkKYNvO7x0wM=

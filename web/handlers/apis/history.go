@@ -55,7 +55,7 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 	for idx, s := range recentPlays {
 		song.Song(s, []string{s.AddedAt},
 			[]templ.Component{
-				playlist.PlaylistsPopup((idx+1)*page, s.YtId),
+				playlist.PlaylistsPopup((idx+1)*page, s.PublicId),
 			},
 			actions.Playlist{}).
 			Render(r.Context(), outBuf)

@@ -8,7 +8,7 @@ const audioPlayerEl = document.getElementById("muzikk-player");
  * @property {string} artist
  * @property {string} duration
  * @property {string} thumbnail_url
- * @property {string} yt_id
+ * @property {string} public_id
  * @property {number} play_times
  * @property {string} added_at
  * @property {number} votes
@@ -128,7 +128,7 @@ function playPauser(audioEl) {
     audioEl.muted = null;
     audioEl.play();
     PlayerUI.highlightSong(
-      playerState.playlist.songs[playerState.currentSongIdx].yt_id,
+      playerState.playlist.songs[playerState.currentSongIdx].public_id,
     );
     PlayerUI.setPauseIcon();
   };
@@ -156,7 +156,7 @@ function stopper(audioEl) {
     audioEl.pause();
     audioEl.currentTime = 0;
     PlayerUI.unHighlightSong(
-      playerState.playlist.songs[playerState.currentSongIdx].yt_id,
+      playerState.playlist.songs[playerState.currentSongIdx].public_id,
     );
     PlayerUI.setPlayIcon();
   };
@@ -180,9 +180,9 @@ function shuffler(state) {
   };
 
   /**
-   * @param {string} songYtId
+   * @param {string} songPublicId
    */
-  const __shuffle = (songYtId) => {
+  const __shuffle = (songPublicId) => {
     if (isSingleSong()) {
       return;
     }
@@ -197,7 +197,9 @@ function shuffler(state) {
     __shuffleArray(state.playlist.songs);
     let sIdx = 0;
     if (!!audioPlayerEl.childNodes.length) {
-      sIdx = state.playlist.songs.findIndex((s) => s.yt_id === songYtId);
+      sIdx = state.playlist.songs.findIndex(
+        (s) => s.public_id === songPublicId,
+      );
       if (sIdx !== -1) {
         [state.playlist.songs[sIdx], state.playlist.songs[0]] = [
           state.playlist.songs[0],
@@ -219,19 +221,19 @@ function shuffler(state) {
       const tmp = state.playlist.songs.sort((si, sj) => si.order - sj.order);
       state.playlist.songs = [];
       for (let i = 0; i < tmp.length - 1; i++) {
-        if (tmp[i].yt_id === tmp[i + 1].yt_id) {
+        if (tmp[i].public_id === tmp[i + 1].public_id) {
           continue;
         }
         state.playlist.songs.push(tmp[i]);
       }
-      if (tmp[tmp.length - 1].yt_id !== tmp[tmp.length - 2]) {
+      if (tmp[tmp.length - 1].public_id !== tmp[tmp.length - 2]) {
         state.playlist.songs.push(tmp[tmp.length - 1]);
       }
       const src = audioPlayerEl.childNodes.item(0);
       if (!!src) {
         state.currentSongIdx = state.playlist.songs.findIndex(
           (s) =>
-            s.yt_id ===
+            s.public_id ===
             src.src.substring(src.src.lastIndexOf("/") + 1, src.src.length - 4),
         );
       }
@@ -266,10 +268,10 @@ function playlister(state) {
       const songToPlay = state.playlist.songs[state.currentSongIdx];
       songToPlay.votes--;
       songToPlay.plays++;
-      playSongFromPlaylist(songToPlay.yt_id, state.playlist);
+      playSongFromPlaylist(songToPlay.public_id, state.playlist);
       PlayerUI.highlightSongInPlaylist(
-        songToPlay.yt_id,
-        state.playlist.songs.map((s) => s.yt_id),
+        songToPlay.public_id,
+        state.playlist.songs.map((s) => s.public_id),
       );
       return;
     }
@@ -296,8 +298,8 @@ function playlister(state) {
         : state.currentSongIdx + 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
     PlayerUI.highlightSongInPlaylist(
-      songToPlay.yt_id,
-      state.playlist.songs.map((s) => s.yt_id),
+      songToPlay.public_id,
+      state.playlist.songs.map((s) => s.public_id),
     );
     await playSong(songToPlay);
   };
@@ -316,10 +318,10 @@ function playlister(state) {
       const songToPlay = state.playlist.songs[state.currentSongIdx];
       songToPlay.votes--;
       songToPlay.plays++;
-      playSongFromPlaylist(songToPlay.yt_id, state.playlist);
+      playSongFromPlaylist(songToPlay.public_id, state.playlist);
       PlayerUI.highlightSongInPlaylist(
-        songToPlay.yt_id,
-        state.playlist.songs.map((s) => s.yt_id),
+        songToPlay.public_id,
+        state.playlist.songs.map((s) => s.public_id),
       );
       return;
     }
@@ -340,15 +342,15 @@ function playlister(state) {
         : state.currentSongIdx - 1;
     const songToPlay = state.playlist.songs[state.currentSongIdx];
     PlayerUI.highlightSongInPlaylist(
-      songToPlay.yt_id,
-      state.playlist.songs.map((s) => s.yt_id),
+      songToPlay.public_id,
+      state.playlist.songs.map((s) => s.public_id),
     );
     await playSong(songToPlay);
   };
 
-  const __remove = (songYtId, playlistId) => {
+  const __remove = (songPublicId, playlistId) => {
     const songIndex = state.playlist.songs.findIndex(
-      (song) => song.yt_id === songYtId,
+      (song) => song.public_id === songPublicId,
     );
     if (songIndex >= 0) {
       state.playlist.songs.splice(songIndex, 1);
@@ -357,7 +359,7 @@ function playlister(state) {
     Utils.showLoading();
     fetch(
       "/api/song/playlist?song-id=" +
-        songYtId +
+        songPublicId +
         "&playlist-id=" +
         playlistId +
         "&remove=true",
@@ -368,7 +370,7 @@ function playlister(state) {
       .then((res) => {
         if (res.ok) {
           // TODO: do something about this UI leak
-          const songEl = document.getElementById("song-" + songYtId);
+          const songEl = document.getElementById("song-" + songPublicId);
           if (!!songEl) {
             songEl.remove();
           }
@@ -420,15 +422,15 @@ function playebackSpeeder() {
 }
 
 /**
- * @param {string} songYtId
+ * @param {string} songPublicId
  */
-async function downloadSong(songYtId) {
+async function downloadSong(songPublicId) {
   try {
-    const resp = await fetch("/api/song?id=" + songYtId).then((res) =>
+    const resp = await fetch("/api/song?id=" + songPublicId).then((res) =>
       res.json(),
     );
     for (let i = 0; i < 30; i++) {
-      const song = await fetchSongMeta(songYtId, false);
+      const song = await fetchSongMeta(songPublicId, false);
       if (song.fully_downloaded) {
         return { ok: true, ...resp };
       }
@@ -441,12 +443,12 @@ async function downloadSong(songYtId) {
 }
 
 /**
- * @param {string} songYtId
+ * @param {string} songPublicId
  * @param {string} songTitle
  */
-async function downloadSongToDevice(songYtId, songTitle) {
+async function downloadSongToDevice(songPublicId, songTitle) {
   Utils.showLoading();
-  await downloadSong(songYtId)
+  await downloadSong(songPublicId)
     .then((song) => {
       const a = document.createElement("a");
       a.href = song.media_url.replace("muzikkx", "muzikkx-raw");
@@ -500,7 +502,7 @@ async function playSong(song) {
   PlayerUI.setLoadingOn();
   PlayerUI.show();
 
-  let resp = await downloadSong(song.yt_id);
+  let resp = await downloadSong(song.public_id);
   if (!resp.ok) {
     alert("Something went wrong when downloading the song...");
     throw new Error("Something went wrong when downloading the song...");
@@ -528,16 +530,16 @@ async function playSong(song) {
 }
 
 /**
- * @param {string} songYtId
+ * @param {string} songPublicId
  *
  * @returns {Promise<Song| never>}
  */
-async function fetchSongMeta(songYtId, displayLoader = true) {
+async function fetchSongMeta(songPublicId, displayLoader = true) {
   if (displayLoader) {
     Utils.showLoading();
   }
   try {
-    const song = await fetch(`/api/song/single?id=${songYtId}`);
+    const song = await fetch(`/api/song/single?id=${songPublicId}`);
     if (!song.ok) {
       throw new Error("Something went wrong when fetching song's metadata");
     }
@@ -587,11 +589,11 @@ async function playSingleSong(song) {
 }
 
 /**
- * @param {string} songYtId
+ * @param {string} songPublicId
  */
-async function playSingleSongId(songYtId) {
+async function playSingleSongId(songPublicId) {
   try {
-    await fetchSongMeta(songYtId).then(
+    await fetchSongMeta(songPublicId).then(
       async (song) => await playSingleSong(song),
     );
   } catch (err) {
@@ -610,7 +612,7 @@ async function playSingleSongNext(song) {
       return err;
     }
   }
-  if (!song.yt_id) {
+  if (!song.public_id) {
     return;
   }
   song.votes = 1;
@@ -619,12 +621,12 @@ async function playSingleSongNext(song) {
 }
 
 /**
- * @param {string} songYtId
+ * @param {string} songPublicId
  */
-async function playSingleSongNextId(songYtId) {
+async function playSingleSongNextId(songPublicId) {
   playerState.lyricsLoaded = false;
   try {
-    const song = await fetchSongMeta(songYtId);
+    const song = await fetchSongMeta(songPublicId);
     await playSingleSongNext(song);
   } catch (err) {
     return err;
@@ -640,7 +642,7 @@ async function playPlaylistNext(playlist) {
     return;
   }
   if (playerState.playlist.songs.length === 0) {
-    playSongFromPlaylist(playlist.songs[0].yt_id, playlist);
+    playSongFromPlaylist(playlist.songs[0].public_id, playlist);
     return;
   }
   playerState.playlist.songs.splice(
@@ -671,7 +673,7 @@ async function appendPlaylistToCurrentQueue(playlist) {
     return;
   }
   if (playerState.playlist.songs.length === 0) {
-    playSongFromPlaylist(playlist.songs[0].yt_id, playlist);
+    playSongFromPlaylist(playlist.songs[0].public_id, playlist);
     return;
   }
   playerState.playlist.songs.push(...playlist.songs);
@@ -688,18 +690,18 @@ async function appendPlaylistToCurrentQueueId(playlistPubId) {
 }
 
 /**
- * @param {string} songYtId
+ * @param {string} songPublicId
  * @param {Playlist} playlist
  */
-async function playSongFromPlaylist(songYtId, playlist) {
+async function playSongFromPlaylist(songPublicId, playlist) {
   if (
     playerState.shuffled &&
     playerState.shuffledPlaylist !== playlist.public_id
   ) {
     playerState.playlist = playlist;
-    shuffle(songYtId);
+    shuffle(songPublicId);
   }
-  const songIdx = playlist.songs.findIndex((s) => s.yt_id === songYtId);
+  const songIdx = playlist.songs.findIndex((s) => s.public_id === songPublicId);
   if (songIdx < 0) {
     alert("Invalid song!");
     return;
@@ -719,19 +721,19 @@ async function playSongFromPlaylist(songYtId, playlist) {
   }
   const songToPlay = playlist.songs[playerState.currentSongIdx];
   PlayerUI.highlightSongInPlaylist(
-    songToPlay.yt_id,
-    state.playlist.songs.map((s) => s.yt_id),
+    songToPlay.public_id,
+    state.playlist.songs.map((s) => s.public_id),
   );
   await playSong(songToPlay);
 }
 
 /**
- * @param {string} songYtId
+ * @param {string} songPublicId
  * @param {string} playlistPubId
  */
-async function playSongFromPlaylistId(songYtId, playlistPubId) {
+async function playSongFromPlaylistId(songPublicId, playlistPubId) {
   const playlist = await fetchPlaylistMeta(playlistPubId);
-  await playSongFromPlaylist(songYtId, playlist);
+  await playSongFromPlaylist(songPublicId, playlist);
   playerState.lyricsLoaded = false;
 }
 
@@ -752,10 +754,10 @@ async function appendSongToCurrentQueue(song) {
 }
 
 /**
- * @param {string} songYtId
+ * @param {string} songPublicId
  */
-async function appendSongToCurrentQueueId(songYtId) {
-  const song = await fetchSongMeta(songYtId);
+async function appendSongToCurrentQueueId(songPublicId) {
+  const song = await fetchSongMeta(songPublicId);
   appendSongToCurrentQueue(song);
 }
 
@@ -869,9 +871,10 @@ function loadSongLyrics() {
   }
 
   document.getElementById("current-song-lyrics").innerHTML = "";
-  const songYtId = playerState.playlist.songs[playerState.currentSongIdx].yt_id;
+  const songPublicId =
+    playerState.playlist.songs[playerState.currentSongIdx].public_id;
   htmx
-    .ajax("GET", "/api/song/lyrics?id=" + songYtId, {
+    .ajax("GET", "/api/song/lyrics?id=" + songPublicId, {
       target: "#current-song-lyrics",
       swap: "innerHTML",
     })

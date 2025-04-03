@@ -15,7 +15,7 @@ templ RemoveSong(song actions.Song, playlistId string) {
 			}
 			title={ "Remove " + song.Title + "!" }
 			type="button"
-			_={ fmt.Sprintf("on click Player.removeSongFromPlaylist('%s', '%s')", song.YtId, playlistId) }
+			_={ fmt.Sprintf("on click Player.removeSongFromPlaylist('%s', '%s')", song.PublicId, playlistId) }
 		>
 			@icons.Trash()
 			<span>Remove from playlist</span>

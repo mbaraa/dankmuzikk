@@ -104,11 +104,11 @@ func (a *Actions) GetPlaylistByPublicId(params GetPlaylistByPublicIdParams) (Pla
 	var songs []Song
 	for _, song := range playlist.Songs {
 		songs = append(songs, Song{
-			YtId:         song.YtId,
+			PublicId:     song.PublicId,
 			Title:        song.Title,
 			Artist:       song.Artist,
 			ThumbnailUrl: song.ThumbnailUrl,
-			Duration:     song.Duration,
+			Duration:     song.RealDuration,
 			PlayTimes:    song.PlayTimes,
 			Votes:        song.Votes,
 			AddedAt:      song.AddedAt,
@@ -152,7 +152,7 @@ func (a *Actions) DownloadPlaylist(params DownloadPlaylistParams) (DownloadPlayl
 	fileNames := make([]string, 0, playlist.SongsCount)
 	var errs []error
 	for i, song := range playlist.Songs {
-		oldPath := fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().BlobsDir, song.YtId)
+		oldPath := fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().BlobsDir, song.PublicId)
 		newPath := fmt.Sprintf("%s/muzikkx/%d-%s.mp3", config.Env().BlobsDir, i+1,
 			strings.ReplaceAll(song.Title, "/", "|"),
 		)
@@ -162,7 +162,7 @@ func (a *Actions) DownloadPlaylist(params DownloadPlaylistParams) (DownloadPlayl
 			errs = append(errs, err)
 			// to download the song, so a second download retry would be enough without playing all the songs :)
 			_ = a.eventhub.Publish(events.SongPlayed{
-				SongYtId: song.YtId,
+				SongPublicId: song.PublicId,
 			})
 			continue
 		}

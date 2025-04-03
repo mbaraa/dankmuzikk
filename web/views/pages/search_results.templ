@@ -31,7 +31,7 @@ templ searchContent(results []actions.Song) {
 		}
 	>
 		for idx, res := range results {
-			@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.YtId)}, actions.Playlist{})
+			@song.Song(res, nil, []templ.Component{playlist.PlaylistsPopup(idx, res.PublicId)}, actions.Playlist{})
 		}
 	</div>
 }

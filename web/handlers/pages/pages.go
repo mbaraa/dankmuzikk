@@ -143,6 +143,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	}
 
 	playlist, err := p.usecases.GetSinglePlaylist(sessionToken, playlistPubId)
+	log.Warningln(playlist)
 	htmxReq := contenttype.IsNoLayoutPage(r)
 	switch {
 	case errors.Is(err, dankerrors.ErrUnauthorizedToSeePlaylist):
@@ -216,19 +217,19 @@ func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Reque
 
 	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", song.Title)
-		w.Header().Set("HX-Push-Url", "/song/"+song.YtId)
+		w.Header().Set("HX-Push-Url", "/song/"+song.PublicId)
 		pages.Song(song).Render(r.Context(), w)
 		return
 	}
 	layouts.Default(layouts.PageProps{
 		Title:       song.Title,
 		Description: "", // TODO:??
-		Url:         config.Env().Hostname + "/song/" + song.YtId,
+		Url:         config.Env().Hostname + "/song/" + song.PublicId,
 		Type:        layouts.SongPage,
 		ImageUrl:    song.ThumbnailUrl,
 		Audio: layouts.AudioProps{
-			Url:      fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, song.YtId),
-			Duration: song.Duration,
+			Url:      fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, song.PublicId),
+			Duration: song.Duration(),
 			Musician: song.Artist,
 		},
 	}, pages.Song(song)).Render(r.Context(), w)

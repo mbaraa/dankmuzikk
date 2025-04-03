@@ -8,8 +8,8 @@ func (a *App) CreateSong(song models.Song) (models.Song, error) {
 	return a.repo.CreateSong(song)
 }
 
-func (a *App) GetSongByYouTubeId(ytId string) (models.Song, error) {
-	return a.repo.GetSongByYouTubeId(ytId)
+func (a *App) GetSongByPublicId(ytId string) (models.Song, error) {
+	return a.repo.GetSongByPublicId(ytId)
 }
 
 func (a *App) IncrementSongPlaysInPlaylist(songId, playlistPubId string, ownerId uint) error {
@@ -24,8 +24,8 @@ func (a *App) DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint)
 	return a.repo.DownvoteSongInPlaylist(songId, playlistPubId, ownerId)
 }
 
-func (a *App) AddSongToHistory(songYtId string, accountId uint) error {
-	return a.repo.AddSongToHistory(songYtId, accountId)
+func (a *App) AddSongToHistory(songPublicId string, accountId uint) error {
+	return a.repo.AddSongToHistory(songPublicId, accountId)
 }
 
 func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {
@@ -38,7 +38,7 @@ func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (
 		return false, &ErrNotEnoughPermissionToAddSongToPlaylist{}
 	}
 
-	song, err := a.GetSongByYouTubeId(songId)
+	song, err := a.GetSongByPublicId(songId)
 	if err != nil {
 		return false, err
 	}
@@ -46,6 +46,6 @@ func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (
 	return a.repo.ToggleSongInPlaylist(song.Id, playlist.Id, ownerId)
 }
 
-func (a *App) MarkSongAsDownloaded(songYtId string) error {
-	return a.repo.MarkSongAsDownloaded(songYtId)
+func (a *App) MarkSongAsDownloaded(songPublicId string) error {
+	return a.repo.MarkSongAsDownloaded(songPublicId)
 }
