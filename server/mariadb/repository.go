@@ -151,13 +151,13 @@ func (r *Repository) GetSong(id uint) (models.Song, error) {
 	return song, nil
 }
 
-func (r *Repository) GetSongByPublicId(ytId string) (models.Song, error) {
+func (r *Repository) GetSongByPublicId(publicId string) (models.Song, error) {
 	var song models.Song
 
 	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Song)).
-			First(&song, "public_id = ?", ytId).
+			First(&song, "public_id = ?", publicId).
 			Error,
 	)
 	if _, ok := err.(*ErrRecordNotFound); ok {

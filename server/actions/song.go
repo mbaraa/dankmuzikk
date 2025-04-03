@@ -126,11 +126,11 @@ func (a *Actions) DownvoteSongInPlaylist(params DownvoteSongInPlaylistParams) (D
 	}, nil
 }
 
-func (a *Actions) AddSongToHistory(songPublicId string, profileId uint) error {
-	if profileId == 0 {
+func (a *Actions) AddSongToHistory(songPublicId string, accountId uint) error {
+	if accountId == 0 {
 		return nil
 	}
-	return a.app.AddSongToHistory(songPublicId, profileId)
+	return a.app.AddSongToHistory(songPublicId, accountId)
 }
 
 func (a *Actions) DownloadYouTubeSong(ytId string) error {
