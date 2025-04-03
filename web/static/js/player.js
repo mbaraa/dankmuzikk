@@ -722,7 +722,7 @@ async function playSongFromPlaylist(songPublicId, playlist) {
   const songToPlay = playlist.songs[playerState.currentSongIdx];
   PlayerUI.highlightSongInPlaylist(
     songToPlay.public_id,
-    state.playlist.songs.map((s) => s.public_id),
+    playerState.playlist.songs.map((s) => s.public_id),
   );
   await playSong(songToPlay);
 }

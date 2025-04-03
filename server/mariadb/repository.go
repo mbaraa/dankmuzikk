@@ -477,7 +477,7 @@ func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (add
 
 func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song], error) {
 	gigaQuery := fmt.Sprintf(
-		`SELECT public_id, title, artist, thumbnail_url, duration, h.created_at
+		`SELECT public_id, title, artist, thumbnail_url, real_duration, h.created_at
 		FROM
 			histories h JOIN songs
 		ON
@@ -512,7 +512,7 @@ func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song],
 }
 
 func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song], error) {
-	gigaQuery := `SELECT public_id, title, artist, thumbnail_url, duration, ps.created_at, ps.play_times, ps.votes
+	gigaQuery := `SELECT public_id, title, artist, thumbnail_url, real_duration, ps.created_at, ps.play_times, ps.votes
 		FROM
 			playlist_songs ps
 		JOIN songs

@@ -34,6 +34,7 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		var err error
 		recentPlays, err = p.usecases.GetHistory(sessionToken, 1)
+		log.Warningln(recentPlays)
 		if err != nil {
 			log.Errorln(err)
 		}
