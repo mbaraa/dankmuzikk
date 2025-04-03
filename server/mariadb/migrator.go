@@ -39,14 +39,14 @@ func Migrate() error {
 	}
 
 	var songs []models.Song
-	rows, err := dbConn.Raw(`select id, yt_id, title, artist, thumbnail_url, duration, fully_downloaded, created_at, updated_at from songs`).Rows()
+	rows, err := dbConn.Raw(`select id, title, artist, thumbnail_url, duration, fully_downloaded, created_at, updated_at from songs`).Rows()
 	if err != nil {
 		return err
 	}
 
 	for rows.Next() {
 		var h models.Song
-		err = rows.Scan(&h.Id, &h.YtId, &h.Title, &h.Artist, &h.ThumbnailUrl, &h.Duration, &h.FullyDownloaded, &h.CreatedAt, &h.UpdatedAt)
+		err = rows.Scan(&h.Id, &h.Title, &h.Artist, &h.ThumbnailUrl, &h.Duration, &h.FullyDownloaded, &h.CreatedAt, &h.UpdatedAt)
 		if err != nil {
 			return err
 		}
@@ -59,8 +59,8 @@ func Migrate() error {
 			continue
 		}
 
-		err = dbConn.Exec(`update songs set real_duration = ?, public_id = ? where id = ?;`,
-			dur, h.YtId, h.Id,
+		err = dbConn.Exec(`update songs set real_duration = ?, where id = ?;`,
+			dur, h.Id,
 		).Error
 
 		if err != nil {
