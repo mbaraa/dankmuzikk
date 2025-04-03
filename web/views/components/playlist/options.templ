@@ -1,14 +1,14 @@
 package playlist
 
 import (
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/menus"
 	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
 	"fmt"
 )
 
-templ PlaylistsOptions(playlist entities.Playlist) {
+templ PlaylistsOptions(playlist actions.Playlist) {
 	@ui.MobileOnly() {
 		@menus.MobileMenu("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
 	}
@@ -17,7 +17,7 @@ templ PlaylistsOptions(playlist entities.Playlist) {
 	}
 }
 
-templ playlistOptions(playlist entities.Playlist) {
+templ playlistOptions(playlist actions.Playlist) {
 	<div
 		class={
 			"min-w-[250px]", "bg-accent-trans-20", "p-[15px]", "rounded-[10px]",
@@ -26,7 +26,7 @@ templ playlistOptions(playlist entities.Playlist) {
 	>
 		<h3 class={ "text-lg", "font-medium" }>Playlist's Options</h3>
 		<hr/>
-		if perm, ok := ctx.Value("playlist-permission").(entities.PlaylistPermissions); ok && (perm & entities.OwnerPermission) != 0 {
+		if perm, ok := ctx.Value("playlist-permission").(actions.PlaylistPermissions); ok && (perm & actions.OwnerPermission) != 0 {
 			@publicPlaylistToggle(playlist.PublicId, playlist.IsPublic)
 		}
 		<button
@@ -36,7 +36,11 @@ templ playlistOptions(playlist entities.Playlist) {
 			}
 			title="Copy link to this playlist"
 			type="button"
-			onClick={ copyLink(playlist.IsPublic, playlist.PublicId) }
+			_={ fmt.Sprintf(`on click
+                call Utils.copyTextToClipboard(%s)
+                js
+                    alert("Playlist's links was copied!" + (%v ? "": "\nMake sure to make it public before sharing the link 😁"))
+                end`, playlist.PublicId,playlist.IsPublic) }
 		>
 			@icons.ShareLink()
 			<span>Share playlist</span>
@@ -79,7 +83,7 @@ templ playlistOptions(playlist entities.Playlist) {
 			@icons.Download()
 			<span>Download Playlist</span>
 		</button>
-		if perm, ok := ctx.Value("playlist-permission").(entities.PlaylistPermissions); ok && (perm & entities.OwnerPermission) != 0 {
+		if perm, ok := ctx.Value("playlist-permission").(actions.PlaylistPermissions); ok && (perm & actions.OwnerPermission) != 0 {
 			<button
 				class={
 					"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",
@@ -144,7 +148,7 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 		>
 			<div
 				class={
-					"w-[20px]", "h-[20px]", "rounded-sm", "border", "border-secondary",
+					"w-[20px]", "h-[20px]", "rounded-xs", "border", "border-secondary",
 					map[string]bool{
 						"bg-secondary": isPublic,
 					},
@@ -161,7 +165,7 @@ templ publicPlaylistToggle(publicId string, isPublic bool) {
 	</div>
 }
 
-templ joinLeavePlaylist(publicId string, perm entities.PlaylistPermissions) {
+templ joinLeavePlaylist(publicId string, perm actions.PlaylistPermissions) {
 	<div
 		class={ "flex", "gap-x-2", "items-center", "cursor-pointer" }
 		hx-put={
@@ -190,7 +194,7 @@ templ joinLeavePlaylist(publicId string, perm entities.PlaylistPermissions) {
 			type="submit"
 			id={ fmt.Sprintf("join-playlist-%s", publicId) }
 		>
-			if (perm & entities.JoinerPermission) != 0 {
+			if (perm & actions.JoinerPermission) != 0 {
 				@icons.SadFrog()
 				<span>Leave playlist</span>
 			} else {
@@ -211,13 +215,4 @@ script addToQueue(plPubId string) {
 
 script downloadPlaylist(plId, title string) {
     Player.downloadPlaylistToDevice(plId, title)
-}
-
-script copyLink(isPublic bool, plPubId string) {
-    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/playlist/${plPubId}`)
-    if (isPublic) {
-        alert("Playlist's links was copied!");
-    } else {
-        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
-    }
 }

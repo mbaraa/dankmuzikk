@@ -32,9 +32,22 @@ def download_yt_song(id: str) -> int:
             "outtmpl": f"{MUZIKKX_DIR}/%(id)s.%(ext)s"
         })
         ytdl.download("https://www.youtube.com/watch?v=" + id)
-        shutil.move(f"{MUZIKKX_DIR}/{id}.webp", f"{PIX_DIR}/{id}.webp")
     except:
         return 3
+
+    try:
+        shutil.move(f"{MUZIKKX_DIR}/{id}.jpg", f"{PIX_DIR}/{id}.webp")
+    except:
+        pass
+    try:
+        shutil.move(f"{MUZIKKX_DIR}/{id}.webp", f"{PIX_DIR}/{id}.webp")
+    except:
+        pass
+    try:
+        shutil.move(f"{MUZIKKX_DIR}/{id}.png", f"{PIX_DIR}/{id}.webp")
+    except:
+        pass
+
     return 0
 
 

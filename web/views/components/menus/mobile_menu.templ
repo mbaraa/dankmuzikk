@@ -17,10 +17,10 @@ templ MobileMenu(id, title string, button, child templ.Component) {
 	<div
 		id={ fmt.Sprintf("mobile-menu-%s", id) }
 		class={
-			"!fixed", "-left-[10px]", "w-full", "z-[60]", "mx-[10px]",
+			"!fixed", "-left-[10px]", "w-full", "mx-[10px]",
 			"overflow-y-scroll", "block", "shadow-md", "mobile-menu-collapsed",
 		}
-		style="bottom: -0px"
+		style="bottom: -0px; z-index: 100;"
 	>
 		<button
 			class={
@@ -65,5 +65,4 @@ script toggleMobileMenu(id string) {
         popover.style.maxHeight = 0;
         popover.style.minHeight = 0;
     }
-
 }

@@ -1,111 +1,64 @@
 package apis
 
 import (
-	"context"
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
-	"dankmuzikk-web/services/playlists"
-	"dankmuzikk-web/services/playlists/songs"
+	"dankmuzikk-web/views/components/navlink"
 	"dankmuzikk-web/views/components/playlist"
+	playlistviews "dankmuzikk-web/views/components/playlist"
+	"dankmuzikk-web/views/components/status"
 	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
-	"dankmuzikk-web/views/pages"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
 type playlistApi struct {
-	service     *playlists.Service
-	songService *songs.Service
+	usecases *actions.Actions
 }
 
-func NewPlaylistApi(service *playlists.Service, songService *songs.Service) *playlistApi {
-	return &playlistApi{service, songService}
+func NewPlaylistApi(usecases *actions.Actions) *playlistApi {
+	return &playlistApi{
+		usecases: usecases,
+	}
 }
 
 func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		status.
+			GenericError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
-	var playlist entities.Playlist
-	err = json.NewDecoder(r.Body).Decode(&playlist)
+	var playlist actions.Playlist
+	err := json.NewDecoder(r.Body).Decode(&playlist)
 	if err != nil {
-		w.Write([]byte("🤷‍♂️"))
-		log.Errorln(err)
+		status.
+			GenericError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
-	err = p.service.CreatePlaylist(sessionToken.Value, playlist)
+	newPlaylist, err := p.usecases.CreatePlaylist(sessionToken, playlist)
 	if err != nil {
 		log.Errorln(err)
 		return
 	}
 
-	playlists, err := p.service.GetAll(sessionToken.Value)
-	if err != nil {
-		log.Errorln(err)
-		w.Write([]byte("something went wrong"))
-		return
-	}
-
-	pages.JustPlaylists(playlists).Render(context.Background(), w)
-}
-
-func (p *playlistApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	songId := r.URL.Query().Get("song-id")
-	if songId == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	playlistId := r.URL.Query().Get("playlist-id")
-	if playlistId == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	added, err := p.songService.ToggleSongInPlaylist(sessionToken.Value, songId, playlistId)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Errorln(err)
-		return
-	}
-
-	if added {
-		ui.CheckedCheckbox().Render(r.Context(), w)
-	} else {
-		ui.UncheckedCheckbox().Render(r.Context(), w)
-	}
+	navlink.JustLink(fmt.Sprintf("/playlist/%s", newPlaylist.PublicId), newPlaylist.Title, playlistviews.Playlist(newPlaylist)).
+		Render(r.Context(), w)
 }
 
 func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		status.
+			GenericError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -115,7 +68,7 @@ func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.
 		return
 	}
 
-	madePublic, err := p.service.TogglePublic(sessionToken.Value, playlistId)
+	madePublic, err := p.usecases.TogglePublicPlaylist(sessionToken, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -130,14 +83,11 @@ func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.
 }
 
 func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		status.
+			GenericError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -147,7 +97,7 @@ func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	joined, err := p.service.ToggleProfileInPlaylist(sessionToken.Value, playlistId)
+	joined, err := p.usecases.ToggleJoinPlaylist(sessionToken, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -164,14 +114,11 @@ func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Re
 }
 
 func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		status.
+			GenericError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -181,7 +128,7 @@ func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	playlist, err := p.service.Get(sessionToken.Value, playlistId)
+	playlist, err := p.usecases.GetSinglePlaylist(sessionToken, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -191,14 +138,11 @@ func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) 
 }
 
 func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		status.
+			GenericError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -208,7 +152,7 @@ func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = p.service.DeletePlaylist(sessionToken.Value, playlistId)
+	err := p.usecases.DeletePlaylist(sessionToken, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -219,14 +163,11 @@ func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		status.
+			GenericError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -236,7 +177,7 @@ func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *htt
 		return
 	}
 
-	playlists, songsInPlaylists, err := p.service.GetAllMappedForAddPopover(sessionToken.Value)
+	playlists, songsInPlaylists, err := p.usecases.GetAllPlaylistsForAddPopover(sessionToken)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -248,15 +189,11 @@ func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *htt
 }
 
 func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("🤷‍♂️"))
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		status.
+			GenericError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -266,7 +203,7 @@ func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	playlistDownloadUrl, err := p.service.DownloadPlaylist(sessionToken.Value, playlistId)
+	playlistDownloadUrl, err := p.usecases.DownloadPlaylist(sessionToken, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("🤷‍♂️"))

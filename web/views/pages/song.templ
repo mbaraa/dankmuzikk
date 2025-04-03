@@ -1,21 +1,21 @@
 package pages
 
 import (
-	"dankmuzikk-web/entities"
-	"dankmuzikk-web/views/components/page"
-	"fmt"
-	"dankmuzikk-web/views/icons"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/menus"
-	"math/rand"
+	"dankmuzikk-web/views/components/page"
 	"dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
+	"fmt"
+	"math/rand"
 )
 
-templ Song(song entities.Song) {
+templ Song(song actions.Song) {
 	@page.Container(templ.NopComponent, songContent(song))
 }
 
-templ songContent(song entities.Song) {
+templ songContent(song actions.Song) {
 	<div class={ "flex", "flex-col", "justify-center", "items-center", "gap-6" }>
 		<div
 			class={
@@ -36,27 +36,27 @@ templ songContent(song entities.Song) {
 				<span>Play now</span>
 			</button>
 			@ui.MobileOnly() {
-				@menus.MobileMenu(song.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
+				@menus.MobileMenu(song.PublicId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
 			}
 			@ui.DesktopOnly() {
-				@menus.Popover(song.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
+				@menus.Popover(song.PublicId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
 			}
 		</div>
 		<h1 class={ "text-secondary", "text-xl", "lg:text-4xl" }>{ song.Title }</h1>
 		<p class={ "text-secondary", "text-md" }>By { song.Artist }</p>
-		<p class={ "text-secondary", "text-md" }>Duration { song.Duration }</p>
+		<p class={ "text-secondary", "text-md" }>Duration { song.Duration() }</p>
 	</div>
 }
 
 // TODO: generalize this and the same shit under components/song/song.templ
-templ options(song entities.Song) {
+templ options(song actions.Song) {
 	<div
 		class={
 			"flex", "flex-col", "gap-y-1", "p-2", "rounded-md", "min-w-[250px]",
-			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-accent",
+			"bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-accent",
 		}
 	>
-		@playlist.PlaylistsPopup(0, song.YtId)
+		@playlist.PlaylistsPopup(0, song.PublicId)
 		<button
 			class={
 				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
@@ -64,7 +64,7 @@ templ options(song entities.Song) {
 			}
 			title="Share song"
 			type="button"
-			onClick={ shareSong(song.YtId) }
+			onClick={ shareSong(song.PublicId) }
 		>
 			@icons.ShareLink()
 			<span>Share song</span>
@@ -100,7 +100,7 @@ templ options(song entities.Song) {
 			}
 			title="Download song"
 			type="button"
-			onClick={ downloadSong(song.YtId, song.Title) }
+			onClick={ downloadSong(song.PublicId, song.Title) }
 		>
 			@icons.Download()
 			<span>Download to device</span>
@@ -108,23 +108,23 @@ templ options(song entities.Song) {
 	</div>
 }
 
-script playSong(song entities.Song) {
+script playSong(song actions.Song) {
     Player.playSingleSong(song)
 }
 
-script playSongNext(song entities.Song) {
+script playSongNext(song actions.Song) {
     Player.playSingleSongNext(song)
 }
 
-script shareSong(songYtId string) {
-    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/song/${songYtId}`)
+script shareSong(songPublicId string) {
+    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/song/${songPublicId}`)
     alert("Song's links was copied!");
 }
 
-script addSongToQueue(song entities.Song) {
+script addSongToQueue(song actions.Song) {
     window.Player.addSongToQueue(song);
 }
 
-script downloadSong(songYtId, songTitle string) {
-    Player.downloadSongToDevice(songYtId, songTitle)
+script downloadSong(songPublicId, songTitle string) {
+    Player.downloadSongToDevice(songPublicId, songTitle)
 }

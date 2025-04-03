@@ -76,12 +76,12 @@ table {
   width: 100%;
   aspect-ratio: 1 / 1;
   border-width: 6px;
-  border-style: solid;
+  border-style: double;
   border-color: var(--secondary-color);
   border-top-color: transparent;
   border-top-width: 2px;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 1s linear infinite;
   margin: 5px;
 }
 @keyframes spin {

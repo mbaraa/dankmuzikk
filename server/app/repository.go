@@ -19,14 +19,14 @@ type Repository interface {
 
 	CreateSong(song models.Song) (models.Song, error)
 	GetSong(id uint) (models.Song, error)
-	GetSongByYouTubeId(ytId string) (models.Song, error)
+	GetSongByPublicId(pubId string) (models.Song, error)
 	IncrementSongPlaysInPlaylist(songId, playlistPubId string, ownerId uint) error
 	UpvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error)
 	DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error)
-	AddSongToHistory(songYtId string, accountId uint) error
+	AddSongToHistory(songPublicId string, accountId uint) error
 	ToggleSongInPlaylist(songId, playlistId, ownerId uint) (added bool, err error)
 	GetHistory(accountId, page uint) (models.List[models.Song], error)
-	MarkSongAsDownloaded(songYtId string) error
+	MarkSongAsDownloaded(songPublicId string) error
 
 	// --------------------------------
 	// Playlist v1 stuff

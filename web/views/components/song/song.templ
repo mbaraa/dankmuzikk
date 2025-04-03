@@ -1,18 +1,18 @@
 package song
 
 import (
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
+	"dankmuzikk-web/views/components/menus"
+	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
 	"fmt"
-	"dankmuzikk-web/views/components/menus"
 	"math/rand"
-	"dankmuzikk-web/views/components/ui"
 )
 
-templ Song(s entities.Song, additionalData []string, additionalOptions []templ.Component, playlist entities.Playlist) {
+templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Component, playlist actions.Playlist) {
 	<div
 		if playlist.PublicId != "" {
-			id={ "song-" + s.YtId }
+			id={ "song-" + s.PublicId }
 		}
 		class={
 			"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "flex", "justify-between",
@@ -24,9 +24,9 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 			<div
 				class={ "w-[80px]",  "h-[80px]", "md:w-[70px]", "md:h-[70px]", "relative", "cursor-pointer" }
 				if playlist.PublicId != "" {
-					onClick={ playSongFromPlaylist(s.YtId, playlist.PublicId) }
+					onClick={ playSongFromPlaylist(s.PublicId, playlist.PublicId) }
 				} else {
-					onClick={ playSong(s.YtId) }
+					onClick={ playSong(s.PublicId) }
 				}
 			>
 				<div
@@ -40,11 +40,11 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 				>
 					<p
 						class={
-							"leading-3", "bg-[#000000ab]", "rounded-sm",
+							"leading-3", "bg-[#000000ab]", "rounded-xs",
 							"text-white", "text-sm", "md:text-md", "font-light", "m-2", "p-[6px]",
 						}
 					>
-						{ s.Duration }
+						{ s.Duration() }
 					</p>
 				</div>
 			</div>
@@ -53,9 +53,9 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 				<div
 					class={ "w-full", "h-full", "flex", "gap-y-3", "items-start", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
 					if playlist.PublicId != "" {
-						onClick={ playSongFromPlaylist(s.YtId, playlist.PublicId) }
+						onClick={ playSongFromPlaylist(s.PublicId, playlist.PublicId) }
 					} else {
-						onClick={ playSong(s.YtId) }
+						onClick={ playSong(s.PublicId) }
 					}
 				>
 					<h3
@@ -81,16 +81,16 @@ templ Song(s entities.Song, additionalData []string, additionalOptions []templ.C
 		<!-- actions -->
 		<div class={ "lg:me-3", "flex", "items-center", "lg:gap-x-4" }>
 			@ui.MobileOnly() {
-				@menus.MobileMenu(s.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(s, additionalOptions))
+				@menus.MobileMenu(s.PublicId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(s, additionalOptions))
 			}
 			@ui.DesktopOnly() {
-				@menus.Popover(s.YtId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(s, additionalOptions))
+				@menus.Popover(s.PublicId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(s, additionalOptions))
 			}
 		</div>
 	</div>
 }
 
-templ options(song entities.Song, additionalOptions []templ.Component) {
+templ options(song actions.Song, additionalOptions []templ.Component) {
 	<div
 		class={
 			"min-w-[250px]", "bg-accent-trans-20", "p-[15px]", "rounded-[10px]",
@@ -109,7 +109,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			}
 			title="Share song"
 			type="button"
-			onClick={ shareSong(song.YtId) }
+			onClick={ shareSong(song.PublicId) }
 		>
 			@icons.ShareLink()
 			<span>Share song</span>
@@ -121,7 +121,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			}
 			title="Add song to queue"
 			type="button"
-			onClick={ addSongToQueue(song.YtId) }
+			onClick={ addSongToQueue(song.PublicId) }
 		>
 			@icons.AddToQueue()
 			<span>Add to queue</span>
@@ -133,7 +133,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			}
 			title="Play next"
 			type="button"
-			onClick={ playSongNext(song.YtId) }
+			onClick={ playSongNext(song.PublicId) }
 		>
 			@icons.AddToQueue()
 			<span>Play next</span>
@@ -145,7 +145,7 @@ templ options(song entities.Song, additionalOptions []templ.Component) {
 			}
 			title="Download song"
 			type="button"
-			onClick={ downloadSong(song.YtId, song.Title) }
+			onClick={ downloadSong(song.PublicId, song.Title) }
 		>
 			@icons.Download()
 			<span>Download to device</span>
@@ -157,27 +157,27 @@ css songThumb(url string) {
 	background-image: { url };
 }
 
-script downloadSong(songYtId, songTitle string) {
-    Player.downloadSongToDevice(songYtId, songTitle)
+script downloadSong(songPublicId, songTitle string) {
+    Player.downloadSongToDevice(songPublicId, songTitle)
 }
 
-script addSongToQueue(songYtId string) {
-    window.Player.addSongToQueueId(songYtId);
+script addSongToQueue(songPublicId string) {
+    window.Player.addSongToQueueId(songPublicId);
 }
 
-script playSong(songYtId string) {
-    window.Player.playSingleSongId(songYtId);
+script playSong(songPublicId string) {
+    window.Player.playSingleSongId(songPublicId);
 }
 
 script playSongFromPlaylist(songId, playlistPubId string) {
     window.Player.playSongFromPlaylistId(songId, playlistPubId)
 }
 
-script playSongNext(songYtId string) {
-    Player.playSingleSongNextId(songYtId)
+script playSongNext(songPublicId string) {
+    Player.playSingleSongNextId(songPublicId)
 }
 
-script shareSong(songYtId string) {
-    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/song/${songYtId}`)
+script shareSong(songPublicId string) {
+    window.Utils.copyTextToClipboard(`${location.protocol}//${location.host}/song/${songPublicId}`)
     alert("Song's links was copied!");
 }

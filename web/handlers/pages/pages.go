@@ -2,16 +2,12 @@ package pages
 
 import (
 	"context"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/config"
-	"dankmuzikk-web/entities"
+	dankerrors "dankmuzikk-web/errors"
 	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/handlers/middlewares/contenttype"
 	"dankmuzikk-web/log"
-	"dankmuzikk-web/services/history"
-	"dankmuzikk-web/services/playlists"
-	"dankmuzikk-web/services/playlists/songs"
-	"dankmuzikk-web/services/requests"
-	"dankmuzikk-web/services/youtube/search"
 	"dankmuzikk-web/views/components/status"
 	"dankmuzikk-web/views/layouts"
 	"dankmuzikk-web/views/pages"
@@ -23,36 +19,21 @@ import (
 )
 
 type pagesHandler struct {
-	playlistsService *playlists.Service
-	ytSearch         search.Service
-	historyService   *history.Service
-	songsService     *songs.Service
+	usecases *actions.Actions
 }
 
-func NewPagesHandler(
-	playlistsService *playlists.Service,
-	ytSearch search.Service,
-	historyService *history.Service,
-	songsService *songs.Service,
-) *pagesHandler {
+func New(usecases *actions.Actions) *pagesHandler {
 	return &pagesHandler{
-		playlistsService: playlistsService,
-		ytSearch:         ytSearch,
-		historyService:   historyService,
-		songsService:     songsService,
+		usecases: usecases,
 	}
 }
 
 func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
-	var recentPlays []entities.Song
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if profileIdCorrect {
-		sessionToken, err := r.Cookie(auth.SessionTokenKey)
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		recentPlays, err = p.historyService.Get(sessionToken.Value, 1)
+	var recentPlays []actions.Song
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if ok {
+		var err error
+		recentPlays, err = p.usecases.GetHistory(sessionToken, 1)
 		if err != nil {
 			log.Errorln(err)
 		}
@@ -64,12 +45,31 @@ func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 		pages.Index(recentPlays).Render(r.Context(), w)
 		return
 	}
+
 	layouts.Default(layouts.PageProps{
 		Title:       "Home",
 		Description: "", // TODO:??
 		Url:         config.Env().Hostname,
 		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.Index(recentPlays)).Render(r.Context(), w)
+}
+
+func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
+	layouts.Raw(layouts.PageProps{
+		Title:       "Login",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/login",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Login()).Render(r.Context(), w)
+}
+
+func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {
+	layouts.Raw(layouts.PageProps{
+		Title:       "Signup",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/signup",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Signup()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
@@ -87,33 +87,28 @@ func (p *pagesHandler) HandleAboutPage(w http.ResponseWriter, r *http.Request) {
 	}, pages.About()).Render(r.Context(), w)
 }
 
-func (p *pagesHandler) HandleLoginPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Raw(layouts.PageProps{
-		Title:       "Login",
+func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
+	layouts.Default(layouts.PageProps{
+		Title:       "Privacy",
 		Description: "", // TODO:??
-		Url:         config.Env().Hostname + "/login",
+		Url:         config.Env().Hostname + "/privacy",
 		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
-	}, pages.Login()).Render(r.Context(), w)
+	}, pages.Privacy()).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
 		status.
-			BugsBunnyError("I'm not sure what you're trying to do :)").
-			Render(context.Background(), w)
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+			BugsBunnyError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
-	playlists, err := p.playlistsService.GetAll(sessionToken.Value)
+	playlists, err := p.usecases.GetAllPlaylists(sessionToken)
 	if err != nil {
 		log.Errorln(err)
-		playlists = make([]entities.Playlist, 0)
+		playlists = make([]actions.Playlist, 0)
 	}
 
 	if contenttype.IsNoLayoutPage(r) {
@@ -131,16 +126,11 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
 		status.
-			BugsBunnyError("I'm not sure what you're trying to do :)").
-			Render(context.Background(), w)
-		return
-	}
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+			BugsBunnyError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -148,19 +138,19 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 	if playlistPubId == "" {
 		status.
 			BugsBunnyError("You need to provide a playlist id!").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 
-	playlist, err := p.playlistsService.Get(sessionToken.Value, playlistPubId)
+	playlist, err := p.usecases.GetSinglePlaylist(sessionToken, playlistPubId)
 	htmxReq := contenttype.IsNoLayoutPage(r)
 	switch {
-	case errors.Is(err, playlists.ErrUnauthorizedToSeePlaylist):
+	case errors.Is(err, dankerrors.ErrUnauthorizedToSeePlaylist):
 		log.Errorln(err)
 		if htmxReq {
 			status.
 				BugsBunnyError("You can't see this playlist! <br/> (don't snoop around other people's stuff or else!)").
-				Render(context.Background(), w)
+				Render(r.Context(), w)
 			return
 		} else {
 			layouts.Default(layouts.PageProps{
@@ -176,7 +166,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 		if htmxReq {
 			status.
 				BugsBunnyError("You can't see this playlist! <br/> (it might be John Cena)").
-				Render(context.Background(), w)
+				Render(r.Context(), w)
 			return
 		} else {
 			layouts.Default(layouts.PageProps{
@@ -206,54 +196,47 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 }
 
 func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Request) {
+	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+
 	songId := r.PathValue("song_id")
 	if songId == "" {
 		status.
 			BugsBunnyError("You need to provide a song id!").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 
-	song, err := p.songsService.GetSong(songId)
+	song, err := p.usecases.GetSongMetadata(sessionToken, songId)
 	if err != nil {
 		status.
 			BugsBunnyError("Song doesn't exist!").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 
 	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", song.Title)
-		w.Header().Set("HX-Push-Url", "/song/"+song.YtId)
+		w.Header().Set("HX-Push-Url", "/song/"+song.PublicId)
 		pages.Song(song).Render(r.Context(), w)
 		return
 	}
 	layouts.Default(layouts.PageProps{
 		Title:       song.Title,
 		Description: "", // TODO:??
-		Url:         config.Env().Hostname + "/song/" + song.YtId,
+		Url:         config.Env().Hostname + "/song/" + song.PublicId,
 		Type:        layouts.SongPage,
 		ImageUrl:    song.ThumbnailUrl,
 		Audio: layouts.AudioProps{
-			Url:      fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, song.YtId),
-			Duration: song.Duration,
+			Url:      fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, song.PublicId),
+			Duration: song.Duration(),
 			Musician: song.Artist,
 		},
 	}, pages.Song(song)).Render(r.Context(), w)
 }
 
-func (p *pagesHandler) HandlePrivacyPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Default(layouts.PageProps{
-		Title:       "Privacy",
-		Description: "", // TODO:??
-		Url:         config.Env().Hostname + "/privacy",
-		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
-	}, pages.Privacy()).Render(r.Context(), w)
-}
-
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
 		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
@@ -261,23 +244,21 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		}
 		return
 	}
-	// error is ignored, because the id was checked in the AuthHandler
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
 
-	user, err := requests.GetRequestAuth[entities.Profile]("/v1/profile", sessionToken.Value)
+	profile, err := p.usecases.GetProfile(sessionToken)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
+		if contenttype.IsNoLayoutPage(r) {
+			w.Header().Set("HX-Redirect", "/")
+		} else {
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		}
 		return
 	}
 
 	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", "Profile")
 		w.Header().Set("HX-Push-Url", "/profile")
-		pages.Profile(user).Render(r.Context(), w)
+		pages.Profile(profile).Render(r.Context(), w)
 		return
 	}
 	layouts.Default(layouts.PageProps{
@@ -286,16 +267,16 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		Url:         config.Env().Hostname + "/profile",
 		Type:        layouts.ProfilePage,
 		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
-	}, pages.Profile(user)).Render(r.Context(), w)
+	}, pages.Profile(profile)).Render(r.Context(), w)
 }
 
 func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("query")
-	results, err := p.ytSearch.Search(query)
+	results, err := p.usecases.SearchYouTube(query)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("not found"))
-		log.Errorln(err)
+		status.
+			BugsBunnyError("Oopsie doopsie your query didn't result anything :)").
+			Render(r.Context(), w)
 		return
 	}
 
@@ -311,13 +292,4 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		Url:         config.Env().Hostname + "/search?query=" + query,
 		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.SearchResults(results)).Render(r.Context(), w)
-}
-
-func (p *pagesHandler) HandleSignupPage(w http.ResponseWriter, r *http.Request) {
-	layouts.Raw(layouts.PageProps{
-		Title:       "Signup",
-		Description: "", // TODO:??
-		Url:         config.Env().Hostname + "/signup",
-		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
-	}, pages.Signup()).Render(r.Context(), w)
 }

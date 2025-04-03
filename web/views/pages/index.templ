@@ -1,14 +1,14 @@
 package pages
 
 import (
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/navlink"
 	"dankmuzikk-web/views/components/page"
 	"dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/song"
 )
 
-templ Index(recentPlays []entities.Song) {
+templ Index(recentPlays []actions.Song) {
 	if recentPlays != nil && len(recentPlays) != 0 {
 		@page.Container(historyHeader(), historyContent(recentPlays))
 	} else {
@@ -25,7 +25,7 @@ templ noListensContent() {
 		DankMuzikk is music player that plays music from YouTube but without actually using YouTube, start by typing a song's name into the search bar (song's first load time is slow ~10s).
 		<br/>
 		More details&nbsp;
-		@navlink.NavLink("in about page", "", "/about")
+		@navlink.NavLink("in the about page", "", "/about")
 		<br/>
 		<br/>
 		And you can check the beta features here <a href="https://beta.dankmuzikk.com">beta.dankmuzikk.com</a>
@@ -39,7 +39,7 @@ templ historyHeader() {
 	<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Recent plays</h1>
 }
 
-templ historyContent(recentPlays []entities.Song) {
+templ historyContent(recentPlays []actions.Song) {
 	<div
 		class={
 			"w-full", "overflow-y-scroll", "max-h-[55vh]", "md:max-h-[65vh]",
@@ -47,7 +47,7 @@ templ historyContent(recentPlays []entities.Song) {
 		}
 	>
 		for idx, s := range recentPlays {
-			@song.Song(s, []string{s.AddedAt}, []templ.Component{playlist.PlaylistsPopup(idx, s.YtId)}, entities.Playlist{})
+			@song.Song(s, []string{s.AddedAt}, []templ.Component{playlist.PlaylistsPopup(idx, s.PublicId)}, actions.Playlist{})
 		}
 		<div
 			class={ "h-[10px]", "mb-[20px]" }

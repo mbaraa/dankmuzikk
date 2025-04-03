@@ -2,12 +2,12 @@ package apis
 
 import (
 	"bytes"
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
-	"dankmuzikk-web/services/history"
 	"dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/song"
+	"dankmuzikk-web/views/components/status"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -16,19 +16,24 @@ import (
 )
 
 type historyApi struct {
-	service *history.Service
+	usecases *actions.Actions
 }
 
-func NewHistoryApi(service *history.Service) *historyApi {
-	return &historyApi{service}
+func NewHistoryApi(usecases *actions.Actions) *historyApi {
+	return &historyApi{
+		usecases: usecases,
+	}
 }
 
 func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Request) {
-	_, profileIdCorrect := r.Context().Value(auth.ProfileIdKey).(uint)
-	if !profileIdCorrect {
-		w.WriteHeader(http.StatusUnauthorized)
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		status.
+			BugsBunnyError("I'm not sure what you're trying to do here :)").
+			Render(r.Context(), w)
 		return
 	}
+
 	page, err := strconv.Atoi(r.PathValue("page"))
 	if err != nil {
 		page = 2
@@ -37,13 +42,7 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 		page *= -1
 	}
 
-	sessionToken, err := r.Cookie(auth.SessionTokenKey)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	recentPlays, err := h.service.Get(sessionToken.Value, uint(page))
+	recentPlays, err := h.usecases.GetHistory(sessionToken, uint(page))
 	if err != nil {
 		log.Errorln(err)
 	}
@@ -56,9 +55,9 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 	for idx, s := range recentPlays {
 		song.Song(s, []string{s.AddedAt},
 			[]templ.Component{
-				playlist.PlaylistsPopup((idx+1)*page, s.YtId),
+				playlist.PlaylistsPopup((idx+1)*page, s.PublicId),
 			},
-			entities.Playlist{}).
+			actions.Playlist{}).
 			Render(r.Context(), outBuf)
 	}
 

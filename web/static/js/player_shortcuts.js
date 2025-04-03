@@ -16,8 +16,8 @@ const shortcuts = {
   p: previousMuzikk,
   P: previousMuzikk,
   s: stopMuzikk,
-  m: mute,
-  M: mute,
+  m: Player.mute,
+  M: Player.mute,
   0: () => (audioPlayerEl.currentTime = 0),
   1: () => (audioPlayerEl.currentTime = audioPlayerEl.duration * 0.1),
   2: () => (audioPlayerEl.currentTime = audioPlayerEl.duration * 0.2),
@@ -33,8 +33,8 @@ const shortcuts = {
   ArrowRight: () => (audioPlayerEl.currentTime += 10),
   ArrowUp: () => setVolume(audioPlayerEl.volume + 0.1),
   ArrowDown: () => setVolume(audioPlayerEl.volume - 0.1),
-  i: expand,
-  I: collapse,
+  i: PlayerUI.expandMobilePlayer,
+  I: PlayerUI.collapseMobilePlayer,
   "/": () => searchInputEl.focus(),
 };
 

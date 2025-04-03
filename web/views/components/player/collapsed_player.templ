@@ -137,7 +137,7 @@ templ volumeButton() {
 }
 
 templ volumeSeeker() {
-	<div class={ "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-secondary", "p-2", "rounded-md" }>
+	<div class={ "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-secondary", "p-2", "rounded-md" }>
 		<input
 			id="volume-seek-bar"
 			type="range"
@@ -170,15 +170,11 @@ templ playbackSpeedMenu() {
 				}
 				title={ fmt.Sprintf("Change playback speed to %.2f", speed) }
 				type="button"
-				onClick={ setPlaybackSpeed(speed) }
+				_={ fmt.Sprintf("on click Player.setPlaybackSpeed('%f')", speed) }
 			>
 				@icons.PlaybackSpeed()
 				x{ fmt.Sprint(speed) }
 			</button>
 		}
 	</div>
-}
-
-script setPlaybackSpeed(speed float32) {
-    window.Player.setPlaybackSpeed(speed)
 }

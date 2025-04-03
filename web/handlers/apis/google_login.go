@@ -1,11 +1,11 @@
 package apis
 
 import (
-	"context"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/config"
+	dankerrors "dankmuzikk-web/errors"
 	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
-	"dankmuzikk-web/services/requests"
 	"dankmuzikk-web/views/components/status"
 	"errors"
 	"net/http"
@@ -13,26 +13,23 @@ import (
 )
 
 type googleLoginApi struct {
+	usecases *actions.Actions
 }
 
-func NewGoogleLoginApi() *googleLoginApi {
-	return &googleLoginApi{}
+func NewGoogleLoginApi(usecases *actions.Actions) *googleLoginApi {
+	return &googleLoginApi{
+		usecases: usecases,
+	}
 }
 
 func (g *googleLoginApi) HandleGoogleOAuthLogin(w http.ResponseWriter, r *http.Request) {
-	resp, err := requests.GetRequest[map[string]string]("/v1/login/google")
+	payload, err := g.usecases.LoginUsingGoogle()
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	url := resp["redirect_url"]
-	if url == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, payload.RedirectUrl, http.StatusTemporaryRedirect)
 }
 
 func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r *http.Request) {
@@ -49,37 +46,28 @@ func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r
 		return
 	}
 
-	resp, err := requests.PostRequest[map[string]string, map[string]string]("/v1/login/google/callback", map[string]string{
-		"code":  code,
-		"state": state,
+	payload, err := g.usecases.FinishLoginUsingGoogle(actions.FinishLoginUsingGoogleParams{
+		Code:  code,
+		State: state,
 	})
-	if errors.Is(err, requests.ErrDifferentLoginMethodUsed) {
+	if errors.Is(err, dankerrors.ErrDifferentLoginMethodUsed) {
 		log.Errorf("[GOOGLE LOGIN API]: Failed to login user:  error: %s\n", err.Error())
 		status.
 			BugsBunnyError("This account uses Email to login!").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 	if err != nil {
 		log.Errorln("[GOOGLE LOGIN API]: ", err)
 		status.
 			GenericError("Account doesn't exist").
-			Render(context.Background(), w)
-		return
-	}
-
-	sessionToken := resp["session_token"]
-	if sessionToken == "" {
-		log.Errorln("[GOOGLE LOGIN API]: ", err)
-		status.
-			GenericError("Something went wrong").
-			Render(context.Background(), w)
+			Render(r.Context(), w)
 		return
 	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     auth.SessionTokenKey,
-		Value:    sessionToken,
+		Value:    payload.SessionToken,
 		HttpOnly: true,
 		Path:     "/",
 		Domain:   config.Env().Hostname,

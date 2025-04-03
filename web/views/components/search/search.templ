@@ -15,6 +15,14 @@ templ Search() {
 			data-loading-target="#loading"
 			data-loading-class-remove="hidden"
 			data-loading-path="/search?no_layout=true"
+			_={ `
+                on submit
+                    halt the event then
+                    put '' into #search-suggestions-container then
+                    call me.blur() then
+                    call #search-input.blur()
+                end
+            ` }
 		>
 			<div class={ "flex", "bg-secondary", "rounded-[8px]", "border", "border-b-[3px]", "border-accent" }>
 				<input
@@ -32,6 +40,11 @@ templ Search() {
 					hx-swap="innerHTML"
 					hx-target="#search-suggestions-container"
 					hx-trigger="keyup"
+					_="on keydown[key is 'ArrowDown']
+                        halt the event then
+                        if #search-suggestion-0 then
+                        call #search-suggestion-0.focus()
+                    end"
 				/>
 				<button
 					type="submit"
@@ -48,5 +61,4 @@ templ Search() {
 			id="search-suggestions-container"
 		></div>
 	</div>
-	// script is in /static/js/search.js
 }

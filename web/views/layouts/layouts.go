@@ -27,4 +27,6 @@ type PageProps struct {
 	Url         string
 	ImageUrl    string
 	Audio       AudioProps
+
+	CssFilePaths []string
 }

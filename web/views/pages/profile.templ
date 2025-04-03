@@ -1,11 +1,11 @@
 package pages
 
 import (
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/page"
 )
 
-templ Profile(prfl entities.Profile) {
+templ Profile(prfl actions.Profile) {
 	@page.Container(profileHeader(), profileContent(prfl))
 }
 
@@ -13,7 +13,7 @@ templ profileHeader() {
 	<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Profile</h1>
 }
 
-templ profileContent(prfl entities.Profile) {
+templ profileContent(prfl actions.Profile) {
 	<div class={ "flex", "flex-col", "gap-y-4" }>
 		<section id="brand" class={ "w-full", "flex", "justify-center" }>
 			<div

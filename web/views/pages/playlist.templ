@@ -1,21 +1,21 @@
 package pages
 
 import (
-	"dankmuzikk-web/entities"
-	"fmt"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/navlink"
+	"dankmuzikk-web/views/components/page"
 	"dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/song"
-	"dankmuzikk-web/views/components/page"
-	"dankmuzikk-web/views/icons"
 	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
+	"fmt"
 )
 
-templ Playlist(pl entities.Playlist) {
+templ Playlist(pl actions.Playlist) {
 	@page.Container(playlistHeader(pl), playlistContent(pl))
 }
 
-templ playlistHeader(pl entities.Playlist) {
+templ playlistHeader(pl actions.Playlist) {
 	<div class={ "mb-4", "flex", "justify-between", "items-center" }>
 		@navlink.LinkContainer("/playlists", "Playlists", backButton())
 		<div class={ "flex", "gap-x-2", "items-center" }>
@@ -32,7 +32,7 @@ templ playlistHeader(pl entities.Playlist) {
 				id="play-playlist-button"
 				type="button"
 				title="Play playlist"
-				onClick={ playSongFromPlaylist(pl.Songs[0].YtId, pl.PublicId) }
+				onClick={ playSongFromPlaylist(pl.Songs[0].PublicId, pl) }
 			>
 				@icons.PlayPlaylist()
 			</button>
@@ -40,7 +40,7 @@ templ playlistHeader(pl entities.Playlist) {
 	</div>
 }
 
-templ playlistContent(pl entities.Playlist) {
+templ playlistContent(pl actions.Playlist) {
 	<div id="playlists-listing">
 		if pl.Songs == nil || len(pl.Songs) == 0 {
 			<p>Hmm... This playlist looks empty, you can add songs from the search!</p>
@@ -58,9 +58,9 @@ templ playlistContent(pl entities.Playlist) {
 							[]string{},
 							[]templ.Component{
 								song.DetailsMobile(s),
-								song.Vote(s.YtId, pl.PublicId, s.Votes),
+								song.Vote(s.PublicId, pl.PublicId, s.Votes),
 								song.RemoveSong(s, pl.PublicId),
-								playlist.PlaylistsPopup(idx, s.YtId),
+								playlist.PlaylistsPopup(idx, s.PublicId),
 							},
 							pl,
 						)
@@ -73,9 +73,9 @@ templ playlistContent(pl entities.Playlist) {
 								"Added on " + s.AddedAt,
 							},
 							[]templ.Component{
-								song.Vote(s.YtId, pl.PublicId, s.Votes),
+								song.Vote(s.PublicId, pl.PublicId, s.Votes),
 								song.RemoveSong(s, pl.PublicId),
-								playlist.PlaylistsPopup(idx, s.YtId),
+								playlist.PlaylistsPopup(idx, s.PublicId),
 							},
 							pl,
 						)
@@ -110,15 +110,6 @@ func playedTimes(times int) string {
 	}
 }
 
-script copyLink(isPublic bool) {
-    window.Utils.copyTextToClipboard(location.href)
-    if (isPublic) {
-        alert("Playlist's links was copied!");
-    } else {
-        alert("Playlist's links was copied!\nMake sure to make it public before sharing the link 😁")
-    }
-}
-
-script playSongFromPlaylist(songId, playlistPubId string) {
-    window.Player.playSongFromPlaylistId(songId, playlistPubId)
+script playSongFromPlaylist(songPublicId string, playlist actions.Playlist) {
+    Player.playSongFromPlaylist(songPublicId, playlist)
 }

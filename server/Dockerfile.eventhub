@@ -3,8 +3,9 @@ FROM golang:1.24-alpine AS build
 WORKDIR /app
 COPY . .
 
-RUN apk add --no-cache make &&\
-    make build-eventhub
+RUN apk add --no-cache make
+
+RUN make build-eventhub
 
 FROM alpine:latest AS run
 

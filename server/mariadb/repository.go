@@ -151,13 +151,13 @@ func (r *Repository) GetSong(id uint) (models.Song, error) {
 	return song, nil
 }
 
-func (r *Repository) GetSongByYouTubeId(ytId string) (models.Song, error) {
+func (r *Repository) GetSongByPublicId(publicId string) (models.Song, error) {
 	var song models.Song
 
 	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Song)).
-			First(&song, "yt_id = ?", ytId).
+			First(&song, "public_id = ?", publicId).
 			Error,
 	)
 	if _, ok := err.(*ErrRecordNotFound); ok {
@@ -185,7 +185,7 @@ func (r *Repository) IncrementSongPlaysInPlaylist(songId, playlistPubId string, 
 		WHERE
 			pl.public_id = ?
 				AND
-			s.yt_id = ?
+			s.public_id = ?
 				AND
 			po.account_id = ?
 		LIMIT 1;`
@@ -231,7 +231,7 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, accountI
 		WHERE
 			pl.public_id = ?
 				AND
-			s.yt_id = ?
+			s.public_id = ?
 				AND
 			po.account_id = ?
 		LIMIT 1;`
@@ -325,7 +325,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, accoun
 		WHERE
 			pl.public_id = ?
 				AND
-			s.yt_id = ?
+			s.public_id = ?
 				AND
 			po.account_id = ?
 		LIMIT 1;`
@@ -406,12 +406,12 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, accoun
 	}
 }
 
-func (r *Repository) AddSongToHistory(songYtId string, accountId uint) error {
+func (r *Repository) AddSongToHistory(songPublicId string, accountId uint) error {
 	var song models.Song
 	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Song)).
-			First(&song, "yt_id = ?", songYtId).
+			First(&song, "public_id = ?", songPublicId).
 			Error,
 	)
 	if err != nil {
@@ -477,7 +477,7 @@ func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (add
 
 func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song], error) {
 	gigaQuery := fmt.Sprintf(
-		`SELECT yt_id, title, artist, thumbnail_url, duration, h.created_at
+		`SELECT public_id, title, artist, thumbnail_url, real_duration, h.created_at
 		FROM
 			histories h JOIN songs
 		ON
@@ -499,7 +499,7 @@ func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song],
 	for rows.Next() {
 		var song models.Song
 		var addedAt time.Time
-		err = rows.Scan(&song.YtId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.Duration, &addedAt)
+		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt)
 		if err != nil {
 			continue
 		}
@@ -512,7 +512,7 @@ func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song],
 }
 
 func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song], error) {
-	gigaQuery := `SELECT yt_id, title, artist, thumbnail_url, duration, ps.created_at, ps.play_times, ps.votes
+	gigaQuery := `SELECT public_id, title, artist, thumbnail_url, real_duration, ps.created_at, ps.play_times, ps.votes
 		FROM
 			playlist_songs ps
 		JOIN songs
@@ -532,7 +532,7 @@ func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song
 	for rows.Next() {
 		var song models.Song
 		var addedAt time.Time
-		err = rows.Scan(&song.YtId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.Duration, &addedAt, &song.PlayTimes, &song.Votes)
+		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt, &song.PlayTimes, &song.Votes)
 		if err != nil {
 			continue
 		}
@@ -545,11 +545,11 @@ func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song
 	return models.NewList(songs, ""), nil
 }
 
-func (r *Repository) MarkSongAsDownloaded(songYtId string) error {
+func (r *Repository) MarkSongAsDownloaded(songPublicId string) error {
 	err := tryWrapDbError(
 		r.client.
 			Model(new(models.Song)).
-			Where("yt_id = ?", songYtId).
+			Where("public_id = ?", songPublicId).
 			Update("fully_downloaded", true).
 			Error,
 	)

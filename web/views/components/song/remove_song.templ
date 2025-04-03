@@ -1,12 +1,13 @@
 package song
 
 import (
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/icons"
+	"fmt"
 )
 
-templ RemoveSong(song entities.Song, playlistId string) {
-	if perm, ok := ctx.Value("playlist-permission").(entities.PlaylistPermissions); ok && (perm & entities.JoinerPermission) != 0 {
+templ RemoveSong(song actions.Song, playlistId string) {
+	if perm, ok := ctx.Value("playlist-permission").(actions.PlaylistPermissions); ok && (perm & actions.JoinerPermission) != 0 {
 		<button
 			class={
 				"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",
@@ -14,14 +15,10 @@ templ RemoveSong(song entities.Song, playlistId string) {
 			}
 			title={ "Remove " + song.Title + "!" }
 			type="button"
-			onClick={ removeSongFromPlaylist(song.YtId, playlistId) }
+			_={ fmt.Sprintf("on click Player.removeSongFromPlaylist('%s', '%s')", song.PublicId, playlistId) }
 		>
 			@icons.Trash()
 			<span>Remove from playlist</span>
 		</button>
 	}
-}
-
-script removeSongFromPlaylist(songId, playlistId string) {
-    Player.removeSongFromPlaylist(songId, playlistId);
 }

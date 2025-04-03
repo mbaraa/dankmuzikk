@@ -93,7 +93,7 @@ func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
 		ActionContext: ctx,
-		SongYtId:      id,
+		SongPublicId:  id,
 		PlaylistPubId: playlistId,
 	})
 	if err != nil {
@@ -112,8 +112,8 @@ func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload, err := s.usecases.GetSongByYouTubeId(actions.GetSongByYouTubeIdParams{
-		SongYouTubeId: id,
+	payload, err := s.usecases.GetSongByPublicId(actions.GetSongByPublicIdParams{
+		SongPublicId: id,
 	})
 	if err != nil {
 		log.Error(err)

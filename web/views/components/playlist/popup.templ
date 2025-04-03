@@ -1,7 +1,7 @@
 package playlist
 
 import (
-	"dankmuzikk-web/entities"
+	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/menus"
 	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
@@ -22,7 +22,7 @@ templ playlistSelector(songId string) {
 		hx-get={ "/api/playlist/all?song-id=" + songId }
 		hx-swap="outerHTML"
 		hx-trigger="intersect"
-		hx-on::error={ showNoPlaylists("playlists-" + songId) }
+		_="on htmx:error put 'No playlists were found!' into me"
 	>
 		<div id="playlist-loading" class={ "w-full", "flex", "flex-col", "items-center", "justify-center" }>
 			<div class={ "loader", "!h-20", "!w-20" }></div>
@@ -31,7 +31,7 @@ templ playlistSelector(songId string) {
 	</div>
 }
 
-templ PlaylistsSelector(songId string, playlists []entities.Playlist, songsInPlaylists map[string]bool) {
+templ PlaylistsSelector(songId string, playlists []actions.Playlist, songsInPlaylists map[string]bool) {
 	<div
 		class={
 			"min-w-[350px]", "bg-accent-trans-30", "backdrop-blur-xl", "p-3", "text-secondary",
@@ -95,8 +95,4 @@ templ popupButton() {
 		@icons.AddToPlaytlist()
 		<span>Save to a playlist</span>
 	</div>
-}
-
-script showNoPlaylists(id string) {
-    document.getElementById(id).innerHTML = "No playlists were found!";
 }

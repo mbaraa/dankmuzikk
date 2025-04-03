@@ -62,9 +62,10 @@ templ Raw(props PageProps, children ...templ.Component) {
 			/>
 			<link href="/static/css/tailwind.css" rel="stylesheet"/>
 			<link href={ fmt.Sprintf("/static/css/themes/%s.css", ctx.Value("theme-name").(string)) } rel="stylesheet"/>
-			<script src="/static/js/htmx/htmx.min.js"></script>
+			<script defer src="/static/js/htmx/htmx.min.js"></script>
 			<script defer src="/static/js/htmx/json-enc.js"></script>
 			<script defer src="/static/js/htmx/loading-states.js"></script>
+			<script defer src="/static/js/htmx/hyperscript.min.js"></script>
 		</head>
 		<body
 			hx-ext="loading-states"
@@ -79,8 +80,8 @@ templ Raw(props PageProps, children ...templ.Component) {
 				@loading.Loading()
 			</div>
 			//
-			<script src="/static/js/utils.js"></script>
-			<script src="/static/js/theme.js"></script>
+			<script defer src="/static/js/utils.js"></script>
+			<script defer src="/static/js/theme.js"></script>
 			<script type="module">
 			    function registerServiceWorkers() {
 			    	if (!("serviceWorker" in navigator)) {

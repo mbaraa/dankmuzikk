@@ -1,11 +1,12 @@
 package menus
 
-import (
-	"fmt"
-)
+import "fmt"
 
 templ Popover(id, title string, button, child templ.Component) {
-	<div class={ "popover-container", "relative" }>
+	<div
+		_={ "on keydown[key is 'Escape'] add .hidden to #popover-" + id }
+		class={ "popover-container", "relative" }
+	>
 		<button
 			class={
 				"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
@@ -13,7 +14,12 @@ templ Popover(id, title string, button, child templ.Component) {
 			}
 			title={ title }
 			type="button"
-			onClick={ toggleTheThing(id) }
+			_={ fmt.Sprintf(`on click
+            call Utils.registerPopover("popover-%s")
+            then
+            toggle .hidden on the next <div/>
+            then
+            go to the bottom of the next <div/>`, id) }
 		>
 			@button
 		</button>
@@ -27,16 +33,4 @@ templ Popover(id, title string, button, child templ.Component) {
 			@child
 		</div>
 	</div>
-}
-
-script toggleTheThing(id string) {
-    id = `popover-${id}`;
-    Utils.registerPopover(id);
-    const popover = document.getElementById(id);
-    if (popover.style.display !== "block") {
-      popover.style.display = "block";
-      popover.scrollIntoView({ block: "nearest" });
-    } else {
-      popover.style.display = "none";
-    }
 }
