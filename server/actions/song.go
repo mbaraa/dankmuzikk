@@ -24,6 +24,20 @@ type Song struct {
 	FullyDownloaded bool          `json:"fully_downloaded"`
 }
 
+func mapModelToActionsSong(s models.Song) Song {
+	return Song{
+		PublicId:        s.PublicId,
+		Title:           s.Title,
+		Artist:          s.Artist,
+		ThumbnailUrl:    s.ThumbnailUrl,
+		Duration:        s.RealDuration,
+		FullyDownloaded: s.FullyDownloaded,
+		PlayTimes:       s.PlayTimes,
+		Votes:           s.Votes,
+		AddedAt:         s.AddedAt,
+	}
+}
+
 type GetSongByPublicIdParams struct {
 	SongPublicId string
 }

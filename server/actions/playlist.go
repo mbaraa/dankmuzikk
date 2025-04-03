@@ -103,16 +103,7 @@ func (a *Actions) GetPlaylistByPublicId(params GetPlaylistByPublicIdParams) (Pla
 
 	var songs []Song
 	for _, song := range playlist.Songs {
-		songs = append(songs, Song{
-			PublicId:     song.PublicId,
-			Title:        song.Title,
-			Artist:       song.Artist,
-			ThumbnailUrl: song.ThumbnailUrl,
-			Duration:     song.RealDuration,
-			PlayTimes:    song.PlayTimes,
-			Votes:        song.Votes,
-			AddedAt:      song.AddedAt,
-		})
+		songs = append(songs, mapModelToActionsSong(*song))
 	}
 
 	return Playlist{

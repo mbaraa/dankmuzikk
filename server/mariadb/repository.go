@@ -430,6 +430,42 @@ func (r *Repository) AddSongToHistory(songPublicId string, accountId uint) error
 	)
 }
 
+func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song], error) {
+	gigaQuery := fmt.Sprintf(
+		`SELECT public_id, title, artist, thumbnail_url, real_duration, h.created_at
+		FROM
+			histories h JOIN songs
+		ON
+				songs.id = h.song_id
+		WHERE h.account_id = ?
+		ORDER BY h.created_at DESC
+		LIMIT %d,%d;`,
+		(page-1)*20, page*20,
+	)
+
+	rows, err := r.client.
+		Raw(gigaQuery, accountId).
+		Rows()
+	if err != nil {
+		return models.List[models.Song]{}, err
+	}
+
+	songs := make([]models.Song, 0)
+	for rows.Next() {
+		var song models.Song
+		var addedAt time.Time
+		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt)
+		if err != nil {
+			continue
+		}
+		song.AddedAt = whenDidItHappen(addedAt)
+		songs = append(songs, song)
+	}
+	_ = rows.Close()
+
+	return models.NewList(songs, fmt.Sprint(page+1)), nil
+}
+
 func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (added bool, err error) {
 	err = tryWrapDbError(
 		r.client.
@@ -475,11 +511,32 @@ func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (add
 	}
 }
 
-func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song], error) {
+func (r *Repository) AddSongToFavorites(songId, accountId uint) error {
+	return tryWrapDbError(
+		r.client.
+			Model(new(models.FavoriteSong)).
+			Create(
+				&models.FavoriteSong{
+					AccountId: accountId,
+					SongId:    songId,
+				}).
+			Error,
+	)
+}
+
+func (r *Repository) RemoveSongFromFavorites(songId, accountId uint) error {
+	return tryWrapDbError(
+		r.client.
+			Exec("DELETE FROM favorite_songs WHERE song_id = ? AND account_id = ?", songId, accountId).
+			Error,
+	)
+}
+
+func (r *Repository) GetFavoriteSongs(accountId, page uint) (models.List[models.Song], error) {
 	gigaQuery := fmt.Sprintf(
 		`SELECT public_id, title, artist, thumbnail_url, real_duration, h.created_at
 		FROM
-			histories h JOIN songs
+			favorite_songs h JOIN songs
 		ON
 				songs.id = h.song_id
 		WHERE h.account_id = ?
