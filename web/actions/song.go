@@ -35,6 +35,14 @@ func (s *Song) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &helper); err != nil {
 		return err
 	}
+	s.PublicId = helper.PublicId
+	s.Title = helper.Title
+	s.Artist = helper.Artist
+	s.ThumbnailUrl = helper.ThumbnailUrl
+	s.PlayTimes = helper.PlayTimes
+	s.Votes = helper.Votes
+	s.AddedAt = helper.AddedAt
+	s.FullyDownloaded = helper.FullyDownloaded
 	s.RealDuration = time.Duration(helper.Duration) * time.Nanosecond
 	return nil
 }
