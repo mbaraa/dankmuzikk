@@ -128,7 +128,7 @@ templ RemoveFromFavoritesButton(songId string) {
 		data-loading-path={ fmt.Sprintf("/api/library/favorite/song?id=%s", songId) }
 	>
 		@icons.FavoritesFilled()
-		<span>Remove from Favorites</span>
+		<span class="text-[15px]">Remove from Favorites</span>
 	</button>
 }
 

@@ -143,7 +143,6 @@ func main() {
 	apisHandler.HandleFunc("DELETE /playlist", authMiddleware.AuthApi(playlistsApi.HandleDeletePlaylist))
 	apisHandler.HandleFunc("GET /playlist/zip", authMiddleware.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
 	apisHandler.HandleFunc("GET /history/{page}", authMiddleware.AuthApi(historyApi.HandleGetMoreHistoryItems))
-
 	apisHandler.HandleFunc("GET /library/favorite/songs/{page}", authMiddleware.AuthApi(libraryApi.HandleGetMoreFavoritesItems))
 	apisHandler.HandleFunc("POST /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleAddSongToFavorites))
 	apisHandler.HandleFunc("DELETE /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleRemoveSongFromFavorites))
