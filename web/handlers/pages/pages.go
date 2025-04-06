@@ -293,3 +293,39 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
 	}, pages.SearchResults(results)).Render(r.Context(), w)
 }
+
+func (p *pagesHandler) HandleFavoritesPage(w http.ResponseWriter, r *http.Request) {
+	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	if !ok {
+		if contenttype.IsNoLayoutPage(r) {
+			w.Header().Set("HX-Redirect", "/")
+		} else {
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		}
+		return
+	}
+
+	favoriteSongs, err := p.usecases.GetFavorites(sessionToken, 1)
+	if err != nil {
+		if contenttype.IsNoLayoutPage(r) {
+			w.Header().Set("HX-Redirect", "/")
+		} else {
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		}
+		return
+	}
+
+	if contenttype.IsNoLayoutPage(r) {
+		w.Header().Set("HX-Title", "Favorites")
+		w.Header().Set("HX-Push-Url", "/library/favorites")
+		pages.Favorites(favoriteSongs.Songs).Render(r.Context(), w)
+		return
+	}
+
+	layouts.Default(layouts.PageProps{
+		Title:       "Favorites",
+		Description: "", // TODO:??
+		Url:         config.Env().Hostname + "/library/favorites",
+		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
+	}, pages.Favorites(favoriteSongs.Songs)).Render(r.Context(), w)
+}

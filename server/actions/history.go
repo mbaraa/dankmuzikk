@@ -26,9 +26,9 @@ func (a *Actions) GetHistoryItems(params GetHistoryItemsParams) ([]Song, error) 
 		for ; i < songs.Size-1 && songs.Items[i+1].PublicId == songs.Items[i].PublicId; i++ {
 			playTimes++
 		}
-		songsFr = append(songsFr, mapModelToActionsSong(songs.Items[i]))
 		// whatever that is :)
-		songsFr[i].AddedAt = fmt.Sprintf("Played %s - %s", times(playTimes), songs.Items[i].AddedAt)
+		songs.Items[i].AddedAt = fmt.Sprintf("Played %s - %s", times(playTimes), songs.Items[i].AddedAt)
+		songsFr = append(songsFr, mapModelToActionsSong(songs.Items[i]))
 	}
 
 	return songsFr, nil

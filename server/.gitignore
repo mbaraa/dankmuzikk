@@ -9,4 +9,4 @@ dankmuzikk-*
 static/css/tailwind.css
 google-service-account.json
 .*/
-./**/*_templ.go
+*_templ.go

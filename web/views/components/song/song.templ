@@ -90,6 +90,48 @@ templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Co
 	</div>
 }
 
+templ AddToFavoritesButton(songId string) {
+	<button
+		class={
+			"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+			"flex", "items-center", "gap-x-2", "w-full",
+		}
+		title="Add to Favorites"
+		type="button"
+		hx-post={ fmt.Sprintf("/api/library/favorite/song?id=%s", songId) }
+		hx-swap="outerHTML"
+		hx-trigger="click"
+		hx-target="this"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={ fmt.Sprintf("/api/library/favorite/song?id=%s", songId) }
+	>
+		@icons.Favorites()
+		<span>Add to Favorites</span>
+	</button>
+}
+
+templ RemoveFromFavoritesButton(songId string) {
+	<button
+		class={
+			"popover-trigger", "p-2", "rounded-md", "hover:bg-accent-trans-20",
+			"flex", "items-center", "gap-x-2", "w-full",
+		}
+		title="Remove from Favorites"
+		type="button"
+		hx-delete={ fmt.Sprintf("/api/library/favorite/song?id=%s", songId) }
+		hx-swap="outerHTML"
+		hx-trigger="click"
+		hx-target="this"
+		data-loading-target="#loading"
+		data-loading-class-remove="hidden"
+		data-loading-path={ fmt.Sprintf("/api/library/favorite/song?id=%s", songId) }
+	>
+		@icons.FavoritesFilled()
+		<span>Remove from Favorites</span>
+	</button>
+}
+
 templ options(song actions.Song, additionalOptions []templ.Component) {
 	<div
 		class={
@@ -101,6 +143,11 @@ templ options(song actions.Song, additionalOptions []templ.Component) {
 		<hr/>
 		for _, option := range additionalOptions {
 			@option
+		}
+		if song.Favorite {
+			@RemoveFromFavoritesButton(song.PublicId)
+		} else {
+			@AddToFavoritesButton(song.PublicId)
 		}
 		<button
 			class={

@@ -22,6 +22,10 @@ type Requests interface {
 	TogglePublicPlaylist(sessionToken, playlistPublicId string) (public bool, err error)
 	DownloadPlaylist(sessionToken, playlistPublicId string) (string, error)
 
+	GetFavorites(sessionToken string, pageIndex uint) (GetFavoritesPayload, error)
+	AddSongToFavorites(sessionToken string, songPublicId string) error
+	RemoveSongFromFavorites(sessionToken string, songPublicId string) error
+
 	GetSongMetadata(sessionToken, songPublicId string) (Song, error)
 	PlaySong(sessionToken, songPublicId, playlistPublicId string) (string, error)
 	ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (added bool, err error)

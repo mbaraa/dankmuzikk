@@ -22,6 +22,7 @@ type Song struct {
 	Votes           int           `json:"votes,omitempty"`
 	AddedAt         string        `json:"added_at,omitempty"`
 	FullyDownloaded bool          `json:"fully_downloaded"`
+	Favorite        bool          `json:"favorite"`
 }
 
 func mapModelToActionsSong(s models.Song) Song {
@@ -35,6 +36,7 @@ func mapModelToActionsSong(s models.Song) Song {
 		PlayTimes:       s.PlayTimes,
 		Votes:           s.Votes,
 		AddedAt:         s.AddedAt,
+		Favorite:        s.Favorite,
 	}
 }
 

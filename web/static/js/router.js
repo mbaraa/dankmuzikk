@@ -31,6 +31,13 @@ const links = [
       document.getElementById("/playlists?mobile"),
     ],
   },
+  {
+    check: (l) => l.startsWith("/library/favorites"),
+    elements: [
+      document.getElementById("/library/favorites"),
+      document.getElementById("/library/favorites?mobile"),
+    ],
+  },
 ];
 
 function updateActiveNavLink() {

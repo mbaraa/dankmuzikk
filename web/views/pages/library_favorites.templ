@@ -1,0 +1,52 @@
+package pages
+
+import (
+	"dankmuzikk-web/actions"
+	"dankmuzikk-web/views/components/page"
+	"dankmuzikk-web/views/components/playlist"
+	"dankmuzikk-web/views/components/song"
+)
+
+templ Favorites(favoriteSongs []actions.Song) {
+	if favoriteSongs != nil && len(favoriteSongs) != 0 {
+		@page.Container(favoritesHeader(), favoritesContent(favoriteSongs))
+	} else {
+		@page.Container(favoritesHeader(), noFavoritesContent())
+	}
+}
+
+templ noFavoritesContent() {
+	<p>
+		Add a song to favorites for it to appear here :)
+	</p>
+}
+
+templ favoritesHeader() {
+	<h1 class={ "text-secondary", "text-3xl", "lg:text-4xl" }>Favorite Songs</h1>
+}
+
+templ favoritesContent(favoriteSongs []actions.Song) {
+	<div
+		class={
+			"w-full", "overflow-y-scroll", "max-h-[55vh]", "md:max-h-[65vh]",
+			"flex", "flex-col", "gap-y-1", "lg:mb-5",
+		}
+	>
+		for idx, s := range favoriteSongs {
+			@song.Song(s, []string{s.AddedAt}, []templ.Component{playlist.PlaylistsPopup(idx, s.PublicId)}, actions.Playlist{})
+		}
+		<div
+			class={ "h-[10px]", "mb-[20px]" }
+			hx-get="/api/library/favorites/2"
+			hx-swap="outerHTML"
+			hx-trigger="intersect"
+			data-hx-revealed="true"
+			data-loading-target="#favorites-loading"
+			data-loading-class-remove="hidden"
+			data-loading-path="/api/library/favorites/2"
+		></div>
+		<div id="favorites-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
+			<div class={ "loader", "!h-20", "!w-20" }></div>
+		</div>
+	</div>
+}

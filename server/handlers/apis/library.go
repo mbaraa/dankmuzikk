@@ -21,6 +21,7 @@ func NewLibraryApi(usecases *actions.Actions) *libraryApi {
 func (l *libraryApi) HandleAddSongToFavorites(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
+		log.Errorln(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -29,6 +30,7 @@ func (l *libraryApi) HandleAddSongToFavorites(w http.ResponseWriter, r *http.Req
 	if songPublicId == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte("missing song's public id"))
+		log.Errorln("AAAAA")
 		return
 	}
 
@@ -37,6 +39,7 @@ func (l *libraryApi) HandleAddSongToFavorites(w http.ResponseWriter, r *http.Req
 		SongPublicId:  songPublicId,
 	})
 	if err != nil {
+		log.Errorln(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -61,6 +64,7 @@ func (l *libraryApi) HandleRemoveSongFromFavorites(w http.ResponseWriter, r *htt
 		SongPublicId:  songPublicId,
 	})
 	if err != nil {
+		log.Errorln(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -89,12 +93,12 @@ func (l *libraryApi) HandleGetFavoriteSongs(w http.ResponseWriter, r *http.Reque
 		PageIndex:     uint(page),
 	}
 
-	recentPlays, err := l.usecases.GetFavoriteSongs(params)
+	favoritePlays, err := l.usecases.GetFavoriteSongs(params)
 	if err != nil {
 		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(recentPlays)
+	_ = json.NewEncoder(w).Encode(favoritePlays)
 }
