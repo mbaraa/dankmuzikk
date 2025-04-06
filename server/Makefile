@@ -5,18 +5,20 @@ CDN_BINARY_NAME=dankmuzikk-cdn
 EVENTHUB_BINARY_NAME=dankmuzikk-eventhub
 MIGRATOR_BINARY_NAME=dankmuzikk-migrator
 
+all: build-server build-eventhub build-cdn build-migrator
+
 build: init generate build-server build-migrator build-eventhub build-cdn
 
-build-server:
+build-server: init generate
 	go build -ldflags="-w -s" -o ${SERVER_BINARY_NAME} ./cmd/http-server/main.go
 
-build-eventhub:
+build-eventhub: init generate
 	go build -ldflags="-w -s" -o ${EVENTHUB_BINARY_NAME} ./cmd/eventhub/...
 
-build-migrator:
+build-migrator: init
 	go build -ldflags="-w -s" -o ${MIGRATOR_BINARY_NAME} ./cmd/migrator/main.go
 
-build-cdn:
+build-cdn: init
 	go build -ldflags="-w -s" -o ${CDN_BINARY_NAME} ./cmd/cdn/main.go
 
 init:

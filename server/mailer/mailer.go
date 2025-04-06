@@ -7,6 +7,8 @@ import (
 	"dankmuzikk/config"
 	"fmt"
 	"net/smtp"
+
+	_ "github.com/a-h/templ"
 )
 
 type SmtpMailer struct {
