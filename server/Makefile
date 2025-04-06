@@ -23,7 +23,7 @@ build-cdn: init
 
 init:
 	go mod tidy && \
-	go generate cmd/http-server/main.go
+	go install github.com/a-h/templ/cmd/templ@v0.3.857
 
 migrate: build-migrator
 	./${MIGRATOR_BINARY_NAME}

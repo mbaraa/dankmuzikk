@@ -12,7 +12,8 @@ generate: tailwindcss-build
 
 init: htmx-init tailwindcss-init
 	go get && \
-	go generate
+	go generate && \
+	go install github.com/a-h/templ/cmd/templ@v0.3.857
 
 htmx-init:
 	mkdir -p static/js/htmx && \
