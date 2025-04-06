@@ -43,7 +43,7 @@ dankmuzikk-server-prod:
 	GO_ENV="prod" ./${SERVER_BINARY_NAME}
 
 generate:
-	go generate cmd/http-server/main.go
+	templ generate -path ./mailer/
 
 clean:
 	go clean

@@ -26,8 +26,6 @@ import (
 	"github.com/tdewolff/minify/v2/json"
 )
 
-//go:generate templ generate -path ../../mailer/
-
 func main() {
 	mariadbRepo, err := mariadb.New()
 	if err != nil {
