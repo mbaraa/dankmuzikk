@@ -16,6 +16,7 @@ type Song struct {
 	Votes           int           `json:"votes"`
 	AddedAt         string        `json:"added_at"`
 	FullyDownloaded bool          `json:"fully_downloaded"`
+	Favorite        bool          `json:"favorite"`
 }
 
 type fakeSong struct {
@@ -28,6 +29,7 @@ type fakeSong struct {
 	Votes           int     `json:"votes"`
 	AddedAt         string  `json:"added_at"`
 	FullyDownloaded bool    `json:"fully_downloaded"`
+	Favorite        bool    `json:"favorite"`
 }
 
 func (s *Song) UnmarshalJSON(data []byte) error {
@@ -44,6 +46,7 @@ func (s *Song) UnmarshalJSON(data []byte) error {
 	s.AddedAt = helper.AddedAt
 	s.FullyDownloaded = helper.FullyDownloaded
 	s.RealDuration = time.Duration(helper.Duration) * time.Nanosecond
+	s.Favorite = helper.Favorite
 	return nil
 }
 
@@ -110,4 +113,20 @@ type GetLyricsForSongPayload struct {
 
 func (a *Actions) GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, error) {
 	return a.requests.GetSongLyrics(songPublicId)
+}
+
+type GetFavoritesPayload struct {
+	Songs []Song `json:"songs"`
+}
+
+func (a *Actions) GetFavorites(sessionToken string, pageIndex uint) (GetFavoritesPayload, error) {
+	return a.requests.GetFavorites(sessionToken, pageIndex)
+}
+
+func (a *Actions) AddSongToFavorites(sessionToken string, songPublicId string) error {
+	return a.requests.AddSongToFavorites(sessionToken, songPublicId)
+}
+
+func (a *Actions) RemoveSongFromFavorites(sessionToken string, songPublicId string) error {
+	return a.requests.RemoveSongFromFavorites(sessionToken, songPublicId)
 }

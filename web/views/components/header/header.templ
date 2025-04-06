@@ -1,11 +1,11 @@
 package header
 
 import (
+	"dankmuzikk-web/views/components/navlink"
 	"dankmuzikk-web/views/components/search"
 	"dankmuzikk-web/views/components/themeswitch"
-	"dankmuzikk-web/views/components/navlink"
-	"dankmuzikk-web/views/icons"
 	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
 )
 
 templ homeLinkContainer() {
@@ -68,6 +68,9 @@ templ Header() {
 						</li>
 						<li>
 							@navlink.RouteLink("Playlists", "/playlists", false)
+						</li>
+						<li>
+							@navlink.RouteLink("Favorites", "/library/favorites", false)
 						</li>
 						<li>
 							@navlink.RouteLink("Profile", "/profile", false)

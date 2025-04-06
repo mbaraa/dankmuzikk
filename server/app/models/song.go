@@ -24,6 +24,10 @@ type Song struct {
 	AddedAt   string `gorm:"-"`
 	Votes     int    `gorm:"-"`
 	PlayTimes int    `gorm:"-"`
+
+	// View only fields
+
+	Favorite bool `gorm:"-"`
 }
 
 func (s Song) GetId() uint {

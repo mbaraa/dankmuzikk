@@ -109,6 +109,7 @@ func main() {
 	pagesHandler.HandleFunc("GET /song/{song_id}", contenttype.Html(authMiddleware.OptionalAuthPage(pages.HandleSingleSongPage)))
 	pagesHandler.HandleFunc("GET /privacy", contenttype.Html(pages.HandlePrivacyPage))
 	pagesHandler.HandleFunc("GET /search", contenttype.Html(authMiddleware.OptionalAuthPage(pages.HandleSearchResultsPage)))
+	pagesHandler.HandleFunc("GET /library/favorites", contenttype.Html(authMiddleware.AuthPage(pages.HandleFavoritesPage)))
 
 	emailLoginApi := apis.NewEmailLoginApi(usecases)
 	googleLoginApi := apis.NewGoogleLoginApi(usecases)
@@ -117,6 +118,7 @@ func main() {
 	historyApi := apis.NewHistoryApi(usecases)
 	logoutApi := apis.NewLogoutApi(usecases)
 	searchSuggestionsApi := apis.NewSearchSiggestionsApi(usecases)
+	libraryApi := apis.NewLibraryApi(usecases)
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -141,6 +143,9 @@ func main() {
 	apisHandler.HandleFunc("DELETE /playlist", authMiddleware.AuthApi(playlistsApi.HandleDeletePlaylist))
 	apisHandler.HandleFunc("GET /playlist/zip", authMiddleware.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
 	apisHandler.HandleFunc("GET /history/{page}", authMiddleware.AuthApi(historyApi.HandleGetMoreHistoryItems))
+	apisHandler.HandleFunc("GET /library/favorite/songs/{page}", authMiddleware.AuthApi(libraryApi.HandleGetMoreFavoritesItems))
+	apisHandler.HandleFunc("POST /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleAddSongToFavorites))
+	apisHandler.HandleFunc("DELETE /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleRemoveSongFromFavorites))
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", ismobile.Handler(theme.Handler(pagesHandler)))

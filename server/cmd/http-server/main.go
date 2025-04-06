@@ -70,6 +70,7 @@ func main() {
 	playlistsApi := apis.NewPlaylistApi(usecases)
 	historyApi := apis.NewHistoryApi(usecases)
 	accountApi := apis.NewAccountApi(usecases)
+	libraryApi := apis.NewLibraryApi(usecases)
 
 	v1ApisHandler := http.NewServeMux()
 	v1ApisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -97,6 +98,10 @@ func main() {
 	v1ApisHandler.HandleFunc("GET /playlist/zip", authMw.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
 
 	v1ApisHandler.HandleFunc("GET /history", authMw.AuthApi(historyApi.HandleGetHistoryItems))
+
+	v1ApisHandler.HandleFunc("POST /library/favorite/song", authMw.AuthApi(libraryApi.HandleAddSongToFavorites))
+	v1ApisHandler.HandleFunc("DELETE /library/favorite/song", authMw.AuthApi(libraryApi.HandleRemoveSongFromFavorites))
+	v1ApisHandler.HandleFunc("GET /library/favorite/songs", authMw.AuthApi(libraryApi.HandleGetFavoriteSongs))
 
 	v1ApisHandler.HandleFunc("GET /me/profile", authMw.AuthApi(accountApi.HandleGetProfile))
 	v1ApisHandler.HandleFunc("GET /me/auth", authMw.AuthApi(accountApi.HandleAuthCheck))

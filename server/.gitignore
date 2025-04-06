@@ -8,6 +8,5 @@ vite.config.ts.timestamp-*
 dankmuzikk-*
 static/css/tailwind.css
 google-service-account.json
-views/**/*.go
-views/**/*.txt
 .*/
+*_templ.go

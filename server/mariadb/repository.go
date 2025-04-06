@@ -430,6 +430,65 @@ func (r *Repository) AddSongToHistory(songPublicId string, accountId uint) error
 	)
 }
 
+func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song], error) {
+	gigaQuery := fmt.Sprintf(
+		`SELECT songs.id, public_id, title, artist, thumbnail_url, real_duration, h.created_at
+		FROM
+			histories h JOIN songs
+		ON
+				songs.id = h.song_id
+		WHERE h.account_id = ?
+		ORDER BY h.created_at DESC
+		LIMIT %d,%d;`,
+		(page-1)*20, page*20,
+	)
+
+	rows, err := r.client.
+		Raw(gigaQuery, accountId).
+		Rows()
+	if err != nil {
+		return models.List[models.Song]{}, err
+	}
+
+	songs := make([]models.Song, 0, 20)
+	songIds := make([]uint, 0, 20)
+	for rows.Next() {
+		var song models.Song
+		var addedAt time.Time
+		err = rows.Scan(&song.Id, &song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt)
+		if err != nil {
+			continue
+		}
+		song.AddedAt = whenDidItHappen(addedAt)
+		songs = append(songs, song)
+		songIds = append(songIds, song.Id)
+	}
+	_ = rows.Close()
+
+	rows, err = r.client.
+		Raw(`SELECT song_id FROM favorite_songs WHERE account_id = ? AND song_id IN ?`, accountId, songIds).
+		Rows()
+	if err != nil {
+		return models.List[models.Song]{}, err
+	}
+
+	songInFavorites := map[uint]bool{}
+	for rows.Next() {
+		var songId uint
+		err = rows.Scan(&songId)
+		if err != nil {
+			continue
+		}
+		songInFavorites[songId] = true
+	}
+
+	for i := range songs {
+		songs[i].Favorite = songInFavorites[songs[i].Id]
+	}
+
+	return models.NewList(songs, fmt.Sprint(page+1)), nil
+}
+
 func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (added bool, err error) {
 	err = tryWrapDbError(
 		r.client.
@@ -475,15 +534,36 @@ func (r *Repository) ToggleSongInPlaylist(songId, playlistId, ownerId uint) (add
 	}
 }
 
-func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song], error) {
+func (r *Repository) AddSongToFavorites(songId, accountId uint) error {
+	return tryWrapDbError(
+		r.client.
+			Model(new(models.FavoriteSong)).
+			Create(
+				&models.FavoriteSong{
+					AccountId: accountId,
+					SongId:    songId,
+				}).
+			Error,
+	)
+}
+
+func (r *Repository) RemoveSongFromFavorites(songId, accountId uint) error {
+	return tryWrapDbError(
+		r.client.
+			Exec("DELETE FROM favorite_songs WHERE song_id = ? AND account_id = ?", songId, accountId).
+			Error,
+	)
+}
+
+func (r *Repository) GetFavoriteSongs(accountId, page uint) (models.List[models.Song], error) {
 	gigaQuery := fmt.Sprintf(
-		`SELECT public_id, title, artist, thumbnail_url, real_duration, h.created_at
+		`SELECT songs.id, public_id, title, artist, thumbnail_url, real_duration, f.created_at
 		FROM
-			histories h JOIN songs
+			favorite_songs f JOIN songs
 		ON
-				songs.id = h.song_id
-		WHERE h.account_id = ?
-		ORDER BY h.created_at DESC
+				songs.id = f.song_id
+		WHERE f.account_id = ?
+		ORDER BY f.created_at DESC
 		LIMIT %d,%d;`,
 		(page-1)*20, page*20,
 	)
@@ -499,11 +579,12 @@ func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song],
 	for rows.Next() {
 		var song models.Song
 		var addedAt time.Time
-		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt)
+		err = rows.Scan(&song.Id, &song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt)
 		if err != nil {
 			continue
 		}
 		song.AddedAt = whenDidItHappen(addedAt)
+		song.Favorite = true
 		songs = append(songs, song)
 	}
 	_ = rows.Close()
@@ -512,7 +593,7 @@ func (r *Repository) GetHistory(accountId, page uint) (models.List[models.Song],
 }
 
 func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song], error) {
-	gigaQuery := `SELECT public_id, title, artist, thumbnail_url, real_duration, ps.created_at, ps.play_times, ps.votes
+	gigaQuery := `SELECT songs.id, public_id, title, artist, thumbnail_url, real_duration, ps.created_at, ps.play_times, ps.votes
 		FROM
 			playlist_songs ps
 		JOIN songs
@@ -529,15 +610,38 @@ func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song
 	}
 
 	songs := make([]*models.Song, 0)
+	songIds := make([]uint, 0)
 	for rows.Next() {
 		var song models.Song
 		var addedAt time.Time
-		err = rows.Scan(&song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt, &song.PlayTimes, &song.Votes)
+		err = rows.Scan(&song.Id, &song.PublicId, &song.Title, &song.Artist, &song.ThumbnailUrl, &song.RealDuration, &addedAt, &song.PlayTimes, &song.Votes)
 		if err != nil {
 			continue
 		}
 		song.AddedAt = addedAt.Format("2, January, 2006")
 		songs = append(songs, &song)
+		songIds = append(songIds, song.Id)
+	}
+
+	rows, err = r.client.
+		Raw(`SELECT song_id FROM favorite_songs WHERE song_id IN ?`, songIds).
+		Rows()
+	if err != nil {
+		return models.List[*models.Song]{}, err
+	}
+
+	songInFavorites := map[uint]bool{}
+	for rows.Next() {
+		var songId uint
+		err = rows.Scan(&songId)
+		if err != nil {
+			continue
+		}
+		songInFavorites[songId] = true
+	}
+
+	for i := range songs {
+		songs[i].Favorite = songInFavorites[songs[i].Id]
 	}
 
 	_ = rows.Close()

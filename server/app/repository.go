@@ -27,6 +27,9 @@ type Repository interface {
 	ToggleSongInPlaylist(songId, playlistId, ownerId uint) (added bool, err error)
 	GetHistory(accountId, page uint) (models.List[models.Song], error)
 	MarkSongAsDownloaded(songPublicId string) error
+	AddSongToFavorites(songId, accountId uint) error
+	RemoveSongFromFavorites(songId, accountId uint) error
+	GetFavoriteSongs(accountId, page uint) (models.List[models.Song], error)
 
 	// --------------------------------
 	// Playlist v1 stuff

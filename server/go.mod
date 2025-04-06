@@ -7,6 +7,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/mbaraa/gonius v0.0.2
+	github.com/mbaraa/ytscrape v0.0.1
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/tdewolff/minify/v2 v2.20.24
 	golang.org/x/crypto v0.35.0
@@ -32,7 +33,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
-	github.com/mbaraa/ytscrape v0.0.1 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
 	github.com/tdewolff/parse/v2 v2.7.14 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect

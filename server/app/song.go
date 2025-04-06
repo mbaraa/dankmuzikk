@@ -24,10 +24,6 @@ func (a *App) DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint)
 	return a.repo.DownvoteSongInPlaylist(songId, playlistPubId, ownerId)
 }
 
-func (a *App) AddSongToHistory(songPublicId string, accountId uint) error {
-	return a.repo.AddSongToHistory(songPublicId, accountId)
-}
-
 func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {
 	playlist, accountPermissions, err := a.CheckAccountPlaylistAccess(ownerId, playlistPubId)
 	if err != nil {

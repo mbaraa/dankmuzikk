@@ -62,4 +62,8 @@ func (e *EventHandlers) HandleDeletePlaylistArchive(event events.PlaylistDownloa
 	return e.usecases.DeletePlaylistArchive(event)
 }
 
+func (e *EventHandlers) HandleDownloadSongOnFavorite(event events.SongAddedToFavorites) error {
+	return e.usecases.DownloadYouTubeSong(event.SongPublicId)
+}
+
 func (e *EventHandlers) IncrementSongPlaysInPlaylist() {}
