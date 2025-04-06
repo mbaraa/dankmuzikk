@@ -94,6 +94,8 @@ func (l *libraryApi) HandleGetMoreFavoritesItems(w http.ResponseWriter, r *http.
 	payload, err := l.usecases.GetFavorites(sessionToken, uint(page))
 	if err != nil {
 		log.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	if len(payload.Songs) == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -111,12 +113,12 @@ func (l *libraryApi) HandleGetMoreFavoritesItems(w http.ResponseWriter, r *http.
 
 	w.Write(fmt.Appendf([]byte{}, `<div
 			class="h-[10px] mb-[20px]"
-			hx-get="/api/library/favorites/%d"
+			hx-get="/api/library/favorite/songs/%d"
 			hx-swap="outerHTML"
 			hx-trigger="intersect"
 			data-hx-revealed="true"
 			data-loading-target="#favorites-loading"
 			data-loading-class-remove="hidden"
-			data-loading-path="/api/library/favorites/%d"></div>`,
+			data-loading-path="/api/library/favorite/songs/%d"></div>`,
 		page+1, page+1))
 }

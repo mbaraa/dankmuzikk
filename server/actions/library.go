@@ -1,12 +1,21 @@
 package actions
 
+import "dankmuzikk/evy/events"
+
 type AddSongToFavoritesParams struct {
 	ActionContext `json:"-"`
 	SongPublicId  string `json:"song_public_id"`
 }
 
 func (a *Actions) AddSongToFavorites(params AddSongToFavoritesParams) error {
-	return a.app.AddSongToFavorites(params.SongPublicId, params.Account.Id)
+	err := a.app.AddSongToFavorites(params.SongPublicId, params.Account.Id)
+	if err != nil {
+		return err
+	}
+
+	return a.eventhub.Publish(events.SongAddedToFavorites{
+		SongPublicId: params.SongPublicId,
+	})
 }
 
 type RemoveSongFromFavoritesParams struct {

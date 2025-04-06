@@ -149,6 +149,23 @@ func executeEvents(events []evy.EventPayload) error {
 
 				wg.Done()
 			}()
+
+		case "song-added-to-favorites":
+			var body dankevents.SongAddedToFavorites
+			err := json.Unmarshal([]byte(e.Body), &body)
+			if err != nil {
+				log.Errorf("failed unmarshalling event's json: %v\n", err)
+				continue
+			}
+
+			go func() {
+				err := handlers.HandleDownloadSongOnFavorite(body)
+				if err != nil {
+					log.Errorln("song-added-to-favorites", err)
+				}
+
+				wg.Done()
+			}()
 		}
 		err := repo.DeleteEvent(e.Id)
 		if err != nil {

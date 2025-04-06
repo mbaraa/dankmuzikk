@@ -557,13 +557,13 @@ func (r *Repository) RemoveSongFromFavorites(songId, accountId uint) error {
 
 func (r *Repository) GetFavoriteSongs(accountId, page uint) (models.List[models.Song], error) {
 	gigaQuery := fmt.Sprintf(
-		`SELECT songs.id, public_id, title, artist, thumbnail_url, real_duration, h.created_at
+		`SELECT songs.id, public_id, title, artist, thumbnail_url, real_duration, f.created_at
 		FROM
-			favorite_songs h JOIN songs
+			favorite_songs f JOIN songs
 		ON
-				songs.id = h.song_id
-		WHERE h.account_id = ?
-		ORDER BY h.created_at DESC
+				songs.id = f.song_id
+		WHERE f.account_id = ?
+		ORDER BY f.created_at DESC
 		LIMIT %d,%d;`,
 		(page-1)*20, page*20,
 	)
