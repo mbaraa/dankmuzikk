@@ -125,7 +125,7 @@ templ Default(props PageProps, children ...templ.Component) {
 			    				console.log("Service Worker Registered", reg);
 			    			})
 			    			.catch((err) => {
-			    				console.log("Service Worker Registration failed:", err);
+			    				console.error("Service Worker Registration failed:", err);
 			    			});
 		                });
 			    }

@@ -5,6 +5,7 @@ import (
 	"dankmuzikk-web/config"
 	dankerrors "dankmuzikk-web/errors"
 	"dankmuzikk-web/handlers/middlewares/auth"
+	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/status"
 	"errors"
@@ -74,5 +75,15 @@ func (g *googleLoginApi) HandleGoogleOAuthLoginCallback(w http.ResponseWriter, r
 		Expires:  time.Now().UTC().Add(time.Hour * 24 * 60),
 	})
 
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	clientHash, ok := r.Context().Value(clienthash.ClientHashKey).(string)
+	if ok {
+		redirectPath, err := g.usecases.GetRedirectPath(clientHash)
+		if err != nil {
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		} else {
+			http.Redirect(w, r, redirectPath, http.StatusTemporaryRedirect)
+		}
+	} else {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	}
 }

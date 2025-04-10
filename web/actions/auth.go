@@ -18,3 +18,11 @@ func (a *Actions) GetProfile(sessionToken string) (Profile, error) {
 func (a *Actions) Logout(sessionToken string) error {
 	return a.requests.Logout(sessionToken)
 }
+
+func (a *Actions) SetRedirectPath(clientHash, path string) error {
+	return a.cache.SetRedirectPath(clientHash, path)
+}
+
+func (a *Actions) GetRedirectPath(clientHash string) (string, error) {
+	return a.cache.GetRedirectPath(clientHash)
+}

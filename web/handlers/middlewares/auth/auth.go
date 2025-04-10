@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"dankmuzikk-web/actions"
+	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/handlers/middlewares/contenttype"
 	"net/http"
 	"slices"
@@ -47,8 +48,16 @@ func (a *Middleware) AuthPage(h http.HandlerFunc) http.HandlerFunc {
 		case !authed && slices.Contains(noAuthPaths, r.URL.Path):
 			h(w, r.WithContext(ctx))
 		case !authed && htmxRedirect:
+			clientHash, ok := r.Context().Value(clienthash.ClientHashKey).(string)
+			if ok {
+				_ = a.usecases.SetRedirectPath(clientHash, r.URL.Path)
+			}
 			w.Header().Set("HX-Redirect", "/login")
 		case !authed && !htmxRedirect:
+			clientHash, ok := r.Context().Value(clienthash.ClientHashKey).(string)
+			if ok {
+				_ = a.usecases.SetRedirectPath(clientHash, r.URL.Path)
+			}
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 		default:
 			h(w, r.WithContext(ctx))

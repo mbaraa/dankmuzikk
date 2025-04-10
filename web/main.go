@@ -5,12 +5,14 @@ import (
 	"dankmuzikk-web/config"
 	"dankmuzikk-web/handlers/apis"
 	"dankmuzikk-web/handlers/middlewares/auth"
+	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/handlers/middlewares/contenttype"
 	"dankmuzikk-web/handlers/middlewares/ismobile"
 	"dankmuzikk-web/handlers/middlewares/logger"
 	"dankmuzikk-web/handlers/middlewares/theme"
 	"dankmuzikk-web/handlers/pages"
 	"dankmuzikk-web/log"
+	"dankmuzikk-web/redis"
 	"dankmuzikk-web/requests"
 	"embed"
 	"net/http"
@@ -47,8 +49,9 @@ func init() {
 	minifyer.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
 	minifyer.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
 
+	cache := redis.New()
 	reqs := requests.New()
-	usecases = actions.New(reqs)
+	usecases = actions.New(reqs, cache)
 	authMiddleware = auth.New(usecases)
 }
 
@@ -153,7 +156,7 @@ func main() {
 
 	log.Info("Starting http server at port " + config.Env().Port)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
-		log.Fatalln(http.ListenAndServe(":"+config.Env().Port, logger.Handler(ismobile.Handler(theme.Handler(applicationHandler)))))
+		log.Fatalln(http.ListenAndServe(":"+config.Env().Port, clienthash.Handler(logger.Handler(ismobile.Handler(theme.Handler(applicationHandler))))))
 	}
-	log.Fatalln(http.ListenAndServe(":"+config.Env().Port, ismobile.Handler(theme.Handler(minifyer.Middleware(applicationHandler)))))
+	log.Fatalln(http.ListenAndServe(":"+config.Env().Port, clienthash.Handler(ismobile.Handler(theme.Handler(minifyer.Middleware(applicationHandler))))))
 }

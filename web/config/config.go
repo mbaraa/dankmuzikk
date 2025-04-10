@@ -16,6 +16,13 @@ func init() {
 		Hostname:      getEnv("HOST_NAME"),
 		ServerAddress: getEnv("SERVER_ADDRESS"),
 		CdnAddress:    getEnv("CDN_ADDRESS"),
+		Cache: struct {
+			Host     string
+			Password string
+		}{
+			Host:     getEnv("CACHE_HOST"),
+			Password: getEnv("CACHE_PASSWORD"),
+		},
 	}
 }
 
@@ -25,6 +32,10 @@ type config struct {
 	Hostname      string
 	ServerAddress string
 	CdnAddress    string
+	Cache         struct {
+		Host     string
+		Password string
+	}
 }
 
 // Env returns the thing's config values :)
