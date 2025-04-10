@@ -5,6 +5,7 @@ import (
 	"dankmuzikk-web/config"
 	dankerrors "dankmuzikk-web/errors"
 	"dankmuzikk-web/handlers/middlewares/auth"
+	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/otp"
 	"dankmuzikk-web/views/components/status"
@@ -150,5 +151,15 @@ func (e *emailLoginApi) HandleEmailOTPVerification(w http.ResponseWriter, r *htt
 		Expires:  time.Now().UTC().Add(time.Hour * 24 * 60),
 	})
 
-	w.Header().Set("HX-Redirect", "/")
+	clientHash, ok := r.Context().Value(clienthash.ClientHashKey).(string)
+	if ok {
+		redirectPath, err := e.usecases.GetRedirectPath(clientHash)
+		if err != nil {
+			w.Header().Set("HX-Redirect", "/")
+		} else {
+			w.Header().Set("HX-Redirect", redirectPath)
+		}
+	} else {
+		w.Header().Set("HX-Redirect", "/")
+	}
 }
