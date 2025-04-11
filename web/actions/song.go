@@ -13,8 +13,8 @@ type Song struct {
 	ThumbnailUrl    string        `json:"thumbnail_url"`
 	RealDuration    time.Duration `json:"duration"`
 	PlayTimes       int           `json:"play_times"`
-	Votes           int           `json:"votes"`
-	AddedAt         string        `json:"added_at"`
+	Votes           int           `json:"votes,omitempty"`
+	AddedAt         string        `json:"added_at,omitempty"`
 	FullyDownloaded bool          `json:"fully_downloaded"`
 	Favorite        bool          `json:"favorite"`
 }
