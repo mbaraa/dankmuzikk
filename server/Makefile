@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: all build dankmuzikk-server
 
 SERVER_BINARY_NAME=dankmuzikk-server
 CDN_BINARY_NAME=dankmuzikk-cdn
@@ -38,7 +38,7 @@ dev:
 	air
 
 dankmuzikk-server:
-	./${MIGRATOR_BINARY_NAME}
+	./${MIGRATOR_BINARY_NAME} &&\
 	./${SERVER_BINARY_NAME}
 
 generate:
