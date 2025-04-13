@@ -89,14 +89,14 @@ func main() {
 
 	v1ApisHandler.HandleFunc("GET /song/play", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
 	v1ApisHandler.HandleFunc("GET /song/single", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
-	v1ApisHandler.HandleFunc("PUT /song/playlist", authMiddleware.AuthApi(songApi.HandleToggleSongInPlaylist))
-	v1ApisHandler.HandleFunc("PUT /song/playlist/upvote", authMiddleware.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
-	v1ApisHandler.HandleFunc("PUT /song/playlist/downvote", authMiddleware.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
 
 	v1ApisHandler.HandleFunc("GET /playlist", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylist))
 	v1ApisHandler.HandleFunc("POST /playlist", authMiddleware.AuthApi(playlistsApi.HandleCreatePlaylist))
 	v1ApisHandler.HandleFunc("DELETE /playlist", authMiddleware.AuthApi(playlistsApi.HandleDeletePlaylist))
+	v1ApisHandler.HandleFunc("PUT /playlist/song", authMiddleware.AuthApi(songApi.HandleToggleSongInPlaylist))
+	v1ApisHandler.HandleFunc("PUT /playlist/song/upvote", authMiddleware.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
+	v1ApisHandler.HandleFunc("PUT /playlist/song/downvote", authMiddleware.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
 	v1ApisHandler.HandleFunc("GET /playlist/all", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylists))
 	v1ApisHandler.HandleFunc("PUT /playlist/public", authMiddleware.AuthApi(playlistsApi.HandleTogglePublicPlaylist))

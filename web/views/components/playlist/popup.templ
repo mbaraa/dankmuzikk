@@ -51,7 +51,7 @@ templ PlaylistsSelector(songId string, playlists []actions.Playlist, songsInPlay
 						class={ "flex", "gap-x-4", "items-center", "cursor-pointer" }
 						hx-put={
 							fmt.Sprintf(
-								"/api/song/playlist?song-id=%s&playlist-id=%s",
+								"/api/playlist/song?song-id=%s&playlist-id=%s",
 								songId,
 								playlist.PublicId,
 							),
@@ -63,7 +63,7 @@ templ PlaylistsSelector(songId string, playlists []actions.Playlist, songsInPlay
 						data-loading-class-remove="hidden"
 						data-loading-path={
 							fmt.Sprintf(
-								"/api/song/playlist?song-id=%s&playlist-id=%s",
+								"/api/playlist/song?song-id=%s&playlist-id=%s",
 								songId,
 								playlist.PublicId,
 							),

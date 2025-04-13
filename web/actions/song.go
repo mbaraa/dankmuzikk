@@ -98,11 +98,19 @@ func (a *Actions) ToggleSongInPlaylist(sessionToken, songPublicId, playlistPubli
 	return a.requests.ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId)
 }
 
-func (a *Actions) UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (votesCount int, err error) {
+type UpvoteSongInPlaylistPayload struct {
+	VotesCount int `json:"votes_count"`
+}
+
+func (a *Actions) UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (UpvoteSongInPlaylistPayload, error) {
 	return a.requests.UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId)
 }
 
-func (a *Actions) DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (votesCount int, err error) {
+type DownvoteSongInPlaylistPayload struct {
+	VotesCount int `json:"votes_count"`
+}
+
+func (a *Actions) DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (DownvoteSongInPlaylistPayload, error) {
 	return a.requests.DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId)
 }
 

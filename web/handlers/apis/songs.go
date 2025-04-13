@@ -5,10 +5,10 @@ import (
 	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/lyrics"
+	"dankmuzikk-web/views/components/song"
 	"dankmuzikk-web/views/components/status"
 	"dankmuzikk-web/views/components/ui"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -42,14 +42,14 @@ func (s *songsApi) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *htt
 		return
 	}
 
-	votes, err := s.usecases.UpvoteSongInPlaylist(sessionToken, songId, playlistId)
+	payload, err := s.usecases.UpvoteSongInPlaylist(sessionToken, songId, playlistId)
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	_, _ = w.Write([]byte(fmt.Sprint(votes)))
+	song.Vote(songId, playlistId, payload.VotesCount).Render(r.Context(), w)
 }
 
 func (s *songsApi) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
@@ -72,14 +72,14 @@ func (s *songsApi) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *h
 		return
 	}
 
-	votes, err := s.usecases.DownvoteSongInPlaylist(sessionToken, songId, playlistId)
+	payload, err := s.usecases.DownvoteSongInPlaylist(sessionToken, songId, playlistId)
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	_, _ = w.Write([]byte(fmt.Sprint(votes)))
+	song.Vote(songId, playlistId, payload.VotesCount).Render(r.Context(), w)
 }
 
 func (s *songsApi) HandlePlaySong(w http.ResponseWriter, r *http.Request) {

@@ -21,8 +21,8 @@ type Repository interface {
 	GetSong(id uint) (models.Song, error)
 	GetSongByPublicId(pubId string) (models.Song, error)
 	IncrementSongPlaysInPlaylist(songId, playlistPubId string, ownerId uint) error
-	UpvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error)
-	DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error)
+	UpvoteSongInPlaylist(songId, playlistPubId, ownerId uint) (int, error)
+	DownvoteSongInPlaylist(songId, playlistPubId, ownerId uint) (int, error)
 	AddSongToHistory(songPublicId string, accountId uint) error
 	ToggleSongInPlaylist(songId, playlistId, ownerId uint) (added bool, err error)
 	GetHistory(accountId, page uint) (models.List[models.Song], error)

@@ -218,43 +218,15 @@ func (r *Repository) IncrementSongPlaysInPlaylist(songId, playlistPubId string, 
 	return nil
 }
 
-func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, accountId uint) (int, error) {
-	gigaQuery := `SELECT pl.id, s.id
-		FROM
-			playlist_owners po
-			JOIN playlists pl
-				ON po.playlist_id = pl.id
-			JOIN playlist_songs ps
-				ON ps.playlist_id = pl.id
-			JOIN songs s
-				ON ps.song_id = ps.song_id
-		WHERE
-			pl.public_id = ?
-				AND
-			s.public_id = ?
-				AND
-			po.account_id = ?
-		LIMIT 1;`
-
-	var songDbId, playlistDbId uint
-	err := tryWrapDbError(
-		r.client.
-			Raw(gigaQuery, playlistPubId, songId, accountId).
-			Row().
-			Scan(&playlistDbId, &songDbId),
-	)
-	if err != nil {
-		return 0, err
-	}
-
+func (r *Repository) UpvoteSongInPlaylist(songId, playlistId, accountId uint) (int, error) {
 	var voter models.PlaylistSongVoter
-	err = tryWrapDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(&voter).
 			First(&voter,
 				"playlist_id = ? AND song_id = ? AND account_id = ? AND vote_up = 1",
-				playlistDbId,
-				songDbId,
+				playlistId,
+				songId,
 				accountId,
 			).Error,
 	)
@@ -269,7 +241,7 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, accountI
 
 	err = tryWrapDbError(
 		r.client.
-			Exec(updateQuery, playlistDbId, songDbId).
+			Exec(updateQuery, playlistId, songId).
 			Error,
 	)
 	if err != nil {
@@ -282,11 +254,11 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, accountI
 			Model(&ps).
 			First(&ps,
 				"playlist_id = ? AND song_id = ?",
-				playlistDbId,
-				songDbId,
+				playlistId,
+				songId,
 			).Error,
 	)
-	if err == nil {
+	if err != nil {
 		return 0, &app.ErrUserHasAlreadyVoted{}
 	}
 
@@ -295,8 +267,8 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, accountI
 			Model(new(models.PlaylistSongVoter)).
 			Create(
 				&models.PlaylistSongVoter{
-					PlaylistId: playlistDbId,
-					SongId:     songDbId,
+					PlaylistId: playlistId,
+					SongId:     songId,
 					AccountId:  accountId,
 					VoteUp:     true,
 				}).
@@ -305,50 +277,24 @@ func (r *Repository) UpvoteSongInPlaylist(songId, playlistPubId string, accountI
 	if _, ok := err.(*ErrRecordExists); ok {
 		return ps.Votes,
 			r.client.
-				Exec("UPDATE playlist_song_voters SET vote_up = 1 WHERE playlist_id = ? AND song_id = ? AND account_id = ?", playlistDbId, songDbId, accountId).
+				Exec(
+					"UPDATE playlist_song_voters SET vote_up = 1 WHERE playlist_id = ? AND song_id = ? AND account_id = ?",
+					playlistId, songId, accountId).
 				Error
 	} else {
 		return ps.Votes, err
 	}
 }
 
-func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, accountId uint) (int, error) {
-	gigaQuery := `SELECT pl.id, s.id
-		FROM
-			playlist_owners po
-			JOIN playlists pl
-				ON po.playlist_id = pl.id
-			JOIN playlist_songs ps
-				ON ps.playlist_id = pl.id
-			JOIN songs s
-				ON ps.song_id = ps.song_id
-		WHERE
-			pl.public_id = ?
-				AND
-			s.public_id = ?
-				AND
-			po.account_id = ?
-		LIMIT 1;`
-
-	var songDbId, playlistDbId uint
-	err := tryWrapDbError(
-		r.client.
-			Raw(gigaQuery, playlistPubId, songId, accountId).
-			Row().
-			Scan(&playlistDbId, &songDbId),
-	)
-	if err != nil {
-		return 0, err
-	}
-
+func (r *Repository) DownvoteSongInPlaylist(songId, playlistId, accountId uint) (int, error) {
 	var voter models.PlaylistSongVoter
-	err = tryWrapDbError(
+	err := tryWrapDbError(
 		r.client.
 			Model(&voter).
 			First(&voter,
 				"playlist_id = ? AND song_id = ? AND account_id = ? AND vote_up = 0",
-				playlistDbId,
-				songDbId,
+				playlistId,
+				songId,
 				accountId,
 			).Error,
 	)
@@ -363,7 +309,7 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, accoun
 
 	err = tryWrapDbError(
 		r.client.
-			Exec(updateQuery, playlistDbId, songDbId).
+			Exec(updateQuery, playlistId, songId).
 			Error,
 	)
 	if err != nil {
@@ -376,11 +322,11 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, accoun
 			Model(&ps).
 			First(&ps,
 				"playlist_id = ? AND song_id = ?",
-				playlistDbId,
-				songDbId,
+				playlistId,
+				songId,
 			).Error,
 	)
-	if err == nil {
+	if err != nil {
 		return 0, &app.ErrUserHasAlreadyVoted{}
 	}
 
@@ -389,8 +335,8 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, accoun
 			Model(new(models.PlaylistSongVoter)).
 			Create(
 				&models.PlaylistSongVoter{
-					PlaylistId: playlistDbId,
-					SongId:     songDbId,
+					PlaylistId: playlistId,
+					SongId:     songId,
 					AccountId:  accountId,
 					VoteUp:     true,
 				}).
@@ -399,7 +345,9 @@ func (r *Repository) DownvoteSongInPlaylist(songId, playlistPubId string, accoun
 	if _, ok := err.(*ErrRecordExists); ok {
 		return ps.Votes,
 			r.client.
-				Exec("UPDATE playlist_song_voters SET vote_up = 0 WHERE playlist_id = ? AND song_id = ? AND account_id = ?", playlistDbId, songDbId, accountId).
+				Exec(
+					"UPDATE playlist_song_voters SET vote_up = 0 WHERE playlist_id = ? AND song_id = ? AND account_id = ?",
+					playlistId, songId, accountId).
 				Error
 	} else {
 		return ps.Votes, err
