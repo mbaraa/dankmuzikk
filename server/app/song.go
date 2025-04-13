@@ -17,11 +17,31 @@ func (a *App) IncrementSongPlaysInPlaylist(songId, playlistPubId string, ownerId
 }
 
 func (a *App) UpvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error) {
-	return a.repo.UpvoteSongInPlaylist(songId, playlistPubId, ownerId)
+	song, err := a.repo.GetSongByPublicId(songId)
+	if err != nil {
+		return 0, err
+	}
+
+	playlist, err := a.repo.GetPlaylistByPublicId(playlistPubId)
+	if err != nil {
+		return 0, err
+	}
+
+	return a.repo.UpvoteSongInPlaylist(song.Id, playlist.Id, ownerId)
 }
 
 func (a *App) DownvoteSongInPlaylist(songId, playlistPubId string, ownerId uint) (int, error) {
-	return a.repo.DownvoteSongInPlaylist(songId, playlistPubId, ownerId)
+	song, err := a.repo.GetSongByPublicId(songId)
+	if err != nil {
+		return 0, err
+	}
+
+	playlist, err := a.repo.GetPlaylistByPublicId(playlistPubId)
+	if err != nil {
+		return 0, err
+	}
+
+	return a.repo.DownvoteSongInPlaylist(song.Id, playlist.Id, ownerId)
 }
 
 func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (added bool, err error) {

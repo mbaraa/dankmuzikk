@@ -264,7 +264,7 @@ func (r *Requests) PlaySong(sessionToken, songPublicId, playlistPublicId string)
 func (r *Requests) ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (added bool, err error) {
 	resp, err := makeRequest[any, map[string]bool](makeRequestConfig[any]{
 		method:   http.MethodPut,
-		endpoint: "/v1/song/playlist",
+		endpoint: "/v1/playlist/song",
 		headers: map[string]string{
 			"Authorization": sessionToken,
 		},
@@ -280,10 +280,10 @@ func (r *Requests) ToggleSongInPlaylist(sessionToken, songPublicId, playlistPubl
 	return resp["added"], nil
 }
 
-func (r *Requests) UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (votesCount int, err error) {
-	resp, err := makeRequest[any, int](makeRequestConfig[any]{
+func (r *Requests) UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (actions.UpvoteSongInPlaylistPayload, error) {
+	resp, err := makeRequest[any, actions.UpvoteSongInPlaylistPayload](makeRequestConfig[any]{
 		method:   http.MethodPut,
-		endpoint: "/v1/song/playlist/upvote",
+		endpoint: "/v1/playlist/song/upvote",
 		headers: map[string]string{
 			"Authorization": sessionToken,
 		},
@@ -293,16 +293,16 @@ func (r *Requests) UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPubl
 		},
 	})
 	if err != nil {
-		return 0, err
+		return actions.UpvoteSongInPlaylistPayload{}, err
 	}
 
 	return resp, nil
 }
 
-func (r *Requests) DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (votesCount int, err error) {
-	resp, err := makeRequest[any, int](makeRequestConfig[any]{
+func (r *Requests) DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (actions.DownvoteSongInPlaylistPayload, error) {
+	resp, err := makeRequest[any, actions.DownvoteSongInPlaylistPayload](makeRequestConfig[any]{
 		method:   http.MethodPut,
-		endpoint: "/v1/song/playlist/downvote",
+		endpoint: "/v1/playlist/song/downvote",
 		headers: map[string]string{
 			"Authorization": sessionToken,
 		},
@@ -312,7 +312,7 @@ func (r *Requests) DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPu
 		},
 	})
 	if err != nil {
-		return 0, err
+		return actions.DownvoteSongInPlaylistPayload{}, err
 	}
 
 	return resp, nil

@@ -29,8 +29,8 @@ type Requests interface {
 	GetSongMetadata(sessionToken, songPublicId string) (Song, error)
 	PlaySong(sessionToken, songPublicId, playlistPublicId string) (string, error)
 	ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (added bool, err error)
-	UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (votesCount int, err error)
-	DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (votesCount int, err error)
+	UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (UpvoteSongInPlaylistPayload, error)
+	DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (DownvoteSongInPlaylistPayload, error)
 	GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, error)
 
 	SearchYouTube(query string) ([]Song, error)

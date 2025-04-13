@@ -4,7 +4,6 @@ import (
 	"dankmuzikk/actions"
 	"dankmuzikk/log"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -37,7 +36,9 @@ func (s *songsHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r 
 	}
 
 	payload, err := s.usecases.UpvoteSongInPlaylist(actions.UpvoteSongInPlaylistParams{
-		ActionContext: ctx,
+		ActionContext:    ctx,
+		SongPublicId:     songId,
+		PlaylistPublicId: playlistId,
 	})
 	if err != nil {
 		log.Error(err)
@@ -45,8 +46,7 @@ func (s *songsHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r 
 		return
 	}
 
-	// TODO: send the payload as is
-	_, _ = w.Write([]byte(fmt.Sprint(payload.VotesCount)))
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 func (s *songsHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +68,9 @@ func (s *songsHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, 
 	}
 
 	payload, err := s.usecases.DownvoteSongInPlaylist(actions.DownvoteSongInPlaylistParams{
-		ActionContext: ctx,
+		ActionContext:    ctx,
+		SongPublicId:     songId,
+		PlaylistPublicId: playlistId,
 	})
 	if err != nil {
 		log.Error(err)
@@ -76,8 +78,7 @@ func (s *songsHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, 
 		return
 	}
 
-	// TODO: send the payload as is
-	_, _ = w.Write([]byte(fmt.Sprint(payload.VotesCount)))
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {

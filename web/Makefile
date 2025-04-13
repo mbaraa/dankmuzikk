@@ -18,7 +18,6 @@ init: htmx-init tailwindcss-init
 htmx-init:
 	mkdir -p static/js/htmx && \
 	wget https://unpkg.com/hyperscript.org@0.9.14/dist/_hyperscript.min.js -O static/js/htmx/hyperscript.min.js &&\
-	wget https://unpkg.com/htmx.org@1.9.12/dist/ext/path-params.js -O static/js/htmx/path-params.js &&\
 	wget https://unpkg.com/htmx-ext-json-enc@2.0.2/dist/json-enc.min.js -O static/js/htmx/json-enc.js &&\
 	wget https://unpkg.com/htmx-ext-loading-states@2.0.1/dist/loading-states.min.js -O static/js/htmx/loading-states.js &&\
 	wget https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js -O static/js/htmx/htmx.min.js

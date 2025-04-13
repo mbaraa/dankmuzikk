@@ -358,7 +358,7 @@ function playlister(state) {
 
     Utils.showLoading();
     fetch(
-      "/api/song/playlist?song-id=" +
+      "/api/playlist/song?song-id=" +
         songPublicId +
         "&playlist-id=" +
         playlistId +
