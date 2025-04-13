@@ -21,4 +21,4 @@ COPY --from=build /app/Makefile ./Makefile
 
 EXPOSE 3000
 
-CMD ["make", "dankmuzikk-server-prod"]
+CMD ["make", "dankmuzikk-server"]
