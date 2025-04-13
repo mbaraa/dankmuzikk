@@ -7,17 +7,17 @@ import (
 	"net/http"
 )
 
-type userApi struct {
+type meApi struct {
 	usecases *actions.Actions
 }
 
-func NewAccountApi(usecases *actions.Actions) *userApi {
-	return &userApi{
+func NewMeApi(usecases *actions.Actions) *meApi {
+	return &meApi{
 		usecases: usecases,
 	}
 }
 
-func (u *userApi) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
+func (u *meApi) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
 		handleErrorResponse(w, err)
@@ -34,10 +34,18 @@ func (u *userApi) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(profile)
 }
 
-func (u *userApi) HandleAuthCheck(w http.ResponseWriter, r *http.Request) {
+func (u *meApi) HandleAuthCheck(w http.ResponseWriter, r *http.Request) {
 	_, err := parseContext(r.Context())
 	if err != nil {
 		handleErrorResponse(w, err)
 		return
 	}
+}
+
+func (m *meApi) HandleLogout(w http.ResponseWriter, r *http.Request) {
+	sessionToken, ok := r.Header["Authorization"]
+	if !ok {
+		return
+	}
+	_ = m.usecases.InvalidateAuthenticatedAccount(sessionToken[0])
 }

@@ -15,7 +15,7 @@ func initEnvVars() {
 		CdnPort:                  getEnv("CDN_PORT"),
 		EventHubPort:             getEnv("EVENTHUB_PORT"),
 		WebPort:                  getEnv("WEB_PORT"),
-		GoEnv:                    getEnv("GO_ENV"),
+		GoEnv:                    GoEnv(getEnv("GO_ENV")),
 		CdnAddress:               getEnv("CDN_ADDRESS"),
 		EventHubAddress:          getEnv("EVENTHUB_ADDRESS"),
 		YouTubeDownloaderAddress: getEnv("YTDL_ADDRESS"),
@@ -62,12 +62,21 @@ func initEnvVars() {
 	}
 }
 
+type GoEnv string
+
+const (
+	GoEnvProd GoEnv = "prod"
+	GoEnvBeta GoEnv = "beta"
+	GoEnvDev  GoEnv = "dev"
+	GoEnvTest GoEnv = "test"
+)
+
 type config struct {
 	Port                     string
 	CdnPort                  string
 	EventHubPort             string
 	WebPort                  string
-	GoEnv                    string
+	GoEnv                    GoEnv
 	CdnAddress               string
 	EventHubAddress          string
 	YouTubeDownloaderAddress string

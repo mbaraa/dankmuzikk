@@ -13,11 +13,7 @@ var (
 
 // GoogleLoginRedirectUrl redirects to frontend after logging with suka Google.
 func GoogleLoginRedirectUrl() string {
-	if Env().GoEnv == "prod" {
-		return fmt.Sprintf("%s/api/login/google/callback", Env().Hostname)
-	} else {
-		return fmt.Sprintf("%s:%s/api/login/google/callback", Env().Hostname, Env().WebPort)
-	}
+	return fmt.Sprintf("%s/api/login/google/callback", Env().Hostname)
 }
 
 func initGoogleConfig() {

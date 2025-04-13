@@ -13,18 +13,18 @@ const (
 	AccountKey = "account"
 )
 
-type mw struct {
+type Middleware struct {
 	usecases *actions.Actions
 }
 
 // New returns a new auth middleware instance.
-func New(usecases *actions.Actions) *mw {
-	return &mw{
+func New(usecases *actions.Actions) *Middleware {
+	return &Middleware{
 		usecases: usecases,
 	}
 }
 
-func (a *mw) AuthHandler(h http.Handler) http.Handler {
+func (a *Middleware) AuthHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		account, err := a.authenticate(r)
 		if err != nil {
@@ -37,7 +37,7 @@ func (a *mw) AuthHandler(h http.Handler) http.Handler {
 }
 
 // AuthApi authenticates an API's handler.
-func (a *mw) AuthApi(h http.HandlerFunc) http.HandlerFunc {
+func (a *Middleware) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		account, err := a.authenticate(r)
 		if err != nil {
@@ -50,7 +50,7 @@ func (a *mw) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 }
 
 // OptionalAuthApi authenticates an API's handler optionally (without 401).
-func (a *mw) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
+func (a *Middleware) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		account, err := a.authenticate(r)
 		if err != nil {
@@ -62,7 +62,7 @@ func (a *mw) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (a *mw) authenticate(r *http.Request) (models.Account, error) {
+func (a *Middleware) authenticate(r *http.Request) (models.Account, error) {
 	sessionToken, ok := r.Header["Authorization"]
 	if !ok {
 		return models.Account{}, &app.ErrInvalidSessionToken{}

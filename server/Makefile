@@ -37,12 +37,9 @@ dev:
 
 	air
 
-dankmuzikk-server-beta:
-	GO_ENV="beta" ./${SERVER_BINARY_NAME}
-
-dankmuzikk-server-prod:
+dankmuzikk-server:
 	./${MIGRATOR_BINARY_NAME}
-	GO_ENV="prod" ./${SERVER_BINARY_NAME}
+	./${SERVER_BINARY_NAME}
 
 generate:
 	templ generate -path ./mailer/

@@ -334,6 +334,10 @@ func (a *Actions) CurrentGoogleLoginRandomState() string {
 	return state
 }
 
+func (a *Actions) InvalidateAuthenticatedAccount(token string) error {
+	return a.cache.InvalidateAuthenticatedAccount(token)
+}
+
 func generateOtp() string {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 	n := r.Intn(1_000_000_000-100001) + 100001

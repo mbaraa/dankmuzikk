@@ -26,7 +26,13 @@ import (
 	"github.com/tdewolff/minify/v2/json"
 )
 
-func main() {
+var (
+	minifyer       *minify.M
+	usecases       *actions.Actions
+	authMiddleware *auth.Middleware
+)
+
+func init() {
 	mariadbRepo, err := mariadb.New()
 	if err != nil {
 		log.Fatalln(err)
@@ -43,7 +49,7 @@ func main() {
 	yt := youtube.New()
 	lyrics := genius.New()
 
-	usecases := actions.New(
+	usecases = actions.New(
 		app,
 		cache,
 		eventhub,
@@ -55,19 +61,21 @@ func main() {
 		lyrics,
 	)
 
-	authMw := auth.New(usecases)
+	authMiddleware = auth.New(usecases)
 
-	minfyer := minify.New()
-	minfyer.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
-	minfyer.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
+	minifyer = minify.New()
+	minifyer.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
+	minifyer.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
+}
 
+func main() {
 	emailLoginApi := apis.NewEmailLoginApi(usecases)
 	googleLoginApi := apis.NewGoogleLoginApi(usecases)
 	searchApi := apis.NewYouTubeSearchApi(usecases)
 	songApi := apis.NewSongsHandler(usecases)
 	playlistsApi := apis.NewPlaylistApi(usecases)
 	historyApi := apis.NewHistoryApi(usecases)
-	accountApi := apis.NewAccountApi(usecases)
+	accountApi := apis.NewMeApi(usecases)
 	libraryApi := apis.NewLibraryApi(usecases)
 
 	v1ApisHandler := http.NewServeMux()
@@ -79,45 +87,44 @@ func main() {
 	v1ApisHandler.HandleFunc("GET /search/suggestions", searchApi.HandleSearchSuggestions)
 	v1ApisHandler.HandleFunc("GET /search", searchApi.HandleSearchResults)
 
-	v1ApisHandler.HandleFunc("GET /song/play", authMw.OptionalAuthApi(songApi.HandlePlaySong))
-	v1ApisHandler.HandleFunc("GET /song/single", authMw.OptionalAuthApi(songApi.HandleGetSong))
-	v1ApisHandler.HandleFunc("PUT /song/playlist", authMw.AuthApi(songApi.HandleToggleSongInPlaylist))
-	v1ApisHandler.HandleFunc("PUT /song/playlist/upvote", authMw.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
-	v1ApisHandler.HandleFunc("PUT /song/playlist/downvote", authMw.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
+	v1ApisHandler.HandleFunc("GET /song/play", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
+	v1ApisHandler.HandleFunc("GET /song/single", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
+	v1ApisHandler.HandleFunc("PUT /song/playlist", authMiddleware.AuthApi(songApi.HandleToggleSongInPlaylist))
+	v1ApisHandler.HandleFunc("PUT /song/playlist/upvote", authMiddleware.AuthApi(songApi.HandleUpvoteSongPlaysInPlaylist))
+	v1ApisHandler.HandleFunc("PUT /song/playlist/downvote", authMiddleware.AuthApi(songApi.HandleDownvoteSongPlaysInPlaylist))
 	v1ApisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
 
-	v1ApisHandler.HandleFunc("GET /playlist", authMw.AuthApi(playlistsApi.HandleGetPlaylist))
-	v1ApisHandler.HandleFunc("POST /playlist", authMw.AuthApi(playlistsApi.HandleCreatePlaylist))
-	v1ApisHandler.HandleFunc("DELETE /playlist", authMw.AuthApi(playlistsApi.HandleDeletePlaylist))
-	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMw.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
-	v1ApisHandler.HandleFunc("GET /playlist/all", authMw.AuthApi(playlistsApi.HandleGetPlaylists))
-	v1ApisHandler.HandleFunc("PUT /playlist/public", authMw.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
-	v1ApisHandler.HandleFunc("PUT /playlist/join", authMw.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
-	v1ApisHandler.HandleFunc("GET /playlist/zip", authMw.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
+	v1ApisHandler.HandleFunc("GET /playlist", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylist))
+	v1ApisHandler.HandleFunc("POST /playlist", authMiddleware.AuthApi(playlistsApi.HandleCreatePlaylist))
+	v1ApisHandler.HandleFunc("DELETE /playlist", authMiddleware.AuthApi(playlistsApi.HandleDeletePlaylist))
+	v1ApisHandler.HandleFunc("GET /playlist/songs/mapped", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
+	v1ApisHandler.HandleFunc("GET /playlist/all", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylists))
+	v1ApisHandler.HandleFunc("PUT /playlist/public", authMiddleware.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
+	v1ApisHandler.HandleFunc("PUT /playlist/join", authMiddleware.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
+	v1ApisHandler.HandleFunc("GET /playlist/zip", authMiddleware.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
 
-	v1ApisHandler.HandleFunc("GET /history", authMw.AuthApi(historyApi.HandleGetHistoryItems))
+	v1ApisHandler.HandleFunc("GET /history", authMiddleware.AuthApi(historyApi.HandleGetHistoryItems))
 
-	v1ApisHandler.HandleFunc("POST /library/favorite/song", authMw.AuthApi(libraryApi.HandleAddSongToFavorites))
-	v1ApisHandler.HandleFunc("DELETE /library/favorite/song", authMw.AuthApi(libraryApi.HandleRemoveSongFromFavorites))
-	v1ApisHandler.HandleFunc("GET /library/favorite/songs", authMw.AuthApi(libraryApi.HandleGetFavoriteSongs))
+	v1ApisHandler.HandleFunc("POST /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleAddSongToFavorites))
+	v1ApisHandler.HandleFunc("DELETE /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleRemoveSongFromFavorites))
+	v1ApisHandler.HandleFunc("GET /library/favorite/songs", authMiddleware.AuthApi(libraryApi.HandleGetFavoriteSongs))
 
-	v1ApisHandler.HandleFunc("GET /me/profile", authMw.AuthApi(accountApi.HandleGetProfile))
-	v1ApisHandler.HandleFunc("GET /me/auth", authMw.AuthApi(accountApi.HandleAuthCheck))
-	v1ApisHandler.HandleFunc("GET /me/logout", func(w http.ResponseWriter, r *http.Request) {
-		sessionToken, ok := r.Header["Authorization"]
-		if !ok {
-			return
-		}
-		_ = cache.InvalidateAuthenticatedAccount(sessionToken[0])
-	})
+	v1ApisHandler.HandleFunc("GET /me/profile", authMiddleware.AuthApi(accountApi.HandleGetProfile))
+	v1ApisHandler.HandleFunc("GET /me/auth", authMiddleware.AuthApi(accountApi.HandleAuthCheck))
+	v1ApisHandler.HandleFunc("GET /me/logout", authMiddleware.AuthApi(accountApi.HandleLogout))
+
+	if config.Env().GoEnv == config.GoEnvTest {
+		v1ApisHandler.HandleFunc("GET /test/otp", nil)
+	}
 
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/v1/", http.StripPrefix("/v1", contenttype.Json(v1ApisHandler)))
 
 	log.Info("Starting http server at port " + config.Env().Port)
-	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
+	switch config.Env().GoEnv {
+	case config.GoEnvBeta, config.GoEnvDev, config.GoEnvTest:
 		log.Fatalln(http.ListenAndServe(":"+config.Env().Port, logger.Handler(applicationHandler)))
+	case config.GoEnvProd:
+		log.Fatalln(http.ListenAndServe(":"+config.Env().Port, minifyer.Middleware(applicationHandler)))
 	}
-
-	log.Fatalln(http.ListenAndServe(":"+config.Env().Port, minfyer.Middleware(applicationHandler)))
 }

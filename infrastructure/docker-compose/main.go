@@ -48,7 +48,7 @@ type TemplateValues struct {
 	MariaDbImage string
 	RedisImage   string
 
-	Beta            bool
+	GoEnv           string
 	ExternalNetwork bool
 	EnabledServices []string
 }
@@ -203,23 +203,23 @@ func getExternalNetwork(name string) (string, error) {
 
 func generateComposeFile(values TemplateValues) (string, error) {
 	serverContainerName := "dank-server"
-	if values.Beta {
+	if values.GoEnv == "beta" {
 		serverContainerName += "-beta"
 	}
 	webContainerName := "dank-web-client"
-	if values.Beta {
+	if values.GoEnv == "beta" {
 		webContainerName += "-beta"
 	}
 	cdnContainerName := "dank-cdn"
-	if values.Beta {
+	if values.GoEnv == "beta" {
 		cdnContainerName += "-beta"
 	}
 	eventhubContainerName := "dank-eventhub"
-	if values.Beta {
+	if values.GoEnv == "beta" {
 		eventhubContainerName += "-beta"
 	}
 	ytdlContainerName := "dank-ytdl"
-	if values.Beta {
+	if values.GoEnv == "beta" {
 		ytdlContainerName += "-beta"
 	}
 
@@ -241,8 +241,13 @@ func generateComposeFile(values TemplateValues) (string, error) {
 				ContainerPort: "3000",
 			},
 		},
-		Environment: []ServiceEnvironmentValues{},
-		EnvFile:     ".env.docker",
+		Environment: []ServiceEnvironmentValues{
+			{
+				Key:   "GO_ENV",
+				Value: values.GoEnv,
+			},
+		},
+		EnvFile: ".env.docker",
 		Volumes: []ServiceVolumesValues{
 			{
 				VolumeName: filesVolumeName,
@@ -269,11 +274,16 @@ func generateComposeFile(values TemplateValues) (string, error) {
 				ContainerPort: "3003",
 			},
 		},
-		Environment: []ServiceEnvironmentValues{},
-		EnvFile:     ".env.docker",
-		Volumes:     []ServiceVolumesValues{},
-		Networks:    []string{values.NetworkName},
-		DependsOn:   []string{serverContainerName},
+		Environment: []ServiceEnvironmentValues{
+			{
+				Key:   "GO_ENV",
+				Value: values.GoEnv,
+			},
+		},
+		EnvFile:   ".env.docker",
+		Volumes:   []ServiceVolumesValues{},
+		Networks:  []string{values.NetworkName},
+		DependsOn: []string{serverContainerName},
 	})
 	if err != nil {
 		return "", err
@@ -592,6 +602,7 @@ func generateProdComposeFile(networkName, uploadsDir string) error {
 		YtDlPort:        "20254",
 		NetworkName:     networkName,
 		FilesPath:       uploadsDir,
+		GoEnv:           "prod",
 		ExternalNetwork: true,
 		EnabledServices: []string{
 			ServiceServer,
@@ -627,7 +638,7 @@ func generateBetaComposeFile(networkName, uploadsDir string) error {
 		YtDlPort:        "20364",
 		NetworkName:     networkName,
 		FilesPath:       uploadsDir,
-		Beta:            true,
+		GoEnv:           "beta",
 		ExternalNetwork: true,
 		EnabledServices: []string{
 			ServiceServer,
