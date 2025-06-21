@@ -5,8 +5,8 @@ import (
 	"dankmuzikk/app"
 	"dankmuzikk/blobs"
 	"dankmuzikk/config"
+	"dankmuzikk/danklyrics"
 	"dankmuzikk/evy"
-	"dankmuzikk/genius"
 	"dankmuzikk/handlers/apis"
 	"dankmuzikk/handlers/middlewares/auth"
 	"dankmuzikk/handlers/middlewares/contenttype"
@@ -43,7 +43,7 @@ func main() {
 	jwtUtil := jwt.New[actions.TokenPayload]()
 	mailer := mailer.New()
 	yt := youtube.New()
-	lyrics := genius.New()
+	lyrics := danklyrics.New()
 
 	usecases := actions.New(
 		app,

@@ -19,6 +19,7 @@ func initEnvVars() {
 		CdnAddress:               getEnv("CDN_ADDRESS"),
 		EventHubAddress:          getEnv("EVENTHUB_ADDRESS"),
 		YouTubeDownloaderAddress: getEnv("YTDL_ADDRESS"),
+		DankLyricsAddress:        getEnv("DANKLYRICS_ADDRESS"),
 		Hostname:                 getEnv("HOST_NAME"),
 		JwtSecret:                getEnv("JWT_SECRET"),
 		BlobsDir:                 getEnv("BLOBS_DIR"),
@@ -71,6 +72,7 @@ type config struct {
 	CdnAddress               string
 	EventHubAddress          string
 	YouTubeDownloaderAddress string
+	DankLyricsAddress        string
 	Hostname                 string
 	JwtSecret                string
 	BlobsDir                 string
