@@ -15,7 +15,6 @@ import (
 const keyPrefix = "dankmuzikk:"
 
 const (
-	songLyricsTtlDays          = 7
 	accountSessionTokenTtlDays = 30
 	otpTtlMinutes              = 30
 	googleLoginStateTtlMinutes = 30
@@ -33,44 +32,6 @@ func New() *Cache {
 			DB:       0,
 		}),
 	}
-}
-
-func songLyricsKey(songId uint) string {
-	return fmt.Sprintf("%ssong:%d:lyrics", keyPrefix, songId)
-}
-
-func (c *Cache) StoreLyrics(songId uint, lyrics []string) error {
-	lyricsJson, err := json.Marshal(lyrics)
-	if err != nil {
-		return err
-	}
-
-	return c.client.Set(context.Background(), songLyricsKey(songId), string(lyricsJson), songLyricsTtlDays*time.Hour*24).Err()
-}
-
-func (c *Cache) GetLyrics(songId uint) ([]string, error) {
-	res := c.client.Get(context.Background(), songLyricsKey(songId))
-	if res == nil {
-		return nil, &app.ErrNotFound{
-			ResourceName: "lyrics",
-		}
-	}
-	value, err := res.Result()
-	if err == redis.Nil {
-		return nil, &app.ErrNotFound{
-			ResourceName: "lyrics",
-		}
-	} else if err != nil {
-		return nil, err
-	}
-
-	var lyrics []string
-	err = json.Unmarshal([]byte(value), &lyrics)
-	if err != nil {
-		return nil, err
-	}
-
-	return lyrics, nil
 }
 
 func accountTokenKey(sessionToken string) string {

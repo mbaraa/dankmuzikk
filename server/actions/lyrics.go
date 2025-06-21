@@ -1,6 +1,6 @@
 package actions
 
 type Lyrics interface {
-	GetForSong(songName string) ([]string, error)
-	GetForSongAndArtist(songName, artistName string) ([]string, error)
+	GetForSong(songName string) ([]string, map[string]string, error)
+	GetForSongAndArtist(songName, artistName string) ([]string, map[string]string, error)
 }

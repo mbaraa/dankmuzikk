@@ -278,20 +278,7 @@ func (a *Actions) GetLyricsForSong(params GetLyricsForSongParams) (GetLyricsForS
 		return GetLyricsForSongPayload{}, err
 	}
 
-	lyrics, err := a.cache.GetLyrics(song.Id)
-	if lyrics != nil && err == nil {
-		return GetLyricsForSongPayload{
-			SongTitle: song.Title,
-			Lyrics:    lyrics,
-		}, nil
-	}
-
-	lyrics, err = a.lyrics.GetForSong(songTitleWeirdStuff.ReplaceAllString(song.Title, ""))
-	if err != nil {
-		return GetLyricsForSongPayload{}, err
-	}
-
-	err = a.cache.StoreLyrics(song.Id, lyrics)
+	lyrics, _, err := a.lyrics.GetForSong(songTitleWeirdStuff.ReplaceAllString(song.Title, ""))
 	if err != nil {
 		return GetLyricsForSongPayload{}, err
 	}
@@ -308,20 +295,7 @@ func (a *Actions) GetLyricsForSongAndArtist(params GetLyricsForSongParams) (GetL
 		return GetLyricsForSongPayload{}, err
 	}
 
-	lyrics, err := a.cache.GetLyrics(song.Id)
-	if lyrics != nil && err == nil {
-		return GetLyricsForSongPayload{
-			SongTitle: song.Title,
-			Lyrics:    lyrics,
-		}, nil
-	}
-
-	lyrics, err = a.lyrics.GetForSongAndArtist(songTitleWeirdStuff.ReplaceAllString(song.Title, ""), song.Artist)
-	if err != nil {
-		return GetLyricsForSongPayload{}, err
-	}
-
-	err = a.cache.StoreLyrics(song.Id, lyrics)
+	lyrics, _, err := a.lyrics.GetForSongAndArtist(songTitleWeirdStuff.ReplaceAllString(song.Title, ""), song.Artist)
 	if err != nil {
 		return GetLyricsForSongPayload{}, err
 	}
