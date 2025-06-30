@@ -60,7 +60,7 @@
   "orientation": "portrait",
   "description": "Create, Share and Play Muzikk Playlists.",
   "id": "com.mbaraa.dankmuzikk",
-  "categories": ["muzikk"],
+  "categories": ["music"],
   "shortcuts": [
     {
       "name": "Home",
@@ -73,6 +73,10 @@
     {
       "name": "Playlists",
       "url": "/playlists"
+    },
+    {
+      "name": "Favorites",
+      "url": "/library/favorites"
     }
   ],
   "launch_handler": {

@@ -1,7 +1,29 @@
 package pages
 
-import "dankmuzikk-web/views/components/info"
-import "dankmuzikk-web/views/components/page"
+import (
+	"dankmuzikk-web/views/components/info"
+	"dankmuzikk-web/views/components/page"
+	"fmt"
+)
+
+var badges = []struct {
+	img   string
+	title string
+	link  string
+}{
+	{title: "Built with Go!", link: "https://golang.org", img: "https://dankstuff.net/assets/dank-imgs/builtwithgo.png"},
+	{title: "Built with HTMX!", link: "https://htmx.org", img: "https://dankstuff.net/assets/dank-imgs/builtwithhtmx.webp"},
+	{title: "A DankStuff product!", link: "https://dankstuff.net", img: "https://dankstuff.net/assets/dank-imgs/dankstuffproduct.webp"},
+	{title: "Donate, maybe?", link: "https://buymeacoffee.com/mbaraa", img: "https://dankstuff.net/assets/dank-imgs/donate00.gif"},
+	{title: "Made by Baraa", link: "https://mbaraa.com", img: "https://mbaraa.com/resources/images/madebybaraa.webp"},
+	{title: "Buy me a coffee!", link: "https://buymeacoffee.com/mbaraa", img: "https://dankstuff.net/assets/dank-imgs/coffee_set2c.gif"},
+	{title: "NEON", link: "", img: "https://dankstuff.net/assets/dank-imgs/fairlite.gif"},
+	{title: "This site is blazingly fast!", link: "", img: "https://dankstuff.net/assets/dank-imgs/fastweb.gif"},
+	{title: "World Wide Web Vibes Kurwa!", link: "", img: "https://dankstuff.net/assets/dank-imgs/geocitieswww.gif"},
+	{title: "Buy me a Coffee but a different logo :0", link: "https://buymeacoffee.com/mbaraa", img: "https://dankstuff.net/assets/dank-imgs/dollarspindownd.gif"},
+	{title: "Smile or something, maybe your smile can save someone's life!", link: "", img: "https://dankstuff.net/assets/dank-imgs/hasmile.gif"},
+	{title: "JK JK!", link: "", img: "https://dankstuff.net/assets/dank-imgs/thispageviolatestos.gif"},
+}
 
 templ About() {
 	@page.Container(aboutHeader(), aboutContent())
@@ -85,6 +107,62 @@ templ aboutContent() {
 				<li>Colorscheme is inspired from  <a class={ "nav-link" } href="https://youtube.com/@Dankpods" target="_blank">&commat;Dankpods</a> </li>
 				<li>Loader’s CSS was made by <a class={ "nav-link" } href="https://github.com/thamudi" target="_blank">&commat;thamudi</a> </li>
 			</ul>
+		</section>
+		<section id="badges" class={ "flex", "flex-col", "gap-y-1" }>
+			<h2 class={ "text-xl", "font-bold" }>Awesome Badges</h2>
+			<div
+				class={ "flex", "gap-2", "flex-wrap", "justify-center", "space-x-2", "!p-3", "!mt-4", "border", "bg-white/10", "shadow-sm", "text-white" }
+			>
+				<div class={ "flex", "place-content-center", "items-center", "bg-black", "!p-2", "!max-h-10" }>
+					<img
+						class="h-6 mx-1"
+						style="image-rendering: pixelated"
+						src="/assets/images/github.svg"
+						alt="source code"
+						title="source code"
+					/>
+					<p>
+						<a
+							class="text-md underline text-white"
+							href="https://github.com/mbaraa/danknotes"
+							target="_blank"
+						>&nbsp;Source code</a>
+					</p>
+				</div>
+				for _, thing := range badges {
+					if thing.link != "" {
+						<a href={ templ.SafeURL(thing.link) } target="_blank">
+							<img
+								class="inline-block h-10"
+								style="image-rendering: pixelated"
+								src={ thing.img }
+								alt={ thing.title }
+								title={ thing.title }
+							/>
+						</a>
+					} else {
+						<img
+							class="inline-block h-10"
+							style="image-rendering: pixelated"
+							src={ thing.img }
+							alt={ thing.title }
+							title={ thing.title }
+						/>
+					}
+				}
+			</div>
+			<div
+				class="text-center mx-auto opacity-20 hover:opacity-100 transition duration-500 !min-w-20"
+			>
+				<p
+					class="font-mono font-bold bg-[#fcfcde] px-1 border-2 border-black text-black mt-4"
+				>
+					version:
+					<a class="italic" href="https://github.com/mbaraa/danknotes">
+						{ fmt.Sprint(ctx.Value("version")) }
+					</a>
+				</p>
+			</div>
 		</section>
 	</div>
 }
