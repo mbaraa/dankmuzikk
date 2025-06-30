@@ -2,6 +2,8 @@
 
 BINARY_NAME=dankmuzikk-web
 
+all: init build
+
 build: htmx-init tailwindcss-init
 	go mod tidy && \
 	go generate && \

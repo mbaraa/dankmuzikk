@@ -3,11 +3,9 @@ FROM golang:1.24-alpine AS build
 WORKDIR /app
 COPY . .
 
-RUN go install github.com/a-h/templ/cmd/templ@v0.2.731 &&\
-    apk add --no-cache make
+RUN apk add --no-cache make
 
-RUN make init &&\
-    make build-server &&\
+RUN make build-server &&\
     make build-migrator
 
 FROM alpine:latest AS run
