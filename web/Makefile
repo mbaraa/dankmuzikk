@@ -1,21 +1,19 @@
-.PHONY: build
+.PHONY: all build
 
 BINARY_NAME=dankmuzikk-web
 
 all: init build
 
-build: htmx-init tailwindcss-init
-	go mod tidy && \
-	go generate && \
+build:
 	go build -ldflags="-w -s" -o ${BINARY_NAME}
 
 generate: tailwindcss-build
 	go generate
 
 init: htmx-init tailwindcss-init
-	go get && \
-	go generate && \
-	go install github.com/a-h/templ/cmd/templ@v0.3.857
+	go install github.com/a-h/templ/cmd/templ@v0.3.857 && \
+	go mod tidy && \
+	go generate
 
 htmx-init:
 	mkdir -p static/js/htmx && \
