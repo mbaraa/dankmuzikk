@@ -6,7 +6,7 @@ require (
 	github.com/a-h/templ v0.3.833
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang-jwt/jwt/v4 v4.5.2
-	github.com/mbaraa/danklyrics v0.1.0
+	github.com/mbaraa/danklyrics v0.3.0
 	github.com/mbaraa/ytscrape v0.0.1
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/tdewolff/minify/v2 v2.20.24
