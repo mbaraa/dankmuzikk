@@ -2,7 +2,7 @@ root = "."
 
 [build]
 full_bin = "export `cat ../.env | xargs` && ./dankmuzikk-web"
-cmd = "go generate && go build -o dankmuzikk-web"
+cmd = "make generate build"
 delay = 25
 exclude_dir = [
   "assets",

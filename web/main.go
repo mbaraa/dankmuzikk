@@ -10,12 +10,14 @@ import (
 	"dankmuzikk-web/handlers/middlewares/ismobile"
 	"dankmuzikk-web/handlers/middlewares/logger"
 	"dankmuzikk-web/handlers/middlewares/theme"
+	"dankmuzikk-web/handlers/middlewares/version"
 	"dankmuzikk-web/handlers/pages"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/redis"
 	"dankmuzikk-web/requests"
 	"embed"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -38,6 +40,8 @@ var (
 
 	usecases       *actions.Actions
 	authMiddleware *auth.Middleware
+
+	appVersion string
 )
 
 func init() {
@@ -53,6 +57,11 @@ func init() {
 	reqs := requests.New()
 	usecases = actions.New(reqs, cache)
 	authMiddleware = auth.New(usecases)
+
+	appVersion = os.Getenv("DANK_VERSION")
+	if appVersion == "" {
+		appVersion = "git-latest"
+	}
 }
 
 func main() {
@@ -156,7 +165,7 @@ func main() {
 
 	log.Info("Starting http server at port " + config.Env().Port)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
-		log.Fatalln(http.ListenAndServe(":"+config.Env().Port, clienthash.Handler(logger.Handler(ismobile.Handler(theme.Handler(applicationHandler))))))
+		log.Fatalln(http.ListenAndServe(":"+config.Env().Port, version.Handler(appVersion, clienthash.Handler(logger.Handler(ismobile.Handler(theme.Handler(applicationHandler)))))))
 	}
-	log.Fatalln(http.ListenAndServe(":"+config.Env().Port, clienthash.Handler(ismobile.Handler(theme.Handler(minifyer.Middleware(applicationHandler))))))
+	log.Fatalln(http.ListenAndServe(":"+config.Env().Port, version.Handler(appVersion, clienthash.Handler(ismobile.Handler(theme.Handler(minifyer.Middleware(applicationHandler)))))))
 }

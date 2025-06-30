@@ -28,6 +28,8 @@ services:
     ports:
       - "20253:3003"
     stdin_open: true
+    environment:
+      - DANK_VERSION=${LATEST_TAG:-${COMMIT_SHA}}
     env_file:
       - .env.docker
     networks:

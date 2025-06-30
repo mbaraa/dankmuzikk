@@ -8,6 +8,11 @@ import (
 	"text/template"
 )
 
+var versionEnv = ServiceEnvironmentValues{
+	Key:   "DANK_VERSION",
+	Value: "${LATEST_TAG:-${COMMIT_SHA}}",
+}
+
 const (
 	mariadbImage = "mariadb:11.7"
 	redisImage   = "redis:7.2.4"
@@ -242,6 +247,7 @@ func generateComposeFile(values TemplateValues) (string, error) {
 			},
 		},
 		Environment: []ServiceEnvironmentValues{
+			versionEnv,
 			{
 				Key:   "GO_ENV",
 				Value: values.GoEnv,
@@ -275,6 +281,7 @@ func generateComposeFile(values TemplateValues) (string, error) {
 			},
 		},
 		Environment: []ServiceEnvironmentValues{
+			versionEnv,
 			{
 				Key:   "GO_ENV",
 				Value: values.GoEnv,
@@ -302,8 +309,10 @@ func generateComposeFile(values TemplateValues) (string, error) {
 				ContainerPort: "3001",
 			},
 		},
-		Environment: []ServiceEnvironmentValues{},
-		EnvFile:     ".env.docker",
+		Environment: []ServiceEnvironmentValues{
+			versionEnv,
+		},
+		EnvFile: ".env.docker",
 		Volumes: []ServiceVolumesValues{
 			{
 				VolumeName: filesVolumeName,
@@ -329,8 +338,10 @@ func generateComposeFile(values TemplateValues) (string, error) {
 				ContainerPort: "3002",
 			},
 		},
-		Environment: []ServiceEnvironmentValues{},
-		EnvFile:     ".env.docker",
+		Environment: []ServiceEnvironmentValues{
+			versionEnv,
+		},
+		EnvFile: ".env.docker",
 		Volumes: []ServiceVolumesValues{
 			{
 				VolumeName: filesVolumeName,
