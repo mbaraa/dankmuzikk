@@ -196,10 +196,12 @@ function collapseMobilePlayer() {
   }
 }
 
+// TODO: kill this
 function show() {
   muzikkContainerEl.style.display = "block";
 }
 
+// TODO: kill this
 function hide() {
   muzikkContainerEl.style.display = "none";
 }

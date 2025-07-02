@@ -25,8 +25,9 @@ func init() {
 	repo = mariadbRepo
 
 	cache := redis.New()
+	playerCache := redis.NewPlayerCache()
 
-	app := app.New(mariadbRepo, cache)
+	app := app.New(mariadbRepo, cache, playerCache)
 	zipArchiver := zip.New()
 	blobstorage := blobs.New()
 	jwtUtil := jwt.New[actions.TokenPayload]()

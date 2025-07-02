@@ -7,17 +7,17 @@
  * l r k n N p P s m M 0 1 2 3 4 5 6 7 8 9 $ i I /
  */
 const shortcuts = {
-  " ": togglePP,
-  l: () => toggleLoop(),
-  r: () => toggleShuffle(),
-  k: togglePP,
+  " ": togglePlayPause,
+  l: toggleLoop,
+  r: toggleShuffle,
+  k: togglePlayPause,
   n: nextMuzikk,
   N: nextMuzikk,
   p: previousMuzikk,
   P: previousMuzikk,
   s: stopMuzikk,
-  m: Player.mute,
-  M: Player.mute,
+  m: () => mute(),
+  M: () => mute(),
   0: () => (audioPlayerEl.currentTime = 0),
   1: () => (audioPlayerEl.currentTime = audioPlayerEl.duration * 0.1),
   2: () => (audioPlayerEl.currentTime = audioPlayerEl.duration * 0.2),

@@ -1,6 +1,7 @@
 package danklyrics
 
 import (
+	"dankmuzikk/app"
 	"dankmuzikk/config"
 
 	"github.com/mbaraa/danklyrics/pkg/client"
@@ -30,6 +31,12 @@ func (d *dankLyrics) GetForSong(songName string) ([]string, map[string]string, e
 		return nil, nil, err
 	}
 
+	if len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0 {
+		return nil, nil, &app.ErrNotFound{
+			ResourceName: "lyrics",
+		}
+	}
+
 	return lyrics.Parts, lyrics.Synced, nil
 }
 
@@ -40,6 +47,12 @@ func (d *dankLyrics) GetForSongAndArtist(songName, artistName string) ([]string,
 	})
 	if err != nil {
 		return nil, nil, err
+	}
+
+	if len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0 {
+		return nil, nil, &app.ErrNotFound{
+			ResourceName: "lyrics",
+		}
 	}
 
 	return lyrics.Parts, lyrics.Synced, nil

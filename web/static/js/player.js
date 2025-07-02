@@ -3,6 +3,36 @@
 const audioPlayerEl = document.getElementById("muzikk-player");
 
 /**
+ * @type {Requests}
+ */
+let requests;
+
+/**
+ * @type {PlayerState}
+ */
+let freshPlayerState;
+
+let removeSongFromPlaylist;
+let setVolume, mute;
+let setPlaybackSpeed;
+
+async function init() {
+  requests = new Requests();
+  freshPlayerState = new PlayerState({});
+  await freshPlayerState.refreshState().catch((e) => {
+    console.log(e);
+  });
+
+  handleUIEvents();
+  handlePlayerElementEvents();
+  handleMediaSessionEvents();
+
+  removeSongFromPlaylist = () => requests.removeSongFromPlaylist;
+  [setVolume, mute] = volumer();
+  setPlaybackSpeed = playebackSpeeder();
+}
+
+/**
  * @typedef {object} Song
  * @property {string} title
  * @property {string} artist
@@ -25,368 +55,433 @@ const audioPlayerEl = document.getElementById("muzikk-player");
  * @property {Song[]} songs
  */
 
-/**
- * @typedef {object} PlayerState
- * @property {LoopMode} loopMode
- * @property {boolean} shuffled
- * @property {string} shuffledPlaylist
- * @property {Playlist} playlist
- * @property {number} currentSongIdx
- * @property {boolean} lyricsLoaded
- */
-
-/**
- * @enum {LoopMode}
- */
-const LOOP_MODES = Object.freeze({
-  ALL: "ALL",
-  OFF: "OFF",
-  ONCE: "ONCE",
-});
-
-/**
- * @type{PlayerState}
- */
-const playerState = {
-  loopMode: LOOP_MODES.OFF,
-  shuffled: false,
-  shuffledPlaylist: "",
-  currentSongIdx: 0,
-  playlist: {
-    title: "Queue",
-    songs_count: 0,
-    public_id: "",
-    songs: [],
-  },
-  lyricsLoaded: false,
-};
-
-function isSingleSong() {
-  return playerState.playlist.songs.length <= 1;
-}
-
-/**
- * @returns {[Function, Function]}
- */
-function looper() {
-  const loopModes = [LOOP_MODES.OFF, LOOP_MODES.ONCE, LOOP_MODES.ALL];
-  let currentLoopIdx = 0;
-
-  const __toggle = () => {
-    if (isSingleSong()) {
-      currentLoopIdx = currentLoopIdx === 0 ? 1 : 0;
-    } else {
-      currentLoopIdx = (currentLoopIdx + 1) % loopModes.length;
-    }
-    if (__check(LOOP_MODES.ONCE)) {
-      PlayerUI.setLoopOnce();
-    } else if (__check(LOOP_MODES.ALL)) {
-      PlayerUI.setLoopAll();
-    } else if (__check(LOOP_MODES.OFF)) {
-      PlayerUI.setLoopOff();
-    } else {
-      PlayerUI.setLoopOff();
-    }
-  };
-
-  const __handle = () => {
-    switch (loopModes[currentLoopIdx]) {
-      case LOOP_MODES.OFF:
-        stopMuzikk();
-        if (!isSingleSong()) {
-          nextMuzikk();
-        }
-        break;
-      case LOOP_MODES.ONCE:
-        stopMuzikk();
-        playMuzikk();
-        break;
-      case LOOP_MODES.ALL:
-        if (!isSingleSong()) {
-          nextMuzikk();
-        }
-        break;
-    }
-  };
-
-  /**
-   * @param {LoopMode} loopMode
-   * @returns {boolean}
-   */
-  const __check = (loopMode) => loopMode === loopModes[currentLoopIdx];
-
-  return [__toggle, __handle, __check];
-}
-
-/**
- * @param {HTMLAudioElement} audioEl
- *
- * @returns {[Function, Function, Function]}
- */
-function playPauser(audioEl) {
-  const __play = () => {
-    audioEl.muted = null;
-    audioEl.play();
-    PlayerUI.highlightSong(
-      playerState.playlist.songs[playerState.currentSongIdx].public_id,
-    );
-    PlayerUI.setPauseIcon();
-  };
-  const __pause = () => {
-    audioEl.pause();
-    PlayerUI.setPlayIcon();
-  };
-  const __toggle = () => {
-    if (audioEl.paused) {
-      __play();
-    } else {
-      __pause();
-    }
-  };
-  return [__play, __pause, __toggle];
-}
-
-/**
- * @param {HTMLAudioElement} audioEl
- *
- * @returns {Function}
- */
-function stopper(audioEl) {
-  return () => {
-    audioEl.pause();
-    audioEl.currentTime = 0;
-    PlayerUI.unHighlightSong(
-      playerState.playlist.songs[playerState.currentSongIdx].public_id,
-    );
-    PlayerUI.setPlayIcon();
-  };
-}
-
-/**
- * @param {PlayerState} state
- *
- * @returns {Function}
- */
-function shuffler(state) {
-  // using Fisher–Yates shuffling algorithm
-  // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-  const __shuffleArray = (a) => {
-    let currIdx = a.length;
-    while (currIdx != 0) {
-      let randIdx = Math.floor(Math.random() * currIdx);
-      currIdx--;
-      [a[currIdx], a[randIdx]] = [a[randIdx], a[currIdx]];
-    }
-  };
-
+class Requests {
   /**
    * @param {string} songPublicId
+   * @param {string} playlistPublicId
    */
-  const __shuffle = (songPublicId) => {
-    if (isSingleSong()) {
-      return;
-    }
-    state.shuffledPlaylist = state.playlist.public_id;
-    const extraSongs = [];
-    state.playlist.songs.forEach((s) => {
-      for (let i = 0; i < s.votes - 1; i++) {
-        extraSongs.push(s);
-      }
-    });
-    state.playlist.songs.push(...extraSongs);
-    __shuffleArray(state.playlist.songs);
-    let sIdx = 0;
-    if (!!audioPlayerEl.childNodes.length) {
-      sIdx = state.playlist.songs.findIndex(
-        (s) => s.public_id === songPublicId,
-      );
-      if (sIdx !== -1) {
-        [state.playlist.songs[sIdx], state.playlist.songs[0]] = [
-          state.playlist.songs[0],
-          state.playlist.songs[sIdx],
-        ];
-      }
-    }
-    state.currentSongIdx = 0;
-  };
-
-  const __toggleShuffle = () => {
-    state.shuffled = !state.shuffled;
-    if (state.shuffled) {
-      const src = audioPlayerEl.childNodes.item(0);
-      shuffle(
-        src.src.substring(src.src.lastIndexOf("/") + 1, src.src.length - 4),
-      );
-    } else {
-      const tmp = state.playlist.songs.sort((si, sj) => si.order - sj.order);
-      state.playlist.songs = [];
-      for (let i = 0; i < tmp.length - 1; i++) {
-        if (tmp[i].public_id === tmp[i + 1].public_id) {
-          continue;
-        }
-        state.playlist.songs.push(tmp[i]);
-      }
-      if (tmp[tmp.length - 1].public_id !== tmp[tmp.length - 2]) {
-        state.playlist.songs.push(tmp[tmp.length - 1]);
-      }
-      const src = audioPlayerEl.childNodes.item(0);
-      if (!!src) {
-        state.currentSongIdx = state.playlist.songs.findIndex(
-          (s) =>
-            s.public_id ===
-            src.src.substring(src.src.lastIndexOf("/") + 1, src.src.length - 4),
-        );
-      }
-    }
-    if (state.shuffled) {
-      PlayerUI.setShuffleOn();
-    } else {
-      PlayerUI.setShuffleOff();
-    }
-  };
-
-  return [__shuffle, __toggleShuffle];
-}
-
-/**
- * @param {PlayerState} state
- *
- * @returns {[Function, Function, Function, Function]}
- */
-function playlister(state) {
-  const __next = async () => {
-    if (checkLoop(LOOP_MODES.ONCE)) {
-      stopMuzikk();
-      playMuzikk();
-      return;
-    }
-    // check votes to whether repeat the song or not.
-    if (
-      state.playlist.songs[state.currentSongIdx].votes > 1 &&
-      !state.shuffled
-    ) {
-      const songToPlay = state.playlist.songs[state.currentSongIdx];
-      songToPlay.votes--;
-      songToPlay.plays++;
-      playSongFromPlaylist(songToPlay.public_id, state.playlist);
-      PlayerUI.highlightSongInPlaylist(
-        songToPlay.public_id,
-        state.playlist.songs.map((s) => s.public_id),
-      );
-      return;
-    }
-
-    if (
-      !checkLoop(LOOP_MODES.ALL) &&
-      state.currentSongIdx + 1 >= state.playlist.songs.length
-    ) {
-      stopMuzikk();
-      // reset songs' votes
-      for (const s of state.playlist.songs) {
-        if (!!s.plays) {
-          s.votes = s.plays;
-          s.plays = 0;
-        }
-      }
-      return;
-    }
-
-    state.currentSongIdx =
-      checkLoop(LOOP_MODES.ALL) &&
-      state.currentSongIdx + 1 >= state.playlist.songs.length
-        ? 0
-        : state.currentSongIdx + 1;
-    const songToPlay = state.playlist.songs[state.currentSongIdx];
-    PlayerUI.highlightSongInPlaylist(
-      songToPlay.public_id,
-      state.playlist.songs.map((s) => s.public_id),
-    );
-    await playSong(songToPlay);
-  };
-
-  const __prev = async () => {
-    if (checkLoop(LOOP_MODES.ONCE)) {
-      stopMuzikk();
-      playMuzikk();
-      return;
-    }
-    // chack votes to whether repeat the song or not.
-    if (
-      state.playlist.songs[state.currentSongIdx].votes > 1 &&
-      !state.shuffled
-    ) {
-      const songToPlay = state.playlist.songs[state.currentSongIdx];
-      songToPlay.votes--;
-      songToPlay.plays++;
-      playSongFromPlaylist(songToPlay.public_id, state.playlist);
-      PlayerUI.highlightSongInPlaylist(
-        songToPlay.public_id,
-        state.playlist.songs.map((s) => s.public_id),
-      );
-      return;
-    }
-    if (!checkLoop(LOOP_MODES.ALL) && state.currentSongIdx - 1 < 0) {
-      stopMuzikk();
-      // reset songs' votes
-      for (const s of state.playlist.songs) {
-        if (!!s.plays) {
-          s.votes = s.plays;
-          s.plays = 0;
-        }
-      }
-      return;
-    }
-    state.currentSongIdx =
-      checkLoop(LOOP_MODES.ALL) && state.currentSongIdx - 1 < 0
-        ? state.playlist.songs.length - 1
-        : state.currentSongIdx - 1;
-    const songToPlay = state.playlist.songs[state.currentSongIdx];
-    PlayerUI.highlightSongInPlaylist(
-      songToPlay.public_id,
-      state.playlist.songs.map((s) => s.public_id),
-    );
-    await playSong(songToPlay);
-  };
-
-  const __remove = (songPublicId, playlistId) => {
-    const songIndex = state.playlist.songs.findIndex(
-      (song) => song.public_id === songPublicId,
-    );
-    if (songIndex >= 0) {
-      state.playlist.songs.splice(songIndex, 1);
-    }
-
+  async removeSongFromPlaylist(songPublicId, playlistPublicId) {
     Utils.showLoading();
     fetch(
       "/api/playlist/song?song-id=" +
         songPublicId +
         "&playlist-id=" +
-        playlistId +
+        playlistPublicId +
         "&remove=true",
       {
         method: "PUT",
       },
     )
       .then((res) => {
-        if (res.ok) {
-          // TODO: do something about this UI leak
-          const songEl = document.getElementById("song-" + songPublicId);
-          if (!!songEl) {
-            songEl.remove();
-          }
-        } else {
-          window.alert("Oopsie something went wrong!");
+        if (!res.ok) {
+          alert("Oopsie something went wrong!");
         }
       })
       .catch((err) => {
-        window.alert("Oopsie something went wrong!\n", err);
+        alert("Oopsie something went wrong!\n", err);
       })
       .finally(() => {
         Utils.hideLoading();
       });
-  };
+  }
 
-  return [__next, __prev, __remove];
+  /**
+   * @param {string} songPublicId
+   * @param {string} playlistPublicId
+   */
+  async downloadSong(songPublicId, playlistPublicId) {
+    Utils.showLoading();
+
+    try {
+      let song = null;
+      let songMetadataFetched = false;
+
+      for (let i = 0; i < 30; i++) {
+        const resp = await fetch(`/api/song/single?id=${songPublicId}`);
+        if (!resp.ok) {
+          throw new Error("Something went wrong when fetching song's metadata");
+        }
+        song = await resp.json();
+        songMetadataFetched = true;
+
+        if (song.fully_downloaded) {
+          break;
+        }
+        await Utils.sleep(1000);
+      }
+
+      if (!songMetadataFetched) {
+        throw new Error(
+          "Failed to fetch song metadata after multiple attempts.",
+        );
+      }
+
+      if (!song.fully_downloaded) {
+        console.warn("Song not fully downloaded after repeated checks.");
+      }
+
+      const songDetailsResp = await fetch(
+        "/api/song?id=" +
+          songPublicId +
+          (!!playlistPublicId ? `&playlist-id=${playlistPublicId}` : ""),
+      );
+      const songDetails = await songDetailsResp.json();
+
+      if (songDetails.media_url) {
+        const a = document.createElement("a");
+        a.href = songDetails.media_url.replace("muzikkx", "muzikkx-raw");
+        a.click();
+        a.remove();
+        return { ok: true, ...songDetails };
+      } else {
+        throw new Error("No media URL found for the song.");
+      }
+    } catch (err) {
+      console.error("An error occurred during download:", err);
+      return { ok: false, error: err.message };
+    } finally {
+      Utils.hideLoading();
+    }
+  }
+
+  async downloadToApp() {
+    throw new Error("not implemented!");
+  }
+
+  /**
+   * @param {string} playlistPublicId
+   */
+  async downloadPlaylist(playlistPublicId) {
+    Utils.showLoading();
+    await fetch(`/api/playlist/zip?playlist-id=${playlistPublicId}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+        return res.json();
+      })
+      .then((res) => {
+        const a = document.createElement("a");
+        a.href = res["playlist_download_url"];
+        // a.download = `${plTitle}.zip`;
+        a.click();
+        a.remove();
+      })
+      .finally(() => {
+        Utils.hideLoading();
+      });
+  }
+}
+
+class PlayerState {
+  /**
+   * @type {boolean}
+   */
+  #shuffled;
+  /**
+   * @type {number}
+   */
+  #currentSongIndex;
+  /**
+   * @type {"off" | "once" | "all"}
+   */
+  #loopMode;
+  /**
+   * @type {Song[]}
+   */
+  #songs;
+  /**
+   * @type {string}
+   */
+  #playingPlaylistPublicId;
+
+  constructor(data) {
+    this.#init(data);
+  }
+
+  #init(data) {
+    this.#shuffled = data.shuffled ?? false;
+    this.#currentSongIndex = data.current_song_index ?? 0;
+    this.#loopMode = data.loop_mode ?? "off";
+    this.#songs = data.songs ?? [];
+    this.#playingPlaylistPublicId = data.playing_playlist_public_id ?? "";
+  }
+
+  async refreshState() {
+    const result = await fetch("/api/player")
+      .then((r) => r.json())
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+    if (!result) {
+      return;
+    }
+
+    this.#init({
+      ...result.player_state,
+      playing_playlist_public_id: this.#playingPlaylistPublicId,
+    });
+  }
+
+  isSingleSong() {
+    return !!this.#songs && this.#songs.length === 1;
+  }
+
+  async toggleShuffle() {
+    if (this.#shuffled) {
+      await fetch("/api/player/shuffle", { method: "DELETE" });
+      PlayerUI.setShuffleOn();
+    } else {
+      await fetch("/api/player/shuffle", { method: "POST" });
+      PlayerUI.setShuffleOff();
+    }
+  }
+
+  async toggleLoop() {
+    const loopModes = ["off", "once", "all"];
+    let loopModeIdx = loopModes.indexOf(this.#loopMode);
+    if (this.isSingleSong()) {
+      loopModeIdx = loopModeIdx === 0 ? 1 : 0;
+    } else {
+      loopModeIdx = (loopModeIdx + 1) % loopModes.length;
+    }
+    const loopMode = loopModes[loopModeIdx];
+    switch (loopMode) {
+      default:
+      case "off":
+        await fetch("/api/player/loop/off", { method: "PUT" });
+        // TODO: global call aaaa
+        PlayerUI.setLoopOff();
+        break;
+      case "once":
+        await fetch("/api/player/loop/once", { method: "PUT" });
+        PlayerUI.setLoopOnce();
+        break;
+      case "all":
+        await fetch("/api/player/loop/all", { method: "PUT" });
+        PlayerUI.setLoopAll();
+        break;
+    }
+  }
+
+  play() {
+    audioPlayerEl.muted = null;
+    audioPlayerEl.play();
+    PlayerUI.setPauseIcon();
+  }
+
+  pause() {
+    audioPlayerEl.pause();
+    PlayerUI.setPlayIcon();
+  }
+
+  togglePlayPause() {
+    if (audioPlayerEl.paused) {
+      this.play();
+    } else {
+      this.pause();
+    }
+  }
+
+  stop() {
+    audioPlayerEl.pause();
+    audioPlayerEl.currentTime = 0;
+    PlayerUI.setPlayIcon();
+  }
+
+  async next() {
+    return await this.#nextPrevious(true);
+  }
+
+  async previous() {
+    return await this.#nextPrevious(false);
+  }
+
+  async #nextPrevious(next = true) {
+    /**
+     * @type {{song: Song, current_song_index: number, end_of_queue: boolean}}
+     */
+    const result = await fetch(`/api/player/song/${next ? "next" : "previous"}`)
+      .then((r) => r.json())
+      .then((r) => r)
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+    if (!result) {
+      return;
+    }
+
+    if (result.end_of_queue) {
+      this.stop();
+      return;
+    }
+
+    console.log("next song", result);
+
+    // PlayerUI.highlightSongInPlaylist(
+    // result.song.public_id,
+    // freshPlayerState.songs.map((s) => s.public_id),
+    // );
+
+    return await this.fetchAndPlaySong(
+      result.song.public_id,
+      this.#playingPlaylistPublicId,
+    );
+  }
+
+  /**
+   * @param {string} songPublicId
+   */
+  async #fetchSongMetadata(songPublicId, displayLoader = true) {
+    if (displayLoader) {
+      Utils.showLoading();
+    }
+    try {
+      const song = await fetch(`/api/song/single?id=${songPublicId}`);
+      if (!song.ok) {
+        throw new Error("Something went wrong when fetching song's metadata");
+      }
+      return await song.json();
+    } catch (err) {
+      return err;
+    } finally {
+      if (displayLoader) {
+        Utils.hideLoading();
+      }
+    }
+  }
+
+  /**
+   * @param {string} songPublicId
+   * @param {string} playlistPublicId
+   */
+  async fetchAndPlaySong(songPublicId, playlistPublicId) {
+    let newState = false;
+    if (playlistPublicId === "") {
+      this.#playingPlaylistPublicId = "";
+      newState = true;
+    }
+    if (playlistPublicId !== this.#playingPlaylistPublicId) {
+      this.#playingPlaylistPublicId = playlistPublicId;
+      newState = true;
+    }
+
+    console.log("new state", newState);
+
+    PlayerUI.setLoadingOn();
+    PlayerUI.show();
+
+    const resp = await fetch(
+      "/api/song?id=" +
+        songPublicId +
+        (!!playlistPublicId ? `&playlist-id=${playlistPublicId}` : ""),
+    )
+      .then((res) => res.json())
+      .then(async (data) => {
+        for (let i = 0; i < 15; i++) {
+          const song = await this.#fetchSongMetadata(songPublicId, false);
+          if (song.fully_downloaded) {
+            return { ...data, ...song };
+          }
+          await Utils.sleep(1000);
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+        return null;
+      });
+    if (!resp) {
+      alert("Something went wrong when downloading the song...");
+    }
+
+    this.stop();
+    if (audioPlayerEl.childNodes.length > 0) {
+      audioPlayerEl.removeChild(audioPlayerEl.childNodes.item(0));
+    }
+    const src = document.createElement("source");
+    src.setAttribute("type", "audio/mpeg");
+    src.setAttribute("src", resp.media_url);
+    src.setAttribute("preload", "metadata");
+    audioPlayerEl.appendChild(src);
+    audioPlayerEl.load();
+
+    PlayerUI.setSongName(resp.title);
+    PlayerUI.setArtistName(resp.artist);
+    PlayerUI.setSongThumbnail(resp.thumbnail_url);
+    setMediaSessionMetadata(resp);
+    this.play();
+
+    if (newState) {
+      await this.refreshState();
+    }
+  }
+
+  async loadSongLyrics() {
+    document.getElementById("current-song-lyrics").innerHTML = "";
+    const songPublicId = this.#songs[this.#currentSongIndex].public_id;
+    htmx
+      .ajax("GET", "/api/song/lyrics?id=" + songPublicId, {
+        target: "#current-song-lyrics",
+        swap: "innerHTML",
+      })
+      .catch(() => {
+        alert("Lyrics fetching went berzerk...");
+      });
+  }
+
+  /**
+   * @param {string} songPublicId
+   */
+  async addSongToQueueNext(songPublicId) {
+    await fetch(`/api/player/queue/song/next?id=${songPublicId}`, {
+      method: "POST",
+    }).catch((e) => {
+      console.error(e);
+    });
+
+    await this.refreshState();
+  }
+
+  /**
+   * @param {string} songPublicId
+   */
+  async addSongToQueueAtLast(songPublicId) {
+    await fetch(`/api/player/queue/song/last?id=${songPublicId}`, {
+      method: "POST",
+    }).catch((e) => {
+      console.error(e);
+    });
+
+    await this.refreshState();
+  }
+
+  /**
+   * @param {string} playlistPublicId
+   */
+  async addPlaylistToQueueNext(playlistPublicId) {
+    await fetch(`/api/player/queue/playlist/next?id=${playlistPublicId}`, {
+      method: "POST",
+    }).catch((e) => {
+      console.error(e);
+    });
+
+    await this.refreshState();
+  }
+
+  /**
+   * @param {string} playlistPublicId
+   */
+  async addPlaylistToQueueAtLast(playlistPublicId) {
+    await fetch(`/api/player/queue/playlist/last?id=${playlistPublicId}`, {
+      method: "POST",
+    }).catch((e) => {
+      console.error(e);
+    });
+
+    await this.refreshState();
+  }
 }
 
 function volumer() {
@@ -418,28 +513,7 @@ function playebackSpeeder() {
     // TODO: add the ui stuff
   };
 
-  return [__setSpeed];
-}
-
-/**
- * @param {string} songPublicId
- */
-async function downloadSong(songPublicId) {
-  try {
-    const resp = await fetch("/api/song?id=" + songPublicId).then((res) =>
-      res.json(),
-    );
-    for (let i = 0; i < 30; i++) {
-      const song = await fetchSongMeta(songPublicId, false);
-      if (song.fully_downloaded) {
-        return { ok: true, ...resp };
-      }
-      await Utils.sleep(1000);
-    }
-  } catch (err) {
-    console.error("oopsie", err);
-    return { ok: false };
-  }
+  return __setSpeed;
 }
 
 /**
@@ -447,25 +521,7 @@ async function downloadSong(songPublicId) {
  * @param {string} songTitle
  */
 async function downloadSongToDevice(songPublicId, songTitle) {
-  Utils.showLoading();
-  await downloadSong(songPublicId)
-    .then((song) => {
-      const a = document.createElement("a");
-      a.href = song.media_url.replace("muzikkx", "muzikkx-raw");
-      a.download = `${songTitle}.mp3`;
-      a.click();
-      a.remove();
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
-}
-
-/**
- * @param {string} songYtId
- */
-async function downloadToApp() {
-  throw new Error("not implemented!");
+  return await requests.downloadSong(songPublicId);
 }
 
 /**
@@ -473,118 +529,15 @@ async function downloadToApp() {
  * @param {plTitle} plTitle
  */
 async function downloadPlaylistToDevice(plPubId, plTitle) {
-  Utils.showLoading();
-  await fetch(`/api/playlist/zip?playlist-id=${plPubId}`)
-    .then(async (res) => {
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-      return res.json();
-    })
-    .then((res) => {
-      const a = document.createElement("a");
-      a.href = res["playlist_download_url"];
-      a.download = `${plTitle}.zip`;
-      a.click();
-      a.remove();
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
-}
-
-/**
- * @param {Song} song
- */
-async function playSong(song) {
-  playerState.lyricsLoaded = false;
-
-  PlayerUI.setLoadingOn();
-  PlayerUI.show();
-
-  let resp = await downloadSong(song.public_id);
-  if (!resp.ok) {
-    alert("Something went wrong when downloading the song...");
-    throw new Error("Something went wrong when downloading the song...");
-  }
-  stopMuzikk();
-  if (audioPlayerEl.childNodes.length > 0) {
-    audioPlayerEl.removeChild(audioPlayerEl.childNodes.item(0));
-  }
-  const src = document.createElement("source");
-  src.setAttribute("type", "audio/mpeg");
-  src.setAttribute("src", resp.media_url);
-  src.setAttribute("preload", "metadata");
-  audioPlayerEl.appendChild(src);
-
-  if (isSafari()) {
-    setTimeout(80);
-  }
-  audioPlayerEl.load();
-
-  PlayerUI.setSongName(song.title);
-  PlayerUI.setArtistName(song.artist);
-  PlayerUI.setSongThumbnail(song.thumbnail_url);
-  setMediaSessionMetadata(song);
-  playMuzikk();
-}
-
-/**
- * @param {string} songPublicId
- *
- * @returns {Promise<Song| never>}
- */
-async function fetchSongMeta(songPublicId, displayLoader = true) {
-  if (displayLoader) {
-    Utils.showLoading();
-  }
-  try {
-    const song = await fetch(`/api/song/single?id=${songPublicId}`);
-    if (!song.ok) {
-      throw new Error("Something went wrong when fetching song's metadata");
-    }
-    return await song.json();
-  } catch (err) {
-    return err;
-  } finally {
-    if (displayLoader) {
-      Utils.hideLoading();
-    }
-  }
-}
-
-/**
- * @param {string} playlistPubId
- */
-async function fetchPlaylistMeta(playlistPubId) {
-  Utils.showLoading();
-  return await fetch(`/api/playlist?playlist-id=${playlistPubId}`)
-    .then((res) => res.json())
-    .then((p) => p)
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      Utils.hideLoading();
-    });
+  return await requests.downloadPlaylist(plPubId);
 }
 
 /**
  * @param {Song} song
  */
 async function playSingleSong(song) {
-  playerState.lyricsLoaded = false;
-
-  playerState.playlist = {
-    title: "Queue",
-    songs_count: 1,
-    public_id: "",
-    songs: [song],
-  };
-  playerState.currentSongIdx = 0;
-
   await window.Utils.retryer(async () => {
-    return await playSong(song);
+    return await freshPlayerState.fetchAndPlaySong(song.public_id);
   });
 }
 
@@ -592,101 +545,51 @@ async function playSingleSong(song) {
  * @param {string} songPublicId
  */
 async function playSingleSongId(songPublicId) {
-  try {
-    await fetchSongMeta(songPublicId).then(
-      async (song) => await playSingleSong(song),
-    );
-  } catch (err) {
-    return err;
-  }
+  await window.Utils.retryer(async () => {
+    return await freshPlayerState.fetchAndPlaySong(songPublicId);
+  });
 }
 
 /**
  * @param {Song} song
  */
 async function playSingleSongNext(song) {
-  if (playerState.playlist.songs.length === 0) {
-    try {
-      await playSingleSong(song);
-    } catch (err) {
-      return err;
-    }
-  }
-  if (!song.public_id) {
-    return;
-  }
-  song.votes = 1;
-  playerState.playlist.songs.splice(playerState.currentSongIdx + 1, 0, song);
-  alert(`Playing ${song.title} next!`);
+  return await freshPlayerState.addSongToQueueNext(song.public_id);
 }
 
 /**
  * @param {string} songPublicId
  */
 async function playSingleSongNextId(songPublicId) {
-  playerState.lyricsLoaded = false;
-  try {
-    const song = await fetchSongMeta(songPublicId);
-    await playSingleSongNext(song);
-  } catch (err) {
-    return err;
-  }
+  return await freshPlayerState.addSongToQueueNext(songPublicId);
 }
 
 /**
  * @param {Playlist} playlist
  */
 async function playPlaylistNext(playlist) {
-  if (!playlist || !playlist.songs || playlist.songs.length === 0) {
-    alert("Can't do that!");
-    return;
-  }
-  if (playerState.playlist.songs.length === 0) {
-    playSongFromPlaylist(playlist.songs[0].public_id, playlist);
-    return;
-  }
-  playerState.playlist.songs.splice(
-    playerState.currentSongIdx + 1,
-    0,
-    ...playlist.songs.map((s) => {
-      return { ...s, votes: 1 };
-    }),
-  );
-  playerState.playlist.title = `${playerState.playlist.title} + ${playlist.title}`;
-  alert(`Playing ${playlist.title} next!`);
+  return await freshPlayerState.addPlaylistToQueueNext(playlist.public_id);
 }
 
 /**
  * @param {string} playlistPubId
  */
 async function playPlaylistNextId(playlistPubId) {
-  const playlist = await fetchPlaylistMeta(playlistPubId);
-  await playPlaylistNext(playlist);
+  return await freshPlayerState.addPlaylistToQueueNext(playlistPubId);
 }
 
 /**
  * @param {Playlist} playlist
  */
 async function appendPlaylistToCurrentQueue(playlist) {
-  if (!playlist || !playlist.songs || playlist.songs.length === 0) {
-    alert("Can't do that!");
-    return;
-  }
-  if (playerState.playlist.songs.length === 0) {
-    playSongFromPlaylist(playlist.songs[0].public_id, playlist);
-    return;
-  }
-  playerState.playlist.songs.push(...playlist.songs);
-  playerState.playlist.title = `${playerState.playlist.title} + ${playlist.title}`;
-  alert(`Playing ${playlist.title} next!`);
+  return await freshPlayerState.addPlaylistToQueueAtLast(playlist.public_id);
 }
 
 /**
  * @param {string} playlistPubId
  */
 async function appendPlaylistToCurrentQueueId(playlistPubId) {
-  const playlist = await fetchPlaylistMeta(playlistPubId);
-  await appendPlaylistToCurrentQueue(playlist);
+  return await freshPlayerState.addPlaylistToQueueAtLast(playlistPubId);
 }
 
 /**
@@ -694,37 +597,10 @@ async function appendPlaylistToCurrentQueueId(playlistPubId) {
  * @param {Playlist} playlist
  */
 async function playSongFromPlaylist(songPublicId, playlist) {
-  if (
-    playerState.shuffled &&
-    playerState.shuffledPlaylist !== playlist.public_id
-  ) {
-    playerState.playlist = playlist;
-    shuffle(songPublicId);
-  }
-  const songIdx = playlist.songs.findIndex((s) => s.public_id === songPublicId);
-  if (songIdx < 0) {
-    alert("Invalid song!");
-    return;
-  }
-  if (!playerState.shuffled) {
-    playerState.playlist = playlist;
-    playerState.playlist.songs = playlist.songs.map((s, idx) => {
-      return { ...s, plays: 0, order: idx };
-    });
-  }
-  playerState.currentSongIdx = songIdx;
-  if (
-    playerState.playlist.songs[songIdx].votes === 0 &&
-    playerState.playlist.public_id !== ""
-  ) {
-    playerState.currentSongIdx++;
-  }
-  const songToPlay = playlist.songs[playerState.currentSongIdx];
-  PlayerUI.highlightSongInPlaylist(
-    songToPlay.public_id,
-    playerState.playlist.songs.map((s) => s.public_id),
+  return await freshPlayerState.fetchAndPlaySong(
+    songPublicId,
+    playlist.public_id,
   );
-  await playSong(songToPlay);
 }
 
 /**
@@ -732,180 +608,139 @@ async function playSongFromPlaylist(songPublicId, playlist) {
  * @param {string} playlistPubId
  */
 async function playSongFromPlaylistId(songPublicId, playlistPubId) {
-  const playlist = await fetchPlaylistMeta(playlistPubId);
-  await playSongFromPlaylist(songPublicId, playlist);
-  playerState.lyricsLoaded = false;
+  return await freshPlayerState.fetchAndPlaySong(songPublicId, playlistPubId);
 }
 
 /**
  * @param {Song} song
  */
 async function appendSongToCurrentQueue(song) {
-  if (playerState.playlist.songs.length === 0) {
-    try {
-      await playSingleSong(song);
-    } catch (err) {
-      return err;
-    }
-  }
-  song.votes = 1;
-  playerState.playlist.songs.push(song);
-  alert(`Added ${song.title} to the queue!`);
+  return await freshPlayerState.addSongToQueueAtLast(song.public_id);
 }
 
 /**
  * @param {string} songPublicId
  */
 async function appendSongToCurrentQueueId(songPublicId) {
-  const song = await fetchSongMeta(songPublicId);
-  appendSongToCurrentQueue(song);
+  return await freshPlayerState.addSongToQueueAtLast(songPublicId);
 }
 
-function addSongToPlaylist() {
-  throw new Error("not implemented!");
+function playMuzikk() {
+  return freshPlayerState.play();
 }
 
-/**
- * @param {Song} song
- */
-function setMediaSessionMetadata(song) {
-  if (!("mediaSession" in navigator)) {
-    console.error("Browser doesn't support mediaSession");
-    return;
+function pauseMuzikk() {
+  return freshPlayerState.pause();
+}
+
+function togglePlayPause() {
+  return freshPlayerState.togglePlayPause();
+}
+
+function stopMuzikk() {
+  return freshPlayerState.stop();
+}
+
+async function nextMuzikk() {
+  return await freshPlayerState.next();
+}
+
+async function previousMuzikk() {
+  return await freshPlayerState.previous();
+}
+
+async function toggleLoop() {
+  return await freshPlayerState.toggleLoop();
+}
+
+async function toggleShuffle() {
+  return await freshPlayerState.toggleShuffle();
+}
+
+async function loadSongLyrics() {
+  await freshPlayerState.loadSongLyrics();
+}
+
+function handleUIEvents() {
+  PlayerUI.__elements.playPauseToggleEl.addEventListener("click", (event) => {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+    freshPlayerState.togglePlayPause();
+  });
+
+  PlayerUI.__elements.playPauseToggleExapndedEl?.addEventListener(
+    "click",
+    (event) => {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      togglePlayPause;
+    },
+  );
+
+  PlayerUI.__elements.nextEl?.addEventListener("click", nextMuzikk);
+  PlayerUI.__elements.nextExpandEl?.addEventListener("click", nextMuzikk);
+  PlayerUI.__elements.prevEl?.addEventListener("click", previousMuzikk);
+  PlayerUI.__elements.prevExpandEl?.addEventListener("click", previousMuzikk);
+  PlayerUI.__elements.shuffleEl?.addEventListener("click", toggleShuffle);
+  PlayerUI.__elements.shuffleExpandEl?.addEventListener("click", toggleShuffle);
+  PlayerUI.__elements.loopEl?.addEventListener("click", toggleLoop);
+  PlayerUI.__elements.loopExpandEl?.addEventListener("click", toggleLoop);
+
+  {
+    const __handler = (e) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      const seekTime = Number(e.target.value);
+      audioPlayerEl.currentTime = seekTime;
+    };
+    for (const event of ["change", "click"]) {
+      PlayerUI.__elements.songSeekBarEl?.addEventListener(event, __handler);
+      PlayerUI.__elements.songSeekBarExpandedEl?.addEventListener(
+        event,
+        __handler,
+      );
+    }
   }
 
-  navigator.mediaSession.metadata = new MediaMetadata({
-    title: song.title,
-    artist: song.artist,
-    album: song.artist,
-    artwork: [
-      "96x96",
-      "128x128",
-      "192x192",
-      "256x256",
-      "384x384",
-      "512x512",
-    ].map((i) => {
-      return {
-        src: song.thumbnail_url,
-        sizes: i,
-        type: "image/png",
-      };
-    }),
+  {
+    const __handler = (e) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      const volume = Number(e.target.value) * 0.01;
+      audioPlayerEl.volume = volume;
+    };
+    for (const event of ["change", "click"]) {
+      PlayerUI.__elements.volumeSeekBarEl?.addEventListener(event, __handler);
+      PlayerUI.__elements.volumeSeekBarExpandedEl?.addEventListener(
+        event,
+        __handler,
+      );
+    }
+  }
+}
+
+function handlePlayerElementEvents() {
+  audioPlayerEl.addEventListener("loadeddata", (event) => {
+    PlayerUI.enableButtons();
+    PlayerUI.setSongDuration(event.target.duration);
+
+    PlayerUI.setLoadingOff();
+  });
+
+  audioPlayerEl.addEventListener("timeupdate", (event) => {
+    PlayerUI.setSongCurrentTime(event.target.currentTime);
+  });
+
+  audioPlayerEl.addEventListener("ended", () => {
+    nextMuzikk();
+  });
+
+  audioPlayerEl.addEventListener("progress", () => {
+    console.log("downloading...");
   });
 }
 
-function isSafari() {
-  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-}
-
-const [toggleLoop, handleLoop, checkLoop] = looper();
-const [playMuzikk, pauseMuzikk, togglePP] = playPauser(audioPlayerEl);
-const stopMuzikk = stopper(audioPlayerEl);
-const [shuffle, toggleShuffle] = shuffler(playerState);
-const [nextMuzikk, previousMuzikk, removeSongFromPlaylist] =
-  playlister(playerState);
-const [setVolume, mute] = volumer();
-const [setPlaybackSpeed] = playebackSpeeder();
-
-PlayerUI.__elements.playPauseToggleEl.addEventListener("click", (event) => {
-  event.stopImmediatePropagation();
-  event.preventDefault();
-  togglePP();
-});
-
-PlayerUI.__elements.playPauseToggleExapndedEl?.addEventListener(
-  "click",
-  (event) => {
-    event.stopImmediatePropagation();
-    event.preventDefault();
-    togglePP();
-  },
-);
-
-PlayerUI.__elements.nextEl?.addEventListener("click", nextMuzikk);
-PlayerUI.__elements.nextExpandEl?.addEventListener("click", nextMuzikk);
-PlayerUI.__elements.prevEl?.addEventListener("click", previousMuzikk);
-PlayerUI.__elements.prevExpandEl?.addEventListener("click", previousMuzikk);
-PlayerUI.__elements.shuffleEl?.addEventListener("click", toggleShuffle);
-PlayerUI.__elements.shuffleExpandEl?.addEventListener("click", toggleShuffle);
-PlayerUI.__elements.loopEl?.addEventListener("click", toggleLoop);
-PlayerUI.__elements.loopExpandEl?.addEventListener("click", toggleLoop);
-
-(() => {
-  const __handler = (e) => {
-    e.stopImmediatePropagation();
-    e.preventDefault();
-    const seekTime = Number(e.target.value);
-    audioPlayerEl.currentTime = seekTime;
-  };
-  for (const event of ["change", "click"]) {
-    PlayerUI.__elements.songSeekBarEl?.addEventListener(event, __handler);
-    PlayerUI.__elements.songSeekBarExpandedEl?.addEventListener(
-      event,
-      __handler,
-    );
-  }
-})();
-
-(() => {
-  const __handler = (e) => {
-    e.stopImmediatePropagation();
-    e.preventDefault();
-    const volume = Number(e.target.value) * 0.01;
-    audioPlayerEl.volume = volume;
-  };
-  for (const event of ["change", "click"]) {
-    PlayerUI.__elements.volumeSeekBarEl?.addEventListener(event, __handler);
-    PlayerUI.__elements.volumeSeekBarExpandedEl?.addEventListener(
-      event,
-      __handler,
-    );
-  }
-})();
-
-function loadSongLyrics() {
-  console.log("loading lyrics");
-  if (playerState.lyricsLoaded) {
-    return;
-  }
-
-  document.getElementById("current-song-lyrics").innerHTML = "";
-  const songPublicId =
-    playerState.playlist.songs[playerState.currentSongIdx].public_id;
-  htmx
-    .ajax("GET", "/api/song/lyrics?id=" + songPublicId, {
-      target: "#current-song-lyrics",
-      swap: "innerHTML",
-    })
-    .then(() => {
-      playerState.lyricsLoaded = true;
-    })
-    .catch(() => {
-      alert("Lyrics fetching went berzerk...");
-    });
-}
-
-audioPlayerEl.addEventListener("loadeddata", (event) => {
-  PlayerUI.enableButtons();
-  PlayerUI.setSongDuration(event.target.duration);
-
-  PlayerUI.setLoadingOff();
-});
-
-audioPlayerEl.addEventListener("timeupdate", (event) => {
-  PlayerUI.setSongCurrentTime(event.target.currentTime);
-});
-
-audioPlayerEl.addEventListener("ended", () => {
-  handleLoop();
-});
-
-audioPlayerEl.addEventListener("progress", () => {
-  console.log("downloading...");
-});
-
-(() => {
+function handleMediaSessionEvents() {
   if (!("mediaSession" in navigator)) {
     console.error("Browser doesn't support mediaSession");
     return;
@@ -944,18 +779,46 @@ audioPlayerEl.addEventListener("progress", () => {
     audioPlayerEl.currentTime = seekTime;
   });
 
-  navigator.mediaSession.setActionHandler("previoustrack", () => {
-    previousMuzikk();
+  navigator.mediaSession.setActionHandler("previoustrack", async () => {
+    await previousMuzikk();
   });
 
-  navigator.mediaSession.setActionHandler("nexttrack", () => {
-    nextMuzikk();
+  navigator.mediaSession.setActionHandler("nexttrack", async () => {
+    await nextMuzikk();
   });
+}
 
-  navigator.mediaSession.setActionHandler("stop", () => {
-    stopMuzikk();
+/**
+ * @param {Song} song
+ */
+function setMediaSessionMetadata(song) {
+  if (!("mediaSession" in navigator)) {
+    console.error("Browser doesn't support mediaSession");
+    return;
+  }
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: song.title,
+    artist: song.artist,
+    album: song.artist,
+    artwork: [
+      "96x96",
+      "128x128",
+      "192x192",
+      "256x256",
+      "384x384",
+      "512x512",
+    ].map((i) => {
+      return {
+        src: song.thumbnail_url,
+        sizes: i,
+        type: "image/png",
+      };
+    }),
   });
-})();
+}
+
+init();
 
 window.Player = {
   downloadSongToDevice,
@@ -973,7 +836,6 @@ window.Player = {
   addSongToQueueId: appendSongToCurrentQueueId,
   appendPlaylistToCurrentQueue,
   appendPlaylistToCurrentQueueId,
-  stopMuzikk,
   setPlaybackSpeed,
   loadSongLyrics,
 };

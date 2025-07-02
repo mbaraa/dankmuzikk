@@ -76,12 +76,20 @@ func (a *Actions) GetSongByPublicId(params GetSongByPublicIdParams) (Song, error
 				}
 			}
 		}
-		err = a.eventhub.Publish(events.SongPlayed{
+		event := events.SongPlayed{
 			SongPublicId: params.SongPublicId,
-		})
+		}
+		err = a.eventhub.Publish(event)
 		if err != nil {
 			return Song{}, err
 		}
+
+		// TODO: move this back to the event handler
+		err = a.handleAddSongToQueue(event)
+		if err != nil {
+			return Song{}, err
+		}
+
 	} else if err != nil {
 		return Song{}, err
 	}
@@ -224,6 +232,38 @@ type PlaySongPayload struct {
 	MediaUrl string `json:"media_url"`
 }
 
+func (a *Actions) handleAddSongToQueue(event events.SongPlayed) error {
+	var err error
+	ctx := ActionContext{
+		Account: models.Account{
+			Id: uint(event.AccountId),
+		},
+		AccountId: event.AccountId,
+	}
+	switch event.EntryPoint {
+	case events.SingleSongEntryPoint:
+		err = a.AddSongToNewQueue(AddSongToNewQueueParams{
+			ActionContext: ctx,
+			SongPublicId:  event.SongPublicId,
+		})
+	case events.PlayPlaylistEntryPoint:
+		err = a.PlayPlaylist(PlayPlaylistParams{
+			ActionContext:    ctx,
+			PlaylistPublicId: event.PlaylistPublicId,
+		})
+	case events.FromPlaylistEntryPoint:
+		err = a.PlaySongFromPlaylist(PlaySongFromPlaylistParams{
+			ActionContext:    ctx,
+			SongPublicId:     event.SongPublicId,
+			PlaylistPublicId: event.PlaylistPublicId,
+		})
+	case events.FavoriteSongEntryPoint:
+		// TODO: implement this lol
+	}
+
+	return err
+}
+
 func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 	_, err := a.GetSongByPublicId(GetSongByPublicIdParams{
 		SongPublicId: params.SongPublicId,
@@ -232,11 +272,23 @@ func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 		return PlaySongPayload{}, err
 	}
 
-	err = a.eventhub.Publish(events.SongPlayed{
-		AccountId:        params.Account.Id,
+	entryPoint := events.SingleSongEntryPoint
+	if params.PlaylistPubId != "" {
+		entryPoint = events.FromPlaylistEntryPoint
+	}
+	event := events.SongPlayed{
+		AccountId:        uint64(params.Account.Id),
 		SongPublicId:     params.SongPublicId,
 		PlaylistPublicId: params.PlaylistPubId,
-	})
+		EntryPoint:       entryPoint,
+	}
+	err = a.eventhub.Publish(event)
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	// TODO: move this back to the event handler
+	err = a.handleAddSongToQueue(event)
 	if err != nil {
 		return PlaySongPayload{}, err
 	}

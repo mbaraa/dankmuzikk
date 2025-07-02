@@ -12,8 +12,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const keyPrefix = "dankmuzikk:"
-
 const (
 	accountSessionTokenTtlDays = 30
 	otpTtlMinutes              = 30

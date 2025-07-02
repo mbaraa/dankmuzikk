@@ -33,6 +33,19 @@ type Requests interface {
 	DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (DownvoteSongInPlaylistPayload, error)
 	GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, error)
 
+	GetPlayerState(sessionToken, clientHash string) (GetPlayerStatePayload, error)
+	SetPlayerShuffleOn(sessionToken, clientHash string) error
+	SetPlayerShuffleOff(sessionToken, clientHash string) error
+	SetPlayerLoopOff(sessionToken, clientHash string) error
+	SetPlayerLoopOnce(sessionToken, clientHash string) error
+	SetPlayerLoopAll(sessionToken, clientHash string) error
+	GetNextSongInQueue(sessionToken, clientHash string) (GetNextSongInQueuePayload, error)
+	GetPreviousSongInQueue(sessionToken, clientHash string) (GetPreviousSongInQueuePayload, error)
+	AddSongToQueueNext(sessionToken, clientHash, songPublicId string) error
+	AddSongToQueueAtLast(sessionToken, clientHash, songPublicId string) error
+	AddPlaylistToQueueNext(sessionToken, clientHash, playlistPublicId string) error
+	AddPlaylistToQueueAtLast(sessionToken, clientHash, playlistPublicId string) error
+
 	SearchYouTube(query string) ([]Song, error)
 	SearchYouTubeSuggestions(query string) ([]string, error)
 }

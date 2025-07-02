@@ -11,6 +11,7 @@ import (
 // Context keys
 const (
 	AccountKey = "account"
+	GuestKey   = "guest"
 )
 
 type Middleware struct {
@@ -53,11 +54,17 @@ func (a *Middleware) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 func (a *Middleware) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		account, err := a.authenticate(r)
+		ctx := r.Context()
 		if err != nil {
-			h(w, r)
-			return
+			// TODO: set client hash from web :)
+			clientHash, ok := r.Header["X-Client-Hash"]
+			if !ok {
+				h(w, r)
+				return
+			}
+			ctx = context.WithValue(ctx, GuestKey, clientHash[0])
 		}
-		ctx := context.WithValue(r.Context(), AccountKey, account)
+		ctx = context.WithValue(ctx, AccountKey, account)
 		h(w, r.WithContext(ctx))
 	}
 }

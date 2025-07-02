@@ -151,6 +151,27 @@ func (r *Repository) GetSong(id uint) (models.Song, error) {
 	return song, nil
 }
 
+func (r *Repository) GetSongsByIds(ids []uint) ([]models.Song, error) {
+	var songs []models.Song
+
+	err := tryWrapDbError(
+		r.client.
+			Model(new(models.Song)).
+			Find(&songs, "id IN ?", ids).
+			Error,
+	)
+	if _, ok := err.(*ErrRecordNotFound); ok {
+		return nil, &app.ErrNotFound{
+			ResourceName: "song",
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return songs, nil
+}
+
 func (r *Repository) GetSongByPublicId(publicId string) (models.Song, error) {
 	var song models.Song
 
@@ -170,6 +191,27 @@ func (r *Repository) GetSongByPublicId(publicId string) (models.Song, error) {
 	}
 
 	return song, nil
+}
+
+func (r *Repository) GetSongsByPublicIds(publicIds []string) ([]models.Song, error) {
+	var songs []models.Song
+
+	err := tryWrapDbError(
+		r.client.
+			Model(new(models.Song)).
+			Find(&songs, "public_id IN ?", publicIds).
+			Error,
+	)
+	if _, ok := err.(*ErrRecordNotFound); ok {
+		return nil, &app.ErrNotFound{
+			ResourceName: "song",
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return songs, nil
 }
 
 func (r *Repository) IncrementSongPlaysInPlaylist(songId, playlistPubId string, ownerId uint) error {
