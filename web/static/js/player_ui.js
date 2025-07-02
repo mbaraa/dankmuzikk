@@ -13,7 +13,6 @@ const playPauseToggleEl = document.getElementById("play"),
   songDurationEl = document.getElementById("song-duration"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
-  muzikkContainerEl = document.getElementById("muzikk"),
   playerEl = document.getElementById("ze-player"),
   collapsedMobilePlayer = document.getElementById("ze-collapsed-mobile-player");
 
@@ -196,16 +195,6 @@ function collapseMobilePlayer() {
   }
 }
 
-// TODO: kill this
-function show() {
-  muzikkContainerEl.style.display = "block";
-}
-
-// TODO: kill this
-function hide() {
-  muzikkContainerEl.style.display = "none";
-}
-
 /**
  * @param {number} level
  */
@@ -329,7 +318,6 @@ window.PlayerUI = {
     songDurationEl,
     songCurrentTimeEl,
     songImageEl,
-    muzikkContainerEl,
     playerEl,
     collapsedMobilePlayer,
     // expanded player's elements
@@ -370,6 +358,4 @@ window.PlayerUI = {
   unHighlightSong,
   highlightSongInPlaylist,
   setVolumeLevel,
-  show,
-  hide,
 };

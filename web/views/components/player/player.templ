@@ -1,33 +1,32 @@
 package player
 
 import "dankmuzikk-web/views/components/ui"
+import "dankmuzikk-web/actions"
 
 templ PlayerSticky() {
-	<div id="muzikk" class="hidden">
+	<div
+		if ui.IsMobile(ctx) {
+			_="on click PlayerUI.expandMobilePlayer()"
+		}
+		class={
+			"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
+			"fixed", "z-20", "bottom-[65px]", "md:bottom-0", "left-0",
+		}
+	>
 		<div
-			if ui.IsMobile(ctx) {
-				_="on click PlayerUI.expandMobilePlayer()"
-			}
+			id="ze-player"
 			class={
-				"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
-				"fixed", "z-20", "bottom-[65px]", "md:bottom-0", "left-0",
+				"h-full", "collapsed",
+				"text-secondary", "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-secondary",
+				"rounded-t-[15px]", "rounded-b-[15px]", "md:rounded-b-[0px]", "md:rounded-t-3xl",
+				"mx-[5px]", "md:mx-0", "p-[10px]", "md:p-[20px]",
 			}
 		>
-			<div
-				id="ze-player"
-				class={
-					"h-full", "collapsed",
-					"text-secondary", "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-secondary",
-					"rounded-t-[15px]", "rounded-b-[15px]", "md:rounded-b-[0px]", "md:rounded-t-3xl",
-					"mx-[5px]", "md:mx-0", "p-[10px]", "md:p-[20px]",
-				}
-			>
-				<div class={ "contents" } id="ze-collapsed-mobile-player">
-					@collapsedPlayer()
-				</div>
-				<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
-					@expandedMobilePlayer()
-				</div>
+			<div class={ "contents" } id="ze-collapsed-mobile-player">
+				@collapsedPlayer(ctx.Value("player-state").(actions.PlayerState))
+			</div>
+			<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
+				@expandedMobilePlayer(ctx.Value("player-state").(actions.PlayerState))
 			</div>
 		</div>
 	</div>
@@ -36,8 +35,18 @@ templ PlayerSticky() {
 		id="muzikk-player"
 		controls
 		preload="none"
-		muted
-	></audio>
+		if !checkPlayerStateForSong(ctx.Value("player-state").(actions.PlayerState)) {
+			muted
+		}
+	>
+		if checkPlayerStateForSong(ctx.Value("player-state").(actions.PlayerState)) {
+			<source
+				type="audio/mpeg"
+				src={ psMediaUrl(ctx.Value("player-state").(actions.PlayerState), "") }
+				preload="metadata"
+			/>
+		}
+	</audio>
 	///
 	<style>
         .collapsed {

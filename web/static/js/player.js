@@ -231,10 +231,12 @@ class PlayerState {
   async toggleShuffle() {
     if (this.#shuffled) {
       await fetch("/api/player/shuffle", { method: "DELETE" });
-      PlayerUI.setShuffleOn();
+      this.#shuffled = !this.#shuffled;
+      PlayerUI.setShuffleOff();
     } else {
       await fetch("/api/player/shuffle", { method: "POST" });
-      PlayerUI.setShuffleOff();
+      this.#shuffled = !this.#shuffled;
+      PlayerUI.setShuffleOn();
     }
   }
 
@@ -253,14 +255,17 @@ class PlayerState {
         await fetch("/api/player/loop/off", { method: "PUT" });
         // TODO: global call aaaa
         PlayerUI.setLoopOff();
+        this.#loopMode = "off";
         break;
       case "once":
         await fetch("/api/player/loop/once", { method: "PUT" });
         PlayerUI.setLoopOnce();
+        this.#loopMode = "once";
         break;
       case "all":
         await fetch("/api/player/loop/all", { method: "PUT" });
         PlayerUI.setLoopAll();
+        this.#loopMode = "all";
         break;
     }
   }
@@ -371,7 +376,6 @@ class PlayerState {
     console.log("new state", newState);
 
     PlayerUI.setLoadingOn();
-    PlayerUI.show();
 
     const resp = await fetch(
       "/api/song?id=" +
@@ -665,7 +669,7 @@ function handleUIEvents() {
   PlayerUI.__elements.playPauseToggleEl.addEventListener("click", (event) => {
     event.stopImmediatePropagation();
     event.preventDefault();
-    freshPlayerState.togglePlayPause();
+    togglePlayPause();
   });
 
   PlayerUI.__elements.playPauseToggleExapndedEl?.addEventListener(
@@ -673,7 +677,7 @@ function handleUIEvents() {
     (event) => {
       event.stopImmediatePropagation();
       event.preventDefault();
-      togglePlayPause;
+      togglePlayPause();
     },
   );
 

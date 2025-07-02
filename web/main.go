@@ -9,6 +9,7 @@ import (
 	"dankmuzikk-web/handlers/middlewares/contenttype"
 	"dankmuzikk-web/handlers/middlewares/ismobile"
 	"dankmuzikk-web/handlers/middlewares/logger"
+	"dankmuzikk-web/handlers/middlewares/playerstate"
 	"dankmuzikk-web/handlers/middlewares/theme"
 	"dankmuzikk-web/handlers/middlewares/version"
 	"dankmuzikk-web/handlers/pages"
@@ -173,8 +174,10 @@ func main() {
 	apisHandler.HandleFunc("POST /player/queue/playlist/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddPlaylistToQueueNext))
 	apisHandler.HandleFunc("POST /player/queue/playlist/last", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddPlaylistToQueueAtLast))
 
+	playerStateMw := playerstate.New(usecases)
+
 	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/", ismobile.Handler(theme.Handler(pagesHandler)))
+	applicationHandler.Handle("/", playerStateMw.Handler(ismobile.Handler(theme.Handler(pagesHandler))))
 	applicationHandler.Handle("/api/", ismobile.Handler(theme.Handler(http.StripPrefix("/api", apisHandler))))
 
 	log.Info("Starting http server at port " + config.Env().Port)
