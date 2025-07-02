@@ -10,34 +10,34 @@ type Cache interface {
 // PlayerCache represents the glorious server player for a user,
 // or a guest, hence having account ids in [uint64] as the guests will have ids beyond [uint]'s range.
 type PlayerCache interface {
-	CreateSongsQueue(accountId uint64, initialSongIds ...uint) error
-	CreateSongsShuffledQueue(accountId uint64, initialSongIds ...uint) error
-	AddSongToQueue(accountId uint64, songId uint) error
-	AddSongToQueueAfterIndex(accountId uint64, songId uint, index int) error
-	AddSongToShuffledQueue(accountId uint64, songId uint) error
-	AddSongToShuffledQueueAfterIndex(accountId uint64, songId uint, index int) error
-	RemoveSongFromQueue(songIndex int, accountId uint64) error
-	RemoveSongFromShuffledQueue(songIndex int, accountId uint64) error
-	ClearQueue(accountId uint64) error
-	ClearShuffledQueue(accountId uint64) error
-	GetSongsQueue(accountId uint64) ([]uint, error)
-	GetSongsShuffledQueue(accountId uint64) ([]uint, error)
-	GetQueueLength(accountId uint64) (uint, error)
-	GetShuffledQueueLength(accountId uint64) (uint, error)
-	GetSongIdAtIndexFromQueue(accountId uint64, index int) (uint, error)
-	GetSongIdAtIndexFromShuffledQueue(accountId uint64, index int) (uint, error)
+	CreateSongsQueue(accountId uint, initialSongIds ...uint) error
+	CreateSongsShuffledQueue(accountId uint, initialSongIds ...uint) error
+	AddSongToQueue(accountId uint, songId uint) error
+	AddSongToQueueAfterIndex(accountId uint, songId uint, index int) error
+	AddSongToShuffledQueue(accountId uint, songId uint) error
+	AddSongToShuffledQueueAfterIndex(accountId uint, songId uint, index int) error
+	RemoveSongFromQueue(songIndex int, accountId uint) error
+	RemoveSongFromShuffledQueue(songIndex int, accountId uint) error
+	ClearQueue(accountId uint) error
+	ClearShuffledQueue(accountId uint) error
+	GetSongsQueue(accountId uint) ([]uint, error)
+	GetSongsShuffledQueue(accountId uint) ([]uint, error)
+	GetQueueLength(accountId uint) (uint, error)
+	GetShuffledQueueLength(accountId uint) (uint, error)
+	GetSongIdAtIndexFromQueue(accountId uint, index int) (uint, error)
+	GetSongIdAtIndexFromShuffledQueue(accountId uint, index int) (uint, error)
 
-	SetCurrentPlayingSongInedxInQueue(accountId uint64, songIndex int) error
-	SetCurrentPlayingSongInedxInShuffledQueue(accountId uint64, songIndex int) error
-	GetCurrentPlayingSongIndexInQueue(accountId uint64) (int, error)
-	GetCurrentPlayingSongIndexInShuffledQueue(accountId uint64) (int, error)
+	SetCurrentPlayingSongInedxInQueue(accountId uint, songIndex int) error
+	SetCurrentPlayingSongInedxInShuffledQueue(accountId uint, songIndex int) error
+	GetCurrentPlayingSongIndexInQueue(accountId uint) (int, error)
+	GetCurrentPlayingSongIndexInShuffledQueue(accountId uint) (int, error)
 
-	SetShuffled(accountId uint64, shuffled bool) error
-	GetShuffled(accountId uint64) (bool, error)
+	SetShuffled(accountId uint, shuffled bool) error
+	GetShuffled(accountId uint) (bool, error)
 
-	SetLoopMode(accountId uint64, mode models.PlayerLoopMode) error
-	GetLoopMode(accountId uint64) (models.PlayerLoopMode, error)
+	SetLoopMode(accountId uint, mode models.PlayerLoopMode) error
+	GetLoopMode(accountId uint) (models.PlayerLoopMode, error)
 
-	SetCurrentPlayingPlaylistInQueue(accountId uint64, playlistId uint) error
-	GetCurrentPlayingPlaylistInQueue(accountId uint64) (uint, error)
+	SetCurrentPlayingPlaylistInQueue(accountId uint, playlistId uint) error
+	GetCurrentPlayingPlaylistInQueue(accountId uint) (uint, error)
 }

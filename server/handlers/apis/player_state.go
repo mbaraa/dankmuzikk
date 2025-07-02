@@ -20,12 +20,9 @@ func NewPlayerStateApi(usecases *actions.Actions) *playerStateApi {
 func (p *playerStateApi) HandleGetPlayerState(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	payload, err := p.usecases.GetPlayerState(actions.GetPlayerStateParams{
@@ -43,12 +40,9 @@ func (p *playerStateApi) HandleGetPlayerState(w http.ResponseWriter, r *http.Req
 func (p *playerStateApi) HandleSetShuffleOn(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	err = p.usecases.SetShuffleOn(actions.SetShuffleOnParams{
@@ -64,12 +58,9 @@ func (p *playerStateApi) HandleSetShuffleOn(w http.ResponseWriter, r *http.Reque
 func (p *playerStateApi) HandleSetShuffleOff(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	err = p.usecases.SetShuffleOff(actions.SetShuffleOffParams{
@@ -85,12 +76,9 @@ func (p *playerStateApi) HandleSetShuffleOff(w http.ResponseWriter, r *http.Requ
 func (p *playerStateApi) HandleSetLoopOff(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	err = p.usecases.SetLoopOff(actions.SetLoopOffParams{
@@ -106,12 +94,9 @@ func (p *playerStateApi) HandleSetLoopOff(w http.ResponseWriter, r *http.Request
 func (p *playerStateApi) HandleSetLoopOnce(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	err = p.usecases.SetLoopOnce(actions.SetLoopOnceParams{
@@ -127,12 +112,9 @@ func (p *playerStateApi) HandleSetLoopOnce(w http.ResponseWriter, r *http.Reques
 func (p *playerStateApi) HandleSetLoopAll(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	err = p.usecases.SetLoopAll(actions.SetLoopAllParams{
@@ -148,12 +130,9 @@ func (p *playerStateApi) HandleSetLoopAll(w http.ResponseWriter, r *http.Request
 func (p *playerStateApi) HandleGetNextSongInQueue(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	payload, err := p.usecases.GetNextSongInQueue(actions.GetNextSongInQueueParams{
@@ -171,12 +150,9 @@ func (p *playerStateApi) HandleGetNextSongInQueue(w http.ResponseWriter, r *http
 func (p *playerStateApi) HandleGetPreviousSongInQueue(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	payload, err := p.usecases.GetPreviousSongInQueue(actions.GetPreviousSongInQueueParams{
@@ -194,12 +170,9 @@ func (p *playerStateApi) HandleGetPreviousSongInQueue(w http.ResponseWriter, r *
 func (p *playerStateApi) HandleAddSongToQueueNext(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	songId := r.URL.Query().Get("id")
@@ -222,13 +195,12 @@ func (p *playerStateApi) HandleAddSongToQueueNext(w http.ResponseWriter, r *http
 func (p *playerStateApi) HandleAddSongToQueueAtLast(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
+
+	log.Warningf("context %+v\n", ctx)
 
 	songId := r.URL.Query().Get("id")
 	if songId == "" {
@@ -250,12 +222,9 @@ func (p *playerStateApi) HandleAddSongToQueueAtLast(w http.ResponseWriter, r *ht
 func (p *playerStateApi) HandleAddPlaylistToQueueNext(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	playlistId := r.URL.Query().Get("id")
@@ -279,12 +248,9 @@ func (p *playerStateApi) HandleAddPlaylistToQueueAtLast(w http.ResponseWriter, r
 	log.Warningln("kurwa handler")
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		ctx, err = parseGuestContext(r.Context())
-		if err != nil {
-			log.Errorln(err)
-			handleErrorResponse(w, err)
-			return
-		}
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
 	}
 
 	playlistId := r.URL.Query().Get("id")

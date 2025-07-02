@@ -2,7 +2,6 @@ package events
 
 import (
 	"dankmuzikk/actions"
-	"dankmuzikk/app/models"
 	"dankmuzikk/evy/events"
 )
 
@@ -68,35 +67,7 @@ func (e *EventHandlers) HandleDownloadSongOnFavorite(event events.SongAddedToFav
 }
 
 func (e *EventHandlers) HandleAddSongToQueue(event events.SongPlayed) error {
-	var err error
-	ctx := actions.ActionContext{
-		Account: models.Account{
-			Id: uint(event.AccountId),
-		},
-		AccountId: event.AccountId,
-	}
-	switch event.EntryPoint {
-	case events.SingleSongEntryPoint:
-		err = e.usecases.AddSongToNewQueue(actions.AddSongToNewQueueParams{
-			ActionContext: ctx,
-			SongPublicId:  event.SongPublicId,
-		})
-	case events.PlayPlaylistEntryPoint:
-		err = e.usecases.PlayPlaylist(actions.PlayPlaylistParams{
-			ActionContext:    ctx,
-			PlaylistPublicId: event.PlaylistPublicId,
-		})
-	case events.FromPlaylistEntryPoint:
-		err = e.usecases.PlaySongFromPlaylist(actions.PlaySongFromPlaylistParams{
-			ActionContext:    ctx,
-			SongPublicId:     event.SongPublicId,
-			PlaylistPublicId: event.PlaylistPublicId,
-		})
-	case events.FavoriteSongEntryPoint:
-		// TODO: implement this lol
-	}
-
-	return err
+	return e.usecases.HandleAddSongToQueue(event)
 }
 
 func (e *EventHandlers) IncrementSongPlaysInPlaylist() {}

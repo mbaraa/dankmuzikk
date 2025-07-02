@@ -2,7 +2,6 @@ package actions
 
 import (
 	"dankmuzikk/app/models"
-	"dankmuzikk/log"
 )
 
 type PlayerState struct {
@@ -21,7 +20,7 @@ type GetPlayerStatePayload struct {
 }
 
 func (a *Actions) GetPlayerState(params GetPlayerStateParams) (GetPlayerStatePayload, error) {
-	state, err := a.app.GetPlayerState(params.AccountId)
+	state, err := a.app.GetPlayerState(params.Account.Id)
 	if err != nil {
 		return GetPlayerStatePayload{}, err
 	}
@@ -47,7 +46,7 @@ type AddSongToNewQueueParams struct {
 }
 
 func (a *Actions) AddSongToNewQueue(params AddSongToNewQueueParams) error {
-	return a.app.OverrideSongsQueue(uint64(params.Account.Id), params.SongPublicId)
+	return a.app.OverrideSongsQueue(params.Account.Id, params.SongPublicId)
 }
 
 type AddSongToQueueAtLastParams struct {
@@ -56,7 +55,7 @@ type AddSongToQueueAtLastParams struct {
 }
 
 func (a *Actions) AddSongToQueueAtLast(params AddSongToQueueAtLastParams) error {
-	return a.app.AddSongToQueue(uint64(params.Account.Id), params.SongPublicId)
+	return a.app.AddSongToQueue(params.Account.Id, params.SongPublicId)
 }
 
 type AddSongToQueueNextParams struct {
@@ -65,7 +64,7 @@ type AddSongToQueueNextParams struct {
 }
 
 func (a *Actions) AddSongToQueueNext(params AddSongToQueueNextParams) error {
-	return a.app.AddSongToQueueAfterCurrentSong(uint64(params.Account.Id), params.SongPublicId)
+	return a.app.AddSongToQueueAfterCurrentSong(params.Account.Id, params.SongPublicId)
 }
 
 type AddPlaylistToQueueAtLastParams struct {
@@ -74,8 +73,7 @@ type AddPlaylistToQueueAtLastParams struct {
 }
 
 func (a *Actions) AddPlaylistToQueueAtLast(params AddPlaylistToQueueAtLastParams) error {
-	log.Warningln("kurwa actions")
-	return a.app.AddPlaylistToQueue(uint64(params.Account.Id), params.PlaylistPublicId)
+	return a.app.AddPlaylistToQueue(params.Account.Id, params.PlaylistPublicId)
 }
 
 type AddPlaylistToQueueNextParams struct {
@@ -84,7 +82,7 @@ type AddPlaylistToQueueNextParams struct {
 }
 
 func (a *Actions) AddPlaylistToQueueNext(params AddPlaylistToQueueNextParams) error {
-	return a.app.AddPlaylistToQueueAfterCurrentSong(uint64(params.Account.Id), params.PlaylistPublicId)
+	return a.app.AddPlaylistToQueueAfterCurrentSong(params.Account.Id, params.PlaylistPublicId)
 }
 
 type RemoveSongFromQueueParams struct {
@@ -93,7 +91,7 @@ type RemoveSongFromQueueParams struct {
 }
 
 func (a *Actions) RemoveSongFromQueue(params RemoveSongFromQueueParams) error {
-	return a.app.RemoveSongFromQueue(params.SongIndex, params.AccountId)
+	return a.app.RemoveSongFromQueue(params.SongIndex, params.Account.Id)
 }
 
 type PlayPlaylistParams struct {
@@ -102,7 +100,7 @@ type PlayPlaylistParams struct {
 }
 
 func (a *Actions) PlayPlaylist(params PlayPlaylistParams) error {
-	return a.app.PlayPlaylist(uint64(params.Account.Id), params.PlaylistPublicId)
+	return a.app.PlayPlaylist(params.Account.Id, params.PlaylistPublicId)
 }
 
 type PlaySongFromPlaylistParams struct {
@@ -112,7 +110,16 @@ type PlaySongFromPlaylistParams struct {
 }
 
 func (a *Actions) PlaySongFromPlaylist(params PlaySongFromPlaylistParams) error {
-	return a.app.PlaySongFromPlaylist(uint64(params.Account.Id), params.SongPublicId, params.PlaylistPublicId)
+	return a.app.PlaySongFromPlaylist(params.Account.Id, params.SongPublicId, params.PlaylistPublicId)
+}
+
+type PlaySongFromFavoritesParams struct {
+	ActionContext `json:"-"`
+	SongPublicId  string `json:"song_public_id"`
+}
+
+func (a *Actions) PlaySongFromFavorites(params PlaySongFromFavoritesParams) error {
+	return a.app.PlaySongFromFavorites(params.Account.Id, params.SongPublicId)
 }
 
 type SetShuffleOnParams struct {
@@ -120,7 +127,7 @@ type SetShuffleOnParams struct {
 }
 
 func (a *Actions) SetShuffleOn(params SetShuffleOnParams) error {
-	return a.app.SetShuffledOn(params.AccountId)
+	return a.app.SetShuffledOn(params.Account.Id)
 }
 
 type SetShuffleOffParams struct {
@@ -128,7 +135,7 @@ type SetShuffleOffParams struct {
 }
 
 func (a *Actions) SetShuffleOff(params SetShuffleOffParams) error {
-	return a.app.SetShuffledOff(params.AccountId)
+	return a.app.SetShuffledOff(params.Account.Id)
 }
 
 type SetLoopOffParams struct {
@@ -136,7 +143,7 @@ type SetLoopOffParams struct {
 }
 
 func (a *Actions) SetLoopOff(params SetLoopOffParams) error {
-	return a.app.SetLoopMode(params.AccountId, models.LoopOffMode)
+	return a.app.SetLoopMode(params.Account.Id, models.LoopOffMode)
 }
 
 type SetLoopOnceParams struct {
@@ -144,7 +151,7 @@ type SetLoopOnceParams struct {
 }
 
 func (a *Actions) SetLoopOnce(params SetLoopOnceParams) error {
-	return a.app.SetLoopMode(params.AccountId, models.LoopOnceMode)
+	return a.app.SetLoopMode(params.Account.Id, models.LoopOnceMode)
 }
 
 type SetLoopAllParams struct {
@@ -152,7 +159,7 @@ type SetLoopAllParams struct {
 }
 
 func (a *Actions) SetLoopAll(params SetLoopAllParams) error {
-	return a.app.SetLoopMode(params.AccountId, models.LoopAllMode)
+	return a.app.SetLoopMode(params.Account.Id, models.LoopAllMode)
 }
 
 type GetNextSongInQueueParams struct {
@@ -166,7 +173,7 @@ type GetNextSongInQueuePayload struct {
 }
 
 func (a *Actions) GetNextSongInQueue(params GetNextSongInQueueParams) (GetNextSongInQueuePayload, error) {
-	result, err := a.app.GetNextPlayingSong(params.AccountId)
+	result, err := a.app.GetNextPlayingSong(params.Account.Id)
 	if err != nil {
 		return GetNextSongInQueuePayload{}, err
 	}
@@ -189,7 +196,7 @@ type GetPreviousSongInQueuePayload struct {
 }
 
 func (a *Actions) GetPreviousSongInQueue(params GetPreviousSongInQueueParams) (GetPreviousSongInQueuePayload, error) {
-	result, err := a.app.GetPreviousPlayingSong(params.AccountId)
+	result, err := a.app.GetPreviousPlayingSong(params.Account.Id)
 	if err != nil {
 		return GetPreviousSongInQueuePayload{}, err
 	}

@@ -85,7 +85,7 @@ func (a *Actions) GetSongByPublicId(params GetSongByPublicIdParams) (Song, error
 		}
 
 		// TODO: move this back to the event handler
-		err = a.handleAddSongToQueue(event)
+		err = a.HandleAddSongToQueue(event)
 		if err != nil {
 			return Song{}, err
 		}
@@ -232,13 +232,14 @@ type PlaySongPayload struct {
 	MediaUrl string `json:"media_url"`
 }
 
-func (a *Actions) handleAddSongToQueue(event events.SongPlayed) error {
+// TODO: move this back to the event handler
+// maybe?
+func (a *Actions) HandleAddSongToQueue(event events.SongPlayed) error {
 	var err error
 	ctx := ActionContext{
 		Account: models.Account{
 			Id: uint(event.AccountId),
 		},
-		AccountId: event.AccountId,
 	}
 	switch event.EntryPoint {
 	case events.SingleSongEntryPoint:
@@ -258,7 +259,10 @@ func (a *Actions) handleAddSongToQueue(event events.SongPlayed) error {
 			PlaylistPublicId: event.PlaylistPublicId,
 		})
 	case events.FavoriteSongEntryPoint:
-		// TODO: implement this lol
+		err = a.PlaySongFromFavorites(PlaySongFromFavoritesParams{
+			ActionContext: ctx,
+			SongPublicId:  event.SongPublicId,
+		})
 	}
 
 	return err
@@ -288,7 +292,7 @@ func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 	}
 
 	// TODO: move this back to the event handler
-	err = a.handleAddSongToQueue(event)
+	err = a.HandleAddSongToQueue(event)
 	if err != nil {
 		return PlaySongPayload{}, err
 	}

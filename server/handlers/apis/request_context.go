@@ -5,7 +5,6 @@ import (
 	"dankmuzikk/actions"
 	"dankmuzikk/app/models"
 	"dankmuzikk/handlers/middlewares/auth"
-	"math/big"
 )
 
 func parseContext(ctx context.Context) (actions.ActionContext, error) {
@@ -15,11 +14,11 @@ func parseContext(ctx context.Context) (actions.ActionContext, error) {
 	}
 
 	return actions.ActionContext{
-		Account:   account,
-		AccountId: uint64(account.Id),
+		Account: account,
 	}, nil
 }
 
+/* not now, not now...
 func parseGuestContext(ctx context.Context) (actions.ActionContext, error) {
 	guestId, guestIdCorrect := ctx.Value(auth.GuestKey).(string)
 	if !guestIdCorrect {
@@ -48,3 +47,4 @@ func md5ToUint(md5Str string) uint64 {
 
 	return modResult.Uint64()
 }
+*/
