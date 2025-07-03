@@ -20,7 +20,7 @@ type GetPlayerStatePayload struct {
 }
 
 func (a *Actions) GetPlayerState(params GetPlayerStateParams) (GetPlayerStatePayload, error) {
-	state, err := a.app.GetPlayerState(params.Account.Id)
+	state, err := a.app.GetPlayerState(params.Account.Id, params.ClientHash)
 	if err != nil {
 		return GetPlayerStatePayload{}, err
 	}
@@ -46,7 +46,7 @@ type AddSongToNewQueueParams struct {
 }
 
 func (a *Actions) AddSongToNewQueue(params AddSongToNewQueueParams) error {
-	return a.app.OverrideSongsQueue(params.Account.Id, params.SongPublicId)
+	return a.app.OverrideSongsQueue(params.Account.Id, params.ClientHash, []string{params.SongPublicId})
 }
 
 type AddSongToQueueAtLastParams struct {
@@ -64,7 +64,7 @@ type AddSongToQueueNextParams struct {
 }
 
 func (a *Actions) AddSongToQueueNext(params AddSongToQueueNextParams) error {
-	return a.app.AddSongToQueueAfterCurrentSong(params.Account.Id, params.SongPublicId)
+	return a.app.AddSongToQueueAfterCurrentSong(params.Account.Id, params.ClientHash, params.SongPublicId)
 }
 
 type AddPlaylistToQueueAtLastParams struct {
@@ -82,7 +82,7 @@ type AddPlaylistToQueueNextParams struct {
 }
 
 func (a *Actions) AddPlaylistToQueueNext(params AddPlaylistToQueueNextParams) error {
-	return a.app.AddPlaylistToQueueAfterCurrentSong(params.Account.Id, params.PlaylistPublicId)
+	return a.app.AddPlaylistToQueueAfterCurrentSong(params.Account.Id, params.ClientHash, params.PlaylistPublicId)
 }
 
 type RemoveSongFromQueueParams struct {
@@ -100,7 +100,7 @@ type PlayPlaylistParams struct {
 }
 
 func (a *Actions) PlayPlaylist(params PlayPlaylistParams) error {
-	return a.app.PlayPlaylist(params.Account.Id, params.PlaylistPublicId)
+	return a.app.PlayPlaylist(params.Account.Id, params.ClientHash, params.PlaylistPublicId)
 }
 
 type PlaySongFromPlaylistParams struct {
@@ -110,7 +110,7 @@ type PlaySongFromPlaylistParams struct {
 }
 
 func (a *Actions) PlaySongFromPlaylist(params PlaySongFromPlaylistParams) error {
-	return a.app.PlaySongFromPlaylist(params.Account.Id, params.SongPublicId, params.PlaylistPublicId)
+	return a.app.PlaySongFromPlaylist(params.Account.Id, params.ClientHash, params.SongPublicId, params.PlaylistPublicId)
 }
 
 type PlaySongFromFavoritesParams struct {
@@ -119,7 +119,7 @@ type PlaySongFromFavoritesParams struct {
 }
 
 func (a *Actions) PlaySongFromFavorites(params PlaySongFromFavoritesParams) error {
-	return a.app.PlaySongFromFavorites(params.Account.Id, params.SongPublicId)
+	return a.app.PlaySongFromFavorites(params.Account.Id, params.ClientHash, params.SongPublicId)
 }
 
 type SetShuffleOnParams struct {
@@ -173,7 +173,7 @@ type GetNextSongInQueuePayload struct {
 }
 
 func (a *Actions) GetNextSongInQueue(params GetNextSongInQueueParams) (GetNextSongInQueuePayload, error) {
-	result, err := a.app.GetNextPlayingSong(params.Account.Id)
+	result, err := a.app.GetNextPlayingSong(params.Account.Id, params.ClientHash)
 	if err != nil {
 		return GetNextSongInQueuePayload{}, err
 	}
@@ -196,7 +196,7 @@ type GetPreviousSongInQueuePayload struct {
 }
 
 func (a *Actions) GetPreviousSongInQueue(params GetPreviousSongInQueueParams) (GetPreviousSongInQueuePayload, error) {
-	result, err := a.app.GetPreviousPlayingSong(params.Account.Id)
+	result, err := a.app.GetPreviousPlayingSong(params.Account.Id, params.ClientHash)
 	if err != nil {
 		return GetPreviousSongInQueuePayload{}, err
 	}

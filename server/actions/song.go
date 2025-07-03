@@ -41,6 +41,7 @@ func mapModelToActionsSong(s models.Song) Song {
 }
 
 type GetSongByPublicIdParams struct {
+	ActionContext
 	SongPublicId string
 }
 
@@ -85,7 +86,7 @@ func (a *Actions) GetSongByPublicId(params GetSongByPublicIdParams) (Song, error
 		}
 
 		// TODO: move this back to the event handler
-		err = a.HandleAddSongToQueue(event)
+		err = a.HandleAddSongToQueue(event, params.ClientHash)
 		if err != nil {
 			return Song{}, err
 		}
@@ -234,12 +235,13 @@ type PlaySongPayload struct {
 
 // TODO: move this back to the event handler
 // maybe?
-func (a *Actions) HandleAddSongToQueue(event events.SongPlayed) error {
+func (a *Actions) HandleAddSongToQueue(event events.SongPlayed, clientHash string) error {
 	var err error
 	ctx := ActionContext{
 		Account: models.Account{
 			Id: uint(event.AccountId),
 		},
+		ClientHash: clientHash,
 	}
 	switch event.EntryPoint {
 	case events.SingleSongEntryPoint:
@@ -270,7 +272,8 @@ func (a *Actions) HandleAddSongToQueue(event events.SongPlayed) error {
 
 func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 	_, err := a.GetSongByPublicId(GetSongByPublicIdParams{
-		SongPublicId: params.SongPublicId,
+		SongPublicId:  params.SongPublicId,
+		ActionContext: params.ActionContext,
 	})
 	if err != nil {
 		return PlaySongPayload{}, err
@@ -292,7 +295,7 @@ func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 	}
 
 	// TODO: move this back to the event handler
-	err = a.HandleAddSongToQueue(event)
+	err = a.HandleAddSongToQueue(event, params.ClientHash)
 	if err != nil {
 		return PlaySongPayload{}, err
 	}

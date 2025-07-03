@@ -27,10 +27,10 @@ type PlayerCache interface {
 	GetSongIdAtIndexFromQueue(accountId uint, index int) (uint, error)
 	GetSongIdAtIndexFromShuffledQueue(accountId uint, index int) (uint, error)
 
-	SetCurrentPlayingSongInedxInQueue(accountId uint, songIndex int) error
-	SetCurrentPlayingSongInedxInShuffledQueue(accountId uint, songIndex int) error
-	GetCurrentPlayingSongIndexInQueue(accountId uint) (int, error)
-	GetCurrentPlayingSongIndexInShuffledQueue(accountId uint) (int, error)
+	SetCurrentPlayingSongIndexInQueue(accountId uint, clientHash string, songIndex int) error
+	SetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string, songIndex int) error
+	GetCurrentPlayingSongIndexInQueue(accountId uint, clientHash string) (int, error)
+	GetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string) (int, error)
 
 	SetShuffled(accountId uint, shuffled bool) error
 	GetShuffled(accountId uint) (bool, error)

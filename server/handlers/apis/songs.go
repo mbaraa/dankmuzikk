@@ -113,8 +113,11 @@ func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx, _ := parseContext(r.Context())
+
 	payload, err := s.usecases.GetSongByPublicId(actions.GetSongByPublicIdParams{
-		SongPublicId: id,
+		SongPublicId:  id,
+		ActionContext: ctx,
 	})
 	if err != nil {
 		log.Error(err)

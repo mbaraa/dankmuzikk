@@ -12,9 +12,11 @@ func parseContext(ctx context.Context) (actions.ActionContext, error) {
 	if !accountCorrect {
 		return actions.ActionContext{}, &ErrUnauthorized{}
 	}
+	clientHash, _ := ctx.Value("client-hash").(string)
 
 	return actions.ActionContext{
-		Account: account,
+		Account:    account,
+		ClientHash: clientHash,
 	}, nil
 }
 

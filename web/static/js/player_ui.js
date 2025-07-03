@@ -267,30 +267,6 @@ function highlightSongInPlaylist(songPublicId, playlistSongIds) {
 // EVENTS
 //
 
-let playerStartY = 0;
-
-playerEl?.addEventListener(
-  "touchstart",
-  (e) => {
-    playerStartY = e.touches[0].pageY;
-  },
-  { passive: true },
-);
-
-playerEl?.addEventListener(
-  "touchmove",
-  async (e) => {
-    const y = e.touches[0].pageY;
-    if (y > playerStartY + 75) {
-      collapseMobilePlayer();
-    }
-    if (y < playerStartY - 25) {
-      expandMobilePlayer();
-    }
-  },
-  { passive: true },
-);
-
 document
   .getElementById("expanded-mobile-player-lyrics")
   ?.addEventListener("touchmove", (event) => {

@@ -3,6 +3,7 @@ package playerstate
 import (
 	"context"
 	"dankmuzikk-web/actions"
+	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/log"
 	"net/http"
 )
@@ -25,7 +26,8 @@ func (p *mw) Handler(h http.Handler) http.Handler {
 		ctx := r.Context()
 		sessionToken, err := r.Cookie("token")
 		if err == nil && sessionToken != nil {
-			playerStatePayload, err := p.usecases.GetPlayerState(sessionToken.Value, "")
+			clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+			playerStatePayload, err := p.usecases.GetPlayerState(sessionToken.Value, clientHash)
 			if err != nil {
 				log.Errorln(err)
 			}

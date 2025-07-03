@@ -3,6 +3,7 @@ package apis
 import (
 	"dankmuzikk-web/actions"
 	"dankmuzikk-web/handlers/middlewares/auth"
+	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/lyrics"
 	"dankmuzikk-web/views/components/song"
@@ -93,8 +94,9 @@ func (s *songsApi) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 	playlistId := r.URL.Query().Get("playlist-id")
 
 	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
 
-	mediaUrl, err := s.usecases.PlaySong(sessionToken, id, playlistId)
+	mediaUrl, err := s.usecases.PlaySong(sessionToken, clientHash, id, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -108,6 +110,7 @@ func (s *songsApi) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 
 func (s *songsApi) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -116,7 +119,7 @@ func (s *songsApi) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	song, err := s.usecases.GetSongMetadata(sessionToken, id)
+	song, err := s.usecases.GetSongMetadata(sessionToken, clientHash, id)
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)

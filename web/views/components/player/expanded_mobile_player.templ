@@ -21,7 +21,7 @@ templ expandedMobilePlayerControls() {
 		<!-- details -->
 		<div class={ "flex", "justify-center", "items-center" }>
 			<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[250px]" }>
-				<p class={ "font-Ubuntu", "w-full", "text-center" }>
+				<p class={ "font-Ubuntu", "w-full", "text-center" , "marquee" }>
 					<span id="song-name-expanded">{ psSongName(ps(ctx), "Play a song...") }</span>
 				</p>
 				<p id="artist-name-expanded" class={ "w-full", "text-center" }>{ psArtistName(ps(ctx), "") }</p>
@@ -132,7 +132,7 @@ templ expandedMobilePlayerLyrics() {
 	<div
 		id="expanded-mobile-player-lyrics"
 		class={
-			"w-full", "overflow-y-scroll", "max-h-[45vh]", "md:max-h-[55vh]",
+			"w-full", "overflow-y-scroll", "max-h-[475px]",
 			"hidden", "flex-col", "gap-y-1", "lg:mb-5", "p-5",
 		}
 	>

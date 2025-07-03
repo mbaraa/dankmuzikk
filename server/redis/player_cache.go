@@ -413,13 +413,13 @@ func (c *playerCache) GetSongsShuffledQueue(accountId uint) ([]uint, error) {
 	return queue, nil
 }
 
-func playerCurrentPlayingSongKey(accountId uint) string {
-	return fmt.Sprintf("%splayer-current-playing-song-index:%d", keyPrefix, accountId)
+func playerCurrentPlayingSongKey(accountId uint, clientHash string) string {
+	return fmt.Sprintf("%splayer-playing-index:%d:%s", keyPrefix, accountId, clientHash)
 }
 
-func (c *playerCache) SetCurrentPlayingSongInedxInQueue(accountId uint, songIndex int) error {
+func (c *playerCache) SetCurrentPlayingSongIndexInQueue(accountId uint, clientHash string, songIndex int) error {
 	status := c.client.Set(context.Background(),
-		playerCurrentPlayingSongKey(accountId),
+		playerCurrentPlayingSongKey(accountId, clientHash),
 		songIndex,
 		playerSettingsTtlHours*time.Hour,
 	)
@@ -436,8 +436,8 @@ func (c *playerCache) SetCurrentPlayingSongInedxInQueue(accountId uint, songInde
 
 }
 
-func (c *playerCache) GetCurrentPlayingSongIndexInQueue(accountId uint) (int, error) {
-	res := c.client.Get(context.Background(), playerCurrentPlayingSongKey(accountId))
+func (c *playerCache) GetCurrentPlayingSongIndexInQueue(accountId uint, clientHash string) (int, error) {
+	res := c.client.Get(context.Background(), playerCurrentPlayingSongKey(accountId, clientHash))
 	if res == nil {
 		return 0, redis.Nil
 	}
@@ -449,13 +449,13 @@ func (c *playerCache) GetCurrentPlayingSongIndexInQueue(accountId uint) (int, er
 	return strconv.Atoi(value)
 }
 
-func playerCurrentPlayingSongKeyInShuffledQueue(accountId uint) string {
-	return fmt.Sprintf("%splayer-current-playing-song-index-in-shuffled-queue:%d", keyPrefix, accountId)
+func playerCurrentPlayingSongKeyInShuffledQueue(accountId uint, clientHash string) string {
+	return fmt.Sprintf("%splayer-playing-index-shuffled:%d:%s", keyPrefix, accountId, clientHash)
 }
 
-func (c *playerCache) SetCurrentPlayingSongInedxInShuffledQueue(accountId uint, songIndex int) error {
+func (c *playerCache) SetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string, songIndex int) error {
 	status := c.client.Set(context.Background(),
-		playerCurrentPlayingSongKeyInShuffledQueue(accountId),
+		playerCurrentPlayingSongKeyInShuffledQueue(accountId, clientHash),
 		songIndex,
 		playerSettingsTtlHours*time.Hour,
 	)
@@ -472,8 +472,8 @@ func (c *playerCache) SetCurrentPlayingSongInedxInShuffledQueue(accountId uint, 
 
 }
 
-func (c *playerCache) GetCurrentPlayingSongIndexInShuffledQueue(accountId uint) (int, error) {
-	res := c.client.Get(context.Background(), playerCurrentPlayingSongKeyInShuffledQueue(accountId))
+func (c *playerCache) GetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string) (int, error) {
+	res := c.client.Get(context.Background(), playerCurrentPlayingSongKeyInShuffledQueue(accountId, clientHash))
 	if res == nil {
 		return 0, redis.Nil
 	}

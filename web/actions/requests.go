@@ -26,8 +26,8 @@ type Requests interface {
 	AddSongToFavorites(sessionToken string, songPublicId string) error
 	RemoveSongFromFavorites(sessionToken string, songPublicId string) error
 
-	GetSongMetadata(sessionToken, songPublicId string) (Song, error)
-	PlaySong(sessionToken, songPublicId, playlistPublicId string) (string, error)
+	GetSongMetadata(sessionToken, clientHash, songPublicId string) (Song, error)
+	PlaySong(sessionToken, clientHash, songPublicId, playlistPublicId string) (string, error)
 	ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (added bool, err error)
 	UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (UpvoteSongInPlaylistPayload, error)
 	DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (DownvoteSongInPlaylistPayload, error)
