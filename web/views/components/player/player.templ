@@ -1,7 +1,6 @@
 package player
 
 import "dankmuzikk-web/views/components/ui"
-import "dankmuzikk-web/actions"
 
 templ PlayerSticky() {
 	<div
@@ -23,10 +22,10 @@ templ PlayerSticky() {
 			}
 		>
 			<div class={ "contents" } id="ze-collapsed-mobile-player">
-				@collapsedPlayer(ctx.Value("player-state").(actions.PlayerState))
+				@collapsedPlayer()
 			</div>
 			<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
-				@expandedMobilePlayer(ctx.Value("player-state").(actions.PlayerState))
+				@expandedMobilePlayer()
 			</div>
 		</div>
 	</div>
@@ -35,14 +34,14 @@ templ PlayerSticky() {
 		id="muzikk-player"
 		controls
 		preload="none"
-		if !checkPlayerStateForSong(ctx.Value("player-state").(actions.PlayerState)) {
+		if !checkPlayerStateForSong(ps(ctx)) {
 			muted
 		}
 	>
-		if checkPlayerStateForSong(ctx.Value("player-state").(actions.PlayerState)) {
+		if checkPlayerStateForSong(ps(ctx)) {
 			<source
 				type="audio/mpeg"
-				src={ psMediaUrl(ctx.Value("player-state").(actions.PlayerState), "") }
+				src={ psMediaUrl(ps(ctx), "") }
 				preload="metadata"
 			/>
 		}

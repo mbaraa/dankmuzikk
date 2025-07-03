@@ -1,12 +1,11 @@
 package player
 
 import (
-	"dankmuzikk-web/actions"
 	"dankmuzikk-web/views/components/menus"
 	"dankmuzikk-web/views/icons"
 )
 
-templ expandedMobilePlayerControls(state actions.PlayerState) {
+templ expandedMobilePlayerControls() {
 	<div id="expanded-mobile-player-controls" class={ "flex", "flex-col", "justify-center", "gap-y-[20px]", "p-[20px]", "h-full" }>
 		<!-- foto -->
 		<div class={ "flex", "justify-center", "items-center" }>
@@ -15,8 +14,7 @@ templ expandedMobilePlayerControls(state actions.PlayerState) {
 				class={
 					"w-[200px]", "h-[200px]", "rounded-[3px]", "bg-primary",
 					"bg-repeat", "bg-cover", "bg-center", "bg-[url('/static/images/album-cover-icon.svg')]",
-					templ.KV("bg-[url('/static/images/album-cover-icon.svg')]", !checkPlayerStateForSong(state)),
-					templ.KV(playerSongThumb(state.Songs[state.CurrentSongIndex].ThumbnailUrl), checkPlayerStateForSong(state)),
+					playerSongThumb(psThumnailUrl(ps(ctx), "/static/images/album-cover-icon.svg")),
 				}
 			></div>
 		</div>
@@ -24,9 +22,9 @@ templ expandedMobilePlayerControls(state actions.PlayerState) {
 		<div class={ "flex", "justify-center", "items-center" }>
 			<div class={ "flex", "flex-col", "justify-center", "min-w-[100px]", "max-w-[250px]" }>
 				<p class={ "font-Ubuntu", "w-full", "text-center" }>
-					<span id="song-name-expanded">{ psSongName(state, "Play a song...") }</span>
+					<span id="song-name-expanded">{ psSongName(ps(ctx), "Play a song...") }</span>
 				</p>
-				<p id="artist-name-expanded" class={ "w-full", "text-center" }>{ psArtistName(state, "") }</p>
+				<p id="artist-name-expanded" class={ "w-full", "text-center" }>{ psArtistName(ps(ctx), "") }</p>
 			</div>
 		</div>
 		<!-- controls -->
@@ -35,11 +33,11 @@ templ expandedMobilePlayerControls(state actions.PlayerState) {
 				id="shuffle-expand"
 				type="button"
 				title="Shuffle"
-				if !checkPlayerStateForSong(state) {
+				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
 			>
-				if psShuffled(state) {
+				if psShuffled(ps(ctx)) {
 					@icons.ShuffleOn()
 				} else {
 					@icons.ShuffleOff()
@@ -49,7 +47,7 @@ templ expandedMobilePlayerControls(state actions.PlayerState) {
 				id="prev-expand"
 				type="button"
 				title="Previous song"
-				if !checkPlayerStateForSong(state) {
+				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
 			>
@@ -62,7 +60,7 @@ templ expandedMobilePlayerControls(state actions.PlayerState) {
 				id="play-expand"
 				type="button"
 				title="Play/Pause"
-				if !checkPlayerStateForSong(state) {
+				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
 			>
@@ -72,7 +70,7 @@ templ expandedMobilePlayerControls(state actions.PlayerState) {
 				id="next-expand"
 				type="button"
 				title="Next song"
-				if !checkPlayerStateForSong(state) {
+				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
 			>
@@ -85,11 +83,11 @@ templ expandedMobilePlayerControls(state actions.PlayerState) {
 				id="loop-expand"
 				type="button"
 				title="Loop"
-				if !checkPlayerStateForSong(state) {
+				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
 			>
-				switch psLoopMode(state) {
+				switch psLoopMode(ps(ctx)) {
 					case "all":
 						@icons.LoopAll()
 					case "once":
@@ -106,11 +104,11 @@ templ expandedMobilePlayerControls(state actions.PlayerState) {
 					id="song-seek-bar-expanded"
 					type="range"
 					min="0"
-					max={ psDuration(state, "0") }
+					max={ psDuration(ps(ctx), "0") }
 					value="0"
 					class={ "my-2", "w-full" }
 				/>
-				<span id="song-duration-expanded">{ psDurationStr(state, "00:00") }</span>
+				<span id="song-duration-expanded">{ psDurationStr(ps(ctx), "00:00") }</span>
 			</div>
 			<div class={ "w-2/3", "flex", "items-center", "gap-x-3" }>
 				<svg width="30" height="27" viewBox="0 0 30 27" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -158,10 +156,10 @@ templ expandedMobilePlayerQueue() {
 	</div>
 }
 
-templ expandedMobilePlayer(state actions.PlayerState) {
+templ expandedMobilePlayer() {
 	<div class={ "flex", "flex-col", "justify-between", "h-full" }>
 		<div class={ "h-max" }>
-			@expandedMobilePlayerControls(state)
+			@expandedMobilePlayerControls()
 			@expandedMobilePlayerLyrics()
 			@expandedMobilePlayerQueue()
 		</div>

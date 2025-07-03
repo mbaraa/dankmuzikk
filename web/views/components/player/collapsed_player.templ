@@ -7,6 +7,16 @@ import "fmt"
 import "dankmuzikk-web/actions"
 import "time"
 import "strconv"
+import "context"
+
+func ps(ctx context.Context) actions.PlayerState {
+	state, ok := ctx.Value("player-state").(actions.PlayerState)
+	if !ok {
+		return actions.PlayerState{}
+	}
+
+	return state
+}
 
 func checkPlayerState(state actions.PlayerState) bool {
 	return len(state.Songs) > 0
@@ -65,7 +75,15 @@ func psMediaUrl(state actions.PlayerState, fallback string) string {
 	}
 }
 
-templ collapsedPlayer(state actions.PlayerState) {
+func psThumnailUrl(state actions.PlayerState, fallback string) string {
+	if checkPlayerStateForSong(state) {
+		return state.Songs[state.CurrentSongIndex].ThumbnailUrl
+	} else {
+		return fallback
+	}
+}
+
+templ collapsedPlayer() {
 	<div
 		class={ "h-full", "flex", "justify-between", "items-center", "gap-x-2", "md:gap-x-5", }
 	>
@@ -84,8 +102,7 @@ templ collapsedPlayer(state actions.PlayerState) {
 						"w-[35px]", "h-[35px]", "rounded-[3px]",
 						"md:w-[60px]", "md:h-[60px]", "md:rounded-md", "bg-primary",
 						"bg-repeat", "bg-cover", "bg-center",
-						templ.KV("bg-[url('/static/images/album-cover-icon.svg')]", !checkPlayerStateForSong(state)),
-						templ.KV(playerSongThumb(state.Songs[state.CurrentSongIndex].ThumbnailUrl), checkPlayerStateForSong(state)),
+						playerSongThumb(psThumnailUrl(ps(ctx), "/static/images/album-cover-icon.svg")),
 					}
 				></div>
 				<div
@@ -96,13 +113,13 @@ templ collapsedPlayer(state actions.PlayerState) {
 				>
 					<p class={ "w-full marquee" }>
 						<span id="song-name">
-							{ psSongName(state, "Play a song...") }
+							{ psSongName(ps(ctx), "Play a song...") }
 						</span>
 					</p>
 					@ui.DesktopOnly() {
 						<p class={ "hidden", "md:inline-block", "w-full" }>
 							<span id="artist-name">
-								{ psArtistName(state, "") }
+								{ psArtistName(ps(ctx), "") }
 							</span>
 						</p>
 					}
@@ -118,14 +135,14 @@ templ collapsedPlayer(state actions.PlayerState) {
 				<div class={ "flex", "justify-between", "w-fit", "md:w-full", "items-center" }>
 					<span id="song-current-time">00:00</span>
 					@ui.DesktopOnly() {
-						<span id="song-duration" class={ "hidden", "md:inline-block" }>{ psDurationStr(state, "00:00") }</span>
+						<span id="song-duration" class={ "hidden", "md:inline-block" }>{ psDurationStr(ps(ctx), "00:00") }</span>
 					}
 				</div>
 				<input
 					id="song-seek-bar"
 					type="range"
 					min="0"
-					max={ psDuration(state, "0") }
+					max={ psDuration(ps(ctx), "0") }
 					value="0"
 					class={ "my-2", "w-full", "md:w-fit" }
 				/>
@@ -144,11 +161,11 @@ templ collapsedPlayer(state actions.PlayerState) {
 					class={ "hidden", "md:inline-block" }
 					type="button"
 					title="Shuffle"
-					if !checkPlayerStateForSong(state) {
+					if !checkPlayerStateForSong(ps(ctx)) {
 						disabled
 					}
 				>
-					if psShuffled(state) {
+					if psShuffled(ps(ctx)) {
 						@icons.ShuffleOn()
 					} else {
 						@icons.ShuffleOff()
@@ -159,7 +176,7 @@ templ collapsedPlayer(state actions.PlayerState) {
 					class={ "hidden", "md:inline-block" }
 					type="button"
 					title="Previous song"
-					if !checkPlayerStateForSong(state) {
+					if !checkPlayerStateForSong(ps(ctx)) {
 						disabled
 					}
 				>
@@ -173,7 +190,7 @@ templ collapsedPlayer(state actions.PlayerState) {
 				id="play"
 				type="button"
 				title="Play/Pause"
-				if !checkPlayerStateForSong(state) {
+				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
 			>
@@ -185,7 +202,7 @@ templ collapsedPlayer(state actions.PlayerState) {
 					class={ "hidden", "md:inline-block" }
 					type="button"
 					title="Next song"
-					if !checkPlayerStateForSong(state) {
+					if !checkPlayerStateForSong(ps(ctx)) {
 						disabled
 					}
 				>
@@ -199,11 +216,11 @@ templ collapsedPlayer(state actions.PlayerState) {
 					class={ "hidden", "md:inline-block" }
 					type="button"
 					title="Loop"
-					if !checkPlayerStateForSong(state) {
+					if !checkPlayerStateForSong(ps(ctx)) {
 						disabled
 					}
 				>
-					switch psLoopMode(state) {
+					switch psLoopMode(ps(ctx)) {
 						case "all":
 							@icons.LoopAll()
 						case "once":
