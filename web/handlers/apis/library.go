@@ -107,7 +107,7 @@ func (l *libraryApi) HandleGetMoreFavoritesItems(w http.ResponseWriter, r *http.
 			[]templ.Component{
 				playlist.PlaylistsPopup((idx+1)*page, s.PublicId),
 			},
-			actions.Playlist{}).
+			actions.Playlist{}, "favorites").
 			Render(r.Context(), w)
 	}
 

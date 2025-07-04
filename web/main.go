@@ -9,6 +9,7 @@ import (
 	"dankmuzikk-web/handlers/middlewares/contenttype"
 	"dankmuzikk-web/handlers/middlewares/ismobile"
 	"dankmuzikk-web/handlers/middlewares/logger"
+	"dankmuzikk-web/handlers/middlewares/playerstate"
 	"dankmuzikk-web/handlers/middlewares/theme"
 	"dankmuzikk-web/handlers/middlewares/version"
 	"dankmuzikk-web/handlers/pages"
@@ -131,6 +132,7 @@ func main() {
 	logoutApi := apis.NewLogoutApi(usecases)
 	searchSuggestionsApi := apis.NewSearchSiggestionsApi(usecases)
 	libraryApi := apis.NewLibraryApi(usecases)
+	playerStateApi := apis.NewPlayerStateApi(usecases)
 
 	apisHandler := http.NewServeMux()
 	apisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -141,8 +143,11 @@ func main() {
 	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("GET /logout", authMiddleware.AuthApi(logoutApi.HandleLogout))
 	apisHandler.HandleFunc("GET /search-suggestion", searchSuggestionsApi.HandleSearchSuggestions)
-	apisHandler.HandleFunc("GET /song", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
-	apisHandler.HandleFunc("GET /song/single", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
+	apisHandler.HandleFunc("PUT /song/play", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
+	apisHandler.HandleFunc("PUT /song/play/playlist", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromPlaylist))
+	apisHandler.HandleFunc("PUT /song/play/favorites", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromFavorites))
+	apisHandler.HandleFunc("PUT /song/play/queue", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromQueue))
+	apisHandler.HandleFunc("GET /song", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
 	apisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
 	apisHandler.HandleFunc("GET /playlist/all", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
 	apisHandler.HandleFunc("GET /playlist", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylist))
@@ -159,8 +164,26 @@ func main() {
 	apisHandler.HandleFunc("POST /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleAddSongToFavorites))
 	apisHandler.HandleFunc("DELETE /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleRemoveSongFromFavorites))
 
+	apisHandler.HandleFunc("GET /player", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPlayerState))
+	apisHandler.HandleFunc("GET /player/queue", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPlayerSongsQueue))
+	apisHandler.HandleFunc("POST /player/shuffle", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetPlayerShuffleOn))
+	apisHandler.HandleFunc("DELETE /player/shuffle", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetPlayerShuffleOff))
+	apisHandler.HandleFunc("GET /player/song/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetNextSongInQueue))
+	apisHandler.HandleFunc("GET /player/song/previous", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPreviousSongInQueue))
+	apisHandler.HandleFunc("GET /player/song/lyrics", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPlayingSongLyrics))
+	apisHandler.HandleFunc("PUT /player/loop/off", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetPlayerLoopOff))
+	apisHandler.HandleFunc("PUT /player/loop/once", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetPlayerLoopOnce))
+	apisHandler.HandleFunc("PUT /player/loop/all", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetPlayerLoopAll))
+	apisHandler.HandleFunc("POST /player/queue/song/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddSongToQueueNext))
+	apisHandler.HandleFunc("POST /player/queue/song/last", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddSongToQueueAtLast))
+	apisHandler.HandleFunc("DELETE /player/queue/song", authMiddleware.OptionalAuthApi(playerStateApi.HandleRemoveSongFromQueue))
+	apisHandler.HandleFunc("POST /player/queue/playlist/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddPlaylistToQueueNext))
+	apisHandler.HandleFunc("POST /player/queue/playlist/last", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddPlaylistToQueueAtLast))
+
+	playerStateMw := playerstate.New(usecases)
+
 	applicationHandler := http.NewServeMux()
-	applicationHandler.Handle("/", ismobile.Handler(theme.Handler(pagesHandler)))
+	applicationHandler.Handle("/", playerStateMw.Handler(ismobile.Handler(theme.Handler(pagesHandler))))
 	applicationHandler.Handle("/api/", ismobile.Handler(theme.Handler(http.StripPrefix("/api", apisHandler))))
 
 	log.Info("Starting http server at port " + config.Env().Port)

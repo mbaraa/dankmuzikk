@@ -7,29 +7,29 @@ import (
 )
 
 type Song struct {
-	PublicId        string        `json:"public_id"`
-	Title           string        `json:"title"`
-	Artist          string        `json:"artist"`
-	ThumbnailUrl    string        `json:"thumbnail_url"`
-	RealDuration    time.Duration `json:"duration"`
-	PlayTimes       int           `json:"play_times"`
-	Votes           int           `json:"votes,omitempty"`
-	AddedAt         string        `json:"added_at,omitempty"`
-	FullyDownloaded bool          `json:"fully_downloaded"`
-	Favorite        bool          `json:"favorite"`
+	PublicId     string        `json:"public_id"`
+	Title        string        `json:"title"`
+	Artist       string        `json:"artist"`
+	ThumbnailUrl string        `json:"thumbnail_url"`
+	RealDuration time.Duration `json:"duration"`
+	PlayTimes    int           `json:"play_times"`
+	Votes        int           `json:"votes,omitempty"`
+	AddedAt      string        `json:"added_at,omitempty"`
+	Favorite     bool          `json:"favorite"`
+	MediaUrl     string        `json:"media_url"`
 }
 
 type fakeSong struct {
-	PublicId        string  `json:"public_id"`
-	Title           string  `json:"title"`
-	Artist          string  `json:"artist"`
-	ThumbnailUrl    string  `json:"thumbnail_url"`
-	Duration        float64 `json:"duration"`
-	PlayTimes       int     `json:"play_times"`
-	Votes           int     `json:"votes"`
-	AddedAt         string  `json:"added_at"`
-	FullyDownloaded bool    `json:"fully_downloaded"`
-	Favorite        bool    `json:"favorite"`
+	PublicId     string  `json:"public_id"`
+	Title        string  `json:"title"`
+	Artist       string  `json:"artist"`
+	ThumbnailUrl string  `json:"thumbnail_url"`
+	Duration     float64 `json:"duration"`
+	PlayTimes    int     `json:"play_times"`
+	Votes        int     `json:"votes"`
+	AddedAt      string  `json:"added_at"`
+	Favorite     bool    `json:"favorite"`
+	MediaUrl     string  `json:"media_url"`
 }
 
 func (s *Song) UnmarshalJSON(data []byte) error {
@@ -44,9 +44,9 @@ func (s *Song) UnmarshalJSON(data []byte) error {
 	s.PlayTimes = helper.PlayTimes
 	s.Votes = helper.Votes
 	s.AddedAt = helper.AddedAt
-	s.FullyDownloaded = helper.FullyDownloaded
 	s.RealDuration = time.Duration(helper.Duration) * time.Nanosecond
 	s.Favorite = helper.Favorite
+	s.MediaUrl = helper.MediaUrl
 	return nil
 }
 
@@ -86,12 +86,24 @@ func (song Song) Duration() string {
 	return fmt.Sprintf("%02d:%02d:%02d:%02d:00", days, h, m, s)
 }
 
-func (a *Actions) PlaySong(sessionToken, songPublicId, playlistPublicId string) (string, error) {
-	return a.requests.PlaySong(sessionToken, songPublicId, playlistPublicId)
+func (a *Actions) PlaySong(sessionToken, clientHash, songPublicId string) (Song, error) {
+	return a.requests.PlaySong(sessionToken, clientHash, songPublicId)
 }
 
-func (a *Actions) GetSongMetadata(sessionToken, songPublicId string) (Song, error) {
-	return a.requests.GetSongMetadata(sessionToken, songPublicId)
+func (a *Actions) PlaySongFromPlaylist(sessionToken, clientHash, songPublicId, playlistPublicId string) (Song, error) {
+	return a.requests.PlaySongFromPlaylist(sessionToken, clientHash, songPublicId, playlistPublicId)
+}
+
+func (a *Actions) PlaySongFromFavorites(sessionToken, clientHash, songPublicId string) (Song, error) {
+	return a.requests.PlaySongFromFavorites(sessionToken, clientHash, songPublicId)
+}
+
+func (a *Actions) PlaySongFromQueue(sessionToken, clientHash, songPublicId string) (Song, error) {
+	return a.requests.PlaySongFromQueue(sessionToken, clientHash, songPublicId)
+}
+
+func (a *Actions) GetSongMetadata(sessionToken, clientHash, songPublicId string) (Song, error) {
+	return a.requests.GetSongMetadata(sessionToken, clientHash, songPublicId)
 }
 
 func (a *Actions) ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (added bool, err error) {
@@ -115,8 +127,9 @@ func (a *Actions) DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPub
 }
 
 type GetLyricsForSongPayload struct {
-	SongTitle string   `json:"song_title"`
-	Lyrics    []string `json:"lyrics"`
+	SongTitle string            `json:"song_title"`
+	Lyrics    []string          `json:"lyrics"`
+	Synced    map[string]string `json:"synced"`
 }
 
 func (a *Actions) GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, error) {

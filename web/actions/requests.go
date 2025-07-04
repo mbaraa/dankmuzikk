@@ -26,12 +26,30 @@ type Requests interface {
 	AddSongToFavorites(sessionToken string, songPublicId string) error
 	RemoveSongFromFavorites(sessionToken string, songPublicId string) error
 
-	GetSongMetadata(sessionToken, songPublicId string) (Song, error)
-	PlaySong(sessionToken, songPublicId, playlistPublicId string) (string, error)
+	GetSongMetadata(sessionToken, clientHash, songPublicId string) (Song, error)
+	PlaySong(sessionToken, clientHash, songPublicId string) (Song, error)
+	PlaySongFromPlaylist(sessionToken, clientHash, songPublicId, playlistPublicId string) (Song, error)
+	PlaySongFromFavorites(sessionToken, clientHash, songPublicId string) (Song, error)
+	PlaySongFromQueue(sessionToken, clientHash, songPublicId string) (Song, error)
 	ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (added bool, err error)
 	UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (UpvoteSongInPlaylistPayload, error)
 	DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (DownvoteSongInPlaylistPayload, error)
 	GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, error)
+
+	GetPlayerState(sessionToken, clientHash string) (GetPlayerStatePayload, error)
+	SetPlayerShuffleOn(sessionToken, clientHash string) error
+	SetPlayerShuffleOff(sessionToken, clientHash string) error
+	SetPlayerLoopOff(sessionToken, clientHash string) error
+	SetPlayerLoopOnce(sessionToken, clientHash string) error
+	SetPlayerLoopAll(sessionToken, clientHash string) error
+	GetNextSongInQueue(sessionToken, clientHash string) (GetNextSongInQueuePayload, error)
+	GetPreviousSongInQueue(sessionToken, clientHash string) (GetPreviousSongInQueuePayload, error)
+	GetPlayingSongLyrics(sessionToken, clientHash string) (GetLyricsForSongPayload, error)
+	AddSongToQueueNext(sessionToken, clientHash, songPublicId string) error
+	AddSongToQueueAtLast(sessionToken, clientHash, songPublicId string) error
+	RemoveSongFromQueue(sessionToken, clientHash string, songIndex int) error
+	AddPlaylistToQueueNext(sessionToken, clientHash, playlistPublicId string) error
+	AddPlaylistToQueueAtLast(sessionToken, clientHash, playlistPublicId string) error
 
 	SearchYouTube(query string) ([]Song, error)
 	SearchYouTubeSuggestions(query string) ([]string, error)

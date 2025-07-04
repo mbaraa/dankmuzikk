@@ -33,7 +33,7 @@ templ favoritesContent(favoriteSongs []actions.Song) {
 		}
 	>
 		for idx, s := range favoriteSongs {
-			@song.Song(s, []string{s.AddedAt}, []templ.Component{playlist.PlaylistsPopup(idx, s.PublicId)}, actions.Playlist{})
+			@song.Song(s, []string{s.AddedAt}, []templ.Component{playlist.PlaylistsPopup(idx, s.PublicId)}, actions.Playlist{}, "favorites")
 		}
 		<div
 			class={ "h-[10px]", "mb-[20px]" }

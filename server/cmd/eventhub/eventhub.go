@@ -59,6 +59,7 @@ func executeEvents(events []evy.EventPayload) error {
 					handlers.HandleDownloadSongOnPlay(body),
 					handlers.HandleAddSongToHistory(body),
 					handlers.HandleIncrementSongPlaysInPlaylist(body),
+					// handlers.HandleAddSongToQueue(body),
 				)
 				if err != nil {
 					log.Errorln("song-played", err)

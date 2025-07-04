@@ -19,7 +19,9 @@ type Repository interface {
 
 	CreateSong(song models.Song) (models.Song, error)
 	GetSong(id uint) (models.Song, error)
+	GetSongsByIds(ids []uint) ([]models.Song, error)
 	GetSongByPublicId(pubId string) (models.Song, error)
+	GetSongsByPublicIds(pubIds []string) ([]models.Song, error)
 	IncrementSongPlaysInPlaylist(songId, playlistPubId string, ownerId uint) error
 	UpvoteSongInPlaylist(songId, playlistPubId, ownerId uint) (int, error)
 	DownvoteSongInPlaylist(songId, playlistPubId, ownerId uint) (int, error)

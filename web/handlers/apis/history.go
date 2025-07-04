@@ -57,7 +57,7 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 			[]templ.Component{
 				playlist.PlaylistsPopup((idx+1)*page, s.PublicId),
 			},
-			actions.Playlist{}).
+			actions.Playlist{}, "single").
 			Render(r.Context(), outBuf)
 	}
 

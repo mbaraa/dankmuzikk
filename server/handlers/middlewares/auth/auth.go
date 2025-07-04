@@ -11,6 +11,7 @@ import (
 // Context keys
 const (
 	AccountKey = "account"
+	GuestKey   = "guest"
 )
 
 type Middleware struct {
@@ -27,11 +28,13 @@ func New(usecases *actions.Actions) *Middleware {
 func (a *Middleware) AuthHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		account, err := a.authenticate(r)
+		clientHash := r.Header.Get("X-Client-Hash")
+		ctx := context.WithValue(r.Context(), "client-hash", clientHash)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), AccountKey, account)
+		ctx = context.WithValue(ctx, AccountKey, account)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -40,11 +43,13 @@ func (a *Middleware) AuthHandler(h http.Handler) http.Handler {
 func (a *Middleware) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		account, err := a.authenticate(r)
+		clientHash := r.Header.Get("X-Client-Hash")
+		ctx := context.WithValue(r.Context(), "client-hash", clientHash)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), AccountKey, account)
+		ctx = context.WithValue(ctx, AccountKey, account)
 		h(w, r.WithContext(ctx))
 	}
 }
@@ -53,11 +58,13 @@ func (a *Middleware) AuthApi(h http.HandlerFunc) http.HandlerFunc {
 func (a *Middleware) OptionalAuthApi(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		account, err := a.authenticate(r)
+		clientHash := r.Header.Get("X-Client-Hash")
+		ctx := context.WithValue(r.Context(), "client-hash", clientHash)
 		if err != nil {
 			h(w, r)
 			return
 		}
-		ctx := context.WithValue(r.Context(), AccountKey, account)
+		ctx = context.WithValue(ctx, AccountKey, account)
 		h(w, r.WithContext(ctx))
 	}
 }

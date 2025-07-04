@@ -39,8 +39,9 @@ func init() {
 	}
 
 	cache := redis.New()
+	playerCache := redis.NewPlayerCache()
 
-	app := app.New(mariadbRepo, cache)
+	app := app.New(mariadbRepo, cache, playerCache)
 	eventhub := evy.New()
 	zipArchiver := zip.New()
 	blobstorage := blobs.New()
@@ -77,6 +78,7 @@ func main() {
 	historyApi := apis.NewHistoryApi(usecases)
 	accountApi := apis.NewMeApi(usecases)
 	libraryApi := apis.NewLibraryApi(usecases)
+	playerStateApi := apis.NewPlayerStateApi(usecases)
 
 	v1ApisHandler := http.NewServeMux()
 	v1ApisHandler.HandleFunc("POST /login/email", emailLoginApi.HandleEmailLogin)
@@ -87,8 +89,11 @@ func main() {
 	v1ApisHandler.HandleFunc("GET /search/suggestions", searchApi.HandleSearchSuggestions)
 	v1ApisHandler.HandleFunc("GET /search", searchApi.HandleSearchResults)
 
-	v1ApisHandler.HandleFunc("GET /song/play", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
-	v1ApisHandler.HandleFunc("GET /song/single", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
+	v1ApisHandler.HandleFunc("GET /song", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
+	v1ApisHandler.HandleFunc("PUT /song/play", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
+	v1ApisHandler.HandleFunc("PUT /song/play/playlist", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromPlaylist))
+	v1ApisHandler.HandleFunc("PUT /song/play/favorites", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromFavorites))
+	v1ApisHandler.HandleFunc("PUT /song/play/queue", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromQueue))
 	v1ApisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
 
 	v1ApisHandler.HandleFunc("GET /playlist", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylist))
@@ -102,6 +107,21 @@ func main() {
 	v1ApisHandler.HandleFunc("PUT /playlist/public", authMiddleware.AuthApi(playlistsApi.HandleTogglePublicPlaylist))
 	v1ApisHandler.HandleFunc("PUT /playlist/join", authMiddleware.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
 	v1ApisHandler.HandleFunc("GET /playlist/zip", authMiddleware.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
+
+	v1ApisHandler.HandleFunc("GET /player", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPlayerState))
+	v1ApisHandler.HandleFunc("POST /player/shuffle", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetShuffleOn))
+	v1ApisHandler.HandleFunc("DELETE /player/shuffle", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetShuffleOff))
+	v1ApisHandler.HandleFunc("GET /player/song/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetNextSongInQueue))
+	v1ApisHandler.HandleFunc("GET /player/song/previous", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPreviousSongInQueue))
+	v1ApisHandler.HandleFunc("GET /player/song/lyrics", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPlayingSongLyrics))
+	v1ApisHandler.HandleFunc("PUT /player/loop/off", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetLoopOff))
+	v1ApisHandler.HandleFunc("PUT /player/loop/once", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetLoopOnce))
+	v1ApisHandler.HandleFunc("PUT /player/loop/all", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetLoopAll))
+	v1ApisHandler.HandleFunc("POST /player/queue/song/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddSongToQueueNext))
+	v1ApisHandler.HandleFunc("POST /player/queue/song/last", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddSongToQueueAtLast))
+	v1ApisHandler.HandleFunc("DELETE /player/queue/song", authMiddleware.OptionalAuthApi(playerStateApi.HandleRemoveSongFromQueue))
+	v1ApisHandler.HandleFunc("POST /player/queue/playlist/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddPlaylistToQueueNext))
+	v1ApisHandler.HandleFunc("POST /player/queue/playlist/last", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddPlaylistToQueueAtLast))
 
 	v1ApisHandler.HandleFunc("GET /history", authMiddleware.AuthApi(historyApi.HandleGetHistoryItems))
 

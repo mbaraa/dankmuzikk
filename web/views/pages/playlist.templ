@@ -32,7 +32,7 @@ templ playlistHeader(pl actions.Playlist) {
 				id="play-playlist-button"
 				type="button"
 				title="Play playlist"
-				onClick={ playSongFromPlaylist(pl.Songs[0].PublicId, pl) }
+				onClick={ playSongFromPlaylist(pl.Songs[0].PublicId, pl.PublicId) }
 			>
 				@icons.PlayPlaylist()
 			</button>
@@ -63,6 +63,7 @@ templ playlistContent(pl actions.Playlist) {
 								playlist.PlaylistsPopup(idx, s.PublicId),
 							},
 							pl,
+							"playlist",
 						)
 					}
 					@ui.DesktopOnly() {
@@ -78,6 +79,7 @@ templ playlistContent(pl actions.Playlist) {
 								playlist.PlaylistsPopup(idx, s.PublicId),
 							},
 							pl,
+							"playlist",
 						)
 					}
 				}
@@ -110,6 +112,6 @@ func playedTimes(times int) string {
 	}
 }
 
-script playSongFromPlaylist(songPublicId string, playlist actions.Playlist) {
-    Player.playSongFromPlaylist(songPublicId, playlist)
+script playSongFromPlaylist(songPublicId, playlistPublicId string) {
+    Player.fetchAndPlaySong(songPublicId, playlistPublicId, "playlist")
 }

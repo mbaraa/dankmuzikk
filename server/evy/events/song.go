@@ -16,10 +16,23 @@ func (s SongsSearched) Topic() string {
 	return "songs-searched"
 }
 
+type SongPlayedEntryPoint string
+
+const (
+	SingleSongEntryPoint SongPlayedEntryPoint = "single"
+	// TODO: remove in favor of a standalone action
+	PlayPlaylistEntryPoint SongPlayedEntryPoint = "play-playlist"
+	FromPlaylistEntryPoint SongPlayedEntryPoint = "from-playlist"
+	FavoriteSongEntryPoint SongPlayedEntryPoint = "favorite-song"
+	QueueSongEntryPoint    SongPlayedEntryPoint = "from-queue"
+)
+
 type SongPlayed struct {
-	AccountId        uint   `json:"account_id"`
-	SongPublicId     string `json:"song_public_id"`
-	PlaylistPublicId string `json:"playlist_public_id"`
+	AccountId        uint64               `json:"account_id"`
+	ClientHash       string               `json:"client_hash"`
+	SongPublicId     string               `json:"song_public_id"`
+	PlaylistPublicId string               `json:"playlist_public_id"`
+	EntryPoint       SongPlayedEntryPoint `json:"entry_point"`
 }
 
 func (s SongPlayed) Topic() string {

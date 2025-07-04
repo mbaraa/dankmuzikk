@@ -6,6 +6,7 @@ import (
 	"dankmuzikk-web/config"
 	dankerrors "dankmuzikk-web/errors"
 	"dankmuzikk-web/handlers/middlewares/auth"
+	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/handlers/middlewares/contenttype"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/status"
@@ -197,6 +198,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 
 func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Request) {
 	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
 
 	songId := r.PathValue("song_id")
 	if songId == "" {
@@ -206,7 +208,7 @@ func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	song, err := p.usecases.GetSongMetadata(sessionToken, songId)
+	song, err := p.usecases.GetSongMetadata(sessionToken, clientHash, songId)
 	if err != nil {
 		status.
 			BugsBunnyError("Song doesn't exist!").

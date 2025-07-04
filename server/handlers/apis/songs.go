@@ -2,6 +2,7 @@ package apis
 
 import (
 	"dankmuzikk/actions"
+	"dankmuzikk/evy/events"
 	"dankmuzikk/log"
 	"encoding/json"
 	"net/http"
@@ -90,12 +91,89 @@ func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
+		ActionContext: ctx,
+		SongPublicId:  id,
+		EntryPoint:    events.SingleSongEntryPoint,
+	})
+	if err != nil {
+		log.Error("Playing a song failed", err)
+		handleErrorResponse(w, err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (s *songsHandler) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http.Request) {
+	// un-authed action
+	ctx, _ := parseContext(r.Context())
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
 		ActionContext: ctx,
 		SongPublicId:  id,
 		PlaylistPubId: playlistId,
+		EntryPoint:    events.FromPlaylistEntryPoint,
+	})
+	if err != nil {
+		log.Error("Playing a song failed", err)
+		handleErrorResponse(w, err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (s *songsHandler) HandlePlaySongFromFavorites(w http.ResponseWriter, r *http.Request) {
+	// un-authed action
+	ctx, _ := parseContext(r.Context())
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
+		ActionContext: ctx,
+		SongPublicId:  id,
+		EntryPoint:    events.FavoriteSongEntryPoint,
+	})
+	if err != nil {
+		log.Error("Playing a song failed", err)
+		handleErrorResponse(w, err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (s *songsHandler) HandlePlaySongFromQueue(w http.ResponseWriter, r *http.Request) {
+	// un-authed action
+	ctx, _ := parseContext(r.Context())
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
+		ActionContext: ctx,
+		SongPublicId:  id,
+		EntryPoint:    events.QueueSongEntryPoint,
 	})
 	if err != nil {
 		log.Error("Playing a song failed", err)
@@ -113,8 +191,11 @@ func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx, _ := parseContext(r.Context())
+
 	payload, err := s.usecases.GetSongByPublicId(actions.GetSongByPublicIdParams{
-		SongPublicId: id,
+		SongPublicId:  id,
+		ActionContext: ctx,
 	})
 	if err != nil {
 		log.Error(err)

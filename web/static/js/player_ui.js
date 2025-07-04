@@ -13,16 +13,13 @@ const playPauseToggleEl = document.getElementById("play"),
   songDurationEl = document.getElementById("song-duration"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
-  muzikkContainerEl = document.getElementById("muzikk"),
   playerEl = document.getElementById("ze-player"),
   collapsedMobilePlayer = document.getElementById("ze-collapsed-mobile-player");
 
 // expanded player's elements
 const playPauseToggleExapndedEl = document.getElementById("play-expand"),
-  shuffleExpandEl = document.getElementById("shuffle-expand"),
   nextExpandEl = document.getElementById("next-expand"),
   prevExpandEl = document.getElementById("prev-expand"),
-  loopExpandEl = document.getElementById("loop-expand"),
   songNameExpandedEl = document.getElementById("song-name-expanded"),
   artistNameExpandedEl = document.getElementById("artist-name-expanded"),
   songSeekBarExpandedEl = document.getElementById("song-seek-bar-expanded"),
@@ -35,28 +32,53 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
   expandedMobilePlayer = document.getElementById("ze-expanded-mobile-player");
 
 /**
- * @param {HTMLElement} el
- * @param {string} icon
+ * @param {boolean} loading
  */
-const setPlayerButtonIcon = (el, icon) => {
-  if (!!el && !!icon) {
-    el.innerHTML = icon;
+function setLoading(loading) {
+  if (loading) {
+    setPlayerButtonIcon(playPauseToggleEl, PlayerIcons.loading);
+    setPlayerButtonIcon(playPauseToggleExapndedEl, PlayerIcons.loading);
+    document.body.style.cursor = "progress";
+    return;
   }
-};
+  setPlayerButtonIcon(playPauseToggleEl, PlayerIcons.pause);
+  setPlayerButtonIcon(playPauseToggleExapndedEl, PlayerIcons.pause);
+  document.body.style.cursor = "auto";
+}
 
-function disableButtons() {}
+function setLoadingOn() {
+  setLoading(true);
+}
+
+function setLoadingOff() {
+  setLoading(false);
+}
+
+function expandMobilePlayer() {
+  if (!playerEl.classList.contains("exapnded")) {
+    playerEl.classList.add("exapnded");
+    collapsedMobilePlayer.classList.add("hidden");
+    expandedMobilePlayer.classList.remove("hidden");
+  }
+}
+
+function collapseMobilePlayer() {
+  if (playerEl.classList.contains("exapnded")) {
+    playerEl.classList.remove("exapnded");
+    collapsedMobilePlayer.classList.remove("hidden");
+    expandedMobilePlayer.classList.add("hidden");
+  }
+}
 
 function enableButtons() {
   if (!!playPauseToggleEl) playPauseToggleEl.disabled = null;
   if (!!playPauseToggleExapndedEl) playPauseToggleExapndedEl.disabled = null;
   if (!!shuffleEl) shuffleEl.disabled = null;
-  if (!!shuffleExpandEl) shuffleExpandEl.disabled = null;
   if (!!nextEl) nextEl.disabled = null;
   if (!!nextExpandEl) nextExpandEl.disabled = null;
   if (!!prevEl) prevEl.disabled = null;
   if (!!prevExpandEl) prevExpandEl.disabled = null;
   if (!!loopEl) loopEl.disabled = null;
-  if (!!loopExpandEl) loopExpandEl.disabled = null;
 }
 
 function setPlayIcon() {
@@ -68,6 +90,16 @@ function setPauseIcon() {
   setPlayerButtonIcon(playPauseToggleEl, PlayerIcons.pause);
   setPlayerButtonIcon(playPauseToggleExapndedEl, PlayerIcons.pause);
 }
+
+/**
+ * @param {HTMLElement} el
+ * @param {string} icon
+ */
+const setPlayerButtonIcon = (el, icon) => {
+  if (!!el && !!icon) {
+    el.innerHTML = icon;
+  }
+};
 
 /**
  * @param {string} name
@@ -155,55 +187,6 @@ function setSongCurrentTime(time) {
   }
 }
 
-function setLoopOnce() {
-  setPlayerButtonIcon(loopEl, PlayerIcons.loopOnce);
-  setPlayerButtonIcon(loopExpandEl, PlayerIcons.loopOnce);
-}
-
-function setLoopAll() {
-  setPlayerButtonIcon(loopEl, PlayerIcons.loop);
-  setPlayerButtonIcon(loopExpandEl, PlayerIcons.loop);
-}
-
-function setLoopOff() {
-  setPlayerButtonIcon(loopEl, PlayerIcons.loopOff);
-  setPlayerButtonIcon(loopExpandEl, PlayerIcons.loopOff);
-}
-
-function setShuffleOn() {
-  setPlayerButtonIcon(shuffleEl, PlayerIcons.shuffle);
-  setPlayerButtonIcon(shuffleExpandEl, PlayerIcons.shuffle);
-}
-
-function setShuffleOff() {
-  setPlayerButtonIcon(shuffleEl, PlayerIcons.shuffleOff);
-  setPlayerButtonIcon(shuffleExpandEl, PlayerIcons.shuffleOff);
-}
-
-function expandMobilePlayer() {
-  if (!playerEl.classList.contains("exapnded")) {
-    playerEl.classList.add("exapnded");
-    collapsedMobilePlayer.classList.add("hidden");
-    expandedMobilePlayer.classList.remove("hidden");
-  }
-}
-
-function collapseMobilePlayer() {
-  if (playerEl.classList.contains("exapnded")) {
-    playerEl.classList.remove("exapnded");
-    collapsedMobilePlayer.classList.remove("hidden");
-    expandedMobilePlayer.classList.add("hidden");
-  }
-}
-
-function show() {
-  muzikkContainerEl.style.display = "block";
-}
-
-function hide() {
-  muzikkContainerEl.style.display = "none";
-}
-
 /**
  * @param {number} level
  */
@@ -216,158 +199,27 @@ function setVolumeLevel(level) {
   }
 }
 
-function muteVolume() {}
-
-/**
- * @param {boolean} loading
- */
-function setLoading(loading) {
-  if (loading) {
-    setPlayerButtonIcon(playPauseToggleEl, PlayerIcons.loading);
-    setPlayerButtonIcon(playPauseToggleExapndedEl, PlayerIcons.loading);
-    document.body.style.cursor = "progress";
-    return;
-  }
-  setPlayerButtonIcon(playPauseToggleEl, PlayerIcons.pause);
-  setPlayerButtonIcon(playPauseToggleExapndedEl, PlayerIcons.pause);
-  document.body.style.cursor = "auto";
-}
-
-function setLoadingOn() {
-  setLoading(true);
-}
-
-function setLoadingOff() {
-  setLoading(false);
-}
-
-/**
- * @param {string} songPublicId
- */
-function highlightSong(songPublicId) {
-  const songEl = document.getElementById("song-" + songPublicId);
-  if (!!songEl) {
-    songEl.style.backgroundColor = "var(--accent-color-30)";
-    songEl.scrollIntoView();
-  }
-}
-
-/**
- * @param {string} songPublicId
- */
-function unHighlightSong(songPublicId) {
-  const songEl = document.getElementById("song-" + songPublicId);
-  if (!!songEl) {
-    songEl.style.backgroundColor = "#ffffff00";
-  }
-}
-
-function highlightSongInPlaylist(songPublicId, playlistSongIds) {
-  for (const songId of playlistSongIds) {
-    if (songPublicId === songId) {
-      highlightSong(songId);
-    } else {
-      unHighlightSong(songId);
-    }
-  }
-}
-
-//
-// EVENTS
-//
-
-let playerStartY = 0;
-
-playerEl?.addEventListener(
-  "touchstart",
-  (e) => {
-    playerStartY = e.touches[0].pageY;
-  },
-  { passive: true },
-);
-
-playerEl?.addEventListener(
-  "touchmove",
-  async (e) => {
-    const y = e.touches[0].pageY;
-    if (y > playerStartY + 75) {
-      collapseMobilePlayer();
-    }
-    if (y < playerStartY - 25) {
-      expandMobilePlayer();
-    }
-  },
-  { passive: true },
-);
-
-document
-  .getElementById("expanded-mobile-player-lyrics")
-  ?.addEventListener("touchmove", (event) => {
-    event.stopImmediatePropagation();
-  });
-
-document
-  .getElementById("expanded-mobile-player-queue")
-  ?.addEventListener("touchmove", (event) => {
-    event.stopImmediatePropagation();
-  });
-
 window.PlayerUI = {
   __elements: {
-    // collapsed player's elements
-    playPauseToggleEl,
-    shuffleEl,
     nextEl,
     prevEl,
-    loopEl,
-    songNameEl,
-    artistNameEl,
     songSeekBarEl,
-    volumeSeekBarEl,
-    songDurationEl,
-    songCurrentTimeEl,
-    songImageEl,
-    muzikkContainerEl,
-    playerEl,
-    collapsedMobilePlayer,
-    // expanded player's elements
-    playPauseToggleExapndedEl,
-    shuffleExpandEl,
-    nextExpandEl,
-    prevExpandEl,
-    loopExpandEl,
-    songNameExpandedEl,
-    artistNameExpandedEl,
     songSeekBarExpandedEl,
     volumeSeekBarExpandedEl,
-    songDurationExpandedEl,
-    songCurrentTimeExpandedEl,
-    songImageExpandedEl,
-    expandedMobilePlayer,
+    volumeSeekBarExpandedEl,
   },
 
-  disableButtons,
   enableButtons,
-  setPlayIcon,
-  setPauseIcon,
   setSongName,
   setArtistName,
   setSongThumbnail,
   setSongDuration,
   setSongCurrentTime,
-  setLoopOnce,
-  setLoopAll,
-  setLoopOff,
-  setShuffleOn,
-  setShuffleOff,
   expandMobilePlayer,
   collapseMobilePlayer,
+  setPlayIcon,
+  setPauseIcon,
   setLoadingOn,
   setLoadingOff,
-  highlightSong,
-  unHighlightSong,
-  highlightSongInPlaylist,
   setVolumeLevel,
-  show,
-  hide,
 };

@@ -1,33 +1,35 @@
 package player
 
-import "dankmuzikk-web/views/components/ui"
-
 templ PlayerSticky() {
-	<div id="muzikk" class="hidden">
+	<div
+		class={
+			"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
+			"fixed", "z-20", "bottom-[65px]", "md:bottom-0", "left-0",
+		}
+	>
 		<div
-			if ui.IsMobile(ctx) {
-				_="on click PlayerUI.expandMobilePlayer()"
-			}
+			id="ze-player"
+			_="on touchstart set $playerStartY to event.touches[0].pageY end
+on touchmove
+    set y to event.touches[0].pageY then
+    if y > $playerStartY + 75 then
+        call PlayerUI.collapseMobilePlayer()
+    end
+    if y < $playerStartY - 25 then
+        call PlayerUI.expandMobilePlayer()
+    end"
 			class={
-				"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
-				"fixed", "z-20", "bottom-[65px]", "md:bottom-0", "left-0",
+				"h-full", "collapsed",
+				"text-secondary", "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-secondary",
+				"rounded-t-[15px]", "rounded-b-[15px]", "md:rounded-b-[0px]", "md:rounded-t-3xl",
+				"mx-[5px]", "md:mx-0", "p-[10px]", "md:p-[20px]",
 			}
 		>
-			<div
-				id="ze-player"
-				class={
-					"h-full", "collapsed",
-					"text-secondary", "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-secondary",
-					"rounded-t-[15px]", "rounded-b-[15px]", "md:rounded-b-[0px]", "md:rounded-t-3xl",
-					"mx-[5px]", "md:mx-0", "p-[10px]", "md:p-[20px]",
-				}
-			>
-				<div class={ "contents" } id="ze-collapsed-mobile-player">
-					@collapsedPlayer()
-				</div>
-				<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
-					@expandedMobilePlayer()
-				</div>
+			<div class={ "contents" } id="ze-collapsed-mobile-player">
+				@collapsedPlayer()
+			</div>
+			<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
+				@expandedMobilePlayer()
 			</div>
 		</div>
 	</div>
@@ -36,8 +38,22 @@ templ PlayerSticky() {
 		id="muzikk-player"
 		controls
 		preload="none"
-		muted
-	></audio>
+		if !checkPlayerStateForSong(ps(ctx)) {
+			muted
+		}
+		_="on loadeddata call PlayerUI.enableButtons() then call PlayerUI.setLoadingOff() then call PlayerUI.setSongDuration(event.target.duration) end
+on timeupdate call PlayerUI.setSongCurrentTime(event.target.currentTime) end
+on ended call #next.click() end
+on progress log 'downloading' end"
+	>
+		if checkPlayerStateForSong(ps(ctx)) {
+			<source
+				type="audio/mpeg"
+				src={ psMediaUrl(ps(ctx), "") }
+				preload="metadata"
+			/>
+		}
+	</audio>
 	///
 	<style>
         .collapsed {

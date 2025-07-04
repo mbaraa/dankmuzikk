@@ -44,7 +44,7 @@ templ historyContent(recentPlays []actions.Song) {
 		}
 	>
 		for idx, s := range recentPlays {
-			@song.Song(s, []string{s.AddedAt}, []templ.Component{playlist.PlaylistsPopup(idx, s.PublicId)}, actions.Playlist{})
+			@song.Song(s, []string{s.AddedAt}, []templ.Component{playlist.PlaylistsPopup(idx, s.PublicId)}, actions.Playlist{}, "single")
 		}
 		<div
 			class={ "h-[10px]", "mb-[20px]" }
