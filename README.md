@@ -30,9 +30,9 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - [x] Playlists
 - [x] Share playlists
 - [x] Vote songs in playlists
-- [ ] Songs queue
+- [x] Songs queue
   - [x] Add songs to queue
-  - [ ] View/Edit queue
+  - [x] View/Edit queue
 - [ ] Expandable player
   - [x] Mobile
   - [ ] Desktop
