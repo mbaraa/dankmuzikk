@@ -7,9 +7,14 @@ import (
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/lyrics"
 	"dankmuzikk-web/views/components/player"
+	"dankmuzikk-web/views/components/playlist"
+	"dankmuzikk-web/views/components/song"
 	"dankmuzikk-web/views/components/status"
 	"encoding/json"
 	"net/http"
+	"strconv"
+
+	"github.com/a-h/templ"
 )
 
 type playerStateApi struct {
@@ -34,6 +39,28 @@ func (p *playerStateApi) HandleGetPlayerState(w http.ResponseWriter, r *http.Req
 	}
 
 	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (p *playerStateApi) HandleGetPlayerSongsQueue(w http.ResponseWriter, r *http.Request) {
+	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+
+	payload, err := p.usecases.GetPlayerState(sessionToken, clientHash)
+	if err != nil {
+		status.BugsBunnyError("No songs were found!\nMaybe play something first...").
+			Render(r.Context(), w)
+		return
+	}
+
+	for idx, s := range payload.PlayerState.Songs {
+		song.Song(s, []string{s.AddedAt},
+			[]templ.Component{
+				song.RemoveFromQueue(s, idx),
+				playlist.PlaylistsPopup((idx + 1), s.PublicId),
+			},
+			actions.Playlist{}).
+			Render(r.Context(), w)
+	}
 }
 
 func (p *playerStateApi) HandleSetPlayerShuffleOn(w http.ResponseWriter, r *http.Request) {
@@ -178,6 +205,24 @@ func (p *playerStateApi) HandleAddSongToQueueAtLast(w http.ResponseWriter, r *ht
 	}
 
 	err := p.usecases.AddSongToQueueAtLast(sessionToken, clientHash, songId)
+	if err != nil {
+		log.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (p *playerStateApi) HandleRemoveSongFromQueue(w http.ResponseWriter, r *http.Request) {
+	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+
+	songIndex, err := strconv.Atoi(r.URL.Query().Get("index"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = p.usecases.RemoveSongFromQueue(sessionToken, clientHash, songIndex)
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -43,6 +43,10 @@ func (a *Actions) AddSongToQueueAtLast(sessionToken, clientHash, songPublicId st
 	return a.requests.AddSongToQueueAtLast(sessionToken, clientHash, songPublicId)
 }
 
+func (a *Actions) RemoveSongFromQueue(sessionToken, clientHash string, songIndex int) error {
+	return a.requests.RemoveSongFromQueue(sessionToken, clientHash, songIndex)
+}
+
 func (a *Actions) AddPlaylistToQueueNext(sessionToken, clientHash, playlistPublicId string) error {
 	return a.requests.AddPlaylistToQueueNext(sessionToken, clientHash, playlistPublicId)
 }

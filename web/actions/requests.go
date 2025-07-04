@@ -44,6 +44,7 @@ type Requests interface {
 	GetPlayingSongLyrics(sessionToken, clientHash string) (GetLyricsForSongPayload, error)
 	AddSongToQueueNext(sessionToken, clientHash, songPublicId string) error
 	AddSongToQueueAtLast(sessionToken, clientHash, songPublicId string) error
+	RemoveSongFromQueue(sessionToken, clientHash string, songIndex int) error
 	AddPlaylistToQueueNext(sessionToken, clientHash, playlistPublicId string) error
 	AddPlaylistToQueueAtLast(sessionToken, clientHash, playlistPublicId string) error
 

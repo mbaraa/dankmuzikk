@@ -100,12 +100,21 @@ templ expandedMobilePlayerLyrics() {
 templ expandedMobilePlayerQueue() {
 	<div
 		id="expanded-mobile-player-queue"
-		class={ "h-full", "hidden", "flex", "justify-center", "items-center" }
+		class={
+			"w-full", "overflow-y-scroll", "max-h-[475px]",
+			"hidden", "flex-col", "gap-y-1", "lg:mb-5",
+		}
 		_="on touchmove event.stopImmediatePropagation()"
 	>
-		<p>
-			Coming soon...
-		</p>
+		<div
+			id="current-songs-queue"
+			data-hx-revealed="true"
+			data-loading-target="#songs-queue-loading"
+			data-loading-class-remove="hidden"
+		></div>
+		<div id="songs-queue-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
+			<div class={ "loader", "!h-20", "!w-20" }></div>
+		</div>
 	</div>
 }
 
@@ -123,14 +132,12 @@ templ expandedMobilePlayer() {
 				name="tab"
 				id="tab1"
 				checked
-				_={ `
-                on click
-                    remove .hidden from #expanded-mobile-player-controls
-                    show #expanded-mobile-player-controls with *display
-                    hide #expanded-mobile-player-lyrics with *display
-                    hide #expanded-mobile-player-queue with *display
-                end
-            ` }
+				_="on click
+    remove .hidden from #expanded-mobile-player-controls
+    show #expanded-mobile-player-controls with *display
+    hide #expanded-mobile-player-lyrics with *display
+    hide #expanded-mobile-player-queue with *display
+end"
 			/>
 			<label for="tab1">Controls</label>
 			<input
@@ -153,14 +160,16 @@ end"
 				id="tab3"
 				type="radio"
 				name="tab"
-				_={ `
-                on click
-                    remove .hidden from #expanded-mobile-player-queue
-                    show #expanded-mobile-player-queue with *display
-                    hide #expanded-mobile-player-controls with *display
-                    hide #expanded-mobile-player-lyrics with *display
-                end
-            ` }
+				hx-get="/api/player/queue"
+				hx-trigger="click"
+				hx-target="#current-songs-queue"
+				hx-swap="innerHTML"
+				_="on click
+    remove .hidden from #expanded-mobile-player-queue
+    show #expanded-mobile-player-queue with *display
+    hide #expanded-mobile-player-controls with *display
+    hide #expanded-mobile-player-lyrics with *display
+end"
 			/>
 			<label for="tab3">Queue</label>
 		</div>

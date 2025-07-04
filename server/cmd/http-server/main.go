@@ -116,6 +116,7 @@ func main() {
 	v1ApisHandler.HandleFunc("PUT /player/loop/all", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetLoopAll))
 	v1ApisHandler.HandleFunc("POST /player/queue/song/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddSongToQueueNext))
 	v1ApisHandler.HandleFunc("POST /player/queue/song/last", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddSongToQueueAtLast))
+	v1ApisHandler.HandleFunc("DELETE /player/queue/song", authMiddleware.OptionalAuthApi(playerStateApi.HandleRemoveSongFromQueue))
 	v1ApisHandler.HandleFunc("POST /player/queue/playlist/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddPlaylistToQueueNext))
 	v1ApisHandler.HandleFunc("POST /player/queue/playlist/last", authMiddleware.OptionalAuthApi(playerStateApi.HandleAddPlaylistToQueueAtLast))
 

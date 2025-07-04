@@ -5,6 +5,7 @@ import (
 	"dankmuzikk/log"
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 type playerStateApi struct {
@@ -200,8 +201,6 @@ func (p *playerStateApi) HandleAddSongToQueueAtLast(w http.ResponseWriter, r *ht
 		return
 	}
 
-	log.Warningf("context %+v\n", ctx)
-
 	songId := r.URL.Query().Get("id")
 	if songId == "" {
 		handleErrorResponse(w, ErrBadRequest{FieldName: "id"})
@@ -211,6 +210,31 @@ func (p *playerStateApi) HandleAddSongToQueueAtLast(w http.ResponseWriter, r *ht
 	err = p.usecases.AddSongToQueueAtLast(actions.AddSongToQueueAtLastParams{
 		ActionContext: ctx,
 		SongPublicId:  songId,
+	})
+	if err != nil {
+		log.Error(err)
+		handleErrorResponse(w, err)
+		return
+	}
+}
+
+func (p *playerStateApi) HandleRemoveSongFromQueue(w http.ResponseWriter, r *http.Request) {
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
+	}
+
+	songIndex, err := strconv.Atoi(r.URL.Query().Get("index"))
+	if err != nil {
+		handleErrorResponse(w, ErrBadRequest{FieldName: "index"})
+		return
+	}
+
+	err = p.usecases.RemoveSongFromQueue(actions.RemoveSongFromQueueParams{
+		ActionContext: ctx,
+		SongIndex:     songIndex,
 	})
 	if err != nil {
 		log.Error(err)

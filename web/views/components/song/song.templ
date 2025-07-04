@@ -7,11 +7,15 @@ import (
 	"dankmuzikk-web/views/icons"
 	"fmt"
 	"math/rand"
+	"strconv"
 )
 
 templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Component, playlist actions.Playlist) {
+	<!-- HACK: remove, in the future, however, I still have no idea how to tell the song componenet that it's in the queue without fucking things up! -->
 	<div
-		if playlist.PublicId != "" {
+		if len(additionalOptions) > 1 {
+			id={ "queue-song-" + s.PublicId }
+		} else {
 			id={ "song-" + s.PublicId }
 		}
 		class={
@@ -121,6 +125,23 @@ templ RemoveFromFavoritesButton(songId string) {
 	>
 		@icons.FavoritesFilled()
 		<span class="text-[15px]">Remove from Favorites</span>
+	</button>
+}
+
+templ RemoveFromQueue(song actions.Song, index int) {
+	<button
+		class={
+			"popover-trigger", "p-1", "rounded-md", "hover:bg-[#DE3333]", "text-secondary", "hover:text-white",
+			"flex", "items-center", "gap-x-2", "w-full",
+		}
+		title={ "Remove " + song.Title + "!" }
+		type="button"
+		hx-delete={ "/api/player/queue/song?index=" + strconv.Itoa(index) }
+		hx-swap="delete"
+		hx-target={ "#queue-song-" + song.PublicId }
+	>
+		@icons.Trash()
+		<span>Remove from queue</span>
 	</button>
 }
 

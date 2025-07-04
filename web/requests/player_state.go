@@ -3,6 +3,7 @@ package requests
 import (
 	"dankmuzikk-web/actions"
 	"net/http"
+	"strconv"
 )
 
 func (r *Requests) GetPlayerState(sessionToken, clientHash string) (actions.GetPlayerStatePayload, error) {
@@ -150,6 +151,22 @@ func (r *Requests) AddSongToQueueAtLast(sessionToken, clientHash, songPublicId s
 		},
 		queryParams: map[string]string{
 			"id": songPublicId,
+		},
+	})
+
+	return err
+}
+
+func (r *Requests) RemoveSongFromQueue(sessionToken, clientHash string, songIndex int) error {
+	_, err := makeRequest[any, any](makeRequestConfig[any]{
+		method:   http.MethodDelete,
+		endpoint: "/v1/player/queue/song",
+		headers: map[string]string{
+			"Authorization": sessionToken,
+			"X-Client-Hash": clientHash,
+		},
+		queryParams: map[string]string{
+			"index": strconv.Itoa(songIndex),
 		},
 	})
 
