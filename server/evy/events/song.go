@@ -24,6 +24,7 @@ const (
 	PlayPlaylistEntryPoint SongPlayedEntryPoint = "play-playlist"
 	FromPlaylistEntryPoint SongPlayedEntryPoint = "from-playlist"
 	FavoriteSongEntryPoint SongPlayedEntryPoint = "favorite-song"
+	QueueSongEntryPoint    SongPlayedEntryPoint = "from-queue"
 )
 
 type SongPlayed struct {

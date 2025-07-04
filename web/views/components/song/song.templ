@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Component, playlist actions.Playlist) {
+templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Component, playlist actions.Playlist, source string) {
 	<!-- HACK: remove, in the future, however, I still have no idea how to tell the song componenet that it's in the queue without fucking things up! -->
 	<div
 		if len(additionalOptions) > 1 {
@@ -27,7 +27,7 @@ templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Co
 			<!-- thumbnail and duration -->
 			<div
 				class={ "w-[80px]",  "h-[80px]", "md:w-[70px]", "md:h-[70px]", "relative", "cursor-pointer" }
-				onClick={ playSong(s.PublicId, playlist.PublicId) }
+				onClick={ playSong(s.PublicId, playlist.PublicId, source) }
 			>
 				<div
 					class={
@@ -52,7 +52,7 @@ templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Co
 			<div class={ "w-[165px]", "md:w-[330px]", "lg:min-w-[450px]", "xl:min-w-[650px]" }>
 				<div
 					class={ "w-full", "h-full", "flex", "gap-y-3", "items-start", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
-					onClick={ playSong(s.PublicId, playlist.PublicId) }
+					onClick={ playSong(s.PublicId, playlist.PublicId, source) }
 				>
 					<h3
 						class={ "w-full", "text-[16px]", "md:text-xl", "font-bold", "overflow-hidden", "text-nowrap", "text-ellipsis" }
@@ -227,8 +227,8 @@ script downloadSong(songPublicId, songTitle string) {
     Player.downloadSongToDevice(songPublicId, songTitle)
 }
 
-script playSong(songPublicId, playlistPublicId string) {
-    Player.fetchAndPlaySong(songPublicId, playlistPublicId);
+script playSong(songPublicId, playlistPublicId, source string) {
+    Player.fetchAndPlaySong(songPublicId, playlistPublicId, source);
 }
 
 script shareSong(songPublicId string) {

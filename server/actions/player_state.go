@@ -122,6 +122,15 @@ func (a *Actions) PlaySongFromFavorites(params PlaySongFromFavoritesParams) erro
 	return a.app.PlaySongFromFavorites(params.Account.Id, params.ClientHash, params.SongPublicId)
 }
 
+type PlaySongFromQueueParams struct {
+	ActionContext `json:"-"`
+	SongPublicId  string `json:"song_public_id"`
+}
+
+func (a *Actions) PlaySongFromQueue(params PlaySongFromQueueParams) error {
+	return a.app.PlaySongFromQueue(params.Account.Id, params.ClientHash, params.SongPublicId)
+}
+
 type SetShuffleOnParams struct {
 	ActionContext `json:"-"`
 }

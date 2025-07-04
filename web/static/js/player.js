@@ -101,19 +101,31 @@ function playSong(song) {
 /**
  * @param {string} songPublicId
  * @param {string} playlistPublicId
+ * @param {"single" | "playlist" | "favorites" | "queue"} from
  */
-async function fetchAndPlaySong(songPublicId, playlistPublicId) {
+async function fetchAndPlaySong(songPublicId, playlistPublicId, from) {
   PlayerUI.setLoadingOn();
+
+  let url;
+  switch (from) {
+    case "single":
+      url = "/api/song/play?id=" + songPublicId;
+      break;
+    case "playlist":
+      url = `/api/song/play/playlist?id=${songPublicId}&playlist-id=${playlistPublicId}`;
+      break;
+    case "queue":
+      url = "/api/song/play/queue?id=" + songPublicId;
+      break;
+    case "favorites":
+      url = "/api/song/play/favorites?id=" + songPublicId;
+      break;
+  }
 
   let resp = null;
 
   for (let i = 0; i < 30; i++) {
-    resp = await fetch(
-      "/api/song/play?id=" +
-        songPublicId +
-        (!!playlistPublicId ? `&playlist-id=${playlistPublicId}` : ""),
-      { method: "PUT" },
-    )
+    resp = await fetch(url, { method: "PUT" })
       .then((res) => res.json())
       .catch((e) => {
         console.error(e);

@@ -58,7 +58,7 @@ func (p *playerStateApi) HandleGetPlayerSongsQueue(w http.ResponseWriter, r *htt
 				song.RemoveFromQueue(s, idx),
 				playlist.PlaylistsPopup((idx + 1), s.PublicId),
 			},
-			actions.Playlist{}).
+			actions.Playlist{}, "queue").
 			Render(r.Context(), w)
 	}
 }

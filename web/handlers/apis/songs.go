@@ -87,16 +87,84 @@ func (s *songsApi) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("missing song's yt id"))
+		w.Write([]byte("missing song's id"))
 		return
 	}
-
-	playlistId := r.URL.Query().Get("playlist-id")
 
 	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
 	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
 
-	payload, err := s.usecases.PlaySong(sessionToken, clientHash, id, playlistId)
+	payload, err := s.usecases.PlaySong(sessionToken, clientHash, id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Errorln(err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (s *songsApi) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing song's id"))
+		return
+	}
+
+	playlistId := r.URL.Query().Get("playlist-id")
+	if playlistId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing playlist's id"))
+		return
+	}
+
+	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+
+	payload, err := s.usecases.PlaySongFromPlaylist(sessionToken, clientHash, id, playlistId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Errorln(err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (s *songsApi) HandlePlaySongFromFavorites(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing song's id"))
+		return
+	}
+
+	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+
+	payload, err := s.usecases.PlaySongFromFavorites(sessionToken, clientHash, id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Errorln(err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (s *songsApi) HandlePlaySongFromQueue(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing song's id"))
+		return
+	}
+
+	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+
+	payload, err := s.usecases.PlaySongFromQueue(sessionToken, clientHash, id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)

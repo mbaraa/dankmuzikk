@@ -365,6 +365,23 @@ func (a *App) PlaySongFromFavorites(accountId uint, clientHash, songPublicId str
 	return a.setCurrentPlayingSongIndex(accountId, clientHash, false, songIndex)
 }
 
+func (a *App) PlaySongFromQueue(accountId uint, clientHash, songPublicId string) error {
+	shuffled, _ := a.playerCache.GetShuffled(accountId)
+	songs, err := a.getSongsFromQueue(accountId, shuffled)
+	if err != nil {
+		return err
+	}
+
+	songIndex := slices.IndexFunc(songs, func(song models.Song) bool {
+		return song.PublicId == songPublicId
+	})
+	if songIndex < 0 {
+		return &ErrNotFound{ResourceName: "song"}
+	}
+
+	return a.setCurrentPlayingSongIndex(accountId, clientHash, shuffled, songIndex)
+}
+
 type GetNextPlayingSongResult struct {
 	Song                    models.Song
 	CurrentPlayingSongIndex int

@@ -86,8 +86,20 @@ func (song Song) Duration() string {
 	return fmt.Sprintf("%02d:%02d:%02d:%02d:00", days, h, m, s)
 }
 
-func (a *Actions) PlaySong(sessionToken, clientHash, songPublicId, playlistPublicId string) (Song, error) {
-	return a.requests.PlaySong(sessionToken, clientHash, songPublicId, playlistPublicId)
+func (a *Actions) PlaySong(sessionToken, clientHash, songPublicId string) (Song, error) {
+	return a.requests.PlaySong(sessionToken, clientHash, songPublicId)
+}
+
+func (a *Actions) PlaySongFromPlaylist(sessionToken, clientHash, songPublicId, playlistPublicId string) (Song, error) {
+	return a.requests.PlaySongFromPlaylist(sessionToken, clientHash, songPublicId, playlistPublicId)
+}
+
+func (a *Actions) PlaySongFromFavorites(sessionToken, clientHash, songPublicId string) (Song, error) {
+	return a.requests.PlaySongFromFavorites(sessionToken, clientHash, songPublicId)
+}
+
+func (a *Actions) PlaySongFromQueue(sessionToken, clientHash, songPublicId string) (Song, error) {
+	return a.requests.PlaySongFromQueue(sessionToken, clientHash, songPublicId)
 }
 
 func (a *Actions) GetSongMetadata(sessionToken, clientHash, songPublicId string) (Song, error) {

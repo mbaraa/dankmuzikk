@@ -217,6 +217,7 @@ type PlaySongParams struct {
 	ActionContext `json:"-"`
 	SongPublicId  string
 	PlaylistPubId string
+	EntryPoint    events.SongPlayedEntryPoint
 }
 
 type PlaySongPayload struct {
@@ -255,6 +256,11 @@ func (a *Actions) HandleAddSongToQueue(event events.SongPlayed) error {
 			ActionContext: ctx,
 			SongPublicId:  event.SongPublicId,
 		})
+	case events.QueueSongEntryPoint:
+		err = a.PlaySongFromQueue(PlaySongFromQueueParams{
+			ActionContext: ctx,
+			SongPublicId:  event.SongPublicId,
+		})
 	}
 
 	return err
@@ -269,16 +275,12 @@ func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 		return PlaySongPayload{}, err
 	}
 
-	entryPoint := events.SingleSongEntryPoint
-	if params.PlaylistPubId != "" {
-		entryPoint = events.FromPlaylistEntryPoint
-	}
 	event := events.SongPlayed{
 		AccountId:        uint64(params.Account.Id),
 		ClientHash:       params.ClientHash,
 		SongPublicId:     params.SongPublicId,
 		PlaylistPublicId: params.PlaylistPubId,
-		EntryPoint:       entryPoint,
+		EntryPoint:       params.EntryPoint,
 	}
 	err = a.eventhub.Publish(event)
 	if err != nil {
