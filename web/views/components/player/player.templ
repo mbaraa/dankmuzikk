@@ -1,12 +1,7 @@
 package player
 
-import "dankmuzikk-web/views/components/ui"
-
 templ PlayerSticky() {
 	<div
-		if ui.IsMobile(ctx) {
-			_="on click PlayerUI.expandMobilePlayer()"
-		}
 		class={
 			"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
 			"fixed", "z-20", "bottom-[65px]", "md:bottom-0", "left-0",
@@ -18,10 +13,10 @@ templ PlayerSticky() {
 on touchmove
     set y to event.touches[0].pageY then
     if y > $playerStartY + 75 then
-        call PlayerUI.collapseMobilePlayer()
+        collapseMobilePlayer()
     end
     if y < $playerStartY - 25 then
-        call PlayerUI.expandMobilePlayer()
+        expandMobilePlayer()
     end"
 			class={
 				"h-full", "collapsed",
@@ -46,6 +41,10 @@ on touchmove
 		if !checkPlayerStateForSong(ps(ctx)) {
 			muted
 		}
+		_="on loadeddata enablePlayerButtons() then setPlayerLoadingOff() then call setPlayingSongDuration(event.target.duration) end
+on timeupdate call setPlayingSongCurrentTime(event.target.currentTime) end
+on ended nextMuzikk() end
+on progress log 'downloading' end"
 	>
 		if checkPlayerStateForSong(ps(ctx)) {
 			<source

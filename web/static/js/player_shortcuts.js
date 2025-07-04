@@ -9,13 +9,15 @@
 const shortcuts = {
   " ": togglePlayPause,
   l: toggleLoop,
-  r: toggleShuffle,
+  r: () => {
+    console.log("shuffle");
+  },
   k: togglePlayPause,
   n: nextMuzikk,
   N: nextMuzikk,
   p: previousMuzikk,
   P: previousMuzikk,
-  s: stopMuzikk,
+  s: () => stopMuzikk(),
   m: () => mute(),
   M: () => mute(),
   0: () => (audioPlayerEl.currentTime = 0),

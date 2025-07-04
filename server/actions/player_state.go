@@ -207,3 +207,26 @@ func (a *Actions) GetPreviousSongInQueue(params GetPreviousSongInQueueParams) (G
 		EndOfQueue:       result.EndOfQueue,
 	}, nil
 }
+
+type GetLyricsForPlayingSongParams struct {
+	ActionContext `json:"-"`
+}
+
+func (a *Actions) GetLyricsForPlayingSong(params GetLyricsForPlayingSongParams) (GetLyricsForSongPayload, error) {
+	currentSong, err := a.app.GetCurrentPlayingSong(params.Account.Id, params.ClientHash)
+	if err != nil {
+		return GetLyricsForSongPayload{}, err
+	}
+
+	lyrics, synced, err := a.lyrics.GetForSong(
+		songTitleWeirdStuff.ReplaceAllString(currentSong.Title, ""))
+	if err != nil {
+		return GetLyricsForSongPayload{}, err
+	}
+
+	return GetLyricsForSongPayload{
+		SongTitle: currentSong.Title,
+		Lyrics:    lyrics,
+		Synced:    synced,
+	}, nil
+}

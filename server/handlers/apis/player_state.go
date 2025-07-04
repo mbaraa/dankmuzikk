@@ -245,7 +245,6 @@ func (p *playerStateApi) HandleAddPlaylistToQueueNext(w http.ResponseWriter, r *
 }
 
 func (p *playerStateApi) HandleAddPlaylistToQueueAtLast(w http.ResponseWriter, r *http.Request) {
-	log.Warningln("kurwa handler")
 	ctx, err := parseContext(r.Context())
 	if err != nil {
 		log.Errorln(err)
@@ -268,4 +267,26 @@ func (p *playerStateApi) HandleAddPlaylistToQueueAtLast(w http.ResponseWriter, r
 		handleErrorResponse(w, err)
 		return
 	}
+}
+
+func (s *playerStateApi) HandleGetPlayingSongLyrics(w http.ResponseWriter, r *http.Request) {
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		log.Errorln(err)
+		handleErrorResponse(w, err)
+		return
+	}
+
+	params := actions.GetLyricsForPlayingSongParams{
+		ActionContext: ctx,
+	}
+
+	payload, err := s.usecases.GetLyricsForPlayingSong(params)
+	if err != nil {
+		log.Error(err)
+		handleErrorResponse(w, err)
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(payload)
 }

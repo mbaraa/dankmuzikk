@@ -66,12 +66,11 @@ func (a *Actions) SearchYouTube(q string) ([]Song, error) {
 	foundSongs := make([]Song, 0, len(results))
 	for _, song := range results {
 		foundSongs = append(foundSongs, Song{
-			PublicId:        song.YtId,
-			Title:           song.Title,
-			Artist:          song.Artist,
-			ThumbnailUrl:    song.ThumbnailUrl,
-			Duration:        song.Duration,
-			FullyDownloaded: false,
+			PublicId:     song.YtId,
+			Title:        song.Title,
+			Artist:       song.Artist,
+			ThumbnailUrl: song.ThumbnailUrl,
+			Duration:     song.Duration,
 		})
 	}
 

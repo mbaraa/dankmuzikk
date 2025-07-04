@@ -89,8 +89,8 @@ func main() {
 	v1ApisHandler.HandleFunc("GET /search/suggestions", searchApi.HandleSearchSuggestions)
 	v1ApisHandler.HandleFunc("GET /search", searchApi.HandleSearchResults)
 
-	v1ApisHandler.HandleFunc("GET /song/play", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
-	v1ApisHandler.HandleFunc("GET /song/single", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
+	v1ApisHandler.HandleFunc("GET /song", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
+	v1ApisHandler.HandleFunc("PUT /song/play", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
 	v1ApisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
 
 	v1ApisHandler.HandleFunc("GET /playlist", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylist))
@@ -110,6 +110,7 @@ func main() {
 	v1ApisHandler.HandleFunc("DELETE /player/shuffle", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetShuffleOff))
 	v1ApisHandler.HandleFunc("GET /player/song/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetNextSongInQueue))
 	v1ApisHandler.HandleFunc("GET /player/song/previous", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPreviousSongInQueue))
+	v1ApisHandler.HandleFunc("GET /player/song/lyrics", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPlayingSongLyrics))
 	v1ApisHandler.HandleFunc("PUT /player/loop/off", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetLoopOff))
 	v1ApisHandler.HandleFunc("PUT /player/loop/once", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetLoopOnce))
 	v1ApisHandler.HandleFunc("PUT /player/loop/all", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetLoopAll))

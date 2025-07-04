@@ -5,6 +5,9 @@ import (
 	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/log"
+	"dankmuzikk-web/views/components/lyrics"
+	"dankmuzikk-web/views/components/player"
+	"dankmuzikk-web/views/components/status"
 	"encoding/json"
 	"net/http"
 )
@@ -43,6 +46,8 @@ func (p *playerStateApi) HandleSetPlayerShuffleOn(w http.ResponseWriter, r *http
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	player.ShuffleButton(true).Render(r.Context(), w)
 }
 
 func (p *playerStateApi) HandleSetPlayerShuffleOff(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +60,8 @@ func (p *playerStateApi) HandleSetPlayerShuffleOff(w http.ResponseWriter, r *htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	player.ShuffleButton(false).Render(r.Context(), w)
 }
 
 func (p *playerStateApi) HandleSetPlayerLoopOff(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +74,8 @@ func (p *playerStateApi) HandleSetPlayerLoopOff(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	player.LoopButton("off").Render(r.Context(), w)
 }
 
 func (p *playerStateApi) HandleSetPlayerLoopOnce(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +88,8 @@ func (p *playerStateApi) HandleSetPlayerLoopOnce(w http.ResponseWriter, r *http.
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	player.LoopButton("once").Render(r.Context(), w)
 }
 
 func (p *playerStateApi) HandleSetPlayerLoopAll(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +102,8 @@ func (p *playerStateApi) HandleSetPlayerLoopAll(w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	player.LoopButton("all").Render(r.Context(), w)
 }
 
 func (p *playerStateApi) HandleGetNextSongInQueue(w http.ResponseWriter, r *http.Request) {
@@ -119,6 +132,21 @@ func (p *playerStateApi) HandleGetPreviousSongInQueue(w http.ResponseWriter, r *
 	}
 
 	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func (p *playerStateApi) HandleGetPlayingSongLyrics(w http.ResponseWriter, r *http.Request) {
+	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+
+	lyricsResp, err := p.usecases.GetPlayingSongLyrics(sessionToken, clientHash)
+	if err != nil || len(lyricsResp.Lyrics) == 0 {
+		status.BugsBunnyError("No Lyrics was found!").
+			Render(r.Context(), w)
+		return
+	}
+
+	_ = lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics).
+		Render(r.Context(), w)
 }
 
 func (p *playerStateApi) HandleAddSongToQueueNext(w http.ResponseWriter, r *http.Request) {

@@ -49,7 +49,10 @@ templ playlistOptions(playlist actions.Playlist) {
 				}
 				title="Add to queue"
 				type="button"
-				onClick={ addToQueue(playlist.PublicId) }
+				hx-post={ "/api/player/queue/playlist/last?id=" + playlist.PublicId }
+				hx-swap="none"
+				_={ fmt.Sprintf(`on htmx:error alert("Something went wrong...") end
+on htmx:afterRequest if not event.detail.failed then alert("Added '%s' to the playing queue!") end`,  playlist.Title) }
 			>
 				@icons.AddToQueue()
 				<span>Add to queue</span>
@@ -61,7 +64,10 @@ templ playlistOptions(playlist actions.Playlist) {
 				}
 				title="Play next"
 				type="button"
-				onClick={ playPlaylistNext(playlist.PublicId) }
+				hx-post={ "/api/player/queue/playlist/next?id=" + playlist.PublicId }
+				hx-swap="none"
+				_={ fmt.Sprintf(`on htmx:error alert("Something went wrong...") end
+on htmx:afterRequest if not event.detail.failed then alert("Playing '%s' next!") end`,  playlist.Title) }
 			>
 				@icons.AddToQueue()
 				<span>Play next</span>
@@ -199,14 +205,6 @@ templ joinLeavePlaylist(publicId string, perm actions.PlaylistPermissions) {
 			}
 		</button>
 	</div>
-}
-
-script playPlaylistNext(plPubId string) {
-    Player.playPlaylistNextId(plPubId)
-}
-
-script addToQueue(plPubId string) {
-    Player.appendPlaylistToCurrentQueueId(plPubId)
 }
 
 script downloadPlaylist(plId, title string) {

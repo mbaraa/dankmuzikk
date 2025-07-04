@@ -8,7 +8,7 @@ import (
 func (r *Requests) GetSongMetadata(sessionToken, clientHash, songPublicId string) (actions.Song, error) {
 	return makeRequest[any, actions.Song](makeRequestConfig[any]{
 		method:   http.MethodGet,
-		endpoint: "/v1/song/single",
+		endpoint: "/v1/song",
 		headers: map[string]string{
 			"Authorization": sessionToken,
 			"X-Client-Hash": clientHash,
@@ -19,9 +19,9 @@ func (r *Requests) GetSongMetadata(sessionToken, clientHash, songPublicId string
 	})
 }
 
-func (r *Requests) PlaySong(sessionToken, clientHash, songPublicId, playlistPublicId string) (string, error) {
-	resp, err := makeRequest[any, map[string]string](makeRequestConfig[any]{
-		method:   http.MethodGet,
+func (r *Requests) PlaySong(sessionToken, clientHash, songPublicId, playlistPublicId string) (actions.Song, error) {
+	return makeRequest[any, actions.Song](makeRequestConfig[any]{
+		method:   http.MethodPut,
 		endpoint: "/v1/song/play",
 		headers: map[string]string{
 			"Authorization": sessionToken,
@@ -32,9 +32,4 @@ func (r *Requests) PlaySong(sessionToken, clientHash, songPublicId, playlistPubl
 			"playlist-id": playlistPublicId,
 		},
 	})
-	if err != nil {
-		return "", err
-	}
-
-	return resp["media_url"], nil
 }

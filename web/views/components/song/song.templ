@@ -23,11 +23,7 @@ templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Co
 			<!-- thumbnail and duration -->
 			<div
 				class={ "w-[80px]",  "h-[80px]", "md:w-[70px]", "md:h-[70px]", "relative", "cursor-pointer" }
-				if playlist.PublicId != "" {
-					onClick={ playSongFromPlaylist(s.PublicId, playlist.PublicId) }
-				} else {
-					onClick={ playSong(s.PublicId) }
-				}
+				onClick={ playSong(s.PublicId, playlist.PublicId) }
 			>
 				<div
 					class={
@@ -52,11 +48,7 @@ templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Co
 			<div class={ "w-[165px]", "md:w-[330px]", "lg:min-w-[450px]", "xl:min-w-[650px]" }>
 				<div
 					class={ "w-full", "h-full", "flex", "gap-y-3", "items-start", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
-					if playlist.PublicId != "" {
-						onClick={ playSongFromPlaylist(s.PublicId, playlist.PublicId) }
-					} else {
-						onClick={ playSong(s.PublicId) }
-					}
+					onClick={ playSong(s.PublicId, playlist.PublicId) }
 				>
 					<h3
 						class={ "w-full", "text-[16px]", "md:text-xl", "font-bold", "overflow-hidden", "text-nowrap", "text-ellipsis" }
@@ -168,7 +160,10 @@ templ options(song actions.Song, additionalOptions []templ.Component) {
 			}
 			title="Add song to queue"
 			type="button"
-			onClick={ addSongToQueue(song.PublicId) }
+			hx-post={ "/api/player/queue/song/last?id=" + song.PublicId }
+			hx-swap="none"
+			_={ fmt.Sprintf(`on htmx:error alert("Something went wrong...") end
+on htmx:afterRequest if not event.detail.failed then alert("Added '%s' to the playing queue!") end`,  song.Title) }
 		>
 			@icons.AddToQueue()
 			<span>Add to queue</span>
@@ -180,7 +175,10 @@ templ options(song actions.Song, additionalOptions []templ.Component) {
 			}
 			title="Play next"
 			type="button"
-			onClick={ playSongNext(song.PublicId) }
+			hx-post={ "/api/player/queue/song/next?id=" + song.PublicId }
+			hx-swap="none"
+			_={ fmt.Sprintf(`on htmx:error alert("Something went wrong...") end
+on htmx:afterRequest if not event.detail.failed then alert("Playing '%s' next!") end`,  song.Title) }
 		>
 			@icons.AddToQueue()
 			<span>Play next</span>
@@ -208,20 +206,8 @@ script downloadSong(songPublicId, songTitle string) {
     Player.downloadSongToDevice(songPublicId, songTitle)
 }
 
-script addSongToQueue(songPublicId string) {
-    window.Player.addSongToQueueId(songPublicId);
-}
-
-script playSong(songPublicId string) {
-    window.Player.playSingleSongId(songPublicId);
-}
-
-script playSongFromPlaylist(songId, playlistPubId string) {
-    window.Player.playSongFromPlaylistId(songId, playlistPubId)
-}
-
-script playSongNext(songPublicId string) {
-    Player.playSingleSongNextId(songPublicId)
+script playSong(songId, playlistPubId string) {
+    Player.fetchAndPlaySong(songPublicId, playlistPubId);
 }
 
 script shareSong(songPublicId string) {

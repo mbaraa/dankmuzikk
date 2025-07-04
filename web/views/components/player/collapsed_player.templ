@@ -66,10 +66,9 @@ func psDurationStr(state actions.PlayerState, fallback string) string {
 	}
 }
 
-// TODO: return this url with the song :)
 func psMediaUrl(state actions.PlayerState, fallback string) string {
 	if checkPlayerStateForSong(state) {
-		return "https://cdn.dankmuzikk.com/muzikkx/" + state.Songs[state.CurrentSongIndex].PublicId + ".mp3"
+		return state.Songs[state.CurrentSongIndex].MediaUrl
 	} else {
 		return fallback
 	}
@@ -156,26 +155,16 @@ templ collapsedPlayer() {
 				@menus.PopoverUp("volume-thingy", "Volume", volumeButton(), volumeSeeker(), 45)
 			}
 			@ui.DesktopOnly() {
-				<button
-					id="shuffle"
-					class={ "hidden", "md:inline-block" }
-					type="button"
-					title="Shuffle"
-					if !checkPlayerStateForSong(ps(ctx)) {
-						disabled
-					}
-				>
-					if psShuffled(ps(ctx)) {
-						@icons.ShuffleOn()
-					} else {
-						@icons.ShuffleOff()
-					}
-				</button>
+				@ShuffleButton(psShuffled(ps(ctx)))
 				<button
 					id="prev"
 					class={ "hidden", "md:inline-block" }
 					type="button"
 					title="Previous song"
+					_="on click fetch /api/player/song/previous as json
+then call playSongV2(result.song)
+catch error
+    console.error(';', error)"
 					if !checkPlayerStateForSong(ps(ctx)) {
 						disabled
 					}
@@ -190,6 +179,7 @@ templ collapsedPlayer() {
 				id="play"
 				type="button"
 				title="Play/Pause"
+				_="on click playPauseMuzikk()"
 				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
@@ -202,6 +192,10 @@ templ collapsedPlayer() {
 					class={ "hidden", "md:inline-block" }
 					type="button"
 					title="Next song"
+					_="on click fetch /api/player/song/next as json
+then call playSongV2(result.song)
+catch error
+    console.error(';', error)"
 					if !checkPlayerStateForSong(ps(ctx)) {
 						disabled
 					}
@@ -211,27 +205,68 @@ templ collapsedPlayer() {
 						<path d="M30.75 10.2791V30.7791" stroke="var(--secondary-color)" stroke-width="5" stroke-linecap="round"></path>
 					</svg>
 				</button>
-				<button
-					id="loop"
-					class={ "hidden", "md:inline-block" }
-					type="button"
-					title="Loop"
-					if !checkPlayerStateForSong(ps(ctx)) {
-						disabled
-					}
-				>
-					switch psLoopMode(ps(ctx)) {
-						case "all":
-							@icons.LoopAll()
-						case "once":
-							@icons.LoopOnce()
-						case "off":
-							@icons.LoopOff()
-					}
-				</button>
+				@LoopButton(psLoopMode(ps(ctx)))
 			}
 		</div>
 	</div>
+}
+
+templ LoopButton(currentLoopMode string) {
+	// 			if !checkPlayerStateForSong(ps(ctx))  {
+	// 				disabled
+	// 			}
+	<button
+		id="loop"
+		type="button"
+		title="Loop"
+		if currentLoopMode == "all" {
+			hx-put="/api/player/loop/off"
+			hx-swap="outerHTML"
+		}
+		else
+		if currentLoopMode == "once" {
+			hx-put="/api/player/loop/all"
+			hx-swap="outerHTML"
+		} else {
+			hx-put="/api/player/loop/once"
+			hx-swap="outerHTML"
+		}
+	>
+		switch currentLoopMode {
+			case "all":
+				@icons.LoopAll()
+			case "once":
+				@icons.LoopOnce()
+			case "off":
+				@icons.LoopOff()
+			default:
+				@icons.LoopOff()
+		}
+	</button>
+}
+
+templ ShuffleButton(shuffled bool) {
+	//	if !checkPlayerStateForSong(ps(ctx)) {
+	//		disabled
+	//	}
+	<button
+		id="shuffle"
+		type="button"
+		title="Shuffle"
+		if shuffled {
+			hx-delete="/api/player/shuffle"
+			hx-swap="outerHTML"
+		} else {
+			hx-post="/api/player/shuffle"
+			hx-swap="outerHTML"
+		}
+	>
+		if shuffled {
+			@icons.ShuffleOn()
+		} else {
+			@icons.ShuffleOff()
+		}
+	</button>
 }
 
 templ volumeButton() {

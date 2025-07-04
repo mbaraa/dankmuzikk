@@ -1,0 +1,27 @@
+def playMuzikk()
+    set #muzikk-player.muted to null then
+    call #muzikk-player.play() then
+    set #play's innerHTML to PlayerIcons.pause then
+    set #play-expand's innerHTML to PlayerIcons.pause
+end
+
+def pauseMuzikk()
+    call #muzikk-player.pause() then
+    set #play's innerHTML to PlayerIcons.play then
+    set #play-expand's innerHTML to PlayerIcons.play
+end
+
+def stopMuzikk()
+    call #muzikk-player.pause() then
+    set #muzikk-player's currentTime to 0 then
+    set #play's innerHTML to PlayerIcons.play then
+    set #play-expand's innerHTML to PlayerIcons.play
+end
+
+def playPauseMuzikk()
+    if #muzikk-player.paused then
+        playMuzikk()
+    else
+        pauseMuzikk()
+    end
+end

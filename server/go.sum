@@ -22,8 +22,8 @@ github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
 github.com/jinzhu/now v1.1.5/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
-github.com/mbaraa/danklyrics v0.3.0 h1:ipYHLwhe+QCPs9DWNXIMyxHuGxdzFRHZ0TXMbKZ6Ht0=
-github.com/mbaraa/danklyrics v0.3.0/go.mod h1:TNt9f+mcXk0ZYvKZCMNRulYFbpBhITgkhFO1XDBPmYA=
+github.com/mbaraa/danklyrics v0.4.0 h1:M5EZAX8M4bFj/bv114Gwv1qL3UN1uD2s2xoCxHun4Vk=
+github.com/mbaraa/danklyrics v0.4.0/go.mod h1:TNt9f+mcXk0ZYvKZCMNRulYFbpBhITgkhFO1XDBPmYA=
 github.com/mbaraa/lrclibgo v1.0.1 h1:n75hrH0fUFvwLc3IoHtZXDH1BOt7UWBMKWYZSnpXlUg=
 github.com/mbaraa/lrclibgo v1.0.1/go.mod h1:p5P271VfQ+mHlY6DIN0hN6ezAZk4ZCFITe3BcAkrc74=
 github.com/mbaraa/ytscrape v0.0.1 h1:e0HO2wUoLsIThgNITlDfsCwNORihmIEnu/Uhv5jdILI=

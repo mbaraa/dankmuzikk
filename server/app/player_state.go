@@ -386,7 +386,6 @@ func (a *App) GetNextPlayingSong(accountId uint, clientHash string) (GetNextPlay
 			endOfQueue = true
 		}
 	case models.LoopOnceMode:
-		endOfQueue = true
 		break
 	case models.LoopAllMode:
 		currentSongIndex = (currentSongIndex + 1) % int(queueLen)
@@ -469,6 +468,34 @@ func (a *App) getQueueLength(accountId uint, shuffled bool) (uint, error) {
 	}
 
 	return a.playerCache.GetQueueLength(accountId)
+}
+
+func (a *App) GetCurrentPlayingSong(accountId uint, clientHash string) (models.Song, error) {
+	shuffled, _ := a.playerCache.GetShuffled(accountId)
+	index, err := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
+	if err != nil {
+		return models.Song{}, err
+	}
+
+	var song models.Song
+	if shuffled {
+		songId, err := a.playerCache.GetSongIdAtIndexFromShuffledQueue(accountId, index)
+		if err != nil {
+			return models.Song{}, err
+		}
+		song, err = a.repo.GetSong(songId)
+	} else {
+		songId, err := a.playerCache.GetSongIdAtIndexFromQueue(accountId, index)
+		if err != nil {
+			return models.Song{}, err
+		}
+		song, err = a.repo.GetSong(songId)
+	}
+	if err != nil {
+		return models.Song{}, err
+	}
+
+	return song, nil
 }
 
 func (a *App) getCurrentPlayingSongIndex(accountId uint, clientHash string, shuffled bool) (int, error) {

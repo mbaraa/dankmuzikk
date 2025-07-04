@@ -29,20 +29,7 @@ templ expandedMobilePlayerControls() {
 		</div>
 		<!-- controls -->
 		<div class={ "flex", "justify-center", "items-center", "w-full" }>
-			<button
-				id="shuffle-expand"
-				type="button"
-				title="Shuffle"
-				if !checkPlayerStateForSong(ps(ctx)) {
-					disabled
-				}
-			>
-				if psShuffled(ps(ctx)) {
-					@icons.ShuffleOn()
-				} else {
-					@icons.ShuffleOff()
-				}
-			</button>
+			@ShuffleButton(psShuffled(ps(ctx)))
 			<button
 				id="prev-expand"
 				type="button"
@@ -60,6 +47,7 @@ templ expandedMobilePlayerControls() {
 				id="play-expand"
 				type="button"
 				title="Play/Pause"
+				_="on click playPauseMuzikk()"
 				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
@@ -79,23 +67,7 @@ templ expandedMobilePlayerControls() {
 					<path d="M30.75 10.2791V30.7791" stroke="var(--secondary-color)" stroke-width="5" stroke-linecap="round"></path>
 				</svg>
 			</button>
-			<button
-				id="loop-expand"
-				type="button"
-				title="Loop"
-				if !checkPlayerStateForSong(ps(ctx)) {
-					disabled
-				}
-			>
-				switch psLoopMode(ps(ctx)) {
-					case "all":
-						@icons.LoopAll()
-					case "once":
-						@icons.LoopOnce()
-					case "off":
-						@icons.LoopOff()
-				}
-			</button>
+			@LoopButton(psLoopMode(ps(ctx)))
 		</div>
 		<div class={ "w-full", "flex", "flex-col", "items-center", "gap-y-3" }>
 			<div class={ "w-full", "flex", "items-center", "gap-x-2" }>
@@ -135,6 +107,7 @@ templ expandedMobilePlayerLyrics() {
 			"w-full", "overflow-y-scroll", "max-h-[475px]",
 			"hidden", "flex-col", "gap-y-1", "lg:mb-5", "p-5",
 		}
+		_="on touchmove event.stopImmediatePropagation()"
 	>
 		<div
 			id="current-song-lyrics"
@@ -149,7 +122,11 @@ templ expandedMobilePlayerLyrics() {
 }
 
 templ expandedMobilePlayerQueue() {
-	<div id="expanded-mobile-player-queue" class={ "h-full", "hidden", "flex", "justify-center", "items-center" }>
+	<div
+		id="expanded-mobile-player-queue"
+		class={ "h-full", "hidden", "flex", "justify-center", "items-center" }
+		_="on touchmove event.stopImmediatePropagation()"
+	>
 		<p>
 			Coming soon...
 		</p>
@@ -184,15 +161,16 @@ templ expandedMobilePlayer() {
 				type="radio"
 				name="tab"
 				id="tab2"
-				_={ `
-                on click
-                    call Player.loadSongLyrics()
-                    remove .hidden from #expanded-mobile-player-lyrics
-                    show #expanded-mobile-player-lyrics with *display
-                    hide #expanded-mobile-player-controls with *display
-                    hide #expanded-mobile-player-queue with *display
-                end
-            ` }
+				hx-get="/api/player/song/lyrics"
+				hx-trigger="click"
+				hx-target="#current-song-lyrics"
+				hx-swap="innerHTML"
+				_="on click
+    remove .hidden from #expanded-mobile-player-lyrics
+    show #expanded-mobile-player-lyrics with *display
+    hide #expanded-mobile-player-controls with *display
+    hide #expanded-mobile-player-queue with *display
+end"
 			/>
 			<label for="tab2">Lyrics</label>
 			<input

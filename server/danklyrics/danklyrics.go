@@ -14,7 +14,7 @@ type dankLyrics struct {
 
 func New() *dankLyrics {
 	client, _ := client.NewHttp(client.Config{
-		Providers:  []provider.Name{provider.Dank, provider.LyricFind},
+		Providers:  []provider.Name{provider.LyricFind},
 		ApiAddress: config.Env().DankLyricsAddress,
 	})
 
@@ -27,8 +27,13 @@ func (d *dankLyrics) GetForSong(songName string) ([]string, map[string]string, e
 	lyrics, err := d.client.GetSongLyrics(provider.SearchParams{
 		SongName: songName,
 	})
-	if err != nil {
-		return nil, nil, err
+	if err != nil || (len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0) {
+		lyrics, err = d.client.GetSongLyrics(provider.SearchParams{
+			Query: songName,
+		})
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	if len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0 {
@@ -46,7 +51,12 @@ func (d *dankLyrics) GetForSongAndArtist(songName, artistName string) ([]string,
 		ArtistName: artistName,
 	})
 	if err != nil {
-		return nil, nil, err
+		lyrics, err = d.client.GetSongLyrics(provider.SearchParams{
+			Query: songName + " " + artistName,
+		})
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	if len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0 {

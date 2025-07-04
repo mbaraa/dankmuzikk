@@ -27,7 +27,7 @@ type Requests interface {
 	RemoveSongFromFavorites(sessionToken string, songPublicId string) error
 
 	GetSongMetadata(sessionToken, clientHash, songPublicId string) (Song, error)
-	PlaySong(sessionToken, clientHash, songPublicId, playlistPublicId string) (string, error)
+	PlaySong(sessionToken, clientHash, songPublicId, playlistPublicId string) (Song, error)
 	ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (added bool, err error)
 	UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (UpvoteSongInPlaylistPayload, error)
 	DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (DownvoteSongInPlaylistPayload, error)
@@ -41,6 +41,7 @@ type Requests interface {
 	SetPlayerLoopAll(sessionToken, clientHash string) error
 	GetNextSongInQueue(sessionToken, clientHash string) (GetNextSongInQueuePayload, error)
 	GetPreviousSongInQueue(sessionToken, clientHash string) (GetPreviousSongInQueuePayload, error)
+	GetPlayingSongLyrics(sessionToken, clientHash string) (GetLyricsForSongPayload, error)
 	AddSongToQueueNext(sessionToken, clientHash, songPublicId string) error
 	AddSongToQueueAtLast(sessionToken, clientHash, songPublicId string) error
 	AddPlaylistToQueueNext(sessionToken, clientHash, playlistPublicId string) error

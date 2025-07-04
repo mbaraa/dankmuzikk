@@ -112,6 +112,18 @@ func (r *Requests) GetPreviousSongInQueue(sessionToken, clientHash string) (acti
 	})
 }
 
+func (r *Requests) GetPlayingSongLyrics(sessionToken, clientHash string) (actions.GetLyricsForSongPayload, error) {
+	return makeRequest[any, actions.GetLyricsForSongPayload](makeRequestConfig[any]{
+		method:   http.MethodGet,
+		endpoint: "/v1/player/song/lyrics",
+		headers: map[string]string{
+			"Authorization": sessionToken,
+			"X-Client-Hash": clientHash,
+		},
+		queryParams: map[string]string{},
+	})
+}
+
 func (r *Requests) AddSongToQueueNext(sessionToken, clientHash, songPublicId string) error {
 	_, err := makeRequest[any, any](makeRequestConfig[any]{
 		method:   http.MethodPost,

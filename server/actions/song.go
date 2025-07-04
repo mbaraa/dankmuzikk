@@ -13,30 +13,34 @@ import (
 )
 
 type Song struct {
-	PublicId        string        `json:"public_id"`
-	Title           string        `json:"title"`
-	Artist          string        `json:"artist"`
-	ThumbnailUrl    string        `json:"thumbnail_url"`
-	Duration        time.Duration `json:"duration"`
-	PlayTimes       int           `json:"play_times,omitempty"`
-	Votes           int           `json:"votes,omitempty"`
-	AddedAt         string        `json:"added_at,omitempty"`
-	FullyDownloaded bool          `json:"fully_downloaded"`
-	Favorite        bool          `json:"favorite"`
+	PublicId     string        `json:"public_id"`
+	Title        string        `json:"title"`
+	Artist       string        `json:"artist"`
+	ThumbnailUrl string        `json:"thumbnail_url"`
+	Duration     time.Duration `json:"duration"`
+	PlayTimes    int           `json:"play_times,omitempty"`
+	Votes        int           `json:"votes,omitempty"`
+	AddedAt      string        `json:"added_at,omitempty"`
+	MediaUrl     string        `json:"media_url"`
+	Favorite     bool          `json:"favorite"`
 }
 
 func mapModelToActionsSong(s models.Song) Song {
+	mediaUrl := ""
+	if s.FullyDownloaded {
+		mediaUrl = fmt.Sprintf("%s/muzikkx/%s.mp3", config.CdnAddress(), s.PublicId)
+	}
 	return Song{
-		PublicId:        s.PublicId,
-		Title:           s.Title,
-		Artist:          s.Artist,
-		ThumbnailUrl:    s.ThumbnailUrl,
-		Duration:        s.RealDuration,
-		FullyDownloaded: s.FullyDownloaded,
-		PlayTimes:       s.PlayTimes,
-		Votes:           s.Votes,
-		AddedAt:         s.AddedAt,
-		Favorite:        s.Favorite,
+		PublicId:     s.PublicId,
+		Title:        s.Title,
+		Artist:       s.Artist,
+		ThumbnailUrl: s.ThumbnailUrl,
+		Duration:     s.RealDuration,
+		PlayTimes:    s.PlayTimes,
+		Votes:        s.Votes,
+		AddedAt:      s.AddedAt,
+		Favorite:     s.Favorite,
+		MediaUrl:     mediaUrl,
 	}
 }
 
@@ -84,25 +88,11 @@ func (a *Actions) GetSongByPublicId(params GetSongByPublicIdParams) (Song, error
 		if err != nil {
 			return Song{}, err
 		}
-
-		// TODO: move this back to the event handler
-		err = a.HandleAddSongToQueue(event, params.ClientHash)
-		if err != nil {
-			return Song{}, err
-		}
-
 	} else if err != nil {
 		return Song{}, err
 	}
 
-	return Song{
-		PublicId:        song.PublicId,
-		Title:           song.Title,
-		Artist:          song.Artist,
-		ThumbnailUrl:    song.ThumbnailUrl,
-		Duration:        song.RealDuration,
-		FullyDownloaded: song.FullyDownloaded,
-	}, nil
+	return mapModelToActionsSong(song), nil
 }
 
 func (a *Actions) IncrementSongPlaysInPlaylist(songId, playlistId string, profileId uint) error {
@@ -230,18 +220,18 @@ type PlaySongParams struct {
 }
 
 type PlaySongPayload struct {
-	MediaUrl string `json:"media_url"`
+	Song
 }
 
 // TODO: move this back to the event handler
 // maybe?
-func (a *Actions) HandleAddSongToQueue(event events.SongPlayed, clientHash string) error {
+func (a *Actions) HandleAddSongToQueue(event events.SongPlayed) error {
 	var err error
 	ctx := ActionContext{
 		Account: models.Account{
 			Id: uint(event.AccountId),
 		},
-		ClientHash: clientHash,
+		ClientHash: event.ClientHash,
 	}
 	switch event.EntryPoint {
 	case events.SingleSongEntryPoint:
@@ -271,7 +261,7 @@ func (a *Actions) HandleAddSongToQueue(event events.SongPlayed, clientHash strin
 }
 
 func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
-	_, err := a.GetSongByPublicId(GetSongByPublicIdParams{
+	song, err := a.GetSongByPublicId(GetSongByPublicIdParams{
 		SongPublicId:  params.SongPublicId,
 		ActionContext: params.ActionContext,
 	})
@@ -285,6 +275,7 @@ func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 	}
 	event := events.SongPlayed{
 		AccountId:        uint64(params.Account.Id),
+		ClientHash:       params.ClientHash,
 		SongPublicId:     params.SongPublicId,
 		PlaylistPublicId: params.PlaylistPubId,
 		EntryPoint:       entryPoint,
@@ -295,13 +286,13 @@ func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 	}
 
 	// TODO: move this back to the event handler
-	err = a.HandleAddSongToQueue(event, params.ClientHash)
+	err = a.HandleAddSongToQueue(event)
 	if err != nil {
 		return PlaySongPayload{}, err
 	}
 
 	return PlaySongPayload{
-		MediaUrl: fmt.Sprintf("%s/muzikkx/%s.mp3", config.Env().CdnAddress, params.SongPublicId),
+		Song: song,
 	}, nil
 }
 
@@ -325,8 +316,9 @@ type GetLyricsForSongParams struct {
 }
 
 type GetLyricsForSongPayload struct {
-	SongTitle string   `json:"song_title"`
-	Lyrics    []string `json:"lyrics"`
+	SongTitle string            `json:"song_title"`
+	Lyrics    []string          `json:"lyrics"`
+	Synced    map[string]string `json:"synced"`
 }
 
 var songTitleWeirdStuff = regexp.MustCompile(`(\(.*\)|\[.*\]|\{.*\}|\<.*\>)`)

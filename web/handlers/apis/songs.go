@@ -96,16 +96,14 @@ func (s *songsApi) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
 	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
 
-	mediaUrl, err := s.usecases.PlaySong(sessionToken, clientHash, id, playlistId)
+	payload, err := s.usecases.PlaySong(sessionToken, clientHash, id, playlistId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"media_url": mediaUrl,
-	})
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 func (s *songsApi) HandleGetSong(w http.ResponseWriter, r *http.Request) {

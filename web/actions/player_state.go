@@ -70,3 +70,7 @@ type GetPreviousSongInQueuePayload struct {
 func (a *Actions) GetPreviousSongInQueue(sessionToken, clientHash string) (GetPreviousSongInQueuePayload, error) {
 	return a.requests.GetPreviousSongInQueue(sessionToken, clientHash)
 }
+
+func (a *Actions) GetPlayingSongLyrics(sessionToken, clientHash string) (GetLyricsForSongPayload, error) {
+	return a.requests.GetPlayingSongLyrics(sessionToken, clientHash)
+}
