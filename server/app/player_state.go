@@ -329,9 +329,9 @@ func (a *App) PlaySongFromFavorites(accountId uint, clientHash, songPublicId str
 
 	favoriteSongs := make([]models.Song, 0)
 
-	for page := 0; ; page++ {
+	for page := 1; ; page++ {
 		fs, err := a.repo.GetFavoriteSongs(accountId, uint(page))
-		if err != nil {
+		if err != nil || fs.Size == 0 {
 			break
 		}
 
