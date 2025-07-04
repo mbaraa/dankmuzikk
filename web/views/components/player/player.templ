@@ -13,10 +13,10 @@ templ PlayerSticky() {
 on touchmove
     set y to event.touches[0].pageY then
     if y > $playerStartY + 75 then
-        collapseMobilePlayer()
+        call PlayerUI.collapseMobilePlayer()
     end
     if y < $playerStartY - 25 then
-        expandMobilePlayer()
+        call PlayerUI.expandMobilePlayer()
     end"
 			class={
 				"h-full", "collapsed",
@@ -41,9 +41,9 @@ on touchmove
 		if !checkPlayerStateForSong(ps(ctx)) {
 			muted
 		}
-		_="on loadeddata enablePlayerButtons() then setPlayerLoadingOff() then call setPlayingSongDuration(event.target.duration) end
-on timeupdate call setPlayingSongCurrentTime(event.target.currentTime) end
-on ended nextMuzikk() end
+		_="on loadeddata call PlayerUI.enableButtons() then call PlayerUI.setLoadingOff() then call PlayerUI.setSongDuration(event.target.duration) end
+on timeupdate call PlayerUI.setSongCurrentTime(event.target.currentTime) end
+on ended call #next.click() end
 on progress log 'downloading' end"
 	>
 		if checkPlayerStateForSong(ps(ctx)) {

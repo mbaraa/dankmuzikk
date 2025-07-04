@@ -206,8 +206,8 @@ script downloadSong(songPublicId, songTitle string) {
     Player.downloadSongToDevice(songPublicId, songTitle)
 }
 
-script playSong(songId, playlistPubId string) {
-    Player.fetchAndPlaySong(songPublicId, playlistPubId);
+script playSong(songPublicId, playlistPublicId string) {
+    Player.fetchAndPlaySong(songPublicId, playlistPublicId);
 }
 
 script shareSong(songPublicId string) {

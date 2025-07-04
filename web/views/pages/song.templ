@@ -31,7 +31,7 @@ templ songContent(song actions.Song) {
 				}
 				title="Play now"
 				type="button"
-				onClick={ playSong(song) }
+				onClick={ playSong(song.PublicId, "") }
 			>
 				<span>Play now</span>
 			</button>
@@ -114,8 +114,8 @@ on htmx:afterRequest if not event.detail.failed then alert("Playing '%s' next!")
 	</div>
 }
 
-script playSong(song actions.Song) {
-    Player.playSingleSong(song)
+script playSong(songPublicId, playlistPublicId string) {
+    Player.fetchAndPlaySong(songPublicId, playlistPublicId)
 }
 
 script shareSong(songPublicId string) {

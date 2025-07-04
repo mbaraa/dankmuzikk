@@ -22,18 +22,29 @@ async function init() {
  * @property {string} public_id
  * @property {number} play_times
  * @property {string} added_at
- * @property {number} votes
- * @property {number} order
  * @property {string} media_url
  */
 
-/**
- * @typedef {object} Playlist
- * @property {string} public_id
- * @property {string} title
- * @property {string} songs_count
- * @property {Song[]} songs
- */
+function playMuzikk() {
+  audioPlayerEl.muted = null;
+  audioPlayerEl.play();
+  PlayerUI.setPauseIcon();
+}
+
+function pauseMuzikk() {
+  audioPlayerEl.pause();
+  PlayerUI.setPlayIcon();
+}
+
+function stopMuzikk() {
+  pauseMuzikk();
+  audioPlayerEl.currentTime = 0;
+}
+
+function playPauseMuzikk() {
+  if (audioPlayerEl.paused) playMuzikk();
+  else pauseMuzikk();
+}
 
 /**
  * @param {string} songPublicId
@@ -67,7 +78,7 @@ async function removeSongFromPlaylist(songPublicId, playlistPublicId) {
 /**
  * @param {Song} song
  */
-function playSongV2(song) {
+function playSong(song) {
   audioPlayerEl.pause();
   audioPlayerEl.currentTime = 0;
   if (audioPlayerEl.childNodes.length > 0) {
@@ -92,7 +103,7 @@ function playSongV2(song) {
  * @param {string} playlistPublicId
  */
 async function fetchAndPlaySong(songPublicId, playlistPublicId) {
-  setPlayerLoadingOn();
+  PlayerUI.setLoadingOn();
 
   let resp = null;
 
@@ -107,6 +118,9 @@ async function fetchAndPlaySong(songPublicId, playlistPublicId) {
       .catch((e) => {
         console.error(e);
         return null;
+      })
+      .finally(() => {
+        PlayerUI.setLoadingOff();
       });
     if (!!resp.media_url) {
       break;
@@ -117,7 +131,7 @@ async function fetchAndPlaySong(songPublicId, playlistPublicId) {
     alert("Something went wrong when loading the song...");
   }
 
-  playSongV2(resp);
+  playSong(resp);
 }
 
 function volumer() {
@@ -229,10 +243,6 @@ async function downloadPlaylistToDevice(playlistPublicId, playlistTitle) {
     });
 }
 
-function togglePlayPause() {
-  playPauseMuzikk();
-}
-
 function handleUIEvents() {
   {
     const __handler = (e) => {
@@ -307,11 +317,11 @@ function handleMediaSessionEvents() {
   });
 
   navigator.mediaSession.setActionHandler("previoustrack", async () => {
-    await previousMuzikk();
+    PlayerUI.__elements.prevEl.click();
   });
 
   navigator.mediaSession.setActionHandler("nexttrack", async () => {
-    await nextMuzikk();
+    PlayerUI.__elements.nextEl.click();
   });
 }
 
@@ -348,10 +358,12 @@ function setMediaSessionMetadata(song) {
 init();
 
 window.Player = {
+  playPauseMuzikk,
+  stopMuzikk,
   downloadSongToDevice,
   downloadPlaylistToDevice,
   removeSongFromPlaylist,
   setPlaybackSpeed,
-  playSongV2,
+  playSong,
   fetchAndPlaySong,
 };

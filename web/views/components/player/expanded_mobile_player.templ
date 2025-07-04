@@ -30,43 +30,19 @@ templ expandedMobilePlayerControls() {
 		<!-- controls -->
 		<div class={ "flex", "justify-center", "items-center", "w-full" }>
 			@ShuffleButton(psShuffled(ps(ctx)))
-			<button
-				id="prev-expand"
-				type="button"
-				title="Previous song"
-				if !checkPlayerStateForSong(ps(ctx)) {
-					disabled
-				}
-			>
-				<svg class={ "w-[50px]" } width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M26.1119 10.8769L16.3915 18.2226C15.7561 18.6753 15.3789 19.4072 15.3789 20.1872C15.3789 20.9674 15.7561 21.6992 16.3915 22.1518L26.1119 30.181C26.9332 30.8376 28.0483 30.9912 29.0165 30.581C29.9847 30.171 30.6502 29.2632 30.75 28.2164V12.8414C30.6502 11.7947 29.9847 10.8869 29.0165 10.4768C28.0483 10.0667 26.9332 10.2203 26.1119 10.8769Z" stroke="var(--secondary-color)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-					<path d="M10.25 10.2791V30.7791" stroke="var(--secondary-color)" stroke-width="5" stroke-linecap="round"></path>
-				</svg>
-			</button>
+			@PreviousButton()
 			<button
 				id="play-expand"
 				type="button"
 				title="Play/Pause"
-				_="on click playPauseMuzikk()"
+				_="on click call Player.playPauseMuzikk()"
 				if !checkPlayerStateForSong(ps(ctx)) {
 					disabled
 				}
 			>
 				@icons.Play()
 			</button>
-			<button
-				id="next-expand"
-				type="button"
-				title="Next song"
-				if !checkPlayerStateForSong(ps(ctx)) {
-					disabled
-				}
-			>
-				<svg class={ "w-[50px]" } width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M14.8881 10.8769L24.6085 18.2226C25.2439 18.6753 25.6211 19.4072 25.6211 20.1872C25.6211 20.9674 25.2439 21.6992 24.6085 22.1518L14.8881 30.181C14.0668 30.8376 12.9517 30.9912 11.9835 30.581C11.0153 30.171 10.3498 29.2632 10.25 28.2164V12.8414C10.3498 11.7947 11.0153 10.8869 11.9835 10.4768C12.9517 10.0667 14.0668 10.2203 14.8881 10.8769Z" stroke="var(--secondary-color)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-					<path d="M30.75 10.2791V30.7791" stroke="var(--secondary-color)" stroke-width="5" stroke-linecap="round"></path>
-				</svg>
-			</button>
+			@NextButton()
 			@LoopButton(psLoopMode(ps(ctx)))
 		</div>
 		<div class={ "w-full", "flex", "flex-col", "items-center", "gap-y-3" }>

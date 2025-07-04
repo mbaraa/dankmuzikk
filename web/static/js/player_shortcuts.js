@@ -7,16 +7,26 @@
  * l r k n N p P s m M 0 1 2 3 4 5 6 7 8 9 $ i I /
  */
 const shortcuts = {
-  " ": togglePlayPause,
-  l: toggleLoop,
-  r: () => {
-    console.log("shuffle");
+  " ": playPauseMuzikk,
+  l: () => {
+    loopEl.click();
   },
-  k: togglePlayPause,
-  n: nextMuzikk,
-  N: nextMuzikk,
-  p: previousMuzikk,
-  P: previousMuzikk,
+  r: () => {
+    shuffleEl.click();
+  },
+  k: playPauseMuzikk,
+  n: () => {
+    nextEl.click();
+  },
+  N: () => {
+    nextEl.click();
+  },
+  p: () => {
+    prevEl.click();
+  },
+  P: () => {
+    prevEl.click();
+  },
   s: () => stopMuzikk(),
   m: () => mute(),
   M: () => mute(),
