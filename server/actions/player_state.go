@@ -188,12 +188,19 @@ func (a *Actions) GetNextSongInQueue(params GetNextSongInQueueParams) (GetNextSo
 		return GetNextSongInQueuePayload{}, err
 	}
 
-	err = a.eventhub.Publish(events.SongPlayed{
+	event := events.SongPlayed{
 		AccountId:    params.Account.Id,
 		ClientHash:   params.ClientHash,
 		SongPublicId: result.Song.PublicId,
-		EntryPoint:   events.FromPlaylistEntryPoint,
-	})
+		EntryPoint:   events.QueueSongEntryPoint,
+	}
+	err = a.eventhub.Publish(event)
+	if err != nil {
+		return GetNextSongInQueuePayload{}, err
+	}
+
+	// TODO: move this back to the event handler
+	err = a.HandleAddSongToQueue(event)
 	if err != nil {
 		return GetNextSongInQueuePayload{}, err
 	}
@@ -221,12 +228,19 @@ func (a *Actions) GetPreviousSongInQueue(params GetPreviousSongInQueueParams) (G
 		return GetPreviousSongInQueuePayload{}, err
 	}
 
-	err = a.eventhub.Publish(events.SongPlayed{
+	event := events.SongPlayed{
 		AccountId:    params.Account.Id,
 		ClientHash:   params.ClientHash,
 		SongPublicId: result.Song.PublicId,
-		EntryPoint:   events.FromPlaylistEntryPoint,
-	})
+		EntryPoint:   events.QueueSongEntryPoint,
+	}
+	err = a.eventhub.Publish(event)
+	if err != nil {
+		return GetPreviousSongInQueuePayload{}, err
+	}
+
+	// TODO: move this back to the event handler
+	err = a.HandleAddSongToQueue(event)
 	if err != nil {
 		return GetPreviousSongInQueuePayload{}, err
 	}
