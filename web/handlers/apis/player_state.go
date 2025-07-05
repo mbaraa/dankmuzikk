@@ -172,7 +172,7 @@ func (p *playerStateApi) HandleGetPlayingSongLyrics(w http.ResponseWriter, r *ht
 		return
 	}
 
-	_ = lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics).
+	_ = lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics, lyricsResp.SyncedPairs()).
 		Render(r.Context(), w)
 }
 

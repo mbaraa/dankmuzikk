@@ -27,7 +27,7 @@ func (d *dankLyrics) GetForSong(songName string) ([]string, map[string]string, e
 	lyrics, err := d.client.GetSongLyrics(provider.SearchParams{
 		SongName: songName,
 	})
-	if err != nil || (len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0) {
+	if err != nil || (len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0 && lyrics.String() == "") {
 		lyrics, err = d.client.GetSongLyrics(provider.SearchParams{
 			Query: songName,
 		})
@@ -36,7 +36,7 @@ func (d *dankLyrics) GetForSong(songName string) ([]string, map[string]string, e
 		}
 	}
 
-	if len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0 {
+	if (len(lyrics.Parts) == 0 && len(lyrics.Synced) == 0) || lyrics.String() == "" {
 		return nil, nil, &app.ErrNotFound{
 			ResourceName: "lyrics",
 		}

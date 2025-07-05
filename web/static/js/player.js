@@ -367,6 +367,64 @@ function setMediaSessionMetadata(song) {
   });
 }
 
+function lyricsParter() {
+  let partsMs = [];
+
+  /**
+   * @param {string} ms
+   */
+  const __getPart = (ms) => {
+    let part = "";
+    for (let i = partsMs.length - 1; i >= 0; i--) {
+      if (ms.localeCompare(partsMs[i]) > 0) {
+        part = partsMs[i];
+        break;
+      }
+    }
+
+    return part;
+  };
+
+  const __getParts = () => {
+    return partsMs;
+  };
+
+  const __setParts = (parts) => {
+    partsMs = parts;
+    console.log("parts", parts);
+  };
+
+  return [__getPart, __getParts, __setParts];
+}
+
+const [getLyricsPartMs, getLyricsPartsMs, setLyicsPartsMs] = lyricsParter();
+
+audioPlayerEl.addEventListener("timeupdate", (event) => {
+  const ms = getLyricsPartMs(Utils.formatTimeMs(event.target.currentTime));
+  if (!ms) {
+    return;
+  }
+  const parts = getLyricsPartsMs();
+  for (let i = 0; i < parts.length; i++) {
+    const partEl = document.getElementById("lyrics-part-" + parts[i]);
+    if (parts[i] === ms) {
+      if (!partEl) continue;
+      partEl.style.color = "var(--secondary-color)";
+      partEl.style.fontSize = "x-large";
+      partEl.style.fontWeight = "500";
+      partEl.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
+    } else {
+      if (!partEl) continue;
+      partEl.style.color = "var(--secondary-color-69)";
+      partEl.style.fontSize = "medium";
+    }
+  }
+});
+
 init();
 
 window.Player = {
@@ -378,4 +436,5 @@ window.Player = {
   setPlaybackSpeed,
   playSong,
   fetchAndPlaySong,
+  setLyicsPartsMs,
 };

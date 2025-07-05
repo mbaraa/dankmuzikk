@@ -25,6 +25,20 @@ function formatTime(timeSecs) {
 }
 
 /**
+ * @param {number} timeMs
+ */
+function formatTimeMs(timeMs) {
+  timeMs = Math.floor(timeMs * 1000);
+  const ms = Math.floor(timeMs % 100);
+  timeMs = Math.floor(timeMs / 1000);
+  const ss = Math.floor(timeMs % 60);
+  const mm = Math.floor((timeMs / 60) % 60);
+  const hh = Math.floor((timeMs / 60 / 60) % 60);
+
+  return `${hh > 0 ? `${formatNumber(hh)}:` : ""}${formatNumber(mm)}:${formatNumber(ss)}.${formatNumber(ms)}`;
+}
+
+/**
  * @param {number} timeSecs
  *
  * @returns string
@@ -157,6 +171,7 @@ window.Utils = {
   showLoading,
   hideLoading,
   formatTime,
+  formatTimeMs,
   formatNumber,
   getTextWidth,
   copyTextToClipboard,

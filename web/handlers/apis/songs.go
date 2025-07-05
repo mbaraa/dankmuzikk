@@ -209,7 +209,7 @@ func (s *songsApi) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics).
+	_ = lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics, lyricsResp.SyncedPairs()).
 		Render(r.Context(), w)
 }
 

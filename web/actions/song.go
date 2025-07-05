@@ -3,6 +3,8 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 )
 
@@ -130,6 +132,31 @@ type GetLyricsForSongPayload struct {
 	SongTitle string            `json:"song_title"`
 	Lyrics    []string          `json:"lyrics"`
 	Synced    map[string]string `json:"synced"`
+}
+
+func (l GetLyricsForSongPayload) SyncedPairs() []struct {
+	K string
+	V string
+} {
+	pairs := make([]struct {
+		K string
+		V string
+	}, 0, len(l.Synced))
+	for ts, part := range l.Synced {
+		pairs = append(pairs, struct {
+			K string
+			V string
+		}{ts, part})
+	}
+
+	slices.SortFunc(pairs, func(pairI, pairJ struct {
+		K string
+		V string
+	}) int {
+		return strings.Compare(pairI.K, pairJ.K)
+	})
+
+	return pairs
 }
 
 func (a *Actions) GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, error) {

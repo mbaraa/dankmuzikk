@@ -1,13 +1,50 @@
 package lyrics
 
-import "strings"
+import (
+	"encoding/json"
+	"strings"
+)
 
-templ Lyrics(songTitle string, lyrics []string) {
+templ Lyrics(songTitle string, lyrics []string, synced []struct {
+	K string
+	V string
+}) {
 	<h3 class={ "font-bold", "text-2xl" }>{ songTitle }</h3>
-	for _, part := range lyrics {
-		<p>
-			@templ.Raw(strings.ReplaceAll(part, "\n", "<br/>"))
-		</p>
+	if len(synced) > 0 {
+		<div
+			style="display: contents;"
+			_={ "on intersection(intersecting) call Player.setLyicsPartsMs(" + partsArray(synced) + ")" }
+		>
+			for _, part := range synced {
+				<p id={ "lyrics-part-" + part.K } class={ "text-secondary-trans-69" }>
+					@templ.Raw(strings.ReplaceAll(part.V, "\n", "<br/>"))
+				</p>
+			}
+		</div>
+	} else {
+		for _, part := range lyrics {
+			<p>
+				@templ.Raw(strings.ReplaceAll(part, "\n", "<br/>"))
+			</p>
+		}
 	}
 	<span><br/>Lyrics Provided By <a target="_blank" href="https://danklyrics.com">DankLyrics</a>.</span>
+}
+
+func partsArray(mp []struct {
+	K string
+	V string
+}) string {
+	arr := make([]string, 0, len(mp))
+
+	for _, part := range mp {
+		arr = append(arr, part.K)
+	}
+
+	jsonStr, err := json.Marshal(arr)
+	if err != nil {
+		return ""
+	}
+
+	return string(jsonStr)
 }
