@@ -46,7 +46,7 @@ type AddSongToNewQueueParams struct {
 }
 
 func (a *Actions) AddSongToNewQueue(params AddSongToNewQueueParams) error {
-	return a.app.OverrideSongsQueue(params.Account.Id, params.ClientHash, []string{params.SongPublicId})
+	return a.app.CreateSongsQueue(params.Account.Id, params.ClientHash, []string{params.SongPublicId})
 }
 
 type AddSongToQueueAtLastParams struct {

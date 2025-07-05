@@ -7,7 +7,7 @@ import (
 	"slices"
 )
 
-func (a *App) OverrideSongsQueue(accountId uint, clientHash string, initialSongPublicIds []string) error {
+func (a *App) CreateSongsQueue(accountId uint, clientHash string, initialSongPublicIds []string) error {
 	var songIds []uint
 	if len(initialSongPublicIds) > 0 {
 		songs, err := a.repo.GetSongsByPublicIds(initialSongPublicIds)
@@ -15,9 +15,24 @@ func (a *App) OverrideSongsQueue(accountId uint, clientHash string, initialSongP
 			return err
 		}
 
-		songIds = make([]uint, 0, len(songs))
+		songsUnordered := make([]models.Song, 0, len(songs))
 		for _, song := range songs {
-			songIds = append(songIds, song.Id)
+			songsUnordered = append(songsUnordered, song)
+		}
+
+		songIdsOrdered := make(map[string][]int)
+		for idx, song := range initialSongPublicIds {
+			songIdsOrdered[song] = append(songIdsOrdered[song], idx)
+		}
+
+		songIds = make([]uint, len(initialSongPublicIds))
+		for _, song := range songsUnordered {
+			for _, songIdx := range songIdsOrdered[song.PublicId] {
+				if songIdx >= len(songIds) {
+					continue
+				}
+				songIds[songIdx] = song.Id
+			}
 		}
 	}
 
@@ -79,7 +94,7 @@ func (a *App) AddSongToQueueAfterCurrentSong(accountId uint, clientHash, songPub
 	shuffled, _ := a.playerCache.GetShuffled(accountId)
 	currentSongIndex, err := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
 	if err != nil {
-		return a.OverrideSongsQueue(accountId, clientHash, []string{songPublicId})
+		return a.CreateSongsQueue(accountId, clientHash, []string{songPublicId})
 	}
 
 	song, err := a.repo.GetSongByPublicId(songPublicId)
@@ -125,7 +140,7 @@ func (a *App) AddPlaylistToQueueAfterCurrentSong(accountId uint, clientHash, pla
 	shuffled, _ := a.playerCache.GetShuffled(accountId)
 	currentSongIndex, err := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
 	if err != nil {
-		return a.OverrideSongsQueue(accountId, clientHash, nil)
+		return a.CreateSongsQueue(accountId, clientHash, nil)
 	}
 
 	playlist, err := a.repo.GetPlaylistByPublicId(playlistPublicId)
@@ -357,7 +372,7 @@ func (a *App) PlaySongFromFavorites(accountId uint, clientHash, songPublicId str
 		}
 	}
 
-	err = a.OverrideSongsQueue(accountId, clientHash, songPublicIds)
+	err = a.CreateSongsQueue(accountId, clientHash, songPublicIds)
 	if err != nil {
 		return err
 	}
@@ -501,15 +516,18 @@ func (a *App) GetCurrentPlayingSong(accountId uint, clientHash string) (models.S
 			return models.Song{}, err
 		}
 		song, err = a.repo.GetSong(songId)
+		if err != nil {
+			return models.Song{}, err
+		}
 	} else {
 		songId, err := a.playerCache.GetSongIdAtIndexFromQueue(accountId, index)
 		if err != nil {
 			return models.Song{}, err
 		}
 		song, err = a.repo.GetSong(songId)
-	}
-	if err != nil {
-		return models.Song{}, err
+		if err != nil {
+			return models.Song{}, err
+		}
 	}
 
 	return song, nil
