@@ -16,7 +16,7 @@ func New(usecases *actions.Actions) *EventHandlers {
 }
 
 func (e *EventHandlers) HandleAddSongToHistory(event events.SongPlayed) error {
-	return e.usecases.AddSongToHistory(event.SongPublicId, uint(event.AccountId))
+	return e.usecases.AddSongToHistory(event.SongPublicId, event.AccountId)
 }
 
 func (e *EventHandlers) HandleDownloadSongOnPlay(event events.SongPlayed) error {

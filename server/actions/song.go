@@ -230,7 +230,7 @@ func (a *Actions) HandleAddSongToQueue(event events.SongPlayed) error {
 	var err error
 	ctx := ActionContext{
 		Account: models.Account{
-			Id: uint(event.AccountId),
+			Id: event.AccountId,
 		},
 		ClientHash: event.ClientHash,
 	}
@@ -276,7 +276,7 @@ func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 	}
 
 	event := events.SongPlayed{
-		AccountId:        uint64(params.Account.Id),
+		AccountId:        params.Account.Id,
 		ClientHash:       params.ClientHash,
 		SongPublicId:     params.SongPublicId,
 		PlaylistPublicId: params.PlaylistPubId,

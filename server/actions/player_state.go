@@ -2,6 +2,7 @@ package actions
 
 import (
 	"dankmuzikk/app/models"
+	"dankmuzikk/evy/events"
 )
 
 type PlayerState struct {
@@ -187,6 +188,16 @@ func (a *Actions) GetNextSongInQueue(params GetNextSongInQueueParams) (GetNextSo
 		return GetNextSongInQueuePayload{}, err
 	}
 
+	err = a.eventhub.Publish(events.SongPlayed{
+		AccountId:    params.Account.Id,
+		ClientHash:   params.ClientHash,
+		SongPublicId: result.Song.PublicId,
+		EntryPoint:   events.FromPlaylistEntryPoint,
+	})
+	if err != nil {
+		return GetNextSongInQueuePayload{}, err
+	}
+
 	return GetNextSongInQueuePayload{
 		Song:             mapModelToActionsSong(result.Song),
 		CurrentSongIndex: result.CurrentPlayingSongIndex,
@@ -206,6 +217,16 @@ type GetPreviousSongInQueuePayload struct {
 
 func (a *Actions) GetPreviousSongInQueue(params GetPreviousSongInQueueParams) (GetPreviousSongInQueuePayload, error) {
 	result, err := a.app.GetPreviousPlayingSong(params.Account.Id, params.ClientHash)
+	if err != nil {
+		return GetPreviousSongInQueuePayload{}, err
+	}
+
+	err = a.eventhub.Publish(events.SongPlayed{
+		AccountId:    params.Account.Id,
+		ClientHash:   params.ClientHash,
+		SongPublicId: result.Song.PublicId,
+		EntryPoint:   events.FromPlaylistEntryPoint,
+	})
 	if err != nil {
 		return GetPreviousSongInQueuePayload{}, err
 	}

@@ -28,7 +28,7 @@ const (
 )
 
 type SongPlayed struct {
-	AccountId        uint64               `json:"account_id"`
+	AccountId        uint                 `json:"account_id"`
 	ClientHash       string               `json:"client_hash"`
 	SongPublicId     string               `json:"song_public_id"`
 	PlaylistPublicId string               `json:"playlist_public_id"`
