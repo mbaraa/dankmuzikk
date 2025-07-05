@@ -414,7 +414,7 @@ func (c *playerCache) GetSongsShuffledQueue(accountId uint) ([]uint, error) {
 }
 
 func playerCurrentPlayingSongKey(accountId uint, clientHash string) string {
-	return fmt.Sprintf("%splayer-playing-index:%d:%s", keyPrefix, accountId, clientHash)
+	return fmt.Sprintf("%splayer-playing-index:%d", keyPrefix, accountId)
 }
 
 func (c *playerCache) SetCurrentPlayingSongIndexInQueue(accountId uint, clientHash string, songIndex int) error {
@@ -450,7 +450,7 @@ func (c *playerCache) GetCurrentPlayingSongIndexInQueue(accountId uint, clientHa
 }
 
 func playerCurrentPlayingSongKeyInShuffledQueue(accountId uint, clientHash string) string {
-	return fmt.Sprintf("%splayer-playing-index-shuffled:%d:%s", keyPrefix, accountId, clientHash)
+	return fmt.Sprintf("%splayer-playing-index-shuffled:%d", keyPrefix, accountId)
 }
 
 func (c *playerCache) SetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string, songIndex int) error {
