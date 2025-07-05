@@ -391,7 +391,6 @@ function lyricsParter() {
 
   const __setParts = (parts) => {
     partsMs = parts;
-    console.log("parts", parts);
   };
 
   return [__getPart, __getParts, __setParts];
@@ -399,11 +398,16 @@ function lyricsParter() {
 
 const [getLyricsPartMs, getLyricsPartsMs, setLyicsPartsMs] = lyricsParter();
 
+let lastLyricsPartMs = "";
+
 audioPlayerEl.addEventListener("timeupdate", (event) => {
   const ms = getLyricsPartMs(Utils.formatTimeMs(event.target.currentTime));
   if (!ms) {
     return;
   }
+  if (ms === lastLyricsPartMs) return;
+  lastLyricsPartMs = ms;
+
   const parts = getLyricsPartsMs();
   for (let i = 0; i < parts.length; i++) {
     const partEl = document.getElementById("lyrics-part-" + parts[i]);

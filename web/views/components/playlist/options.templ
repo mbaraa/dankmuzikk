@@ -6,6 +6,7 @@ import (
 	"dankmuzikk-web/views/components/ui"
 	"dankmuzikk-web/views/icons"
 	"fmt"
+	"strings"
 )
 
 templ PlaylistsOptions(playlist actions.Playlist) {
@@ -52,7 +53,7 @@ templ playlistOptions(playlist actions.Playlist) {
 				hx-post={ "/api/player/queue/playlist/last?id=" + playlist.PublicId }
 				hx-swap="none"
 				_={ fmt.Sprintf(`on htmx:error alert("Something went wrong...") end
-on htmx:afterRequest if not event.detail.failed then alert("Added '%s' to the playing queue!") end`,  playlist.Title) }
+on htmx:afterRequest if not event.detail.failed then alert("Added '%s' to the playing queue!") end`,  strings.ReplaceAll(playlist.Title, "\"", "\\\"")) }
 			>
 				@icons.AddToQueue()
 				<span>Add to queue</span>
@@ -67,7 +68,7 @@ on htmx:afterRequest if not event.detail.failed then alert("Added '%s' to the pl
 				hx-post={ "/api/player/queue/playlist/next?id=" + playlist.PublicId }
 				hx-swap="none"
 				_={ fmt.Sprintf(`on htmx:error alert("Something went wrong...") end
-on htmx:afterRequest if not event.detail.failed then alert("Playing '%s' next!") end`,  playlist.Title) }
+on htmx:afterRequest if not event.detail.failed then alert("Playing '%s' next!") end`,  strings.ReplaceAll(playlist.Title, "\"", "\\\"")) }
 			>
 				@icons.AddToQueue()
 				<span>Play next</span>
