@@ -16,7 +16,7 @@ templ Lyrics(songTitle string, lyrics []string, synced []struct {
 			_={ "on intersection(intersecting) call Player.setLyicsPartsMs(" + partsArray(synced) + ")" }
 		>
 			for _, part := range synced {
-				<p id={ "lyrics-part-" + part.K } class={ "text-secondary-trans-69" }>
+				<p id={ "lyrics-part-" + part.K } class={ "text-secondary-trans-69", "font-light" }>
 					@templ.Raw(strings.ReplaceAll(part.V, "\n", "<br/>"))
 				</p>
 			}

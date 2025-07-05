@@ -79,6 +79,7 @@ async function removeSongFromPlaylist(songPublicId, playlistPublicId) {
  * @param {Song} song
  */
 function playSong(song) {
+  audioPlayerEl.muted = null;
   audioPlayerEl.pause();
   audioPlayerEl.currentTime = 0;
   if (audioPlayerEl.childNodes.length > 0) {
@@ -415,7 +416,7 @@ audioPlayerEl.addEventListener("timeupdate", (event) => {
       if (!partEl) continue;
       partEl.style.color = "var(--secondary-color)";
       partEl.style.fontSize = "x-large";
-      partEl.style.fontWeight = "500";
+      partEl.style.fontWeight = "normal";
       partEl.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -425,6 +426,7 @@ audioPlayerEl.addEventListener("timeupdate", (event) => {
       if (!partEl) continue;
       partEl.style.color = "var(--secondary-color-69)";
       partEl.style.fontSize = "medium";
+      partEl.style.fontWeight = "lighter";
     }
   }
 });
