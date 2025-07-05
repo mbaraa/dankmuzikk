@@ -70,14 +70,7 @@ func main() {
 	switch config.Env().GoEnv {
 	case "prod":
 		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch {
-			case strings.HasPrefix(r.URL.Path, "/static/js"):
-				w.Header().Set("Cache-Control", "public, max-age=7200, stale-while-revalidate=5")
-			case strings.HasPrefix(r.URL.Path, "/static/css"):
-				w.Header().Set("Cache-Control", "public, max-age=7200, stale-while-revalidate=5")
-			default:
-				w.Header().Set("Cache-Control", "public, max-age=86400, stale-while-revalidate=5")
-			}
+			w.Header().Set("Cache-Control", "public, max-age=7200, stale-while-revalidate=5")
 
 			minifyer.Middleware(http.FileServer(http.FS(static))).
 				ServeHTTP(w, r)
