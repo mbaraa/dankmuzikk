@@ -88,44 +88,88 @@ func (song Song) Duration() string {
 	return fmt.Sprintf("%02d:%02d:%02d:%02d:00", days, h, m, s)
 }
 
-func (a *Actions) PlaySong(sessionToken, clientHash, songPublicId string) (Song, error) {
-	return a.requests.PlaySong(sessionToken, clientHash, songPublicId)
+type PlaySongParams struct {
+	ActionContext
+	SongPublicId string
 }
 
-func (a *Actions) PlaySongFromPlaylist(sessionToken, clientHash, songPublicId, playlistPublicId string) (Song, error) {
-	return a.requests.PlaySongFromPlaylist(sessionToken, clientHash, songPublicId, playlistPublicId)
+func (a *Actions) PlaySong(params PlaySongParams) (Song, error) {
+	return a.requests.PlaySong(params.SessionToken, params.ClientHash, params.SongPublicId)
 }
 
-func (a *Actions) PlaySongFromFavorites(sessionToken, clientHash, songPublicId string) (Song, error) {
-	return a.requests.PlaySongFromFavorites(sessionToken, clientHash, songPublicId)
+type PlaySongFromPlaylistParams struct {
+	ActionContext
+	SongPublicId     string
+	PlaylistPublicId string
 }
 
-func (a *Actions) PlaySongFromQueue(sessionToken, clientHash, songPublicId string) (Song, error) {
-	return a.requests.PlaySongFromQueue(sessionToken, clientHash, songPublicId)
+func (a *Actions) PlaySongFromPlaylist(params PlaySongFromPlaylistParams) (Song, error) {
+	return a.requests.PlaySongFromPlaylist(params.SessionToken, params.ClientHash, params.SongPublicId, params.PlaylistPublicId)
 }
 
-func (a *Actions) GetSongMetadata(sessionToken, clientHash, songPublicId string) (Song, error) {
-	return a.requests.GetSongMetadata(sessionToken, clientHash, songPublicId)
+type PlaySongFromFavoritesParams struct {
+	ActionContext
+	SongPublicId string
 }
 
-func (a *Actions) ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (added bool, err error) {
-	return a.requests.ToggleSongInPlaylist(sessionToken, songPublicId, playlistPublicId)
+func (a *Actions) PlaySongFromFavorites(params PlaySongFromFavoritesParams) (Song, error) {
+	return a.requests.PlaySongFromFavorites(params.SessionToken, params.ClientHash, params.SongPublicId)
+}
+
+type PlaySongFromQueueParams struct {
+	ActionContext
+	SongPublicId string
+}
+
+func (a *Actions) PlaySongFromQueue(params PlaySongFromQueueParams) (Song, error) {
+	return a.requests.PlaySongFromQueue(params.SessionToken, params.ClientHash, params.SongPublicId)
+}
+
+type GetSongMetadataParams struct {
+	ActionContext
+	SongPublicId string
+}
+
+func (a *Actions) GetSongMetadata(params GetSongMetadataParams) (Song, error) {
+	return a.requests.GetSongMetadata(params.SessionToken, params.ClientHash, params.SongPublicId)
+}
+
+type ToggleSongInPlaylistParams struct {
+	ActionContext
+	SongPublicId     string
+	PlaylistPublicId string
+}
+
+func (a *Actions) ToggleSongInPlaylist(params ToggleSongInPlaylistParams) (added bool, err error) {
+	return a.requests.ToggleSongInPlaylist(params.SessionToken, params.SongPublicId, params.PlaylistPublicId)
+}
+
+type UpvoteSongInPlaylistParams struct {
+	ActionContext
+	SongPublicId     string
+	PlaylistPublicId string
 }
 
 type UpvoteSongInPlaylistPayload struct {
 	VotesCount int `json:"votes_count"`
 }
 
-func (a *Actions) UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (UpvoteSongInPlaylistPayload, error) {
-	return a.requests.UpvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId)
+func (a *Actions) UpvoteSongInPlaylist(params UpvoteSongInPlaylistParams) (UpvoteSongInPlaylistPayload, error) {
+	return a.requests.UpvoteSongInPlaylist(params.SessionToken, params.SongPublicId, params.PlaylistPublicId)
+}
+
+type DownvoteSongInPlaylistParams struct {
+	ActionContext
+	SongPublicId     string
+	PlaylistPublicId string
 }
 
 type DownvoteSongInPlaylistPayload struct {
 	VotesCount int `json:"votes_count"`
 }
 
-func (a *Actions) DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId string) (DownvoteSongInPlaylistPayload, error) {
-	return a.requests.DownvoteSongInPlaylist(sessionToken, songPublicId, playlistPublicId)
+func (a *Actions) DownvoteSongInPlaylist(params DownvoteSongInPlaylistParams) (DownvoteSongInPlaylistPayload, error) {
+	return a.requests.DownvoteSongInPlaylist(params.SessionToken, params.SongPublicId, params.PlaylistPublicId)
 }
 
 type GetLyricsForSongPayload struct {
@@ -163,18 +207,33 @@ func (a *Actions) GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, e
 	return a.requests.GetSongLyrics(songPublicId)
 }
 
+type GetFavoritesParams struct {
+	ActionContext
+	PageIndex uint
+}
+
 type GetFavoritesPayload struct {
 	Songs []Song `json:"songs"`
 }
 
-func (a *Actions) GetFavorites(sessionToken string, pageIndex uint) (GetFavoritesPayload, error) {
-	return a.requests.GetFavorites(sessionToken, pageIndex)
+func (a *Actions) GetFavorites(params GetFavoritesParams) (GetFavoritesPayload, error) {
+	return a.requests.GetFavorites(params.SessionToken, params.PageIndex)
 }
 
-func (a *Actions) AddSongToFavorites(sessionToken string, songPublicId string) error {
-	return a.requests.AddSongToFavorites(sessionToken, songPublicId)
+type AddSongToFavoritesParams struct {
+	ActionContext
+	SongPublicId string
 }
 
-func (a *Actions) RemoveSongFromFavorites(sessionToken string, songPublicId string) error {
-	return a.requests.RemoveSongFromFavorites(sessionToken, songPublicId)
+func (a *Actions) AddSongToFavorites(params AddSongToFavoritesParams) error {
+	return a.requests.AddSongToFavorites(params.SessionToken, params.SongPublicId)
+}
+
+type RemoveSongFromFavoritesParams struct {
+	ActionContext
+	SongPublicId string
+}
+
+func (a *Actions) RemoveSongFromFavorites(params AddSongToFavoritesParams) error {
+	return a.requests.RemoveSongFromFavorites(params.SessionToken, params.SongPublicId)
 }

@@ -11,7 +11,3 @@ func New(requests Requests, cache Cache) *Actions {
 		cache:    cache,
 	}
 }
-
-type RequestContext struct {
-	SessionToken string
-}

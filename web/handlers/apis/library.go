@@ -2,7 +2,6 @@ package apis
 
 import (
 	"dankmuzikk-web/actions"
-	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/song"
@@ -25,10 +24,9 @@ func NewLibraryApi(usecases *actions.Actions) *libraryApi {
 }
 
 func (l *libraryApi) HandleAddSongToFavorites(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -39,21 +37,23 @@ func (l *libraryApi) HandleAddSongToFavorites(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err := l.usecases.AddSongToFavorites(sessionToken, songId)
+	err = l.usecases.AddSongToFavorites(actions.AddSongToFavoritesParams{
+		ActionContext: ctx,
+		SongPublicId:  songId,
+	})
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	song.RemoveFromFavoritesButton(songId).Render(r.Context(), w)
+	_ = song.RemoveFromFavoritesButton(songId).Render(r.Context(), w)
 }
 
 func (l *libraryApi) HandleRemoveSongFromFavorites(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -64,21 +64,23 @@ func (l *libraryApi) HandleRemoveSongFromFavorites(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err := l.usecases.RemoveSongFromFavorites(sessionToken, songId)
+	err = l.usecases.RemoveSongFromFavorites(actions.AddSongToFavoritesParams{
+		ActionContext: ctx,
+		SongPublicId:  songId,
+	})
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	song.AddToFavoritesButton(songId).Render(r.Context(), w)
+	_ = song.AddToFavoritesButton(songId).Render(r.Context(), w)
 }
 
 func (l *libraryApi) HandleGetMoreFavoritesItems(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			BugsBunnyError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -91,7 +93,10 @@ func (l *libraryApi) HandleGetMoreFavoritesItems(w http.ResponseWriter, r *http.
 		page *= -1
 	}
 
-	payload, err := l.usecases.GetFavorites(sessionToken, uint(page))
+	payload, err := l.usecases.GetFavorites(actions.GetFavoritesParams{
+		ActionContext: ctx,
+		PageIndex:     uint(page),
+	})
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -111,14 +116,14 @@ func (l *libraryApi) HandleGetMoreFavoritesItems(w http.ResponseWriter, r *http.
 			Render(r.Context(), w)
 	}
 
-	w.Write(fmt.Appendf([]byte{}, `<div
-			class="h-[10px] mb-[20px]"
-			hx-get="/api/library/favorite/songs/%d"
-			hx-swap="outerHTML"
-			hx-trigger="intersect"
-			data-hx-revealed="true"
-			data-loading-target="#favorites-loading"
-			data-loading-class-remove="hidden"
-			data-loading-path="/api/library/favorite/songs/%d"></div>`,
+	_, _ = w.Write(fmt.Appendf([]byte{}, `<div
+	class="h-[10px] mb-[20px]"
+	hx-get="/api/library/favorite/songs/%d"
+	hx-swap="outerHTML"
+	hx-trigger="intersect"
+	data-hx-revealed="true"
+	data-loading-target="#favorites-loading"
+	data-loading-class-remove="hidden"
+	data-loading-path="/api/library/favorite/songs/%d"></div>`,
 		page+1, page+1))
 }

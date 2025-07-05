@@ -2,8 +2,6 @@ package apis
 
 import (
 	"dankmuzikk-web/actions"
-	"dankmuzikk-web/handlers/middlewares/auth"
-	"dankmuzikk-web/handlers/middlewares/clienthash"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/lyrics"
 	"dankmuzikk-web/views/components/song"
@@ -24,10 +22,9 @@ func NewDownloadHandler(usecases *actions.Actions) *songsApi {
 }
 
 func (s *songsApi) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -43,7 +40,11 @@ func (s *songsApi) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *htt
 		return
 	}
 
-	payload, err := s.usecases.UpvoteSongInPlaylist(sessionToken, songId, playlistId)
+	payload, err := s.usecases.UpvoteSongInPlaylist(actions.UpvoteSongInPlaylistParams{
+		ActionContext:    ctx,
+		SongPublicId:     songId,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -54,10 +55,9 @@ func (s *songsApi) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r *htt
 }
 
 func (s *songsApi) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -73,7 +73,11 @@ func (s *songsApi) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, r *h
 		return
 	}
 
-	payload, err := s.usecases.DownvoteSongInPlaylist(sessionToken, songId, playlistId)
+	payload, err := s.usecases.DownvoteSongInPlaylist(actions.DownvoteSongInPlaylistParams{
+		ActionContext:    ctx,
+		SongPublicId:     songId,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -91,10 +95,12 @@ func (s *songsApi) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+	ctx, _ := parseContext(r.Context())
 
-	payload, err := s.usecases.PlaySong(sessionToken, clientHash, id)
+	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
+		ActionContext: ctx,
+		SongPublicId:  id,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -119,10 +125,18 @@ func (s *songsApi) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
+			Render(r.Context(), w)
+		return
+	}
 
-	payload, err := s.usecases.PlaySongFromPlaylist(sessionToken, clientHash, id, playlistId)
+	payload, err := s.usecases.PlaySongFromPlaylist(actions.PlaySongFromPlaylistParams{
+		ActionContext:    ctx,
+		SongPublicId:     id,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -140,10 +154,17 @@ func (s *songsApi) HandlePlaySongFromFavorites(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
+			Render(r.Context(), w)
+		return
+	}
 
-	payload, err := s.usecases.PlaySongFromFavorites(sessionToken, clientHash, id)
+	payload, err := s.usecases.PlaySongFromFavorites(actions.PlaySongFromFavoritesParams{
+		ActionContext: ctx,
+		SongPublicId:  id,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -161,10 +182,17 @@ func (s *songsApi) HandlePlaySongFromQueue(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
+			Render(r.Context(), w)
+		return
+	}
 
-	payload, err := s.usecases.PlaySongFromQueue(sessionToken, clientHash, id)
+	payload, err := s.usecases.PlaySongFromQueue(actions.PlaySongFromQueueParams{
+		ActionContext: ctx,
+		SongPublicId:  id,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -175,8 +203,7 @@ func (s *songsApi) HandlePlaySongFromQueue(w http.ResponseWriter, r *http.Reques
 }
 
 func (s *songsApi) HandleGetSong(w http.ResponseWriter, r *http.Request) {
-	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+	ctx, _ := parseContext(r.Context())
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -185,7 +212,10 @@ func (s *songsApi) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	song, err := s.usecases.GetSongMetadata(sessionToken, clientHash, id)
+	song, err := s.usecases.GetSongMetadata(actions.GetSongMetadataParams{
+		ActionContext: ctx,
+		SongPublicId:  id,
+	})
 	if err != nil {
 		log.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -214,10 +244,9 @@ func (s *songsApi) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *songsApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -233,7 +262,11 @@ func (p *songsApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	added, err := p.usecases.ToggleSongInPlaylist(sessionToken, songId, playlistId)
+	added, err := p.usecases.ToggleSongInPlaylist(actions.ToggleSongInPlaylistParams{
+		ActionContext:    ctx,
+		SongPublicId:     songId,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)

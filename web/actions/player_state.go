@@ -11,48 +11,73 @@ type GetPlayerStatePayload struct {
 	PlayerState PlayerState `json:"player_state"`
 }
 
-func (a *Actions) GetPlayerState(sessionToken, clientHash string) (GetPlayerStatePayload, error) {
-	return a.requests.GetPlayerState(sessionToken, clientHash)
+func (a *Actions) GetPlayerState(ctx ActionContext) (GetPlayerStatePayload, error) {
+	return a.requests.GetPlayerState(ctx.SessionToken, ctx.ClientHash)
 }
 
-func (a *Actions) SetPlayerShuffleOn(sessionToken, clientHash string) error {
-	return a.requests.SetPlayerShuffleOn(sessionToken, clientHash)
+func (a *Actions) SetPlayerShuffleOn(ctx ActionContext) error {
+	return a.requests.SetPlayerShuffleOn(ctx.SessionToken, ctx.ClientHash)
 }
 
-func (a *Actions) SetPlayerShuffleOff(sessionToken, clientHash string) error {
-	return a.requests.SetPlayerShuffleOff(sessionToken, clientHash)
+func (a *Actions) SetPlayerShuffleOff(ctx ActionContext) error {
+	return a.requests.SetPlayerShuffleOff(ctx.SessionToken, ctx.ClientHash)
 }
 
-func (a *Actions) SetPlayerLoopOff(sessionToken, clientHash string) error {
-	return a.requests.SetPlayerLoopOff(sessionToken, clientHash)
+func (a *Actions) SetPlayerLoopOff(ctx ActionContext) error {
+	return a.requests.SetPlayerLoopOff(ctx.SessionToken, ctx.ClientHash)
 }
 
-func (a *Actions) SetPlayerLoopOnce(sessionToken, clientHash string) error {
-	return a.requests.SetPlayerLoopOnce(sessionToken, clientHash)
+func (a *Actions) SetPlayerLoopOnce(ctx ActionContext) error {
+	return a.requests.SetPlayerLoopOnce(ctx.SessionToken, ctx.ClientHash)
 }
 
-func (a *Actions) SetPlayerLoopAll(sessionToken, clientHash string) error {
-	return a.requests.SetPlayerLoopAll(sessionToken, clientHash)
+func (a *Actions) SetPlayerLoopAll(ctx ActionContext) error {
+	return a.requests.SetPlayerLoopAll(ctx.SessionToken, ctx.ClientHash)
 }
 
-func (a *Actions) AddSongToQueueNext(sessionToken, clientHash, songPublicId string) error {
-	return a.requests.AddSongToQueueNext(sessionToken, clientHash, songPublicId)
+type AddSongToQueueNextParams struct {
+	ActionContext
+	SongPublicId string
 }
 
-func (a *Actions) AddSongToQueueAtLast(sessionToken, clientHash, songPublicId string) error {
-	return a.requests.AddSongToQueueAtLast(sessionToken, clientHash, songPublicId)
+func (a *Actions) AddSongToQueueNext(params AddSongToQueueNextParams) error {
+	return a.requests.AddSongToQueueNext(params.SessionToken, params.ClientHash, params.SongPublicId)
 }
 
-func (a *Actions) RemoveSongFromQueue(sessionToken, clientHash string, songIndex int) error {
-	return a.requests.RemoveSongFromQueue(sessionToken, clientHash, songIndex)
+type AddSongToQueueAtLastParams struct {
+	ActionContext
+	SongPublicId string
 }
 
-func (a *Actions) AddPlaylistToQueueNext(sessionToken, clientHash, playlistPublicId string) error {
-	return a.requests.AddPlaylistToQueueNext(sessionToken, clientHash, playlistPublicId)
+func (a *Actions) AddSongToQueueAtLast(params AddSongToQueueNextParams) error {
+	return a.requests.AddSongToQueueAtLast(params.SessionToken, params.ClientHash, params.SongPublicId)
 }
 
-func (a *Actions) AddPlaylistToQueueAtLast(sessionToken, clientHash, playlistPublicId string) error {
-	return a.requests.AddPlaylistToQueueAtLast(sessionToken, clientHash, playlistPublicId)
+type RemoveSongFromQueueParams struct {
+	ActionContext
+	SongIndex int
+}
+
+func (a *Actions) RemoveSongFromQueue(params RemoveSongFromQueueParams) error {
+	return a.requests.RemoveSongFromQueue(params.SessionToken, params.ClientHash, params.SongIndex)
+}
+
+type AddPlaylistToQueueNextParams struct {
+	ActionContext
+	PlaylistPublicId string
+}
+
+func (a *Actions) AddPlaylistToQueueNext(params AddPlaylistToQueueNextParams) error {
+	return a.requests.AddPlaylistToQueueNext(params.SessionToken, params.ClientHash, params.PlaylistPublicId)
+}
+
+type AddPlaylistToQueueAtLastParams struct {
+	ActionContext
+	PlaylistPublicId string
+}
+
+func (a *Actions) AddPlaylistToQueueAtLast(params AddPlaylistToQueueAtLastParams) error {
+	return a.requests.AddPlaylistToQueueAtLast(params.SessionToken, params.ClientHash, params.PlaylistPublicId)
 }
 
 type GetNextSongInQueuePayload struct {
@@ -61,8 +86,8 @@ type GetNextSongInQueuePayload struct {
 	EndOfQueue       bool `json:"end_of_queue"`
 }
 
-func (a *Actions) GetNextSongInQueue(sessionToken, clientHash string) (GetNextSongInQueuePayload, error) {
-	return a.requests.GetNextSongInQueue(sessionToken, clientHash)
+func (a *Actions) GetNextSongInQueue(ctx ActionContext) (GetNextSongInQueuePayload, error) {
+	return a.requests.GetNextSongInQueue(ctx.SessionToken, ctx.ClientHash)
 }
 
 type GetPreviousSongInQueuePayload struct {
@@ -71,10 +96,10 @@ type GetPreviousSongInQueuePayload struct {
 	EndOfQueue       bool `json:"end_of_queue"`
 }
 
-func (a *Actions) GetPreviousSongInQueue(sessionToken, clientHash string) (GetPreviousSongInQueuePayload, error) {
-	return a.requests.GetPreviousSongInQueue(sessionToken, clientHash)
+func (a *Actions) GetPreviousSongInQueue(ctx ActionContext) (GetPreviousSongInQueuePayload, error) {
+	return a.requests.GetPreviousSongInQueue(ctx.SessionToken, ctx.ClientHash)
 }
 
-func (a *Actions) GetPlayingSongLyrics(sessionToken, clientHash string) (GetLyricsForSongPayload, error) {
-	return a.requests.GetPlayingSongLyrics(sessionToken, clientHash)
+func (a *Actions) GetPlayingSongLyrics(ctx ActionContext) (GetLyricsForSongPayload, error) {
+	return a.requests.GetPlayingSongLyrics(ctx.SessionToken, ctx.ClientHash)
 }

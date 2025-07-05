@@ -37,10 +37,5 @@ func (s *searchSuggestionsApi) HandleSearchSuggestions(w http.ResponseWriter, r 
 		return
 	}
 
-	err = search.SearchSuggestions(sug, q).Render(context.Background(), w)
-	if err != nil {
-		log.Warningln(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	_ = search.SearchSuggestions(sug, q).Render(context.Background(), w)
 }

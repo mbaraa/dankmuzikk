@@ -2,7 +2,6 @@ package apis
 
 import (
 	"dankmuzikk-web/actions"
-	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/navlink"
 	"dankmuzikk-web/views/components/playlist"
@@ -26,16 +25,15 @@ func NewPlaylistApi(usecases *actions.Actions) *playlistApi {
 }
 
 func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
 
 	var playlist actions.Playlist
-	err := json.NewDecoder(r.Body).Decode(&playlist)
+	err = json.NewDecoder(r.Body).Decode(&playlist)
 	if err != nil {
 		status.
 			GenericError("I'm not sure what you're trying to do here :)").
@@ -43,7 +41,10 @@ func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	newPlaylist, err := p.usecases.CreatePlaylist(sessionToken, playlist)
+	newPlaylist, err := p.usecases.CreatePlaylist(actions.CreatePlaylistParams{
+		ActionContext: ctx,
+		Playlist:      playlist,
+	})
 	if err != nil {
 		log.Errorln(err)
 		return
@@ -54,10 +55,9 @@ func (p *playlistApi) HandleCreatePlaylist(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -68,7 +68,10 @@ func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.
 		return
 	}
 
-	madePublic, err := p.usecases.TogglePublicPlaylist(sessionToken, playlistId)
+	madePublic, err := p.usecases.TogglePublicPlaylist(actions.TogglePublicPlaylistParams{
+		ActionContext:    ctx,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -83,10 +86,9 @@ func (p *playlistApi) HandleTogglePublicPlaylist(w http.ResponseWriter, r *http.
 }
 
 func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -97,7 +99,10 @@ func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	joined, err := p.usecases.ToggleJoinPlaylist(sessionToken, playlistId)
+	joined, err := p.usecases.ToggleJoinPlaylist(actions.ToggleJoinPlaylistParams{
+		ActionContext:    ctx,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -114,10 +119,9 @@ func (p *playlistApi) HandleToggleJoinPlaylist(w http.ResponseWriter, r *http.Re
 }
 
 func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -128,7 +132,10 @@ func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	playlist, err := p.usecases.GetSinglePlaylist(sessionToken, playlistId)
+	playlist, err := p.usecases.GetSinglePlaylist(actions.GetSinglePlaylistParams{
+		ActionContext:    ctx,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -138,10 +145,9 @@ func (p *playlistApi) HandleGetPlaylist(w http.ResponseWriter, r *http.Request) 
 }
 
 func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -152,7 +158,10 @@ func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err := p.usecases.DeletePlaylist(sessionToken, playlistId)
+	err = p.usecases.DeletePlaylist(actions.DeletePlaylistParams{
+		ActionContext:    ctx,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -163,10 +172,9 @@ func (p *playlistApi) HandleDeletePlaylist(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -177,7 +185,7 @@ func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *htt
 		return
 	}
 
-	playlists, songsInPlaylists, err := p.usecases.GetAllPlaylistsForAddPopover(sessionToken)
+	playlists, songsInPlaylists, err := p.usecases.GetAllPlaylistsForAddPopover(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
@@ -189,10 +197,9 @@ func (p *playlistApi) HandleGetPlaylistsForPopover(w http.ResponseWriter, r *htt
 }
 
 func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			GenericError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -203,7 +210,10 @@ func (p *playlistApi) HandleDonwnloadPlaylist(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	playlistDownloadUrl, err := p.usecases.DownloadPlaylist(sessionToken, playlistId)
+	playlistDownloadUrl, err := p.usecases.DownloadPlaylist(actions.DownloadPlaylistParams{
+		ActionContext:    ctx,
+		PlaylistPublicId: playlistId,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("🤷‍♂️"))

@@ -32,9 +32,16 @@ func New(usecases *actions.Actions) *pagesHandler {
 func (p *pagesHandler) HandleHomePage(w http.ResponseWriter, r *http.Request) {
 	var recentPlays []actions.Song
 	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
+	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
 	if ok {
 		var err error
-		recentPlays, err = p.usecases.GetHistory(sessionToken, 1)
+		recentPlays, err = p.usecases.GetHistory(actions.GetHistoryParams{
+			ActionContext: actions.ActionContext{
+				SessionToken: sessionToken,
+				ClientHash:   clientHash,
+			},
+			PageIndex: 1,
+		})
 		if err != nil {
 			log.Errorln(err)
 		}
@@ -106,7 +113,9 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	playlists, err := p.usecases.GetAllPlaylists(sessionToken)
+	playlists, err := p.usecases.GetAllPlaylists(actions.ActionContext{
+		SessionToken: sessionToken,
+	})
 	if err != nil {
 		log.Errorln(err)
 		playlists = make([]actions.Playlist, 0)
@@ -127,8 +136,8 @@ func (p *pagesHandler) HandlePlaylistsPage(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
+	ctx, err := parseContext(r.Context())
+	if err != nil {
 		status.
 			BugsBunnyError("I'm not sure what you're trying to do here :)").
 			Render(r.Context(), w)
@@ -143,7 +152,10 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	playlist, err := p.usecases.GetSinglePlaylist(sessionToken, playlistPubId)
+	playlist, err := p.usecases.GetSinglePlaylist(actions.GetSinglePlaylistParams{
+		ActionContext:    ctx,
+		PlaylistPublicId: playlistPubId,
+	})
 	htmxReq := contenttype.IsNoLayoutPage(r)
 	switch {
 	case errors.Is(err, dankerrors.ErrUnauthorizedToSeePlaylist):
@@ -179,12 +191,12 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 			return
 		}
 	}
-	ctx := context.WithValue(r.Context(), auth.PlaylistPermission, playlist.Permissions)
+	ctxx := context.WithValue(r.Context(), auth.PlaylistPermission, playlist.Permissions)
 
 	if contenttype.IsNoLayoutPage(r) {
 		w.Header().Set("HX-Title", playlist.Title)
 		w.Header().Set("HX-Push-Url", "/playlist/"+playlist.PublicId)
-		pages.Playlist(playlist).Render(ctx, w)
+		pages.Playlist(playlist).Render(ctxx, w)
 		return
 	}
 	layouts.Default(layouts.PageProps{
@@ -193,12 +205,16 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 		Url:         config.Env().Hostname + "/playlist/" + playlist.PublicId,
 		Type:        layouts.PlaylistPage,
 		ImageUrl:    config.Env().Hostname + "/static/favicon-32x32.png",
-	}, pages.Playlist(playlist)).Render(ctx, w)
+	}, pages.Playlist(playlist)).Render(ctxx, w)
 }
 
 func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Request) {
-	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
+			Render(r.Context(), w)
+		return
+	}
 
 	songId := r.PathValue("song_id")
 	if songId == "" {
@@ -208,7 +224,10 @@ func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	song, err := p.usecases.GetSongMetadata(sessionToken, clientHash, songId)
+	song, err := p.usecases.GetSongMetadata(actions.GetSongMetadataParams{
+		ActionContext: ctx,
+		SongPublicId:  songId,
+	})
 	if err != nil {
 		status.
 			BugsBunnyError("Song doesn't exist!").
@@ -297,8 +316,8 @@ func (p *pagesHandler) HandleSearchResultsPage(w http.ResponseWriter, r *http.Re
 }
 
 func (p *pagesHandler) HandleFavoritesPage(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
+	ctx, err := parseContext(r.Context())
+	if err != nil {
 		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
@@ -307,7 +326,10 @@ func (p *pagesHandler) HandleFavoritesPage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	favoriteSongs, err := p.usecases.GetFavorites(sessionToken, 1)
+	favoriteSongs, err := p.usecases.GetFavorites(actions.GetFavoritesParams{
+		ActionContext: ctx,
+		PageIndex:     1,
+	})
 	if err != nil {
 		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")

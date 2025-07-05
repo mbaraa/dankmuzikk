@@ -27,7 +27,10 @@ func (p *mw) Handler(h http.Handler) http.Handler {
 		sessionToken, err := r.Cookie("token")
 		if err == nil && sessionToken != nil {
 			clientHash, _ := r.Context().Value(clienthash.ClientHashKey).(string)
-			playerStatePayload, err := p.usecases.GetPlayerState(sessionToken.Value, clientHash)
+			playerStatePayload, err := p.usecases.GetPlayerState(actions.ActionContext{
+				SessionToken: sessionToken.Value,
+				ClientHash:   clientHash,
+			})
 			if err != nil {
 				log.Errorln(err)
 			}

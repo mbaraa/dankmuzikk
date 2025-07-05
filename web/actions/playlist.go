@@ -18,34 +18,64 @@ type Playlist struct {
 	Permissions PlaylistPermissions `json:"permissions"`
 }
 
-func (a *Actions) GetAllPlaylists(sessionToken string) ([]Playlist, error) {
-	return a.requests.GetPlaylists(sessionToken)
+func (a *Actions) GetAllPlaylists(ctx ActionContext) ([]Playlist, error) {
+	return a.requests.GetPlaylists(ctx.SessionToken)
 }
 
-func (a *Actions) GetSinglePlaylist(sessionToken, playlistPublicId string) (Playlist, error) {
-	return a.requests.GetPlaylist(sessionToken, playlistPublicId)
+type GetSinglePlaylistParams struct {
+	ActionContext
+	PlaylistPublicId string
 }
 
-func (a *Actions) CreatePlaylist(sessionToken string, playlist Playlist) (Playlist, error) {
-	return a.requests.CreatePlaylist(sessionToken, playlist)
+func (a *Actions) GetSinglePlaylist(params GetSinglePlaylistParams) (Playlist, error) {
+	return a.requests.GetPlaylist(params.SessionToken, params.PlaylistPublicId)
 }
 
-func (a *Actions) GetAllPlaylistsForAddPopover(sessionToken string) ([]Playlist, map[string]bool, error) {
-	return a.requests.GetAllPlaylistsForAddPopover(sessionToken)
+type CreatePlaylistParams struct {
+	ActionContext
+	Playlist Playlist
 }
 
-func (a *Actions) DeletePlaylist(sessionToken, playlistPublicId string) error {
-	return a.requests.DeletePlaylist(sessionToken, playlistPublicId)
+func (a *Actions) CreatePlaylist(params CreatePlaylistParams) (Playlist, error) {
+	return a.requests.CreatePlaylist(params.SessionToken, params.Playlist)
 }
 
-func (a *Actions) ToggleJoinPlaylist(sessionToken, playlistPublicId string) (joined bool, err error) {
-	return a.requests.ToggleJoinPlaylist(sessionToken, playlistPublicId)
+func (a *Actions) GetAllPlaylistsForAddPopover(ctx ActionContext) ([]Playlist, map[string]bool, error) {
+	return a.requests.GetAllPlaylistsForAddPopover(ctx.SessionToken)
 }
 
-func (a *Actions) TogglePublicPlaylist(sessionToken, playlistPublicId string) (public bool, err error) {
-	return a.requests.TogglePublicPlaylist(sessionToken, playlistPublicId)
+type DeletePlaylistParams struct {
+	ActionContext
+	PlaylistPublicId string
 }
 
-func (a *Actions) DownloadPlaylist(sessionToken, playlistPublicId string) (string, error) {
-	return a.requests.DownloadPlaylist(sessionToken, playlistPublicId)
+func (a *Actions) DeletePlaylist(params DeletePlaylistParams) error {
+	return a.requests.DeletePlaylist(params.SessionToken, params.PlaylistPublicId)
+}
+
+type ToggleJoinPlaylistParams struct {
+	ActionContext
+	PlaylistPublicId string
+}
+
+func (a *Actions) ToggleJoinPlaylist(params ToggleJoinPlaylistParams) (joined bool, err error) {
+	return a.requests.ToggleJoinPlaylist(params.SessionToken, params.PlaylistPublicId)
+}
+
+type TogglePublicPlaylistParams struct {
+	ActionContext
+	PlaylistPublicId string
+}
+
+func (a *Actions) TogglePublicPlaylist(params TogglePublicPlaylistParams) (public bool, err error) {
+	return a.requests.TogglePublicPlaylist(params.SessionToken, params.PlaylistPublicId)
+}
+
+type DownloadPlaylistParams struct {
+	ActionContext
+	PlaylistPublicId string
+}
+
+func (a *Actions) DownloadPlaylist(params DownloadPlaylistParams) (string, error) {
+	return a.requests.DownloadPlaylist(params.SessionToken, params.PlaylistPublicId)
 }

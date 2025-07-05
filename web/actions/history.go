@@ -1,10 +1,10 @@
 package actions
 
 type GetHistoryParams struct {
-	RequestContext `json:"-"`
-	PageIndex      uint `json:"page_index"`
+	ActionContext
+	PageIndex uint
 }
 
-func (a *Actions) GetHistory(sessionToken string, pageIndex uint) ([]Song, error) {
-	return a.requests.GetHistory(sessionToken, pageIndex)
+func (a *Actions) GetHistory(params GetHistoryParams) ([]Song, error) {
+	return a.requests.GetHistory(params.SessionToken, params.PageIndex)
 }

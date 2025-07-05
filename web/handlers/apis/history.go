@@ -1,9 +1,7 @@
 package apis
 
 import (
-	"bytes"
 	"dankmuzikk-web/actions"
-	"dankmuzikk-web/handlers/middlewares/auth"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/views/components/playlist"
 	"dankmuzikk-web/views/components/song"
@@ -26,10 +24,9 @@ func NewHistoryApi(usecases *actions.Actions) *historyApi {
 }
 
 func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
-		status.
-			BugsBunnyError("I'm not sure what you're trying to do here :)").
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
 			Render(r.Context(), w)
 		return
 	}
@@ -42,7 +39,10 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 		page *= -1
 	}
 
-	recentPlays, err := h.usecases.GetHistory(sessionToken, uint(page))
+	recentPlays, err := h.usecases.GetHistory(actions.GetHistoryParams{
+		ActionContext: ctx,
+		PageIndex:     uint(page),
+	})
 	if err != nil {
 		log.Errorln(err)
 	}
@@ -51,26 +51,23 @@ func (h *historyApi) HandleGetMoreHistoryItems(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	outBuf := bytes.NewBuffer([]byte{})
 	for idx, s := range recentPlays {
 		song.Song(s, []string{s.AddedAt},
 			[]templ.Component{
 				playlist.PlaylistsPopup((idx+1)*page, s.PublicId),
 			},
 			actions.Playlist{}, "single").
-			Render(r.Context(), outBuf)
+			Render(r.Context(), w)
 	}
 
-	outBuf.WriteString(fmt.Sprintf(`<div
-			class="h-[10px] mb-[20px]"
-			hx-get="/api/history/%d"
-			hx-swap="outerHTML"
-			hx-trigger="intersect"
-			data-hx-revealed="true"
-			data-loading-target="#history-loading"
-			data-loading-class-remove="hidden"
-			data-loading-path="/api/history/%d"
-		></div>`, page+1, page+1))
-
-	_, _ = w.Write(outBuf.Bytes())
+	_, _ = w.Write(fmt.Appendf([]byte{}, `<div
+	class="h-[10px] mb-[20px]"
+	hx-get="/api/history/%d"
+	hx-swap="outerHTML"
+	hx-trigger="intersect"
+	data-hx-revealed="true"
+	data-loading-target="#history-loading"
+	data-loading-class-remove="hidden"
+	data-loading-path="/api/history/%d"></div>`,
+		page+1, page+1))
 }
