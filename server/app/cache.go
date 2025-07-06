@@ -7,8 +7,7 @@ type Cache interface {
 	GetOtpForAccount(id uint) (string, error)
 }
 
-// PlayerCache represents the glorious server player for a user,
-// or a guest, hence having account ids in [uint64] as the guests will have ids beyond [uint]'s range.
+// PlayerCache represents the glorious server state of the player for a user.
 type PlayerCache interface {
 	CreateSongsQueue(accountId uint, initialSongIds ...uint) error
 	CreateSongsShuffledQueue(accountId uint, initialSongIds ...uint) error

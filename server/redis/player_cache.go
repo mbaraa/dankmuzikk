@@ -15,7 +15,7 @@ import (
 
 const (
 	playerSettingsTtlHours = 72
-	playerQueueTtlHours    = 2
+	playerQueueTtlHours    = 5
 )
 
 var _ app.PlayerCache = &playerCache{}
