@@ -4,6 +4,7 @@ import (
 	"dankmuzikk-web/actions"
 	"dankmuzikk-web/config"
 	"dankmuzikk-web/handlers/middlewares/auth"
+	"dankmuzikk-web/views/components/status"
 	"net/http"
 )
 
@@ -18,8 +19,13 @@ func NewLogoutApi(usecases *actions.Actions) *logoutApi {
 }
 
 func (l *logoutApi) HandleLogout(w http.ResponseWriter, r *http.Request) {
-	sessionToken, _ := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	_ = l.usecases.Logout(sessionToken)
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("What do you think you're doing?").
+			Render(r.Context(), w)
+		return
+	}
+	_ = l.usecases.Logout(ctx)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:   auth.SessionTokenKey,

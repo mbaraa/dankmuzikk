@@ -1,5 +1,10 @@
 package actions
 
+import (
+	"dankmuzikk-web/requests"
+	"net/http"
+)
+
 type LoginUsingEmailParams struct {
 	Email string `json:"email"`
 }
@@ -9,7 +14,11 @@ type LoginUsingEmailPayload struct {
 }
 
 func (a *Actions) LoginUsingEmail(params LoginUsingEmailParams) (LoginUsingEmailPayload, error) {
-	return a.requests.EmailLogin(params)
+	return requests.Do[LoginUsingEmailParams, LoginUsingEmailPayload](requests.Config[LoginUsingEmailParams]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/login/email",
+		Body:     params,
+	})
 }
 
 type SignupUsingEmailParams struct {
@@ -22,7 +31,11 @@ type SignupUsingEmailPayload struct {
 }
 
 func (a *Actions) SignupUsingEmail(params SignupUsingEmailParams) (SignupUsingEmailPayload, error) {
-	return a.requests.EmailSignup(params)
+	return requests.Do[SignupUsingEmailParams, SignupUsingEmailPayload](requests.Config[SignupUsingEmailParams]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/signup/email",
+		Body:     params,
+	})
 }
 
 type VerifyOtpUsingEmailParams struct {
@@ -35,7 +48,11 @@ type VerifyOtpUsingEmailPayload struct {
 }
 
 func (a *Actions) VerifyOtpUsingEmail(params VerifyOtpUsingEmailParams) (VerifyOtpUsingEmailPayload, error) {
-	return a.requests.VerifyOtp(params)
+	return requests.Do[VerifyOtpUsingEmailParams, VerifyOtpUsingEmailPayload](requests.Config[VerifyOtpUsingEmailParams]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/verify-otp",
+		Body:     params,
+	})
 }
 
 type LoginUsingGooglePayload struct {
@@ -43,7 +60,10 @@ type LoginUsingGooglePayload struct {
 }
 
 func (a *Actions) LoginUsingGoogle() (LoginUsingGooglePayload, error) {
-	return a.requests.GoogleLogin()
+	return requests.Do[any, LoginUsingGooglePayload](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/login/google",
+	})
 }
 
 type FinishLoginUsingGoogleParams struct {
@@ -56,5 +76,9 @@ type FinishLoginUsingGooglePayload struct {
 }
 
 func (a *Actions) FinishLoginUsingGoogle(params FinishLoginUsingGoogleParams) (FinishLoginUsingGooglePayload, error) {
-	return a.requests.GoogleFinishLogin(params)
+	return requests.Do[FinishLoginUsingGoogleParams, FinishLoginUsingGooglePayload](requests.Config[FinishLoginUsingGoogleParams]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/login/google/callback",
+		Body:     params,
+	})
 }

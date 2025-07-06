@@ -45,24 +45,24 @@ type errorResponse struct {
 	ExtraData map[string]any `json:"extra_data,omitempty"`
 }
 
-type makeRequestConfig[T any] struct {
-	method      string
-	endpoint    string
-	headers     map[string]string
-	queryParams map[string]string
-	body        T
+type Config[T any] struct {
+	Method      string
+	Endpoint    string
+	Headers     map[string]string
+	QueryParams map[string]string
+	Body        T
 }
 
-func makeRequest[RequestBody any, ResponseBody any](conf makeRequestConfig[RequestBody]) (ResponseBody, error) {
-	requestUrl := getRequestUrl(conf.endpoint)
+func Do[RequestBody any, ResponseBody any](conf Config[RequestBody]) (ResponseBody, error) {
+	requestUrl := getRequestUrl(conf.Endpoint)
 
 	var respBody ResponseBody
 	var bodyReader io.Reader = http.NoBody
 
-	reqBodyType := reflect.TypeOf(conf.body)
+	reqBodyType := reflect.TypeOf(conf.Body)
 	if reqBodyType != nil && reqBodyType.Kind() != reflect.Interface {
 		bodyReaderLoc := bytes.NewBuffer(nil)
-		err := json.NewEncoder(bodyReaderLoc).Encode(conf.body)
+		err := json.NewEncoder(bodyReaderLoc).Encode(conf.Body)
 		if err != nil {
 			return respBody, err
 		}
@@ -71,18 +71,18 @@ func makeRequest[RequestBody any, ResponseBody any](conf makeRequestConfig[Reque
 		bodyReader = http.NoBody
 	}
 
-	req, err := http.NewRequest(conf.method, requestUrl, bodyReader)
+	req, err := http.NewRequest(conf.Method, requestUrl, bodyReader)
 	if err != nil {
 		return respBody, err
 	}
 
 	q := req.URL.Query()
-	for key, value := range conf.queryParams {
+	for key, value := range conf.QueryParams {
 		q.Set(key, value)
 	}
 	req.URL.RawQuery = q.Encode()
 
-	for key, value := range conf.headers {
+	for key, value := range conf.Headers {
 		req.Header.Set(key, value)
 	}
 

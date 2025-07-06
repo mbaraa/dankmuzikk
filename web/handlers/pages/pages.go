@@ -209,12 +209,7 @@ func (p *pagesHandler) HandleSinglePlaylistPage(w http.ResponseWriter, r *http.R
 }
 
 func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Request) {
-	ctx, err := parseContext(r.Context())
-	if err != nil {
-		status.BugsBunnyError("What do you think you're doing?").
-			Render(r.Context(), w)
-		return
-	}
+	ctx, _ := parseContext(r.Context())
 
 	songId := r.PathValue("song_id")
 	if songId == "" {
@@ -256,8 +251,8 @@ func (p *pagesHandler) HandleSingleSongPage(w http.ResponseWriter, r *http.Reque
 }
 
 func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request) {
-	sessionToken, ok := r.Context().Value(auth.CtxSessionTokenKey).(string)
-	if !ok {
+	ctx, err := parseContext(r.Context())
+	if err != nil {
 		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")
 		} else {
@@ -266,7 +261,7 @@ func (p *pagesHandler) HandleProfilePage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	profile, err := p.usecases.GetProfile(sessionToken)
+	profile, err := p.usecases.GetProfile(ctx)
 	if err != nil {
 		if contenttype.IsNoLayoutPage(r) {
 			w.Header().Set("HX-Redirect", "/")

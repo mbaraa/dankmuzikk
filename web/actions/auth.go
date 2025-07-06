@@ -1,5 +1,10 @@
 package actions
 
+import (
+	"dankmuzikk-web/requests"
+	"net/http"
+)
+
 type Profile struct {
 	Email    string `json:"email"`
 	Name     string `json:"name"`
@@ -8,15 +13,35 @@ type Profile struct {
 }
 
 func (a *Actions) CheckAuth(sessionToken string) error {
-	return a.requests.Auth(sessionToken)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/me/auth",
+		Headers: map[string]string{
+			"Authorization": sessionToken,
+		},
+	})
+	return err
 }
 
-func (a *Actions) GetProfile(sessionToken string) (Profile, error) {
-	return a.requests.GetProfile(sessionToken)
+func (a *Actions) GetProfile(ctx ActionContext) (Profile, error) {
+	return requests.Do[any, Profile](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/me/profile",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+		},
+	})
 }
 
-func (a *Actions) Logout(sessionToken string) error {
-	return a.requests.Logout(sessionToken)
+func (a *Actions) Logout(ctx ActionContext) error {
+	_, err := requests.Do[any, Profile](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/me/logout",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+		},
+	})
+	return err
 }
 
 func (a *Actions) SetRedirectPath(clientHash, path string) error {

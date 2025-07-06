@@ -1,9 +1,12 @@
 package actions
 
 import (
+	"dankmuzikk-web/requests"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -94,7 +97,17 @@ type PlaySongParams struct {
 }
 
 func (a *Actions) PlaySong(params PlaySongParams) (Song, error) {
-	return a.requests.PlaySong(params.SessionToken, params.ClientHash, params.SongPublicId)
+	return requests.Do[any, Song](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/song/play",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id": params.SongPublicId,
+		},
+	})
 }
 
 type PlaySongFromPlaylistParams struct {
@@ -104,7 +117,18 @@ type PlaySongFromPlaylistParams struct {
 }
 
 func (a *Actions) PlaySongFromPlaylist(params PlaySongFromPlaylistParams) (Song, error) {
-	return a.requests.PlaySongFromPlaylist(params.SessionToken, params.ClientHash, params.SongPublicId, params.PlaylistPublicId)
+	return requests.Do[any, Song](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/song/play/playlist",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id":          params.SongPublicId,
+			"playlist-id": params.PlaylistPublicId,
+		},
+	})
 }
 
 type PlaySongFromFavoritesParams struct {
@@ -113,7 +137,17 @@ type PlaySongFromFavoritesParams struct {
 }
 
 func (a *Actions) PlaySongFromFavorites(params PlaySongFromFavoritesParams) (Song, error) {
-	return a.requests.PlaySongFromFavorites(params.SessionToken, params.ClientHash, params.SongPublicId)
+	return requests.Do[any, Song](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/song/play/favorites",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id": params.SongPublicId,
+		},
+	})
 }
 
 type PlaySongFromQueueParams struct {
@@ -122,7 +156,17 @@ type PlaySongFromQueueParams struct {
 }
 
 func (a *Actions) PlaySongFromQueue(params PlaySongFromQueueParams) (Song, error) {
-	return a.requests.PlaySongFromQueue(params.SessionToken, params.ClientHash, params.SongPublicId)
+	return requests.Do[any, Song](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/song/play/queue",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id": params.SongPublicId,
+		},
+	})
 }
 
 type GetSongMetadataParams struct {
@@ -131,7 +175,17 @@ type GetSongMetadataParams struct {
 }
 
 func (a *Actions) GetSongMetadata(params GetSongMetadataParams) (Song, error) {
-	return a.requests.GetSongMetadata(params.SessionToken, params.ClientHash, params.SongPublicId)
+	return requests.Do[any, Song](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/song",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id": params.SongPublicId,
+		},
+	})
 }
 
 type ToggleSongInPlaylistParams struct {
@@ -141,7 +195,22 @@ type ToggleSongInPlaylistParams struct {
 }
 
 func (a *Actions) ToggleSongInPlaylist(params ToggleSongInPlaylistParams) (added bool, err error) {
-	return a.requests.ToggleSongInPlaylist(params.SessionToken, params.SongPublicId, params.PlaylistPublicId)
+	resp, err := requests.Do[any, map[string]bool](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/playlist/song",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+		},
+		QueryParams: map[string]string{
+			"song-id":     params.SongPublicId,
+			"playlist-id": params.PlaylistPublicId,
+		},
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return resp["added"], nil
 }
 
 type UpvoteSongInPlaylistParams struct {
@@ -155,7 +224,17 @@ type UpvoteSongInPlaylistPayload struct {
 }
 
 func (a *Actions) UpvoteSongInPlaylist(params UpvoteSongInPlaylistParams) (UpvoteSongInPlaylistPayload, error) {
-	return a.requests.UpvoteSongInPlaylist(params.SessionToken, params.SongPublicId, params.PlaylistPublicId)
+	return requests.Do[any, UpvoteSongInPlaylistPayload](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/playlist/song/upvote",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+		},
+		QueryParams: map[string]string{
+			"song-id":     params.SongPublicId,
+			"playlist-id": params.PlaylistPublicId,
+		},
+	})
 }
 
 type DownvoteSongInPlaylistParams struct {
@@ -169,7 +248,17 @@ type DownvoteSongInPlaylistPayload struct {
 }
 
 func (a *Actions) DownvoteSongInPlaylist(params DownvoteSongInPlaylistParams) (DownvoteSongInPlaylistPayload, error) {
-	return a.requests.DownvoteSongInPlaylist(params.SessionToken, params.SongPublicId, params.PlaylistPublicId)
+	return requests.Do[any, DownvoteSongInPlaylistPayload](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/playlist/song/downvote",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+		},
+		QueryParams: map[string]string{
+			"song-id":     params.SongPublicId,
+			"playlist-id": params.PlaylistPublicId,
+		},
+	})
 }
 
 type GetLyricsForSongPayload struct {
@@ -204,7 +293,13 @@ func (l GetLyricsForSongPayload) SyncedPairs() []struct {
 }
 
 func (a *Actions) GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, error) {
-	return a.requests.GetSongLyrics(songPublicId)
+	return requests.Do[any, GetLyricsForSongPayload](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/song/lyrics",
+		QueryParams: map[string]string{
+			"id": songPublicId,
+		},
+	})
 }
 
 type GetFavoritesParams struct {
@@ -217,7 +312,16 @@ type GetFavoritesPayload struct {
 }
 
 func (a *Actions) GetFavorites(params GetFavoritesParams) (GetFavoritesPayload, error) {
-	return a.requests.GetFavorites(params.SessionToken, params.PageIndex)
+	return requests.Do[any, GetFavoritesPayload](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/library/favorite/songs",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+		},
+		QueryParams: map[string]string{
+			"page": strconv.Itoa(int(params.PageIndex)),
+		},
+	})
 }
 
 type AddSongToFavoritesParams struct {
@@ -226,7 +330,18 @@ type AddSongToFavoritesParams struct {
 }
 
 func (a *Actions) AddSongToFavorites(params AddSongToFavoritesParams) error {
-	return a.requests.AddSongToFavorites(params.SessionToken, params.SongPublicId)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/library/favorite/song",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+		},
+		QueryParams: map[string]string{
+			"id": params.SongPublicId,
+		},
+	})
+
+	return err
 }
 
 type RemoveSongFromFavoritesParams struct {
@@ -235,5 +350,16 @@ type RemoveSongFromFavoritesParams struct {
 }
 
 func (a *Actions) RemoveSongFromFavorites(params AddSongToFavoritesParams) error {
-	return a.requests.RemoveSongFromFavorites(params.SessionToken, params.SongPublicId)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodDelete,
+		Endpoint: "/v1/library/favorite/song",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+		},
+		QueryParams: map[string]string{
+			"id": params.SongPublicId,
+		},
+	})
+
+	return err
 }

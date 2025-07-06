@@ -1,5 +1,11 @@
 package actions
 
+import (
+	"dankmuzikk-web/requests"
+	"net/http"
+	"strconv"
+)
+
 type PlayerState struct {
 	Shuffled         bool   `json:"shuffled"`
 	CurrentSongIndex int    `json:"current_song_index"`
@@ -12,27 +18,85 @@ type GetPlayerStatePayload struct {
 }
 
 func (a *Actions) GetPlayerState(ctx ActionContext) (GetPlayerStatePayload, error) {
-	return a.requests.GetPlayerState(ctx.SessionToken, ctx.ClientHash)
+	return requests.Do[any, GetPlayerStatePayload](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/player",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
 }
 
 func (a *Actions) SetPlayerShuffleOn(ctx ActionContext) error {
-	return a.requests.SetPlayerShuffleOn(ctx.SessionToken, ctx.ClientHash)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/player/shuffle",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
+
+	return err
 }
 
 func (a *Actions) SetPlayerShuffleOff(ctx ActionContext) error {
-	return a.requests.SetPlayerShuffleOff(ctx.SessionToken, ctx.ClientHash)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodDelete,
+		Endpoint: "/v1/player/shuffle",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
+
+	return err
 }
 
 func (a *Actions) SetPlayerLoopOff(ctx ActionContext) error {
-	return a.requests.SetPlayerLoopOff(ctx.SessionToken, ctx.ClientHash)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/player/loop/off",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
+
+	return err
 }
 
 func (a *Actions) SetPlayerLoopOnce(ctx ActionContext) error {
-	return a.requests.SetPlayerLoopOnce(ctx.SessionToken, ctx.ClientHash)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/player/loop/once",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
+
+	return err
 }
 
 func (a *Actions) SetPlayerLoopAll(ctx ActionContext) error {
-	return a.requests.SetPlayerLoopAll(ctx.SessionToken, ctx.ClientHash)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPut,
+		Endpoint: "/v1/player/loop/all",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
+
+	return err
 }
 
 type AddSongToQueueNextParams struct {
@@ -41,7 +105,19 @@ type AddSongToQueueNextParams struct {
 }
 
 func (a *Actions) AddSongToQueueNext(params AddSongToQueueNextParams) error {
-	return a.requests.AddSongToQueueNext(params.SessionToken, params.ClientHash, params.SongPublicId)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/player/queue/song/next",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id": params.SongPublicId,
+		},
+	})
+
+	return err
 }
 
 type AddSongToQueueAtLastParams struct {
@@ -50,7 +126,19 @@ type AddSongToQueueAtLastParams struct {
 }
 
 func (a *Actions) AddSongToQueueAtLast(params AddSongToQueueNextParams) error {
-	return a.requests.AddSongToQueueAtLast(params.SessionToken, params.ClientHash, params.SongPublicId)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/player/queue/song/last",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id": params.SongPublicId,
+		},
+	})
+
+	return err
 }
 
 type RemoveSongFromQueueParams struct {
@@ -59,7 +147,19 @@ type RemoveSongFromQueueParams struct {
 }
 
 func (a *Actions) RemoveSongFromQueue(params RemoveSongFromQueueParams) error {
-	return a.requests.RemoveSongFromQueue(params.SessionToken, params.ClientHash, params.SongIndex)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodDelete,
+		Endpoint: "/v1/player/queue/song",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"index": strconv.Itoa(params.SongIndex),
+		},
+	})
+
+	return err
 }
 
 type AddPlaylistToQueueNextParams struct {
@@ -68,7 +168,19 @@ type AddPlaylistToQueueNextParams struct {
 }
 
 func (a *Actions) AddPlaylistToQueueNext(params AddPlaylistToQueueNextParams) error {
-	return a.requests.AddPlaylistToQueueNext(params.SessionToken, params.ClientHash, params.PlaylistPublicId)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/player/queue/playlist/next",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id": params.PlaylistPublicId,
+		},
+	})
+
+	return err
 }
 
 type AddPlaylistToQueueAtLastParams struct {
@@ -77,7 +189,19 @@ type AddPlaylistToQueueAtLastParams struct {
 }
 
 func (a *Actions) AddPlaylistToQueueAtLast(params AddPlaylistToQueueAtLastParams) error {
-	return a.requests.AddPlaylistToQueueAtLast(params.SessionToken, params.ClientHash, params.PlaylistPublicId)
+	_, err := requests.Do[any, any](requests.Config[any]{
+		Method:   http.MethodPost,
+		Endpoint: "/v1/player/queue/playlist/last",
+		Headers: map[string]string{
+			"Authorization": params.SessionToken,
+			"X-Client-Hash": params.ClientHash,
+		},
+		QueryParams: map[string]string{
+			"id": params.PlaylistPublicId,
+		},
+	})
+
+	return err
 }
 
 type GetNextSongInQueuePayload struct {
@@ -87,7 +211,15 @@ type GetNextSongInQueuePayload struct {
 }
 
 func (a *Actions) GetNextSongInQueue(ctx ActionContext) (GetNextSongInQueuePayload, error) {
-	return a.requests.GetNextSongInQueue(ctx.SessionToken, ctx.ClientHash)
+	return requests.Do[any, GetNextSongInQueuePayload](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/player/song/next",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
 }
 
 type GetPreviousSongInQueuePayload struct {
@@ -97,9 +229,25 @@ type GetPreviousSongInQueuePayload struct {
 }
 
 func (a *Actions) GetPreviousSongInQueue(ctx ActionContext) (GetPreviousSongInQueuePayload, error) {
-	return a.requests.GetPreviousSongInQueue(ctx.SessionToken, ctx.ClientHash)
+	return requests.Do[any, GetPreviousSongInQueuePayload](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/player/song/previous",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
 }
 
 func (a *Actions) GetPlayingSongLyrics(ctx ActionContext) (GetLyricsForSongPayload, error) {
-	return a.requests.GetPlayingSongLyrics(ctx.SessionToken, ctx.ClientHash)
+	return requests.Do[any, GetLyricsForSongPayload](requests.Config[any]{
+		Method:   http.MethodGet,
+		Endpoint: "/v1/player/song/lyrics",
+		Headers: map[string]string{
+			"Authorization": ctx.SessionToken,
+			"X-Client-Hash": ctx.ClientHash,
+		},
+		QueryParams: map[string]string{},
+	})
 }

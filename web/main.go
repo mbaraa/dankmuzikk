@@ -15,7 +15,6 @@ import (
 	"dankmuzikk-web/handlers/pages"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/redis"
-	"dankmuzikk-web/requests"
 	"embed"
 	"net/http"
 	"os"
@@ -55,8 +54,7 @@ func init() {
 	minifyer.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
 
 	cache := redis.New()
-	reqs := requests.New()
-	usecases = actions.New(reqs, cache)
+	usecases = actions.New(cache)
 	authMiddleware = auth.New(usecases)
 
 	appVersion = os.Getenv("DANK_VERSION")

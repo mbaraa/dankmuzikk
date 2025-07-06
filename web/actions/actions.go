@@ -1,13 +1,11 @@
 package actions
 
 type Actions struct {
-	requests Requests
-	cache    Cache
+	cache Cache
 }
 
-func New(requests Requests, cache Cache) *Actions {
+func New(cache Cache) *Actions {
 	return &Actions{
-		requests: requests,
-		cache:    cache,
+		cache: cache,
 	}
 }
