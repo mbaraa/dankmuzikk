@@ -42,7 +42,7 @@ on touchmove
 			muted
 		}
 		_="on loadeddata call PlayerUI.enableButtons() then call PlayerUI.setLoadingOff() then call PlayerUI.setSongDuration(event.target.duration) end
-on timeupdate call PlayerUI.setSongCurrentTime(event.target.currentTime) end
+on timeupdate queue last call Player.handleLyricsHighlight(event) then call PlayerUI.setSongCurrentTime(event.target.currentTime) end
 on ended call #next.click() end
 on progress log 'downloading' end"
 	>

@@ -2,17 +2,6 @@
 
 const audioPlayerEl = document.getElementById("muzikk-player");
 
-let setVolume, mute;
-let setPlaybackSpeed;
-
-async function init() {
-  handleUIEvents();
-  handleMediaSessionEvents();
-
-  [setVolume, mute] = volumer();
-  setPlaybackSpeed = playebackSpeeder();
-}
-
 /**
  * @typedef {object} Song
  * @property {string} title
@@ -263,6 +252,7 @@ function handleUIEvents() {
       e.preventDefault();
       const seekTime = Number(e.target.value);
       audioPlayerEl.currentTime = seekTime;
+      setManualSeekOn();
     };
     for (const event of ["change", "click"]) {
       PlayerUI.__elements.songSeekBarEl?.addEventListener(event, __handler);
@@ -309,6 +299,7 @@ function handleMediaSessionEvents() {
   });
 
   navigator.mediaSession.setActionHandler("seekbackward", () => {
+    setManualSeekOn();
     let seekTo = -10;
     if (audioPlayerEl.currentTime + seekTo < 0) {
       seekTo = 0;
@@ -317,6 +308,7 @@ function handleMediaSessionEvents() {
   });
 
   navigator.mediaSession.setActionHandler("seekforward", () => {
+    setManualSeekOn();
     let seekTo = +10;
     if (audioPlayerEl.currentTime + seekTo > audioPlayerEl.duration) {
       seekTo = 0;
@@ -325,6 +317,7 @@ function handleMediaSessionEvents() {
   });
 
   navigator.mediaSession.setActionHandler("seekto", (a) => {
+    setManualSeekOn();
     const seekTime = Number(a.seekTime);
     audioPlayerEl.currentTime = seekTime;
   });
@@ -392,46 +385,66 @@ function lyricsParter() {
 
   const __setParts = (parts) => {
     partsMs = parts;
+    resetLyricsHighlighter();
   };
 
   return [__getPart, __getParts, __setParts];
 }
 
-const [getLyricsPartMs, getLyricsPartsMs, setLyicsPartsMs] = lyricsParter();
+function lyricsHighlighter() {
+  let lastLyricsPartMs = "";
+  let manualSeek = false;
 
-let lastLyricsPartMs = "";
+  const __handle = (event) => {
+    const ms = getLyricsPartMs(Utils.formatTimeMs(event.target.currentTime));
+    if (!ms) {
+      return;
+    }
+    if (ms.localeCompare(lastLyricsPartMs) <= 0 && !manualSeek) return;
+    manualSeek = false;
 
-audioPlayerEl.addEventListener("timeupdate", (event) => {
-  const ms = getLyricsPartMs(Utils.formatTimeMs(event.target.currentTime));
-  if (!ms) {
-    return;
-  }
-  if (ms === lastLyricsPartMs) return;
-  lastLyricsPartMs = ms;
+    const lastPart = document.getElementById("lyrics-part-" + lastLyricsPartMs);
+    if (!!lastPart) {
+      lastPart.style.color = "var(--secondary-color-69)";
+      lastPart.style.fontSize = "medium";
+      lastPart.style.fontWeight = "lighter";
+    }
 
-  const parts = getLyricsPartsMs();
-  for (let i = 0; i < parts.length; i++) {
-    const partEl = document.getElementById("lyrics-part-" + parts[i]);
-    if (parts[i] === ms) {
-      if (!partEl) continue;
-      partEl.style.color = "var(--secondary-color)";
-      partEl.style.fontSize = "x-large";
-      partEl.style.fontWeight = "normal";
-      partEl.scrollIntoView({
+    const currentPart = document.getElementById("lyrics-part-" + ms);
+    if (!!currentPart) {
+      currentPart.style.color = "var(--secondary-color)";
+      currentPart.style.fontSize = "x-large";
+      currentPart.style.fontWeight = "normal";
+      currentPart.scrollIntoView({
         behavior: "smooth",
         block: "center",
         inline: "nearest",
       });
-    } else {
-      if (!partEl) continue;
-      partEl.style.color = "var(--secondary-color-69)";
-      partEl.style.fontSize = "medium";
-      partEl.style.fontWeight = "lighter";
     }
-  }
-});
 
-init();
+    lastLyricsPartMs = ms;
+  };
+
+  const __setManualSeekOn = () => {
+    manualSeek = true;
+  };
+
+  const __reset = () => {
+    manualSeek = false;
+    lastLyricsPartMs = "";
+  };
+
+  return [__handle, __setManualSeekOn, __reset];
+}
+
+handleUIEvents();
+handleMediaSessionEvents();
+
+const [setVolume, mute] = volumer();
+const setPlaybackSpeed = playebackSpeeder();
+const [getLyricsPartMs, getLyricsPartsMs, setLyicsPartsMs] = lyricsParter();
+const [handleLyricsHighlight, setManualSeekOn, resetLyricsHighlighter] =
+  lyricsHighlighter();
 
 window.Player = {
   playPauseMuzikk,
@@ -443,4 +456,5 @@ window.Player = {
   playSong,
   fetchAndPlaySong,
   setLyicsPartsMs,
+  handleLyricsHighlight,
 };
