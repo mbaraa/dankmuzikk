@@ -22,12 +22,7 @@ build-cdn: init
 	go build -ldflags="-w -s" -o ${CDN_BINARY_NAME} ./cmd/cdn/main.go
 
 init:
-	templ version > /dev/null
-	@if [ $$? != 0 ]; then \
-		echo "templ was not found, installing it..."; \
-		go install github.com/a-h/templ/cmd/templ@v0.3.906; \
-	fi
-
+	go install github.com/a-h/templ/cmd/templ@v0.3.906 && \
 	go mod tidy
 
 migrate: build-migrator
