@@ -13,13 +13,12 @@ import (
 	"dankmuzikk-web/handlers/middlewares/theme"
 	"dankmuzikk-web/handlers/middlewares/version"
 	"dankmuzikk-web/handlers/pages"
+	"dankmuzikk-web/handlers/static"
 	"dankmuzikk-web/log"
 	"dankmuzikk-web/redis"
-	"embed"
 	"net/http"
 	"os"
 	"regexp"
-	"strings"
 
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/minify/v2/css"
@@ -33,9 +32,6 @@ import (
 //go:generate templ generate
 
 var (
-	//go:embed static/*
-	static embed.FS
-
 	minifyer *minify.M
 
 	usecases       *actions.Actions
@@ -65,42 +61,9 @@ func init() {
 
 func main() {
 	pagesHandler := http.NewServeMux()
-	switch config.Env().GoEnv {
-	case "prod":
-		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Cache-Control", "public, max-age=7200, stale-while-revalidate=5")
-
-			minifyer.Middleware(http.FileServer(http.FS(static))).
-				ServeHTTP(w, r)
-		}))
-	case "beta":
-		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if config.Env().GoEnv != "dev" {
-				switch {
-				case strings.HasPrefix(r.URL.Path, "/static/js"):
-					w.Header().Set("Cache-Control", "public, max-age=300, stale-while-revalidate=5")
-				case strings.HasPrefix(r.URL.Path, "/static/css"):
-					w.Header().Set("Cache-Control", "public, max-age=600, stale-while-revalidate=5")
-				default:
-					w.Header().Set("Cache-Control", "public, max-age=3600, stale-while-revalidate=5")
-				}
-			}
-
-			http.FileServer(http.FS(static)).
-				ServeHTTP(w, r)
-		}))
-	default:
-		pagesHandler.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			http.FileServer(http.FS(static)).
-				ServeHTTP(w, r)
-		}))
-	}
-
-	pagesHandler.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		robotsFile, _ := static.ReadFile("static/robots.txt")
-		w.Header().Set("Content-Type", "text/plain")
-		_, _ = w.Write(robotsFile)
-	})
+	pagesHandler.HandleFunc("/robots.txt", static.HandleRobots)
+	pagesHandler.HandleFunc("/sitemap.xml", static.HandleSitemap)
+	pagesHandler.HandleFunc("/favicon.ico", static.HandleFavicon)
 
 	pages := pages.New(usecases)
 	pagesHandler.HandleFunc("/", contenttype.Html(authMiddleware.OptionalAuthPage(pages.HandleHomePage)))
@@ -133,12 +96,15 @@ func main() {
 	apisHandler.HandleFunc("GET /signup/google", googleLoginApi.HandleGoogleOAuthLogin)
 	apisHandler.HandleFunc("/login/google/callback", googleLoginApi.HandleGoogleOAuthLoginCallback)
 	apisHandler.HandleFunc("GET /logout", authMiddleware.AuthApi(logoutApi.HandleLogout))
+
 	apisHandler.HandleFunc("GET /search-suggestion", searchSuggestionsApi.HandleSearchSuggestions)
+
 	apisHandler.HandleFunc("PUT /song/play", authMiddleware.OptionalAuthApi(songApi.HandlePlaySong))
 	apisHandler.HandleFunc("PUT /song/play/playlist", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromPlaylist))
 	apisHandler.HandleFunc("PUT /song/play/favorites", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromFavorites))
 	apisHandler.HandleFunc("PUT /song/play/queue", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromQueue))
 	apisHandler.HandleFunc("GET /song", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
+
 	apisHandler.HandleFunc("GET /playlist/all", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
 	apisHandler.HandleFunc("GET /playlist", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylist))
 	apisHandler.HandleFunc("POST /playlist", authMiddleware.AuthApi(playlistsApi.HandleCreatePlaylist))
@@ -149,7 +115,9 @@ func main() {
 	apisHandler.HandleFunc("PUT /playlist/join", authMiddleware.AuthApi(playlistsApi.HandleToggleJoinPlaylist))
 	apisHandler.HandleFunc("DELETE /playlist", authMiddleware.AuthApi(playlistsApi.HandleDeletePlaylist))
 	apisHandler.HandleFunc("GET /playlist/zip", authMiddleware.AuthApi(playlistsApi.HandleDonwnloadPlaylist))
+
 	apisHandler.HandleFunc("GET /history/{page}", authMiddleware.AuthApi(historyApi.HandleGetMoreHistoryItems))
+
 	apisHandler.HandleFunc("GET /library/favorite/songs/{page}", authMiddleware.AuthApi(libraryApi.HandleGetMoreFavoritesItems))
 	apisHandler.HandleFunc("POST /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleAddSongToFavorites))
 	apisHandler.HandleFunc("DELETE /library/favorite/song", authMiddleware.AuthApi(libraryApi.HandleRemoveSongFromFavorites))
@@ -175,6 +143,7 @@ func main() {
 	applicationHandler := http.NewServeMux()
 	applicationHandler.Handle("/", playerStateMw.Handler(ismobile.Handler(theme.Handler(pagesHandler))))
 	applicationHandler.Handle("/api/", ismobile.Handler(theme.Handler(http.StripPrefix("/api", apisHandler))))
+	applicationHandler.Handle("/static/", http.StripPrefix("/static", static.AssetsHandler(minifyer)))
 
 	log.Info("Starting http server at port " + config.Env().Port)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
