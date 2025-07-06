@@ -10,7 +10,7 @@ import (
 
 var versionEnv = ServiceEnvironmentValues{
 	Key:   "DANK_VERSION",
-	Value: "${LATEST_TAG:-${COMMIT_SHA}}",
+	Value: "${DANK_VERSION:-${LATEST_TAG:-${COMMIT_SHA}}}",
 }
 
 const (
