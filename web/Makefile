@@ -11,7 +11,12 @@ generate: tailwindcss-build
 	go generate
 
 init: htmx-init tailwindcss-init
-	go install github.com/a-h/templ/cmd/templ@v0.3.857 && \
+	templ version > /dev/null
+	@if [ $$? != 0 ]; then \
+		echo "templ was not found, installing it..."; \
+		go install github.com/a-h/templ/cmd/templ@v0.3.906; \
+	fi
+
 	go mod tidy && \
 	go generate
 
