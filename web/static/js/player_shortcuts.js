@@ -41,8 +41,14 @@ const shortcuts = {
   8: () => (audioPlayerEl.currentTime = audioPlayerEl.duration * 0.8),
   9: () => (audioPlayerEl.currentTime = audioPlayerEl.duration * 0.9),
   $: () => (audioPlayerEl.currentTime = audioPlayerEl.duration),
-  ArrowLeft: () => (audioPlayerEl.currentTime -= 10),
-  ArrowRight: () => (audioPlayerEl.currentTime += 10),
+  ArrowLeft: () => {
+    setManualSeekOn();
+    audioPlayerEl.currentTime -= 10;
+  },
+  ArrowRight: () => {
+    setManualSeekOn();
+    audioPlayerEl.currentTime += 10;
+  },
   ArrowUp: () => setVolume(audioPlayerEl.volume + 0.1),
   ArrowDown: () => setVolume(audioPlayerEl.volume - 0.1),
   i: PlayerUI.expandMobilePlayer,
