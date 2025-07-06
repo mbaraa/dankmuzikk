@@ -8,7 +8,6 @@ import (
 	"dankmuzikk/log"
 	"errors"
 	"fmt"
-	"regexp"
 	"time"
 )
 
@@ -311,50 +310,4 @@ func (a *Actions) SaveSongsMetadataFromYouTube(songs []Song) error {
 	}
 
 	return nil
-}
-
-type GetLyricsForSongParams struct {
-	SongPublicId string
-}
-
-type GetLyricsForSongPayload struct {
-	SongTitle string            `json:"song_title"`
-	Lyrics    []string          `json:"lyrics"`
-	Synced    map[string]string `json:"synced"`
-}
-
-var songTitleWeirdStuff = regexp.MustCompile(`(\(.*\)|\[.*\]|\{.*\}|\<.*\>)`)
-
-func (a *Actions) GetLyricsForSong(params GetLyricsForSongParams) (GetLyricsForSongPayload, error) {
-	song, err := a.app.GetSongByPublicId(params.SongPublicId)
-	if err != nil {
-		return GetLyricsForSongPayload{}, err
-	}
-
-	lyrics, _, err := a.lyrics.GetForSong(songTitleWeirdStuff.ReplaceAllString(song.Title, ""))
-	if err != nil {
-		return GetLyricsForSongPayload{}, err
-	}
-
-	return GetLyricsForSongPayload{
-		SongTitle: song.Title,
-		Lyrics:    lyrics,
-	}, nil
-}
-
-func (a *Actions) GetLyricsForSongAndArtist(params GetLyricsForSongParams) (GetLyricsForSongPayload, error) {
-	song, err := a.app.GetSongByPublicId(params.SongPublicId)
-	if err != nil {
-		return GetLyricsForSongPayload{}, err
-	}
-
-	lyrics, _, err := a.lyrics.GetForSongAndArtist(songTitleWeirdStuff.ReplaceAllString(song.Title, ""), song.Artist)
-	if err != nil {
-		return GetLyricsForSongPayload{}, err
-	}
-
-	return GetLyricsForSongPayload{
-		SongTitle: song.Title,
-		Lyrics:    lyrics,
-	}, nil
 }

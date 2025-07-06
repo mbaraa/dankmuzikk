@@ -3,7 +3,6 @@ package apis
 import (
 	"dankmuzikk-web/actions"
 	"dankmuzikk-web/log"
-	"dankmuzikk-web/views/components/lyrics"
 	"dankmuzikk-web/views/components/song"
 	"dankmuzikk-web/views/components/status"
 	"dankmuzikk-web/views/components/ui"
@@ -222,25 +221,6 @@ func (s *songsApi) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = json.NewEncoder(w).Encode(song)
-}
-
-func (s *songsApi) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	if id == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("missing song's yt id"))
-		return
-	}
-
-	lyricsResp, err := s.usecases.GetSongLyrics(id)
-	if err != nil {
-		status.BugsBunnyError("Lyrics was not found!").
-			Render(r.Context(), w)
-		return
-	}
-
-	_ = lyrics.Lyrics(lyricsResp.SongTitle, lyricsResp.Lyrics, lyricsResp.SyncedPairs()).
-		Render(r.Context(), w)
 }
 
 func (p *songsApi) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http.Request) {

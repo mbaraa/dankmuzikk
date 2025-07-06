@@ -292,16 +292,6 @@ func (l GetLyricsForSongPayload) SyncedPairs() []struct {
 	return pairs
 }
 
-func (a *Actions) GetSongLyrics(songPublicId string) (GetLyricsForSongPayload, error) {
-	return requests.Do[any, GetLyricsForSongPayload](requests.Config[any]{
-		Method:   http.MethodGet,
-		Endpoint: "/v1/song/lyrics",
-		QueryParams: map[string]string{
-			"id": songPublicId,
-		},
-	})
-}
-
 type GetFavoritesParams struct {
 	ActionContext
 	PageIndex uint

@@ -139,7 +139,6 @@ func main() {
 	apisHandler.HandleFunc("PUT /song/play/favorites", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromFavorites))
 	apisHandler.HandleFunc("PUT /song/play/queue", authMiddleware.OptionalAuthApi(songApi.HandlePlaySongFromQueue))
 	apisHandler.HandleFunc("GET /song", authMiddleware.OptionalAuthApi(songApi.HandleGetSong))
-	apisHandler.HandleFunc("GET /song/lyrics", songApi.HandleGetSongLyrics)
 	apisHandler.HandleFunc("GET /playlist/all", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylistsForPopover))
 	apisHandler.HandleFunc("GET /playlist", authMiddleware.AuthApi(playlistsApi.HandleGetPlaylist))
 	apisHandler.HandleFunc("POST /playlist", authMiddleware.AuthApi(playlistsApi.HandleCreatePlaylist))

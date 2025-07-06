@@ -3,6 +3,7 @@ package actions
 import (
 	"dankmuzikk/app/models"
 	"dankmuzikk/evy/events"
+	"regexp"
 )
 
 type PlayerState struct {
@@ -256,19 +257,27 @@ type GetLyricsForPlayingSongParams struct {
 	ActionContext `json:"-"`
 }
 
-func (a *Actions) GetLyricsForPlayingSong(params GetLyricsForPlayingSongParams) (GetLyricsForSongPayload, error) {
+type GetLyricsForPlayingSongPayload struct {
+	SongTitle string            `json:"song_title"`
+	Lyrics    []string          `json:"lyrics"`
+	Synced    map[string]string `json:"synced"`
+}
+
+var songTitleWeirdStuff = regexp.MustCompile(`(\(.*\)|\[.*\]|\{.*\}|\<.*\>)`)
+
+func (a *Actions) GetLyricsForPlayingSong(params GetLyricsForPlayingSongParams) (GetLyricsForPlayingSongPayload, error) {
 	currentSong, err := a.app.GetCurrentPlayingSong(params.Account.Id, params.ClientHash)
 	if err != nil {
-		return GetLyricsForSongPayload{}, err
+		return GetLyricsForPlayingSongPayload{}, err
 	}
 
 	lyrics, synced, err := a.lyrics.GetForSong(
 		songTitleWeirdStuff.ReplaceAllString(currentSong.Title, ""))
 	if err != nil {
-		return GetLyricsForSongPayload{}, err
+		return GetLyricsForPlayingSongPayload{}, err
 	}
 
-	return GetLyricsForSongPayload{
+	return GetLyricsForPlayingSongPayload{
 		SongTitle: currentSong.Title,
 		Lyrics:    lyrics,
 		Synced:    synced,

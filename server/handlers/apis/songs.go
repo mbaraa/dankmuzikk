@@ -3,7 +3,6 @@ package apis
 import (
 	"dankmuzikk/actions"
 	"dankmuzikk/evy/events"
-	"dankmuzikk/log"
 	"encoding/json"
 	"net/http"
 )
@@ -42,7 +41,6 @@ func (s *songsHandler) HandleUpvoteSongPlaysInPlaylist(w http.ResponseWriter, r 
 		PlaylistPublicId: playlistId,
 	})
 	if err != nil {
-		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -74,7 +72,6 @@ func (s *songsHandler) HandleDownvoteSongPlaysInPlaylist(w http.ResponseWriter, 
 		PlaylistPublicId: playlistId,
 	})
 	if err != nil {
-		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -98,7 +95,6 @@ func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 		EntryPoint:    events.SingleSongEntryPoint,
 	})
 	if err != nil {
-		log.Error("Playing a song failed", err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -107,8 +103,11 @@ func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *songsHandler) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http.Request) {
-	// un-authed action
-	ctx, _ := parseContext(r.Context())
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		handleErrorResponse(w, err)
+		return
+	}
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -128,7 +127,6 @@ func (s *songsHandler) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http
 		EntryPoint:    events.FromPlaylistEntryPoint,
 	})
 	if err != nil {
-		log.Error("Playing a song failed", err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -137,8 +135,11 @@ func (s *songsHandler) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http
 }
 
 func (s *songsHandler) HandlePlaySongFromFavorites(w http.ResponseWriter, r *http.Request) {
-	// un-authed action
-	ctx, _ := parseContext(r.Context())
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		handleErrorResponse(w, err)
+		return
+	}
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -152,7 +153,6 @@ func (s *songsHandler) HandlePlaySongFromFavorites(w http.ResponseWriter, r *htt
 		EntryPoint:    events.FavoriteSongEntryPoint,
 	})
 	if err != nil {
-		log.Error("Playing a song failed", err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -161,8 +161,11 @@ func (s *songsHandler) HandlePlaySongFromFavorites(w http.ResponseWriter, r *htt
 }
 
 func (s *songsHandler) HandlePlaySongFromQueue(w http.ResponseWriter, r *http.Request) {
-	// un-authed action
-	ctx, _ := parseContext(r.Context())
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		handleErrorResponse(w, err)
+		return
+	}
 
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -176,7 +179,6 @@ func (s *songsHandler) HandlePlaySongFromQueue(w http.ResponseWriter, r *http.Re
 		EntryPoint:    events.QueueSongEntryPoint,
 	})
 	if err != nil {
-		log.Error("Playing a song failed", err)
 		handleErrorResponse(w, err)
 		return
 	}
@@ -198,43 +200,8 @@ func (s *songsHandler) HandleGetSong(w http.ResponseWriter, r *http.Request) {
 		ActionContext: ctx,
 	})
 	if err != nil {
-		log.Error(err)
 		handleErrorResponse(w, err)
 		return
-	}
-
-	_ = json.NewEncoder(w).Encode(payload)
-}
-
-func (s *songsHandler) HandleGetSongLyrics(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	if id == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	fetchArtist := r.URL.Query().Get("with-artist")
-
-	params := actions.GetLyricsForSongParams{
-		SongPublicId: id,
-	}
-	var payload actions.GetLyricsForSongPayload
-	var err error
-
-	if fetchArtist == "true" {
-		payload, err = s.usecases.GetLyricsForSongAndArtist(params)
-		if err != nil {
-			log.Error(err)
-			handleErrorResponse(w, err)
-			return
-		}
-	} else {
-		payload, err = s.usecases.GetLyricsForSong(params)
-		if err != nil {
-			log.Error(err)
-			handleErrorResponse(w, err)
-			return
-		}
 	}
 
 	_ = json.NewEncoder(w).Encode(payload)
@@ -264,7 +231,6 @@ func (p *songsHandler) HandleToggleSongInPlaylist(w http.ResponseWriter, r *http
 		PlaylistPublicId: playlistId,
 	})
 	if err != nil {
-		log.Error(err)
 		handleErrorResponse(w, err)
 		return
 	}

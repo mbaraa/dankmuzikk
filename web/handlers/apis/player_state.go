@@ -193,7 +193,7 @@ func (p *playerStateApi) HandleGetPreviousSongInQueue(w http.ResponseWriter, r *
 func (p *playerStateApi) HandleGetPlayingSongLyrics(w http.ResponseWriter, r *http.Request) {
 	ctx, err := parseContext(r.Context())
 	if err != nil {
-		status.BugsBunnyError("What do you think you're doing?").
+		status.BugsBunnyError("You need to login to view cureent song's lyrics!").
 			Render(r.Context(), w)
 		return
 	}
