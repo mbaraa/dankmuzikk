@@ -179,7 +179,19 @@ func main() {
 
 	log.Info("Starting http server at port " + config.Env().Port)
 	if config.Env().GoEnv == "dev" || config.Env().GoEnv == "beta" {
-		log.Fatalln(http.ListenAndServe(":"+config.Env().Port, version.Handler(appVersion, clienthash.Handler(logger.Handler(ismobile.Handler(theme.Handler(applicationHandler)))))))
+		log.Fatalln(
+			http.ListenAndServe(":"+config.Env().Port,
+				version.Handler(appVersion,
+					clienthash.Handler(
+						logger.Handler(
+							ismobile.Handler(
+								theme.Handler(applicationHandler)))))))
 	}
-	log.Fatalln(http.ListenAndServe(":"+config.Env().Port, version.Handler(appVersion, clienthash.Handler(ismobile.Handler(theme.Handler(minifyer.Middleware(applicationHandler)))))))
+	log.Fatalln(
+		http.ListenAndServe(":"+config.Env().Port,
+			version.Handler(appVersion,
+				clienthash.Handler(
+					ismobile.Handler(
+						theme.Handler(
+							minifyer.Middleware(applicationHandler)))))))
 }
