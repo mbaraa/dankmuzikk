@@ -81,9 +81,9 @@ templ expandedMobilePlayerLyrics() {
 		id="expanded-mobile-player-lyrics"
 		class={
 			"w-full", "overflow-y-scroll", "max-h-[475px]",
-			"hidden", "flex-col", "gap-y-1", "lg:mb-5", "p-5",
+			"hidden", "flex-col", "gap-y-1", "p-2",
 		}
-		_="on touchmove event.stopImmediatePropagation()"
+		_="on touchmove event.stopImmediatePropagation() end"
 	>
 		<div
 			id="current-song-lyrics"
@@ -101,8 +101,8 @@ templ expandedMobilePlayerQueue() {
 	<div
 		id="expanded-mobile-player-queue"
 		class={
-			"w-full", "overflow-y-scroll", "max-h-[475px]",
-			"hidden", "flex-col", "gap-y-1", "lg:mb-5",
+			"w-full", "overflow-y-scroll", "h-[475px]",
+			"hidden", "flex-col", "gap-y-1",
 		}
 		_="on touchmove event.stopImmediatePropagation()"
 	>

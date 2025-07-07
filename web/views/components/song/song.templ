@@ -21,7 +21,7 @@ templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Co
 		}
 		class={
 			"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "flex", "justify-between",
-			"rounded-xl", "gap-x-2", "md:gap-x-5", "xl:gap-x-10", "p-2",
+			"rounded-xl", templ.KV("gap-x-2 md:gap-x-5 xl:gap-x-10", source != "queue"), "p-2",
 		}
 	>
 		<div class={ "w-full", "flex", "gap-x-4", "md:gap-x-6" }>
@@ -50,7 +50,7 @@ templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Co
 				</div>
 			</div>
 			<!-- title, channel title, and description -->
-			<div class={ "w-[165px]", "md:w-[330px]", "lg:min-w-[450px]", "xl:min-w-[650px]" }>
+			<div class={ templ.KV("w-[165px] md:w-[250px]", source == "queue"), templ.KV("w-[165px] md:w-[330px] lg:min-w-[450px] xl:min-w-[650px]", source != "queue") }>
 				<div
 					class={ "w-full", "h-full", "flex", "gap-y-3", "items-start", "flex-col",  "font-Ubuntu", "text-secondary", "cursor-pointer" }
 					onClick={ playSong(s.PublicId, playlist.PublicId, source) }

@@ -36,12 +36,17 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
   desktopLyricsTab = document.getElementById("desktop-lyrics-tab");
 
 function triggerFetchLyrics() {
-  if (!!mobileLyricsTab) {
-    mobileLyricsTab.click();
+  if (!mobileLyricsTab && !desktopLyricsTab) {
+    return;
   }
-  if (!!desktopLyricsTab) {
-    desktopLyricsTab.click();
-  }
+  htmx
+    .ajax("GET", "/api/player/song/lyrics", {
+      target: "#current-song-lyrics",
+      swap: "innerHTML",
+    })
+    .catch(() => {
+      alert("Lyrics fetching went berzerk...");
+    });
 }
 
 /**
