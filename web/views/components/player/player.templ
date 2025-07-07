@@ -1,6 +1,11 @@
 package player
 
+import "dankmuzikk-web/views/components/ui"
+
 templ PlayerSticky() {
+	@ui.DesktopOnly() {
+		@expandedDesktopPlayer()
+	}
 	<div
 		class={
 			"w-full", "md:w-screen", "h-auto", "md:h-[90px]",
@@ -20,8 +25,8 @@ on touchmove
     end"
 			class={
 				"h-full", "collapsed",
-				"text-secondary", "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-xs", "shadow-secondary",
-				"rounded-t-[15px]", "rounded-b-[15px]", "md:rounded-b-[0px]", "md:rounded-t-3xl",
+				"text-secondary", "bg-secondary-trans-20", "backdrop-blur-lg", "shadow-sm", "shadow-secondary", "md:shadow-none",
+				"rounded-t-[15px]", "rounded-b-[15px]", "md:rounded-b-[0px]",
 				"mx-[5px]", "md:mx-0", "p-[10px]", "md:p-[20px]",
 			}
 		>
@@ -29,7 +34,9 @@ on touchmove
 				@collapsedPlayer()
 			</div>
 			<div class={ "contents", "hidden" } id="ze-expanded-mobile-player">
-				@expandedMobilePlayer()
+				@ui.MobileOnly() {
+					@expandedMobilePlayer()
+				}
 			</div>
 		</div>
 	</div>
@@ -56,6 +63,16 @@ on progress log 'downloading' end"
 	</audio>
 	///
 	<style>
+        .collapsed-desktop {
+            height: 0px;
+            max-height: 0px;
+            opacity: 0;
+        }
+        .exapnded-desktop {
+            height: 590px;
+            max-height: 590px;
+            opacity: 1;
+        }
         .collapsed {
             height: 90px;
             max-height: 90px;

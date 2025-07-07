@@ -14,7 +14,9 @@ const playPauseToggleEl = document.getElementById("play"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
   playerEl = document.getElementById("ze-player"),
-  collapsedMobilePlayer = document.getElementById("ze-collapsed-mobile-player");
+  collapsedMobilePlayer = document.getElementById("ze-collapsed-mobile-player"),
+  desktopExpandablePlayer = document.getElementById("expanded-desktop-player"),
+  expandDesktopButton = document.getElementById("expand-desktop");
 
 // expanded player's elements
 const playPauseToggleExapndedEl = document.getElementById("play-expand"),
@@ -29,7 +31,18 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
     "song-current-time-expanded",
   ),
   songImageExpandedEl = document.getElementById("song-image-expanded"),
-  expandedMobilePlayer = document.getElementById("ze-expanded-mobile-player");
+  expandedMobilePlayer = document.getElementById("ze-expanded-mobile-player"),
+  mobileLyricsTab = document.getElementById("mobile-lyrics-tab"),
+  desktopLyricsTab = document.getElementById("desktop-lyrics-tab");
+
+function triggerFetchLyrics() {
+  if (!!mobileLyricsTab) {
+    mobileLyricsTab.click();
+  }
+  if (!!desktopLyricsTab) {
+    desktopLyricsTab.click();
+  }
+}
 
 /**
  * @param {boolean} loading
@@ -67,6 +80,23 @@ function collapseMobilePlayer() {
     playerEl.classList.remove("exapnded");
     collapsedMobilePlayer.classList.remove("hidden");
     expandedMobilePlayer.classList.add("hidden");
+  }
+}
+
+function toggleExpandDesktop() {
+  if (!desktopExpandablePlayer) {
+    return;
+  }
+  if (desktopExpandablePlayer.classList.contains("collapsed-desktop")) {
+    desktopExpandablePlayer.classList.remove("collapsed-desktop");
+    desktopExpandablePlayer.classList.add("exapnded-desktop");
+    playerEl.style.borderTopRightRadius = "0";
+    expandDesktopButton.style.backgroundColor = "var(--accent-color-30)";
+  } else {
+    desktopExpandablePlayer.classList.add("collapsed-desktop");
+    desktopExpandablePlayer.classList.remove("exapnded-desktop");
+    playerEl.style.borderTopRightRadius = "15px";
+    expandDesktopButton.style.backgroundColor = "";
   }
 }
 
@@ -217,9 +247,11 @@ window.PlayerUI = {
   setSongCurrentTime,
   expandMobilePlayer,
   collapseMobilePlayer,
+  toggleExpandDesktop,
   setPlayIcon,
   setPauseIcon,
   setLoadingOn,
   setLoadingOff,
   setVolumeLevel,
+  triggerFetchLyrics,
 };

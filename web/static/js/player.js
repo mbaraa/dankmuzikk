@@ -84,8 +84,10 @@ function playSong(song) {
   PlayerUI.setSongName(song.title);
   PlayerUI.setArtistName(song.artist);
   PlayerUI.setSongThumbnail(song.thumbnail_url);
-  setMediaSessionMetadata(song);
+  PlayerUI.setLoadingOff();
   audioPlayerEl.play();
+  setMediaSessionMetadata(song);
+  PlayerUI.triggerFetchLyrics();
 }
 
 /**
@@ -120,15 +122,13 @@ async function fetchAndPlaySong(songPublicId, playlistPublicId, from) {
       .catch((e) => {
         console.error(e);
         return null;
-      })
-      .finally(() => {
-        PlayerUI.setLoadingOff();
       });
     if (!!resp.media_url) {
       break;
     }
     await Utils.sleep(1000);
   }
+  PlayerUI.setLoadingOff();
   if (!resp) {
     alert("Something went wrong when loading the song...");
   }

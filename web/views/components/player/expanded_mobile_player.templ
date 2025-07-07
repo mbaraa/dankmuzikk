@@ -130,7 +130,7 @@ templ expandedMobilePlayer() {
 			<input
 				type="radio"
 				name="tab"
-				id="tab1"
+				id="mobile-controls-tab"
 				checked
 				_="on click
     remove .hidden from #expanded-mobile-player-controls
@@ -139,11 +139,11 @@ templ expandedMobilePlayer() {
     hide #expanded-mobile-player-queue with *display
 end"
 			/>
-			<label for="tab1">Controls</label>
+			<label for="mobile-controls-tab">Controls</label>
 			<input
 				type="radio"
 				name="tab"
-				id="tab2"
+				id="mobile-lyrics-tab"
 				hx-get="/api/player/song/lyrics"
 				hx-trigger="click"
 				hx-target="#current-song-lyrics"
@@ -155,9 +155,9 @@ end"
     hide #expanded-mobile-player-queue with *display
 end"
 			/>
-			<label for="tab2">Lyrics</label>
+			<label for="mobile-lyrics-tab">Lyrics</label>
 			<input
-				id="tab3"
+				id="mobile-queue-tab"
 				type="radio"
 				name="tab"
 				hx-get="/api/player/queue"
@@ -171,7 +171,7 @@ end"
     hide #expanded-mobile-player-lyrics with *display
 end"
 			/>
-			<label for="tab3">Queue</label>
+			<label for="mobile-queue-tab">Queue</label>
 		</div>
 	</div>
 }
