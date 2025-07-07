@@ -337,6 +337,22 @@ templ playbackSpeedMenu() {
 	</div>
 }
 
+templ playerSongMenu() {
+	<div
+		class={ "h-auto", "mb-[20px]", "ding" }
+		hx-get="/api/player/song"
+		hx-swap="innerHTML"
+		hx-trigger="intersect threshold:1"
+		data-hx-revealed="true"
+		data-loading-target="#current-song-loading"
+		data-loading-class-remove="hidden"
+		data-loading-path="/api/player/song"
+	></div>
+	<div id="current-song-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
+		<div class={ "loader", "!h-20", "!w-20" }></div>
+	</div>
+}
+
 css playerSongThumb(url string) {
 	background-image: { fmt.Sprintf("url(\"%s\")", url) };
 }

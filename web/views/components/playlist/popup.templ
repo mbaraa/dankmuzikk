@@ -21,7 +21,7 @@ templ playlistSelector(songId string) {
 		}
 		hx-get={ "/api/playlist/all?song-id=" + songId }
 		hx-swap="outerHTML"
-		hx-trigger="intersect"
+		hx-trigger="revealed"
 		_="on htmx:error put 'No playlists were found!' into me"
 	>
 		<div id="playlist-loading" class={ "w-full", "flex", "flex-col", "items-center", "justify-center" }>

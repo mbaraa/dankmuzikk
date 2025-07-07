@@ -25,7 +25,6 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
   songNameExpandedEl = document.getElementById("song-name-expanded"),
   artistNameExpandedEl = document.getElementById("artist-name-expanded"),
   songSeekBarExpandedEl = document.getElementById("song-seek-bar-expanded"),
-  volumeSeekBarExpandedEl = document.getElementById("volume-seek-bar-expanded"),
   songDurationExpandedEl = document.getElementById("song-duration-expanded"),
   songCurrentTimeExpandedEl = document.getElementById(
     "song-current-time-expanded",
@@ -229,9 +228,6 @@ function setVolumeLevel(level) {
   if (volumeSeekBarEl) {
     volumeSeekBarEl.value = Math.floor(level * 100);
   }
-  if (volumeSeekBarExpandedEl) {
-    volumeSeekBarExpandedEl.value = Math.floor(level * 100);
-  }
 }
 
 window.PlayerUI = {
@@ -240,8 +236,6 @@ window.PlayerUI = {
     prevEl,
     songSeekBarEl,
     songSeekBarExpandedEl,
-    volumeSeekBarExpandedEl,
-    volumeSeekBarExpandedEl,
   },
 
   enableButtons,

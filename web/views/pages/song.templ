@@ -37,7 +37,7 @@ templ songContent(song actions.Song) {
 				<span>Play now</span>
 			</button>
 			@ui.MobileOnly() {
-				@menus.MobileMenu(song.PublicId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))
+				@menus.MobileMenu("Song's options", icons.Options(), options(song))
 			}
 			@ui.DesktopOnly() {
 				@menus.Popover(song.PublicId+fmt.Sprint(rand.Int()), "Song's options", icons.Options(), options(song))

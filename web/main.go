@@ -126,6 +126,7 @@ func main() {
 	apisHandler.HandleFunc("GET /player/queue", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPlayerSongsQueue))
 	apisHandler.HandleFunc("POST /player/shuffle", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetPlayerShuffleOn))
 	apisHandler.HandleFunc("DELETE /player/shuffle", authMiddleware.OptionalAuthApi(playerStateApi.HandleSetPlayerShuffleOff))
+	apisHandler.HandleFunc("GET /player/song", authMiddleware.OptionalAuthApi(playerStateApi.HandleCurrentPlayingSongOptions))
 	apisHandler.HandleFunc("GET /player/song/next", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetNextSongInQueue))
 	apisHandler.HandleFunc("GET /player/song/previous", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPreviousSongInQueue))
 	apisHandler.HandleFunc("GET /player/song/lyrics", authMiddleware.OptionalAuthApi(playerStateApi.HandleGetPlayingSongLyrics))

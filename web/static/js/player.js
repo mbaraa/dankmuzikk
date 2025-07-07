@@ -272,10 +272,6 @@ function handleUIEvents() {
     };
     for (const event of ["change", "click"]) {
       PlayerUI.__elements.volumeSeekBarEl?.addEventListener(event, __handler);
-      PlayerUI.__elements.volumeSeekBarExpandedEl?.addEventListener(
-        event,
-        __handler,
-      );
     }
   }
 }

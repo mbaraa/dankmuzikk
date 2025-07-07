@@ -48,7 +48,7 @@ func (p *playerStateApi) HandleGetPlayerSongsQueue(w http.ResponseWriter, r *htt
 
 	payload, err := p.usecases.GetPlayerState(ctx)
 	if err != nil {
-		status.BugsBunnyError("No songs were found!\nMaybe play something first...").
+		status.BugsBunnyError("No songs were found!<br/>Maybe play something first...").
 			Render(r.Context(), w)
 		return
 	}
@@ -62,6 +62,35 @@ func (p *playerStateApi) HandleGetPlayerSongsQueue(w http.ResponseWriter, r *htt
 			actions.Playlist{}, "queue").
 			Render(r.Context(), w)
 	}
+}
+
+func (p *playerStateApi) HandleCurrentPlayingSongOptions(w http.ResponseWriter, r *http.Request) {
+	ctx, err := parseContext(r.Context())
+	if err != nil {
+		status.BugsBunnyError("You need to login to view current playing song!").
+			Render(r.Context(), w)
+		return
+	}
+
+	payload, err := p.usecases.GetPlayerState(ctx)
+	if err != nil {
+		status.BugsBunnyError("No songs were found!<br/>Maybe play something first...").
+			Render(r.Context(), w)
+		return
+	}
+
+	if payload.PlayerState.CurrentSongIndex >= len(payload.PlayerState.Songs) {
+		status.BugsBunnyError("Something went wrong").
+			Render(r.Context(), w)
+		return
+	}
+
+	playingSong := payload.PlayerState.Songs[payload.PlayerState.CurrentSongIndex]
+	song.Options(playingSong,
+		[]templ.Component{
+			playlist.PlaylistsPopup(69420, playingSong.PublicId),
+		}).
+		Render(r.Context(), w)
 }
 
 func (p *playerStateApi) HandleSetPlayerShuffleOn(w http.ResponseWriter, r *http.Request) {
