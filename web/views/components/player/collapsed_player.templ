@@ -196,7 +196,7 @@ templ PreviousButton() {
 		type="button"
 		title="Previous song"
 		_="on click fetch /api/player/song/previous as json
-then if result.end_of_queue then call Player.stopMuzikk() else call PlayerUI.setLoadingOn() then call playSong(result.song) end
+then if result.end_of_queue then call Player.stopMuzikk() else call playSong(result.song) then call PlayerUI.setLoadingOn() end
 catch error
     console.error(';', error)"
 		if !checkPlayerStateForSong(ps(ctx)) {
@@ -216,7 +216,7 @@ templ NextButton() {
 		type="button"
 		title="Next song"
 		_="on click fetch /api/player/song/next as json
-then if result.end_of_queue then call Player.stopMuzikk() else call PlayerUI.setLoadingOn() then call playSong(result.song) end
+then if result.end_of_queue then call Player.stopMuzikk() else call playSong(result.song) then call PlayerUI.setLoadingOn() end
 catch error
     console.error(';', error)"
 		if !checkPlayerStateForSong(ps(ctx)) {
