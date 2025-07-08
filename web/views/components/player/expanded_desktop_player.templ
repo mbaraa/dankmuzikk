@@ -86,7 +86,7 @@ templ expandedDesktopPlayerQueue() {
 		}
 		_="on touchmove event.stopImmediatePropagation() end
 on intersection(intersecting)
-fetch /api/player/queue as text then put the result into #current-song-queue's innerHTML
+fetch /api/player/queue as text then put the result into #current-songs-queue's innerHTML
 catch error
     console.error(error)"
 	>

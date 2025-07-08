@@ -10,7 +10,7 @@ templ Popup(id, title string, button, child templ.Component) {
 		}
 		title={ title }
 		type="button"
-		onClick={ togglePopup(id) }
+		_="on click set dialog to the next <dialog/> then call dialog.showModal()"
 	>
 		@button
 	</button>
@@ -32,20 +32,4 @@ templ Popup(id, title string, button, child templ.Component) {
 			@child
 		</form>
 	</dialog>
-}
-
-script togglePopup(id string) {
-    const popup = document.getElementById(`popup-${id}`);
-    popup.showModal();
-    popup.addEventListener("click", e => {
-        const rect = popup.getBoundingClientRect()
-        if (
-          e.clientX < rect.left ||
-          e.clientX > rect.right ||
-          e.clientY < rect.top ||
-          e.clientY > rect.bottom
-        ) {
-          popup.close();
-        }
-    });
 }

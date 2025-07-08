@@ -13,14 +13,14 @@ templ PopoverUp(title string, button, child templ.Component, topVal int16) {
 			}
 			title={ title }
 			type="button"
-			_="on click toggle .popover-up-collapsed on the next <div.menu-content/> then
-           go to the bottom of the next <div.menu-content/>"
+			_="on click toggle .popover-up-collapsed on the next <div.popover-up-content/> then
+           go to the bottom of the next <div.popover-up-content/>"
 		>
 			@button
 		</button>
 		<div
 			class={
-				"menu-content", "max-h-[500px]", "opacity-100", "absolute", "z-50", top(fmt.Sprintf("-%dpx", topVal)), "right-[0px]",
+				"popover-up-content", "max-h-[500px]", "opacity-100", "absolute", "z-50", top(fmt.Sprintf("-%dpx", topVal)), "right-[0px]",
 				"shadow-md", "min-w-[150px]", "animate-up", "block", "popover-up-collapsed",
 			}
 			_="on click from document
