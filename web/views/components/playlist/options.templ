@@ -11,7 +11,7 @@ import (
 
 templ PlaylistsOptions(playlist actions.Playlist) {
 	@ui.MobileOnly() {
-		@menus.MobileMenu("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))
+		@menus.MobileMenu("Playlist's options", icons.Options(), playlistOptions(playlist))
 	}
 	@ui.DesktopOnly() {
 		@menus.Popover("playlist-"+playlist.PublicId, "Playlist's options", icons.Options(), playlistOptions(playlist))

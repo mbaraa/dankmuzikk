@@ -87,82 +87,6 @@ function setCookie(key, value) {
   document.cookie = key + "=" + value + expires + "; path=/";
 }
 
-function menuer() {
-  /**
-   * @type {HTMLDivElement}
-   */
-  let lastEl = null;
-
-  /**
-   * @param {string} id
-   */
-  const __registerPopover = (id) => {
-    if (!id) {
-      return;
-    }
-    if (!!lastEl) {
-      lastEl.classList.add("hidden");
-      document.body.removeEventListener("click", __removePopover);
-    }
-    lastEl = document.getElementById(id);
-    if (!lastEl) {
-      return;
-    }
-    document.body.addEventListener("click", __removePopover);
-  };
-
-  /**
-   * @param {MouseEvent} e
-   */
-  const __removePopover = (e) => {
-    const rect = lastEl.getBoundingClientRect();
-    const parentRect = lastEl.parentElement.getBoundingClientRect();
-    let popupChild = null;
-    for (const c of lastEl.children.item(0)?.children) {
-      if (c.tagName === "DIALOG") {
-        popupChild = c;
-      }
-    }
-    if (document.activeElement === popupChild) {
-      return;
-    }
-    if (
-      e.clientX < rect.left ||
-      e.clientX > rect.right ||
-      e.clientY + parentRect.height + 5 < rect.top ||
-      e.clientY > rect.bottom + parentRect.height + 5
-    ) {
-      lastEl.classList.add("hidden");
-      lastEl = null;
-      document.body.removeEventListener("click", __removePopover);
-    }
-  };
-
-  return [__registerPopover];
-}
-
-const [registerPopover, registerMobileMenu, registerPopup] = menuer();
-
-/**
- * @param {() => Promise<any>} func
- * @param {number} times
- *
- * @returns Promise<any>
- */
-async function retryer(func, times = 3) {
-  try {
-    return await func();
-  } catch (err) {
-    console.error(err);
-    if (times > 0) {
-      console.log("retrying ", times);
-      await sleep(3500);
-      return await retryer(func, times - 1);
-    }
-    return err;
-  }
-}
-
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -175,9 +99,7 @@ window.Utils = {
   formatNumber,
   getTextWidth,
   copyTextToClipboard,
-  registerPopover,
   getCookie,
   setCookie,
-  retryer,
   sleep,
 };

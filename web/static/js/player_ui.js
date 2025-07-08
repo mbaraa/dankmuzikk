@@ -14,7 +14,9 @@ const playPauseToggleEl = document.getElementById("play"),
   songCurrentTimeEl = document.getElementById("song-current-time"),
   songImageEl = document.getElementById("song-image"),
   playerEl = document.getElementById("ze-player"),
-  collapsedMobilePlayer = document.getElementById("ze-collapsed-mobile-player");
+  collapsedMobilePlayer = document.getElementById("ze-collapsed-mobile-player"),
+  desktopExpandablePlayer = document.getElementById("expanded-desktop-player"),
+  expandDesktopButton = document.getElementById("expand-desktop");
 
 // expanded player's elements
 const playPauseToggleExapndedEl = document.getElementById("play-expand"),
@@ -23,13 +25,28 @@ const playPauseToggleExapndedEl = document.getElementById("play-expand"),
   songNameExpandedEl = document.getElementById("song-name-expanded"),
   artistNameExpandedEl = document.getElementById("artist-name-expanded"),
   songSeekBarExpandedEl = document.getElementById("song-seek-bar-expanded"),
-  volumeSeekBarExpandedEl = document.getElementById("volume-seek-bar-expanded"),
   songDurationExpandedEl = document.getElementById("song-duration-expanded"),
   songCurrentTimeExpandedEl = document.getElementById(
     "song-current-time-expanded",
   ),
   songImageExpandedEl = document.getElementById("song-image-expanded"),
-  expandedMobilePlayer = document.getElementById("ze-expanded-mobile-player");
+  expandedMobilePlayer = document.getElementById("ze-expanded-mobile-player"),
+  mobileLyricsTab = document.getElementById("mobile-lyrics-tab"),
+  desktopLyricsTab = document.getElementById("desktop-lyrics-tab");
+
+function triggerFetchLyrics() {
+  if (!mobileLyricsTab && !desktopLyricsTab) {
+    return;
+  }
+  htmx
+    .ajax("GET", "/api/player/song/lyrics", {
+      target: "#current-song-lyrics",
+      swap: "innerHTML",
+    })
+    .catch(() => {
+      alert("Lyrics fetching went berzerk...");
+    });
+}
 
 /**
  * @param {boolean} loading
@@ -67,6 +84,23 @@ function collapseMobilePlayer() {
     playerEl.classList.remove("exapnded");
     collapsedMobilePlayer.classList.remove("hidden");
     expandedMobilePlayer.classList.add("hidden");
+  }
+}
+
+function toggleExpandDesktop() {
+  if (!desktopExpandablePlayer) {
+    return;
+  }
+  if (desktopExpandablePlayer.classList.contains("collapsed-desktop")) {
+    desktopExpandablePlayer.classList.remove("collapsed-desktop");
+    desktopExpandablePlayer.classList.add("exapnded-desktop");
+    playerEl.style.borderTopRightRadius = "0";
+    expandDesktopButton.style.backgroundColor = "var(--accent-color-30)";
+  } else {
+    desktopExpandablePlayer.classList.add("collapsed-desktop");
+    desktopExpandablePlayer.classList.remove("exapnded-desktop");
+    playerEl.style.borderTopRightRadius = "15px";
+    expandDesktopButton.style.backgroundColor = "";
   }
 }
 
@@ -194,9 +228,6 @@ function setVolumeLevel(level) {
   if (volumeSeekBarEl) {
     volumeSeekBarEl.value = Math.floor(level * 100);
   }
-  if (volumeSeekBarExpandedEl) {
-    volumeSeekBarExpandedEl.value = Math.floor(level * 100);
-  }
 }
 
 window.PlayerUI = {
@@ -205,8 +236,6 @@ window.PlayerUI = {
     prevEl,
     songSeekBarEl,
     songSeekBarExpandedEl,
-    volumeSeekBarExpandedEl,
-    volumeSeekBarExpandedEl,
   },
 
   enableButtons,
@@ -217,9 +246,11 @@ window.PlayerUI = {
   setSongCurrentTime,
   expandMobilePlayer,
   collapseMobilePlayer,
+  toggleExpandDesktop,
   setPlayIcon,
   setPauseIcon,
   setLoadingOn,
   setLoadingOff,
   setVolumeLevel,
+  triggerFetchLyrics,
 };

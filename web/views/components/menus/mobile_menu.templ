@@ -1,8 +1,6 @@
 package menus
 
-import "fmt"
-
-templ MobileMenu(id, title string, button, child templ.Component) {
+templ MobileMenu(title string, button, child templ.Component) {
 	<button
 		class={
 			"p-2", "rounded-md", "hover:bg-accent-trans-20",
@@ -10,17 +8,15 @@ templ MobileMenu(id, title string, button, child templ.Component) {
 		}
 		title={ title }
 		type="button"
-		onClick={ toggleMobileMenu(id) }
+		_="on click toggle .mobile-menu-collapsed on the next <div/>"
 	>
 		@button
 	</button>
 	<div
-		id={ fmt.Sprintf("mobile-menu-%s", id) }
 		class={
-			"!fixed", "-left-[10px]", "w-full", "mx-[10px]",
-			"overflow-y-scroll", "block", "shadow-md", "mobile-menu-collapsed",
+			"!fixed", "bottom-0", "-left-[10px]", "w-full", "mx-[10px]", "max-h-[500px]", "opacity-100",
+			"overflow-y-scroll", "block", "shadow-md", "mobile-menu-collapsed", "z-[100]",
 		}
-		style="bottom: -0px; z-index: 100;"
 	>
 		<button
 			class={
@@ -29,7 +25,7 @@ templ MobileMenu(id, title string, button, child templ.Component) {
 			}
 			title={ title }
 			type="button"
-			onClick={ toggleMobileMenu(id) }
+			_="on click toggle .mobile-menu-collapsed on the closest <div/>"
 		>
 			Close
 		</button>
@@ -37,32 +33,9 @@ templ MobileMenu(id, title string, button, child templ.Component) {
 	</div>
 	<style>
         .mobile-menu-collapsed {
-            height: 0;
-            max-height: 0;
-            min-height: 0;
+            height: 0px !important;
+            max-height: 0px !important;
+            opacity: 0 !important;
         }
     </style>
-}
-
-script toggleMobileMenu(id string) {
-    const popover = document.getElementById(`mobile-menu-${id}`);
-    if (popover.classList.contains("mobile-menu-collapsed")) {
-        const rect = popover.getBoundingClientRect();
-        popover.style.bottom = `-${
-            (window.innerHeight-(rect.y+rect.height))
-        }px`
-        popover.style.height = (
-            popover.children[0].getBoundingClientRect().height + 4 +
-            popover.children[1].getBoundingClientRect().height
-        ).toString() + "px" ;
-        popover.style.maxHeight = "500px";
-        popover.style.minHeight = "200px";
-
-        popover.classList.remove("mobile-menu-collapsed");
-    } else {
-        popover.classList.add("mobile-menu-collapsed");
-        popover.style.height = 0;
-        popover.style.maxHeight = 0;
-        popover.style.minHeight = 0;
-    }
 }

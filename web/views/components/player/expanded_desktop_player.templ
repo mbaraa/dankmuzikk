@@ -1,0 +1,103 @@
+package player
+
+templ expandedDesktopPlayer() {
+	<div
+		id="expanded-desktop-player"
+		class={
+			"w-[420px]", "h-[590px]", "collapsed-desktop",
+			"fixed", "z-20", "bottom-[90px]", "right-0", "rounded-t-[15px]", "rounded-bl-[-15px]",
+			"text-secondary", "bg-secondary-trans-20", "backdrop-blur-lg",
+		}
+	>
+		<div class={ "flex", "flex-col", "justify-between", "h-full" }>
+			<div class={ "h-max" }>
+				@expandedDesktopPlayerLyrics()
+				@expandedDesktopPlayerQueue()
+			</div>
+			<!-- tabs blyat -->
+			<div class={ "flex", "justify-center", "items-center", "gap-x-8", "w-full", "tabs" }>
+				<input
+					type="radio"
+					name="tab"
+					id="desktop-lyrics-tab"
+					checked
+					hx-get="/api/player/song/lyrics"
+					hx-trigger="click"
+					hx-target="#current-song-lyrics"
+					hx-swap="innerHTML"
+					_="on click
+    remove .hidden from #expanded-desktop-player-lyrics
+    show #expanded-desktop-player-lyrics with *display
+    hide #expanded-desktop-player-queue with *display
+end"
+				/>
+				<label for="desktop-lyrics-tab">Lyrics</label>
+				<input
+					id="desktop-queue-tab"
+					type="radio"
+					name="tab"
+					hx-get="/api/player/queue"
+					hx-trigger="click"
+					hx-target="#current-songs-queue"
+					hx-swap="innerHTML"
+					_="on click
+    remove .hidden from #expanded-desktop-player-queue
+    show #expanded-desktop-player-queue with *display
+    hide #expanded-desktop-player-lyrics with *display
+end"
+				/>
+				<label for="desktop-queue-tab">Queue</label>
+			</div>
+		</div>
+	</div>
+}
+
+templ expandedDesktopPlayerLyrics() {
+	<div
+		id="expanded-desktop-player-lyrics"
+		class={
+			"w-full", "overflow-y-scroll", "max-h-[525px]",
+			"flex-col", "gap-y-1", "p-5",
+		}
+		_="on touchmove event.stopImmediatePropagation() end
+on intersection(intersecting)
+fetch /api/player/song/lyrics as text then put the result into #current-song-lyrics's innerHTML
+catch error
+    console.error(error)"
+	>
+		<div
+			id="current-song-lyrics"
+			data-hx-revealed="true"
+			data-loading-target="#lyrics-loading"
+			data-loading-class-remove="hidden"
+		></div>
+		<div id="lyrics-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
+			<div class={ "loader", "!h-20", "!w-20" }></div>
+		</div>
+	</div>
+}
+
+templ expandedDesktopPlayerQueue() {
+	<div
+		id="expanded-desktop-player-queue"
+		class={
+			"w-full", "overflow-y-scroll", "h-[525px]",
+			"hidden", "flex-col", "gap-y-1",
+		}
+		_="on touchmove event.stopImmediatePropagation() end
+on intersection(intersecting)
+fetch /api/player/queue as text then put the result into #current-songs-queue's innerHTML
+catch error
+    console.error(error)"
+	>
+		<div
+			id="current-songs-queue"
+			data-hx-revealed="true"
+			data-loading-target="#songs-queue-loading"
+			data-loading-class-remove="hidden"
+		></div>
+		<div id="songs-queue-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
+			<div class={ "loader", "!h-20", "!w-20" }></div>
+		</div>
+	</div>
+}

@@ -1,13 +1,15 @@
 package player
 
-import "dankmuzikk-web/views/components/ui"
-import "dankmuzikk-web/views/components/menus"
-import "dankmuzikk-web/views/icons"
-import "fmt"
-import "dankmuzikk-web/actions"
-import "time"
-import "strconv"
-import "context"
+import (
+	"context"
+	"dankmuzikk-web/actions"
+	"dankmuzikk-web/views/components/menus"
+	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
+	"fmt"
+	"strconv"
+	"time"
+)
 
 func ps(ctx context.Context) actions.PlayerState {
 	state, ok := ctx.Value("player-state").(actions.PlayerState)
@@ -94,7 +96,7 @@ templ collapsedPlayer() {
 			}
 		>
 			<!-- details -->
-			<div class={ "w-full", "flex", "gap-x-4", "w-fit", "md:w-[350px]" }>
+			<div class={ "w-full", "flex", "items-center", "gap-x-4", "w-fit", "md:w-[350px]", "lg:w-[400px]" }>
 				<div
 					id="song-image"
 					class={
@@ -123,6 +125,11 @@ templ collapsedPlayer() {
 						</p>
 					}
 				</div>
+				@ui.DesktopOnly() {
+					<div>
+						@menus.PopoverUp("Player's current song options", icons.Options(), playerSongMenu(), 400)
+					</div>
+				}
 			</div>
 			<!-- seeker, time, and volume -->
 			<div
@@ -151,8 +158,8 @@ templ collapsedPlayer() {
 		<!-- controls -->
 		<div class={ "flex", "items-center", "gap-x-0" }>
 			@ui.DesktopOnly() {
-				@menus.PopoverUp("playback-speed-thingy", "Playback Speed", playbackSpeedButton(), playbackSpeedMenu(), 440)
-				@menus.PopoverUp("volume-thingy", "Volume", volumeButton(), volumeSeeker(), 45)
+				@menus.PopoverUp("Playback Speed", playbackSpeedButton(), playbackSpeedMenu(), 440)
+				@menus.PopoverUp("Volume", volumeButton(), volumeSeeker(), 45)
 			}
 			@ui.DesktopOnly() {
 				@ShuffleButton(psShuffled(ps(ctx)))
@@ -172,9 +179,22 @@ templ collapsedPlayer() {
 			@ui.DesktopOnly() {
 				@NextButton()
 				@LoopButton(psLoopMode(ps(ctx)))
+				@ExpandButton()
 			}
 		</div>
 	</div>
+}
+
+templ ExpandButton() {
+	<button
+		id="expand-desktop"
+		type="button"
+		title="Expand!"
+		class={ "p-1", "mx-1" , "rounded-md" }
+		_="on click call PlayerUI.toggleExpandDesktop() end"
+	>
+		@icons.Expand()
+	</button>
 }
 
 templ PreviousButton() {
@@ -183,7 +203,7 @@ templ PreviousButton() {
 		type="button"
 		title="Previous song"
 		_="on click fetch /api/player/song/previous as json
-then call playSong(result.song)
+then if result.end_of_queue then call Player.stopMuzikk() else call playSong(result.song) then call PlayerUI.setLoadingOn() end
 catch error
     console.error(';', error)"
 		if !checkPlayerStateForSong(ps(ctx)) {
@@ -203,7 +223,7 @@ templ NextButton() {
 		type="button"
 		title="Next song"
 		_="on click fetch /api/player/song/next as json
-then if result.end_of_queue then call Player.stopMuzikk() else call playSong(result.song) end
+then if result.end_of_queue then call Player.stopMuzikk() else call playSong(result.song) then call PlayerUI.setLoadingOn() end
 catch error
     console.error(';', error)"
 		if !checkPlayerStateForSong(ps(ctx)) {
@@ -321,6 +341,22 @@ templ playbackSpeedMenu() {
 				x{ fmt.Sprint(speed) }
 			</button>
 		}
+	</div>
+}
+
+templ playerSongMenu() {
+	<div
+		class={ "min-h-10", "h-auto", "mb-[20px]", "ding" }
+		hx-get="/api/player/song"
+		hx-swap="innerHTML"
+		hx-trigger="intersect threshold:1"
+		data-hx-revealed="true"
+		data-loading-target="#current-song-loading"
+		data-loading-class-remove="hidden"
+		data-loading-path="/api/player/song"
+	></div>
+	<div id="current-song-loading" class={ "hidden", "w-full", "flex", "justify-center" }>
+		<div class={ "loader", "!h-20", "!w-20" }></div>
 	</div>
 }
 

@@ -15,8 +15,6 @@
 
 **DankMuzikk** is a music player designed for colloborative playlists, where a playlist's collaborators can add and vote for music in a playlist, and the other music player stuff.
 
-_Note: this is a fling side-project that could die anytime so don't get your hopes up._
-
 ## Contributing
 
 IDK, it would be really nice of you to contribute, check the poorly written [CONTRIBUTING.md](/CONTRIBUTING.md) for more info.
@@ -33,14 +31,13 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - [x] Songs queue
   - [x] Add songs to queue
   - [x] View/Edit queue
-- [ ] Expandable player
+- [x] Expandable player
   - [x] Mobile
-  - [ ] Desktop
+  - [x] Desktop
 - [x] Share songs
-- [ ] Player's menu
-- [ ] Import **public** playlists from YouTube
+- [x] Player's menu
 - [ ] Update profile
-- [ ] Cross device control
+- [x] Cross device control
 - [ ] Offline support
 - [ ] Songs' metadata fixer
 - [x] Lyrics
@@ -86,7 +83,10 @@ docker compose up -f docker-compose-all.yml
 - **This project is not affiliated with YouTube or Google, or anyone to that matter in any sort of ways.**
 - Colorscheme is inspired from [Dankpods](https://www.youtube.com/@DankPods)
 - Loader’s CSS was made by [@thamudi](https://github.com/thamudi)
+- Lyrics are provided by [LyricFind](https://www.lyricfind.com/)
 
 ---
+
+A [DankStuff <img height="16" width="16" src="https://dankstuff.net/assets/favicon.ico" />](https://dankstuff.net) product!
 
 Made with 🧉 by [Baraa Al-Masri](https://mbaraa.com)
