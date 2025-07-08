@@ -88,7 +88,7 @@ func (p *playerStateApi) HandleCurrentPlayingSongOptions(w http.ResponseWriter, 
 	playingSong := payload.PlayerState.Songs[payload.PlayerState.CurrentSongIndex]
 	song.Options(playingSong,
 		[]templ.Component{
-			playlist.PlaylistsPopup(69420, playingSong.PublicId),
+			// playlist.PlaylistsPopup(69420, playingSong.PublicId),
 		}).
 		Render(r.Context(), w)
 }

@@ -4,7 +4,6 @@ import "fmt"
 
 templ Popover(id, title string, button, child templ.Component) {
 	<div
-		_={ "on keydown[key is 'Escape'] add .hidden to #popover-" + id }
 		class={ "popover-container", "relative" }
 	>
 		<button
@@ -14,23 +13,32 @@ templ Popover(id, title string, button, child templ.Component) {
 			}
 			title={ title }
 			type="button"
-			_={ fmt.Sprintf(`on click
-            call Utils.registerPopover("popover-%s")
-            then
-            toggle .hidden on the next <div/>
-            then
-            go to the bottom of the next <div/>`, id) }
+			_="on click toggle .popover-collapsed on the next <div.popover-content/> then
+           go to the bottom of the next <div.popover-content/>"
 		>
 			@button
 		</button>
 		<div
 			id={ fmt.Sprintf("popover-%s", id) }
 			class={
-				"hidden", "absolute", "z-50", "top-[45px]", "right-[0px]",
-				"shadow-md", "min-w-[150px]", "animate-in",
+				"popover-content", "absolute", "z-50", "top-[45px]", "right-[0px]",
+				"shadow-md", "min-w-[150px]", "animate-in", "popover-collapsed",
 			}
+			_="on click from document
+if not event.target.classList.contains('popover-trigger') and not ['svg', 'use'].includes(event.target.tagName) and not me.classList.contains('popover-collapsed')
+-- TODO: fix this
+--    add .popover-collapsed to me
+end"
 		>
 			@child
 		</div>
 	</div>
+	<style>
+        .popover-collapsed {
+            height: 0px !important;
+            max-height: 0px !important;
+            opacity: 0 !important;
+            display: none;
+        }
+    </style>
 }

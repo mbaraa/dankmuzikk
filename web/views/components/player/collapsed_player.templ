@@ -127,7 +127,7 @@ templ collapsedPlayer() {
 				</div>
 				@ui.DesktopOnly() {
 					<div>
-						@menus.PopoverUp("Player's current song options", icons.Options(), playerSongMenu(), 460)
+						@menus.PopoverUp("Player's current song options", icons.Options(), playerSongMenu(), 400)
 					</div>
 				}
 			</div>
@@ -346,7 +346,7 @@ templ playbackSpeedMenu() {
 
 templ playerSongMenu() {
 	<div
-		class={ "h-10", "mb-[20px]", "ding" }
+		class={ "min-h-10", "h-auto", "mb-[20px]", "ding" }
 		hx-get="/api/player/song"
 		hx-swap="innerHTML"
 		hx-trigger="intersect threshold:1"
