@@ -1,13 +1,15 @@
 package player
 
-import "dankmuzikk-web/views/components/ui"
-import "dankmuzikk-web/views/components/menus"
-import "dankmuzikk-web/views/icons"
-import "fmt"
-import "dankmuzikk-web/actions"
-import "time"
-import "strconv"
-import "context"
+import (
+	"context"
+	"dankmuzikk-web/actions"
+	"dankmuzikk-web/views/components/menus"
+	"dankmuzikk-web/views/components/ui"
+	"dankmuzikk-web/views/icons"
+	"fmt"
+	"strconv"
+	"time"
+)
 
 func ps(ctx context.Context) actions.PlayerState {
 	state, ok := ctx.Value("player-state").(actions.PlayerState)
@@ -94,7 +96,7 @@ templ collapsedPlayer() {
 			}
 		>
 			<!-- details -->
-			<div class={ "w-full", "flex", "gap-x-4", "w-fit", "md:w-[350px]" }>
+			<div class={ "w-full", "flex", "items-center", "gap-x-4", "w-fit", "md:w-[350px]", "lg:w-[400px]" }>
 				<div
 					id="song-image"
 					class={
@@ -123,6 +125,11 @@ templ collapsedPlayer() {
 						</p>
 					}
 				</div>
+				@ui.DesktopOnly() {
+					<div>
+						@menus.PopoverUp("Player's current song options", icons.Options(), playerSongMenu(), 460)
+					</div>
+				}
 			</div>
 			<!-- seeker, time, and volume -->
 			<div
@@ -151,8 +158,8 @@ templ collapsedPlayer() {
 		<!-- controls -->
 		<div class={ "flex", "items-center", "gap-x-0" }>
 			@ui.DesktopOnly() {
-				@menus.PopoverUp("playback-speed-thingy", "Playback Speed", playbackSpeedButton(), playbackSpeedMenu(), 440)
-				@menus.PopoverUp("volume-thingy", "Volume", volumeButton(), volumeSeeker(), 45)
+				@menus.PopoverUp("Playback Speed", playbackSpeedButton(), playbackSpeedMenu(), 440)
+				@menus.PopoverUp("Volume", volumeButton(), volumeSeeker(), 45)
 			}
 			@ui.DesktopOnly() {
 				@ShuffleButton(psShuffled(ps(ctx)))
@@ -339,7 +346,7 @@ templ playbackSpeedMenu() {
 
 templ playerSongMenu() {
 	<div
-		class={ "h-auto", "mb-[20px]", "ding" }
+		class={ "h-10", "mb-[20px]", "ding" }
 		hx-get="/api/player/song"
 		hx-swap="innerHTML"
 		hx-trigger="intersect threshold:1"

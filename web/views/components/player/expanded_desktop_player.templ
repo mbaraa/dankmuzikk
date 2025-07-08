@@ -84,7 +84,11 @@ templ expandedDesktopPlayerQueue() {
 			"w-full", "overflow-y-scroll", "h-[525px]",
 			"hidden", "flex-col", "gap-y-1",
 		}
-		_="on touchmove event.stopImmediatePropagation()"
+		_="on touchmove event.stopImmediatePropagation() end
+on intersection(intersecting)
+fetch /api/player/queue as text then put the result into #current-song-queue's innerHTML
+catch error
+    console.error(error)"
 	>
 		<div
 			id="current-songs-queue"
