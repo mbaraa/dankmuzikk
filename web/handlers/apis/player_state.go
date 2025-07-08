@@ -85,7 +85,10 @@ func (p *playerStateApi) HandleCurrentPlayingSongOptions(w http.ResponseWriter, 
 		return
 	}
 
-	playingSong := payload.PlayerState.Songs[payload.PlayerState.CurrentSongIndex]
+	playingSong, err := p.usecases.GetSongMetadata(actions.GetSongMetadataParams{
+		ActionContext: ctx,
+		SongPublicId:  payload.PlayerState.Songs[payload.PlayerState.CurrentSongIndex].PublicId,
+	})
 	song.Options(playingSong,
 		[]templ.Component{
 			// playlist.PlaylistsPopup(69420, playingSong.PublicId),
