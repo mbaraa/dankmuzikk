@@ -36,35 +36,29 @@ func (a *App) CreateSongsQueue(accountId uint, clientHash string, initialSongPub
 		}
 	}
 
-	err := a.playerCache.ClearQueue(accountId)
+	err := a.ClearQueue(accountId, clientHash)
 	if err != nil {
 		return err
 	}
 
-	err = a.playerCache.SetCurrentPlayingPlaylistInQueue(accountId, 0)
-	if err != nil {
-		return err
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
+	if shuffled {
+		rand.Shuffle(len(songIds), func(i, j int) {
+			songIds[i], songIds[j] = songIds[j], songIds[i]
+		})
+
+		return a.playerCache.CreateSongsShuffledQueue(accountId, clientHash, songIds...)
 	}
 
-	err = a.playerCache.SetCurrentPlayingSongIndexInQueue(accountId, clientHash, 0)
-	if err != nil {
-		return err
-	}
-
-	err = a.playerCache.SetCurrentPlayingSongIndexInShuffledQueue(accountId, clientHash, 0)
-	if err != nil {
-		return err
-	}
-
-	return a.playerCache.CreateSongsQueue(accountId, songIds...)
+	return a.playerCache.CreateSongsQueue(accountId, clientHash, songIds...)
 }
 
 func (a *App) GetPlayerState(accountId uint, clientHash string) (models.PlayerState, error) {
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
-	songs, _ := a.getSongsFromQueue(accountId, shuffled)
-	currentSongIndex, _ := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
-	currentPlaylistId, _ := a.playerCache.GetCurrentPlayingPlaylistInQueue(accountId)
-	loopMode, _ := a.playerCache.GetLoopMode(accountId)
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
+	songs, _ := a.getSongsFromQueue(accountId, clientHash)
+	currentSongIndex, _ := a.getCurrentPlayingSongIndex(accountId, clientHash)
+	currentPlaylistId, _ := a.playerCache.GetCurrentPlayingPlaylistInQueue(accountId, clientHash)
+	loopMode, _ := a.playerCache.GetLoopMode(accountId, clientHash)
 
 	return models.PlayerState{
 		Shuffled:          shuffled,
@@ -75,24 +69,24 @@ func (a *App) GetPlayerState(accountId uint, clientHash string) (models.PlayerSt
 	}, nil
 }
 
-func (a *App) AddSongToQueue(accountId uint, songPublicId string) error {
+func (a *App) AddSongToQueue(accountId uint, clientHash, songPublicId string) error {
 	song, err := a.repo.GetSongByPublicId(songPublicId)
 	if err != nil {
 		return err
 	}
 
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	if shuffled {
 		// TODO: maybe move to an event?
-		_ = a.playerCache.AddSongToShuffledQueue(accountId, song.Id)
+		_ = a.playerCache.AddSongToShuffledQueue(accountId, clientHash, song.Id)
 	}
 
-	return a.playerCache.AddSongToQueue(accountId, song.Id)
+	return a.playerCache.AddSongToQueue(accountId, clientHash, song.Id)
 }
 
 func (a *App) AddSongToQueueAfterCurrentSong(accountId uint, clientHash, songPublicId string) error {
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
-	currentSongIndex, err := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
+	currentSongIndex, err := a.getCurrentPlayingSongIndex(accountId, clientHash)
 	if err != nil {
 		return a.CreateSongsQueue(accountId, clientHash, []string{songPublicId})
 	}
@@ -104,13 +98,13 @@ func (a *App) AddSongToQueueAfterCurrentSong(accountId uint, clientHash, songPub
 
 	if shuffled {
 		// TODO: maybe move to an event?
-		_ = a.playerCache.AddSongToShuffledQueueAfterIndex(accountId, song.Id, currentSongIndex)
+		_ = a.playerCache.AddSongToShuffledQueueAfterIndex(accountId, clientHash, song.Id, currentSongIndex)
 	}
 
-	return a.playerCache.AddSongToQueueAfterIndex(accountId, song.Id, currentSongIndex)
+	return a.playerCache.AddSongToQueueAfterIndex(accountId, clientHash, song.Id, currentSongIndex)
 }
 
-func (a *App) AddPlaylistToQueue(accountId uint, playlistPublicId string) error {
+func (a *App) AddPlaylistToQueue(accountId uint, clientHash, playlistPublicId string) error {
 	playlist, err := a.repo.GetPlaylistByPublicId(playlistPublicId)
 	if err != nil {
 		return err
@@ -121,26 +115,27 @@ func (a *App) AddPlaylistToQueue(accountId uint, playlistPublicId string) error 
 		return err
 	}
 
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	if shuffled {
 		// TODO: maybe move to an event?
 		for _, song := range songs.Items {
-			_ = a.playerCache.AddSongToShuffledQueue(accountId, song.Id)
+			_ = a.playerCache.AddSongToShuffledQueue(accountId, clientHash, song.Id)
 		}
 	}
 
+	// TODO: pipeline this...
 	for _, song := range songs.Items {
-		_ = a.playerCache.AddSongToQueue(accountId, song.Id)
+		_ = a.playerCache.AddSongToQueue(accountId, clientHash, song.Id)
 	}
 
 	return nil
 }
 
 func (a *App) AddPlaylistToQueueAfterCurrentSong(accountId uint, clientHash, playlistPublicId string) error {
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
-	currentSongIndex, err := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
+	currentSongIndex, err := a.getCurrentPlayingSongIndex(accountId, clientHash)
 	if err != nil {
-		return a.CreateSongsQueue(accountId, clientHash, nil)
+		_ = a.CreateSongsQueue(accountId, clientHash, nil)
 	}
 
 	playlist, err := a.repo.GetPlaylistByPublicId(playlistPublicId)
@@ -155,37 +150,42 @@ func (a *App) AddPlaylistToQueueAfterCurrentSong(accountId uint, clientHash, pla
 	slices.Reverse(songs.Items)
 
 	if shuffled {
-		// TODO: maybe move to an event?
+		// TODO: pipeline this...
 		for _, song := range songs.Items {
-			_ = a.playerCache.AddSongToShuffledQueueAfterIndex(accountId, song.Id, currentSongIndex)
+			_ = a.playerCache.AddSongToShuffledQueueAfterIndex(accountId, clientHash, song.Id, currentSongIndex)
 		}
 	}
 
+	// TODO: pipeline this...
 	for _, song := range songs.Items {
-		_ = a.playerCache.AddSongToQueueAfterIndex(accountId, song.Id, currentSongIndex)
+		_ = a.playerCache.AddSongToQueueAfterIndex(accountId, clientHash, song.Id, currentSongIndex)
 	}
 
 	return nil
 }
 
-func (a *App) RemoveSongFromQueue(songIndex int, accountId uint) error {
-	return a.playerCache.RemoveSongFromQueue(songIndex, accountId)
-}
-
-func (a *App) SetCurrentPlayingSongIndexInQueue(accountId uint, clientHash string, songIndex int) error {
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
-	return a.setCurrentPlayingSongIndex(accountId, clientHash, shuffled, songIndex)
+func (a *App) RemoveSongFromQueue(accountId uint, clientHash string, songIndex int) error {
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
+	if shuffled {
+		return a.playerCache.RemoveSongFromShuffledQueue(accountId, clientHash, songIndex)
+	}
+	return a.playerCache.RemoveSongFromQueue(accountId, clientHash, songIndex)
 }
 
 func (a *App) ClearQueue(accountId uint, clientHash string) error {
-	_ = a.playerCache.SetCurrentPlayingSongIndexInShuffledQueue(accountId, clientHash, 0)
-	_ = a.playerCache.SetCurrentPlayingSongIndexInQueue(accountId, clientHash, 0)
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
+	_ = a.playerCache.SetCurrentPlayingPlaylistInQueue(accountId, clientHash, 0)
+	if shuffled {
+		_ = a.playerCache.SetCurrentPlayingSongIndexInShuffledQueue(accountId, clientHash, 0)
+		return a.playerCache.ClearShuffledQueue(accountId, clientHash)
+	}
 
-	return a.playerCache.ClearQueue(accountId)
+	_ = a.playerCache.SetCurrentPlayingSongIndexInQueue(accountId, clientHash, 0)
+	return a.playerCache.ClearQueue(accountId, clientHash)
 }
 
-func (a *App) SetShuffledOn(accountId uint) error {
-	songsInQueue, err := a.playerCache.GetSongsQueue(accountId)
+func (a *App) SetShuffledOn(accountId uint, clientHash string) error {
+	songsInQueue, err := a.playerCache.GetSongsQueue(accountId, clientHash)
 	if err != nil {
 		return err
 	}
@@ -194,27 +194,30 @@ func (a *App) SetShuffledOn(accountId uint) error {
 		songsInQueue[i], songsInQueue[j] = songsInQueue[j], songsInQueue[i]
 	})
 
-	err = a.playerCache.ClearShuffledQueue(accountId)
+	err = a.playerCache.ClearShuffledQueue(accountId, clientHash)
 	if err != nil {
 		return err
 	}
 
-	err = a.playerCache.CreateSongsShuffledQueue(accountId, songsInQueue...)
+	err = a.playerCache.CreateSongsShuffledQueue(accountId, clientHash, songsInQueue...)
 	if err != nil {
 		return err
 	}
 
-	return a.playerCache.SetShuffled(accountId, true)
+	return a.playerCache.SetShuffled(accountId, clientHash, true)
 }
 
-func (a *App) SetShuffledOff(accountId uint) error {
-	_ = a.playerCache.ClearShuffledQueue(accountId)
+func (a *App) SetShuffledOff(accountId uint, clientHash string) error {
+	err := a.playerCache.ClearShuffledQueue(accountId, clientHash)
+	if err != nil {
+		return err
+	}
 
-	return a.playerCache.SetShuffled(accountId, false)
+	return a.playerCache.SetShuffled(accountId, clientHash, false)
 }
 
-func (a *App) SetLoopMode(accountId uint, loopMode models.PlayerLoopMode) error {
-	return a.playerCache.SetLoopMode(accountId, loopMode)
+func (a *App) SetLoopMode(accountId uint, clientHash string, loopMode models.PlayerLoopMode) error {
+	return a.playerCache.SetLoopMode(accountId, clientHash, loopMode)
 }
 
 func (a *App) PlayPlaylist(accountId uint, clientHash, playlistPublicId string) error {
@@ -228,7 +231,10 @@ func (a *App) PlayPlaylist(accountId uint, clientHash, playlistPublicId string) 
 		return err
 	}
 
-	_ = a.setCurrentPlayingSongIndex(accountId, clientHash, player.Shuffled, 0)
+	err = a.setCurrentPlayingSongIndex(accountId, clientHash, 0)
+	if err != nil {
+		return err
+	}
 
 	if player.CurrentPlaylistId == playlist.Id {
 		return nil
@@ -239,35 +245,17 @@ func (a *App) PlayPlaylist(accountId uint, clientHash, playlistPublicId string) 
 		return err
 	}
 
-	songIds := make([]uint, 0, playlistSongs.Size)
+	songIds := make([]string, 0, playlistSongs.Size)
 	for _, song := range playlistSongs.Items {
-		songIds = append(songIds, song.Id)
+		songIds = append(songIds, song.PublicId)
 	}
 
-	if player.Shuffled {
-		err := a.playerCache.ClearShuffledQueue(accountId)
-		if err != nil {
-			return err
-		}
-		rand.Shuffle(len(songIds), func(i, j int) {
-			songIds[i], songIds[j] = songIds[j], songIds[i]
-		})
-		err = a.playerCache.CreateSongsShuffledQueue(accountId, songIds...)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := a.playerCache.ClearQueue(accountId)
-		if err != nil {
-			return err
-		}
-		err = a.playerCache.CreateSongsQueue(accountId, songIds...)
-		if err != nil {
-			return err
-		}
+	err = a.CreateSongsQueue(accountId, clientHash, songIds)
+	if err != nil {
+		return err
 	}
 
-	return a.playerCache.SetCurrentPlayingPlaylistInQueue(accountId, playlist.Id)
+	return a.playerCache.SetCurrentPlayingPlaylistInQueue(accountId, clientHash, playlist.Id)
 }
 
 func (a *App) PlaySongFromPlaylist(accountId uint, clientHash, songPublicId, playlistPublicId string) error {
@@ -294,7 +282,10 @@ func (a *App) PlaySongFromPlaylist(accountId uint, clientHash, songPublicId, pla
 		}
 	}
 
-	_ = a.setCurrentPlayingSongIndex(accountId, clientHash, player.Shuffled, songIndex)
+	err = a.setCurrentPlayingSongIndex(accountId, clientHash, songIndex)
+	if err != nil {
+		return err
+	}
 
 	if player.CurrentPlaylistId == playlist.Id {
 		return nil
@@ -305,35 +296,17 @@ func (a *App) PlaySongFromPlaylist(accountId uint, clientHash, songPublicId, pla
 		return err
 	}
 
-	songIds := make([]uint, 0, playlistSongs.Size)
+	songIds := make([]string, 0, playlistSongs.Size)
 	for _, song := range playlistSongs.Items {
-		songIds = append(songIds, song.Id)
+		songIds = append(songIds, song.PublicId)
 	}
 
-	if player.Shuffled {
-		err := a.playerCache.ClearShuffledQueue(accountId)
-		if err != nil {
-			return err
-		}
-		rand.Shuffle(len(songIds), func(i, j int) {
-			songIds[i], songIds[j] = songIds[j], songIds[i]
-		})
-		err = a.playerCache.CreateSongsShuffledQueue(accountId, songIds...)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := a.playerCache.ClearQueue(accountId)
-		if err != nil {
-			return err
-		}
-		err = a.playerCache.CreateSongsQueue(accountId, songIds...)
-		if err != nil {
-			return err
-		}
+	err = a.CreateSongsQueue(accountId, clientHash, songIds)
+	if err != nil {
+		return err
 	}
 
-	return a.playerCache.SetCurrentPlayingPlaylistInQueue(accountId, playlist.Id)
+	return a.playerCache.SetCurrentPlayingPlaylistInQueue(accountId, clientHash, playlist.Id)
 }
 
 func (a *App) PlaySongFromFavorites(accountId uint, clientHash, songPublicId string) error {
@@ -377,12 +350,11 @@ func (a *App) PlaySongFromFavorites(accountId uint, clientHash, songPublicId str
 		return err
 	}
 
-	return a.setCurrentPlayingSongIndex(accountId, clientHash, false, songIndex)
+	return a.setCurrentPlayingSongIndex(accountId, clientHash, songIndex)
 }
 
 func (a *App) PlaySongFromQueue(accountId uint, clientHash, songPublicId string) error {
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
-	songs, err := a.getSongsFromQueue(accountId, shuffled)
+	songs, err := a.getSongsFromQueue(accountId, clientHash)
 	if err != nil {
 		return err
 	}
@@ -394,7 +366,7 @@ func (a *App) PlaySongFromQueue(accountId uint, clientHash, songPublicId string)
 		return &ErrNotFound{ResourceName: "song"}
 	}
 
-	return a.setCurrentPlayingSongIndex(accountId, clientHash, shuffled, songIndex)
+	return a.setCurrentPlayingSongIndex(accountId, clientHash, songIndex)
 }
 
 type GetNextPlayingSongResult struct {
@@ -404,10 +376,9 @@ type GetNextPlayingSongResult struct {
 }
 
 func (a *App) GetNextPlayingSong(accountId uint, clientHash string) (GetNextPlayingSongResult, error) {
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
-	currentSongIndex, _ := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
-	queueLen, _ := a.getQueueLength(accountId, shuffled)
-	loopMode, _ := a.playerCache.GetLoopMode(accountId)
+	currentSongIndex, _ := a.getCurrentPlayingSongIndex(accountId, clientHash)
+	queueLen, _ := a.getQueueLength(accountId, clientHash)
+	loopMode, _ := a.playerCache.GetLoopMode(accountId, clientHash)
 
 	endOfQueue := false
 	switch loopMode {
@@ -422,9 +393,9 @@ func (a *App) GetNextPlayingSong(accountId uint, clientHash string) (GetNextPlay
 	case models.LoopAllMode:
 		currentSongIndex = (currentSongIndex + 1) % int(queueLen)
 	}
-	_ = a.setCurrentPlayingSongIndex(accountId, clientHash, shuffled, currentSongIndex)
+	_ = a.setCurrentPlayingSongIndex(accountId, clientHash, currentSongIndex)
 
-	songId, err := a.getSongAtIndexFromQueue(accountId, shuffled, currentSongIndex)
+	songId, err := a.getSongAtIndexFromQueue(accountId, clientHash, currentSongIndex)
 	if err != nil {
 		return GetNextPlayingSongResult{}, err
 	}
@@ -448,10 +419,9 @@ type GetPreviousPlayingSongResult struct {
 }
 
 func (a *App) GetPreviousPlayingSong(accountId uint, clientHash string) (GetPreviousPlayingSongResult, error) {
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
-	currentSongIndex, _ := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
-	queueLen, _ := a.getQueueLength(accountId, shuffled)
-	loopMode, _ := a.playerCache.GetLoopMode(accountId)
+	currentSongIndex, _ := a.getCurrentPlayingSongIndex(accountId, clientHash)
+	queueLen, _ := a.getQueueLength(accountId, clientHash)
+	loopMode, _ := a.playerCache.GetLoopMode(accountId, clientHash)
 
 	endOfQueue := false
 	switch loopMode {
@@ -463,13 +433,12 @@ func (a *App) GetPreviousPlayingSong(accountId uint, clientHash string) (GetPrev
 		}
 	case models.LoopOnceMode:
 		endOfQueue = true
-		break
 	case models.LoopAllMode:
 		currentSongIndex = int(math.Abs(float64((currentSongIndex - 1) % int(queueLen))))
 	}
-	_ = a.setCurrentPlayingSongIndex(accountId, clientHash, shuffled, currentSongIndex)
+	_ = a.setCurrentPlayingSongIndex(accountId, clientHash, currentSongIndex)
 
-	songId, err := a.getSongAtIndexFromQueue(accountId, shuffled, currentSongIndex)
+	songId, err := a.getSongAtIndexFromQueue(accountId, clientHash, currentSongIndex)
 	if err != nil {
 		return GetPreviousPlayingSongResult{}, err
 	}
@@ -486,32 +455,34 @@ func (a *App) GetPreviousPlayingSong(accountId uint, clientHash string) (GetPrev
 	}, nil
 }
 
-func (a *App) getSongAtIndexFromQueue(accountId uint, shuffled bool, index int) (uint, error) {
+func (a *App) getSongAtIndexFromQueue(accountId uint, clientHash string, index int) (uint, error) {
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	if shuffled {
-		return a.playerCache.GetSongIdAtIndexFromShuffledQueue(accountId, index)
+		return a.playerCache.GetSongIdAtIndexFromShuffledQueue(accountId, clientHash, index)
 	}
 
-	return a.playerCache.GetSongIdAtIndexFromQueue(accountId, index)
+	return a.playerCache.GetSongIdAtIndexFromQueue(accountId, clientHash, index)
 }
 
-func (a *App) getQueueLength(accountId uint, shuffled bool) (uint, error) {
+func (a *App) getQueueLength(accountId uint, clientHash string) (uint, error) {
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	if shuffled {
-		return a.playerCache.GetShuffledQueueLength(accountId)
+		return a.playerCache.GetShuffledQueueLength(accountId, clientHash)
 	}
 
-	return a.playerCache.GetQueueLength(accountId)
+	return a.playerCache.GetQueueLength(accountId, clientHash)
 }
 
 func (a *App) GetCurrentPlayingSong(accountId uint, clientHash string) (models.Song, error) {
-	shuffled, _ := a.playerCache.GetShuffled(accountId)
-	index, err := a.getCurrentPlayingSongIndex(accountId, clientHash, shuffled)
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
+	index, err := a.getCurrentPlayingSongIndex(accountId, clientHash)
 	if err != nil {
 		return models.Song{}, err
 	}
 
 	var song models.Song
 	if shuffled {
-		songId, err := a.playerCache.GetSongIdAtIndexFromShuffledQueue(accountId, index)
+		songId, err := a.playerCache.GetSongIdAtIndexFromShuffledQueue(accountId, clientHash, index)
 		if err != nil {
 			return models.Song{}, err
 		}
@@ -520,7 +491,7 @@ func (a *App) GetCurrentPlayingSong(accountId uint, clientHash string) (models.S
 			return models.Song{}, err
 		}
 	} else {
-		songId, err := a.playerCache.GetSongIdAtIndexFromQueue(accountId, index)
+		songId, err := a.playerCache.GetSongIdAtIndexFromQueue(accountId, clientHash, index)
 		if err != nil {
 			return models.Song{}, err
 		}
@@ -533,7 +504,8 @@ func (a *App) GetCurrentPlayingSong(accountId uint, clientHash string) (models.S
 	return song, nil
 }
 
-func (a *App) getCurrentPlayingSongIndex(accountId uint, clientHash string, shuffled bool) (int, error) {
+func (a *App) getCurrentPlayingSongIndex(accountId uint, clientHash string) (int, error) {
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	if shuffled {
 		return a.playerCache.GetCurrentPlayingSongIndexInShuffledQueue(accountId, clientHash)
 	}
@@ -541,7 +513,8 @@ func (a *App) getCurrentPlayingSongIndex(accountId uint, clientHash string, shuf
 	return a.playerCache.GetCurrentPlayingSongIndexInQueue(accountId, clientHash)
 }
 
-func (a *App) setCurrentPlayingSongIndex(accountId uint, clientHash string, shuffled bool, songIndex int) error {
+func (a *App) setCurrentPlayingSongIndex(accountId uint, clientHash string, songIndex int) error {
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	if shuffled {
 		_ = a.playerCache.SetCurrentPlayingSongIndexInShuffledQueue(accountId, clientHash, songIndex)
 	}
@@ -549,13 +522,14 @@ func (a *App) setCurrentPlayingSongIndex(accountId uint, clientHash string, shuf
 	return a.playerCache.SetCurrentPlayingSongIndexInQueue(accountId, clientHash, songIndex)
 }
 
-func (a *App) getSongsFromQueue(accountId uint, shuffled bool) ([]models.Song, error) {
+func (a *App) getSongsFromQueue(accountId uint, clientHash string) ([]models.Song, error) {
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	var songIds []uint
 	var err error
 	if shuffled {
-		songIds, err = a.playerCache.GetSongsShuffledQueue(accountId)
+		songIds, err = a.playerCache.GetSongsShuffledQueue(accountId, clientHash)
 	} else {
-		songIds, err = a.playerCache.GetSongsQueue(accountId)
+		songIds, err = a.playerCache.GetSongsQueue(accountId, clientHash)
 	}
 	if err != nil {
 		return nil, err

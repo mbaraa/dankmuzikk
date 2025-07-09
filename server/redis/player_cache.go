@@ -34,32 +34,17 @@ func NewPlayerCache() *playerCache {
 	}
 }
 
-type playerSetting string
-
-const (
-	playerSettingShuffle playerSetting = "shuffle"
-	playerSettingLoop    playerSetting = "loop"
-)
-
-func playerQueueKey(accountId uint) string {
-	return fmt.Sprintf("%splayer-queue:%d", keyPrefix, accountId)
-}
-
-func playerShuffledQueueKey(accountId uint) string {
-	return fmt.Sprintf("%splayer-shuffled-queue:%d", keyPrefix, accountId)
-}
-
-func (c *playerCache) CreateSongsQueue(accountId uint, initialSongIds ...uint) error {
+func (c *playerCache) CreateSongsQueue(accountId uint, clientHash string, initialSongIds ...uint) error {
 	ctx := context.Background()
 	rp := c.client.Pipeline()
 	for _, songId := range initialSongIds {
 		rp.RPush(ctx,
-			playerQueueKey(accountId),
+			playerQueueKey(accountId, clientHash),
 			songId,
 		)
 	}
 
-	rp.Expire(context.Background(), playerQueueKey(accountId), playerQueueTtlHours*time.Hour)
+	rp.Expire(context.Background(), playerQueueKey(accountId, clientHash), playerQueueTtlHours*time.Hour)
 
 	_, err := rp.Exec(ctx)
 	if err != nil {
@@ -69,17 +54,17 @@ func (c *playerCache) CreateSongsQueue(accountId uint, initialSongIds ...uint) e
 	return nil
 }
 
-func (c *playerCache) CreateSongsShuffledQueue(accountId uint, initialSongIds ...uint) error {
+func (c *playerCache) CreateSongsShuffledQueue(accountId uint, clientHash string, initialSongIds ...uint) error {
 	ctx := context.Background()
 	rp := c.client.Pipeline()
 	for _, songId := range initialSongIds {
 		rp.RPush(ctx,
-			playerShuffledQueueKey(accountId),
+			playerShuffledQueueKey(accountId, clientHash),
 			songId,
 		)
 	}
 
-	rp.Expire(context.Background(), playerShuffledQueueKey(accountId), playerQueueTtlHours*time.Hour)
+	rp.Expire(context.Background(), playerShuffledQueueKey(accountId, clientHash), playerQueueTtlHours*time.Hour)
 
 	_, err := rp.Exec(ctx)
 	if err != nil {
@@ -89,9 +74,9 @@ func (c *playerCache) CreateSongsShuffledQueue(accountId uint, initialSongIds ..
 	return nil
 }
 
-func (c *playerCache) AddSongToQueue(accountId uint, songId uint) error {
+func (c *playerCache) AddSongToQueue(accountId uint, clientHash string, songId uint) error {
 	status := c.client.RPush(context.Background(),
-		playerQueueKey(accountId),
+		playerQueueKey(accountId, clientHash),
 		songId,
 	)
 	if status == nil {
@@ -103,7 +88,7 @@ func (c *playerCache) AddSongToQueue(accountId uint, songId uint) error {
 		return err
 	}
 
-	res := c.client.Expire(context.Background(), playerQueueKey(accountId), playerQueueTtlHours*time.Hour)
+	res := c.client.Expire(context.Background(), playerQueueKey(accountId, clientHash), playerQueueTtlHours*time.Hour)
 	if res == nil {
 		return nil
 	}
@@ -115,8 +100,8 @@ func (c *playerCache) AddSongToQueue(accountId uint, songId uint) error {
 	return nil
 }
 
-func (c *playerCache) AddSongToQueueAfterIndex(accountId uint, songId uint, index int) error {
-	res := c.client.LLen(context.Background(), playerQueueKey(accountId))
+func (c *playerCache) AddSongToQueueAfterIndex(accountId uint, clientHash string, songId uint, index int) error {
+	res := c.client.LLen(context.Background(), playerQueueKey(accountId, clientHash))
 	if res == nil {
 		return nil
 	}
@@ -129,7 +114,7 @@ func (c *playerCache) AddSongToQueueAfterIndex(accountId uint, songId uint, inde
 		return errors.New("invalid song index")
 	}
 
-	res2 := c.client.LIndex(context.Background(), playerQueueKey(accountId), int64(index))
+	res2 := c.client.LIndex(context.Background(), playerQueueKey(accountId, clientHash), int64(index))
 	if res2 == nil {
 		return nil
 	}
@@ -141,7 +126,7 @@ func (c *playerCache) AddSongToQueueAfterIndex(accountId uint, songId uint, inde
 
 	currentSong := res2.Val()
 
-	res3 := c.client.LSet(context.Background(), playerQueueKey(accountId), int64(index), "replace-next")
+	res3 := c.client.LSet(context.Background(), playerQueueKey(accountId, clientHash), int64(index), "replace-next")
 	if res3 == nil {
 		return nil
 	}
@@ -151,7 +136,7 @@ func (c *playerCache) AddSongToQueueAfterIndex(accountId uint, songId uint, inde
 		return err
 	}
 
-	res4 := c.client.LInsert(context.Background(), playerQueueKey(accountId), "BEFORE", "replace-next", currentSong)
+	res4 := c.client.LInsert(context.Background(), playerQueueKey(accountId, clientHash), "BEFORE", "replace-next", currentSong)
 	if res4 == nil {
 		return nil
 	}
@@ -161,7 +146,7 @@ func (c *playerCache) AddSongToQueueAfterIndex(accountId uint, songId uint, inde
 		return err
 	}
 
-	res5 := c.client.LInsert(context.Background(), playerQueueKey(accountId), "AFTER", "replace-next", songId)
+	res5 := c.client.LInsert(context.Background(), playerQueueKey(accountId, clientHash), "AFTER", "replace-next", songId)
 	if res5 == nil {
 		return nil
 	}
@@ -171,7 +156,7 @@ func (c *playerCache) AddSongToQueueAfterIndex(accountId uint, songId uint, inde
 		return err
 	}
 
-	res6 := c.client.LRem(context.Background(), playerQueueKey(accountId), 1, "replace-next")
+	res6 := c.client.LRem(context.Background(), playerQueueKey(accountId, clientHash), 1, "replace-next")
 	if res6 == nil {
 		return nil
 	}
@@ -184,9 +169,9 @@ func (c *playerCache) AddSongToQueueAfterIndex(accountId uint, songId uint, inde
 	return nil
 }
 
-func (c *playerCache) AddSongToShuffledQueue(accountId uint, songId uint) error {
+func (c *playerCache) AddSongToShuffledQueue(accountId uint, clientHash string, songId uint) error {
 	status := c.client.RPush(context.Background(),
-		playerShuffledQueueKey(accountId),
+		playerShuffledQueueKey(accountId, clientHash),
 		songId,
 	)
 	if status == nil {
@@ -198,7 +183,7 @@ func (c *playerCache) AddSongToShuffledQueue(accountId uint, songId uint) error 
 		return err
 	}
 
-	res := c.client.Expire(context.Background(), playerQueueKey(accountId), playerQueueTtlHours*time.Hour)
+	res := c.client.Expire(context.Background(), playerQueueKey(accountId, clientHash), playerQueueTtlHours*time.Hour)
 	if res == nil {
 		return nil
 	}
@@ -210,8 +195,8 @@ func (c *playerCache) AddSongToShuffledQueue(accountId uint, songId uint) error 
 	return nil
 }
 
-func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, songId uint, index int) error {
-	res := c.client.LLen(context.Background(), playerShuffledQueueKey(accountId))
+func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, clientHash string, songId uint, index int) error {
+	res := c.client.LLen(context.Background(), playerShuffledQueueKey(accountId, clientHash))
 	if res == nil {
 		return nil
 	}
@@ -224,7 +209,7 @@ func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, songId ui
 		return errors.New("invalid song index")
 	}
 
-	res2 := c.client.LIndex(context.Background(), playerShuffledQueueKey(accountId), int64(index))
+	res2 := c.client.LIndex(context.Background(), playerShuffledQueueKey(accountId, clientHash), int64(index))
 	if res2 == nil {
 		return nil
 	}
@@ -236,7 +221,7 @@ func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, songId ui
 
 	currentSong := res2.Val()
 
-	res3 := c.client.LSet(context.Background(), playerShuffledQueueKey(accountId), int64(index), "replace-next")
+	res3 := c.client.LSet(context.Background(), playerShuffledQueueKey(accountId, clientHash), int64(index), "replace-next")
 	if res3 == nil {
 		return nil
 	}
@@ -246,7 +231,7 @@ func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, songId ui
 		return err
 	}
 
-	res4 := c.client.LInsert(context.Background(), playerShuffledQueueKey(accountId), "BEFORE", "replace-next", currentSong)
+	res4 := c.client.LInsert(context.Background(), playerShuffledQueueKey(accountId, clientHash), "BEFORE", "replace-next", currentSong)
 	if res4 == nil {
 		return nil
 	}
@@ -256,7 +241,7 @@ func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, songId ui
 		return err
 	}
 
-	res5 := c.client.LInsert(context.Background(), playerShuffledQueueKey(accountId), "AFTER", "replace-next", songId)
+	res5 := c.client.LInsert(context.Background(), playerShuffledQueueKey(accountId, clientHash), "AFTER", "replace-next", songId)
 	if res5 == nil {
 		return nil
 	}
@@ -266,7 +251,7 @@ func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, songId ui
 		return err
 	}
 
-	res6 := c.client.LRem(context.Background(), playerShuffledQueueKey(accountId), 1, "replace-next")
+	res6 := c.client.LRem(context.Background(), playerShuffledQueueKey(accountId, clientHash), 1, "replace-next")
 	if res6 == nil {
 		return nil
 	}
@@ -279,8 +264,8 @@ func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, songId ui
 	return nil
 }
 
-func (c *playerCache) RemoveSongFromQueue(songIndex int, accountId uint) error {
-	res := c.client.LLen(context.Background(), playerQueueKey(accountId))
+func (c *playerCache) RemoveSongFromQueue(accountId uint, clientHash string, songIndex int) error {
+	res := c.client.LLen(context.Background(), playerQueueKey(accountId, clientHash))
 	if res == nil {
 		return nil
 	}
@@ -293,7 +278,7 @@ func (c *playerCache) RemoveSongFromQueue(songIndex int, accountId uint) error {
 		return errors.New("invalid song index")
 	}
 
-	res2 := c.client.LSet(context.Background(), playerQueueKey(accountId), int64(songIndex), "deleted")
+	res2 := c.client.LSet(context.Background(), playerQueueKey(accountId, clientHash), int64(songIndex), "deleted")
 	if res2 == nil {
 		return nil
 	}
@@ -303,7 +288,7 @@ func (c *playerCache) RemoveSongFromQueue(songIndex int, accountId uint) error {
 		return err
 	}
 
-	res3 := c.client.LRem(context.Background(), playerQueueKey(accountId), 1, "deleted")
+	res3 := c.client.LRem(context.Background(), playerQueueKey(accountId, clientHash), 1, "deleted")
 	if res3 == nil {
 		return nil
 	}
@@ -316,8 +301,8 @@ func (c *playerCache) RemoveSongFromQueue(songIndex int, accountId uint) error {
 	return nil
 }
 
-func (c *playerCache) RemoveSongFromShuffledQueue(songIndex int, accountId uint) error {
-	res := c.client.LLen(context.Background(), playerShuffledQueueKey(accountId))
+func (c *playerCache) RemoveSongFromShuffledQueue(accountId uint, clientHash string, songIndex int) error {
+	res := c.client.LLen(context.Background(), playerShuffledQueueKey(accountId, clientHash))
 	if res == nil {
 		return nil
 	}
@@ -330,7 +315,7 @@ func (c *playerCache) RemoveSongFromShuffledQueue(songIndex int, accountId uint)
 		return errors.New("invalid song index")
 	}
 
-	res2 := c.client.LSet(context.Background(), playerShuffledQueueKey(accountId), int64(songIndex), "deleted")
+	res2 := c.client.LSet(context.Background(), playerShuffledQueueKey(accountId, clientHash), int64(songIndex), "deleted")
 	if res2 == nil {
 		return nil
 	}
@@ -340,7 +325,7 @@ func (c *playerCache) RemoveSongFromShuffledQueue(songIndex int, accountId uint)
 		return err
 	}
 
-	res3 := c.client.LRem(context.Background(), playerShuffledQueueKey(accountId), 1, "deleted")
+	res3 := c.client.LRem(context.Background(), playerShuffledQueueKey(accountId, clientHash), 1, "deleted")
 	if res3 == nil {
 		return nil
 	}
@@ -353,8 +338,8 @@ func (c *playerCache) RemoveSongFromShuffledQueue(songIndex int, accountId uint)
 	return nil
 }
 
-func (c *playerCache) ClearQueue(accountId uint) error {
-	res := c.client.Del(context.Background(), playerQueueKey(accountId))
+func (c *playerCache) ClearQueue(accountId uint, clientHash string) error {
+	res := c.client.Del(context.Background(), playerQueueKey(accountId, clientHash))
 	if res == nil {
 		return nil
 	}
@@ -366,8 +351,8 @@ func (c *playerCache) ClearQueue(accountId uint) error {
 	return nil
 }
 
-func (c *playerCache) ClearShuffledQueue(accountId uint) error {
-	res := c.client.Del(context.Background(), playerShuffledQueueKey(accountId))
+func (c *playerCache) ClearShuffledQueue(accountId uint, clientHash string) error {
+	res := c.client.Del(context.Background(), playerShuffledQueueKey(accountId, clientHash))
 	if res == nil {
 		return nil
 	}
@@ -379,8 +364,8 @@ func (c *playerCache) ClearShuffledQueue(accountId uint) error {
 	return nil
 }
 
-func (c *playerCache) GetSongsQueue(accountId uint) ([]uint, error) {
-	res := c.client.LRange(context.Background(), playerQueueKey(accountId), 0, -1)
+func (c *playerCache) GetSongsQueue(accountId uint, clientHash string) ([]uint, error) {
+	res := c.client.LRange(context.Background(), playerQueueKey(accountId, clientHash), 0, -1)
 	if res == nil {
 		return nil, &app.ErrNotFound{
 			ResourceName: "player_queue",
@@ -403,8 +388,8 @@ func (c *playerCache) GetSongsQueue(accountId uint) ([]uint, error) {
 	return queue, nil
 }
 
-func (c *playerCache) GetSongsShuffledQueue(accountId uint) ([]uint, error) {
-	res := c.client.LRange(context.Background(), playerShuffledQueueKey(accountId), 0, -1)
+func (c *playerCache) GetSongsShuffledQueue(accountId uint, clientHash string) ([]uint, error) {
+	res := c.client.LRange(context.Background(), playerShuffledQueueKey(accountId, clientHash), 0, -1)
 	if res == nil {
 		return nil, &app.ErrNotFound{
 			ResourceName: "player_queue",
@@ -425,10 +410,6 @@ func (c *playerCache) GetSongsShuffledQueue(accountId uint) ([]uint, error) {
 	}
 
 	return queue, nil
-}
-
-func playerCurrentPlayingSongKey(accountId uint, clientHash string) string {
-	return fmt.Sprintf("%splayer-playing-index:%d", keyPrefix, accountId)
 }
 
 func (c *playerCache) SetCurrentPlayingSongIndexInQueue(accountId uint, clientHash string, songIndex int) error {
@@ -463,10 +444,6 @@ func (c *playerCache) GetCurrentPlayingSongIndexInQueue(accountId uint, clientHa
 	return strconv.Atoi(value)
 }
 
-func playerCurrentPlayingSongKeyInShuffledQueue(accountId uint, clientHash string) string {
-	return fmt.Sprintf("%splayer-playing-index-shuffled:%d", keyPrefix, accountId)
-}
-
 func (c *playerCache) SetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string, songIndex int) error {
 	status := c.client.Set(context.Background(),
 		playerCurrentPlayingSongKeyInShuffledQueue(accountId, clientHash),
@@ -499,13 +476,9 @@ func (c *playerCache) GetCurrentPlayingSongIndexInShuffledQueue(accountId uint, 
 	return strconv.Atoi(value)
 }
 
-func playerSettingKey(accountId uint, settingName playerSetting) string {
-	return fmt.Sprintf("%splayer-setting:%d:%s", keyPrefix, accountId, settingName)
-}
-
-func (c *playerCache) SetShuffled(accountId uint, shuffled bool) error {
+func (c *playerCache) SetShuffled(accountId uint, clientHash string, shuffled bool) error {
 	status := c.client.Set(context.Background(),
-		playerSettingKey(accountId, playerSettingShuffle),
+		playerSettingKey(accountId, clientHash, playerSettingShuffle),
 		shuffled,
 		playerSettingsTtlHours*time.Hour,
 	)
@@ -521,8 +494,8 @@ func (c *playerCache) SetShuffled(accountId uint, shuffled bool) error {
 	return nil
 }
 
-func (c *playerCache) GetShuffled(accountId uint) (bool, error) {
-	res := c.client.Get(context.Background(), playerSettingKey(accountId, playerSettingShuffle))
+func (c *playerCache) GetShuffled(accountId uint, clientHash string) (bool, error) {
+	res := c.client.Get(context.Background(), playerSettingKey(accountId, clientHash, playerSettingShuffle))
 	if res == nil {
 		return false, nil
 	}
@@ -534,9 +507,9 @@ func (c *playerCache) GetShuffled(accountId uint) (bool, error) {
 	return value == "1", nil
 }
 
-func (c *playerCache) SetLoopMode(accountId uint, mode models.PlayerLoopMode) error {
+func (c *playerCache) SetLoopMode(accountId uint, clientHash string, mode models.PlayerLoopMode) error {
 	status := c.client.Set(context.Background(),
-		playerSettingKey(accountId, playerSettingLoop),
+		playerSettingKey(accountId, clientHash, playerSettingLoop),
 		string(mode),
 		playerSettingsTtlHours*time.Hour,
 	)
@@ -553,8 +526,8 @@ func (c *playerCache) SetLoopMode(accountId uint, mode models.PlayerLoopMode) er
 
 }
 
-func (c *playerCache) GetLoopMode(accountId uint) (models.PlayerLoopMode, error) {
-	res := c.client.Get(context.Background(), playerSettingKey(accountId, playerSettingLoop))
+func (c *playerCache) GetLoopMode(accountId uint, clientHash string) (models.PlayerLoopMode, error) {
+	res := c.client.Get(context.Background(), playerSettingKey(accountId, clientHash, playerSettingLoop))
 	if res == nil {
 		return models.LoopOffMode, nil
 	}
@@ -566,13 +539,9 @@ func (c *playerCache) GetLoopMode(accountId uint) (models.PlayerLoopMode, error)
 	return models.PlayerLoopMode(value), nil
 }
 
-func playerPlayingPlaylistKey(accountId uint) string {
-	return fmt.Sprintf("%splayer-playlist:%d", keyPrefix, accountId)
-}
-
-func (c *playerCache) SetCurrentPlayingPlaylistInQueue(accountId uint, playlistId uint) error {
+func (c *playerCache) SetCurrentPlayingPlaylistInQueue(accountId uint, clientHash string, playlistId uint) error {
 	if playlistId == 0 {
-		status := c.client.Del(context.Background(), playerPlayingPlaylistKey(accountId))
+		status := c.client.Del(context.Background(), playerPlayingPlaylistKey(accountId, clientHash))
 		if status == nil {
 			return redis.Nil
 		}
@@ -581,7 +550,7 @@ func (c *playerCache) SetCurrentPlayingPlaylistInQueue(accountId uint, playlistI
 		}
 	}
 
-	status := c.client.Set(context.Background(), playerPlayingPlaylistKey(accountId), playlistId, playerQueueTtlHours*time.Hour)
+	status := c.client.Set(context.Background(), playerPlayingPlaylistKey(accountId, clientHash), playlistId, playerQueueTtlHours*time.Hour)
 	if status == nil {
 		return redis.Nil
 	}
@@ -592,8 +561,8 @@ func (c *playerCache) SetCurrentPlayingPlaylistInQueue(accountId uint, playlistI
 	return nil
 }
 
-func (c *playerCache) GetCurrentPlayingPlaylistInQueue(accountId uint) (uint, error) {
-	res := c.client.Get(context.Background(), playerPlayingPlaylistKey(accountId))
+func (c *playerCache) GetCurrentPlayingPlaylistInQueue(accountId uint, clientHash string) (uint, error) {
+	res := c.client.Get(context.Background(), playerPlayingPlaylistKey(accountId, clientHash))
 	if res == nil {
 		return 0, nil
 	}
@@ -606,8 +575,8 @@ func (c *playerCache) GetCurrentPlayingPlaylistInQueue(accountId uint) (uint, er
 	return uint(valueInt), err
 }
 
-func (c *playerCache) GetQueueLength(accountId uint) (uint, error) {
-	res := c.client.LLen(context.Background(), playerQueueKey(accountId))
+func (c *playerCache) GetQueueLength(accountId uint, clientHash string) (uint, error) {
+	res := c.client.LLen(context.Background(), playerQueueKey(accountId, clientHash))
 	if res == nil {
 		return 0, redis.Nil
 	}
@@ -619,8 +588,8 @@ func (c *playerCache) GetQueueLength(accountId uint) (uint, error) {
 	return uint(queueLen), nil
 }
 
-func (c *playerCache) GetShuffledQueueLength(accountId uint) (uint, error) {
-	res := c.client.LLen(context.Background(), playerShuffledQueueKey(accountId))
+func (c *playerCache) GetShuffledQueueLength(accountId uint, clientHash string) (uint, error) {
+	res := c.client.LLen(context.Background(), playerShuffledQueueKey(accountId, clientHash))
 	if res == nil {
 		return 0, redis.Nil
 	}
@@ -632,8 +601,8 @@ func (c *playerCache) GetShuffledQueueLength(accountId uint) (uint, error) {
 	return uint(queueLen), nil
 }
 
-func (c *playerCache) GetSongIdAtIndexFromQueue(accountId uint, index int) (uint, error) {
-	res := c.client.LIndex(context.Background(), playerQueueKey(accountId), int64(index))
+func (c *playerCache) GetSongIdAtIndexFromQueue(accountId uint, clientHash string, index int) (uint, error) {
+	res := c.client.LIndex(context.Background(), playerQueueKey(accountId, clientHash), int64(index))
 	if res == nil {
 		return 0, redis.Nil
 	}
@@ -651,8 +620,8 @@ func (c *playerCache) GetSongIdAtIndexFromQueue(accountId uint, index int) (uint
 	return uint(songId), err
 }
 
-func (c *playerCache) GetSongIdAtIndexFromShuffledQueue(accountId uint, index int) (uint, error) {
-	res := c.client.LIndex(context.Background(), playerShuffledQueueKey(accountId), int64(index))
+func (c *playerCache) GetSongIdAtIndexFromShuffledQueue(accountId uint, clientHash string, index int) (uint, error) {
+	res := c.client.LIndex(context.Background(), playerShuffledQueueKey(accountId, clientHash), int64(index))
 	if res == nil {
 		return 0, redis.Nil
 	}
@@ -668,4 +637,39 @@ func (c *playerCache) GetSongIdAtIndexFromShuffledQueue(accountId uint, index in
 	songId, err := res.Uint64()
 
 	return uint(songId), err
+}
+
+////////////////
+// Keys
+////////////////
+
+func playerQueueKey(accountId uint, clientHash string) string {
+	return fmt.Sprintf("%splayer-queue:%d:%s", keyPrefix, accountId, clientHash)
+}
+
+func playerShuffledQueueKey(accountId uint, clientHash string) string {
+	return fmt.Sprintf("%splayer-shuffled-queue:%d:%s", keyPrefix, accountId, clientHash)
+}
+
+func playerCurrentPlayingSongKey(accountId uint, clientHash string) string {
+	return fmt.Sprintf("%splayer-playing-index:%d:%s", keyPrefix, accountId, clientHash)
+}
+
+func playerPlayingPlaylistKey(accountId uint, clientHash string) string {
+	return fmt.Sprintf("%splayer-playlist:%d:%s", keyPrefix, accountId, clientHash)
+}
+
+type playerSetting string
+
+const (
+	playerSettingShuffle playerSetting = "shuffle"
+	playerSettingLoop    playerSetting = "loop"
+)
+
+func playerSettingKey(accountId uint, clientHash string, settingName playerSetting) string {
+	return fmt.Sprintf("%splayer-setting:%d:%s:%s", keyPrefix, accountId, clientHash, settingName)
+}
+
+func playerCurrentPlayingSongKeyInShuffledQueue(accountId uint, clientHash string) string {
+	return fmt.Sprintf("%splayer-playing-index-shuffled:%d:%s", keyPrefix, clientHash, accountId)
 }

@@ -57,7 +57,7 @@ type AddSongToQueueAtLastParams struct {
 }
 
 func (a *Actions) AddSongToQueueAtLast(params AddSongToQueueAtLastParams) error {
-	return a.app.AddSongToQueue(params.Account.Id, params.SongPublicId)
+	return a.app.AddSongToQueue(params.Account.Id, params.ClientHash, params.SongPublicId)
 }
 
 type AddSongToQueueNextParams struct {
@@ -75,7 +75,7 @@ type AddPlaylistToQueueAtLastParams struct {
 }
 
 func (a *Actions) AddPlaylistToQueueAtLast(params AddPlaylistToQueueAtLastParams) error {
-	return a.app.AddPlaylistToQueue(params.Account.Id, params.PlaylistPublicId)
+	return a.app.AddPlaylistToQueue(params.Account.Id, params.ClientHash, params.PlaylistPublicId)
 }
 
 type AddPlaylistToQueueNextParams struct {
@@ -93,7 +93,7 @@ type RemoveSongFromQueueParams struct {
 }
 
 func (a *Actions) RemoveSongFromQueue(params RemoveSongFromQueueParams) error {
-	return a.app.RemoveSongFromQueue(params.SongIndex, params.Account.Id)
+	return a.app.RemoveSongFromQueue(params.Account.Id, params.ClientHash, params.SongIndex)
 }
 
 type PlayPlaylistParams struct {
@@ -138,7 +138,7 @@ type SetShuffleOnParams struct {
 }
 
 func (a *Actions) SetShuffleOn(params SetShuffleOnParams) error {
-	return a.app.SetShuffledOn(params.Account.Id)
+	return a.app.SetShuffledOn(params.Account.Id, params.ClientHash)
 }
 
 type SetShuffleOffParams struct {
@@ -146,7 +146,7 @@ type SetShuffleOffParams struct {
 }
 
 func (a *Actions) SetShuffleOff(params SetShuffleOffParams) error {
-	return a.app.SetShuffledOff(params.Account.Id)
+	return a.app.SetShuffledOff(params.Account.Id, params.ClientHash)
 }
 
 type SetLoopOffParams struct {
@@ -154,7 +154,7 @@ type SetLoopOffParams struct {
 }
 
 func (a *Actions) SetLoopOff(params SetLoopOffParams) error {
-	return a.app.SetLoopMode(params.Account.Id, models.LoopOffMode)
+	return a.app.SetLoopMode(params.Account.Id, params.ClientHash, models.LoopOffMode)
 }
 
 type SetLoopOnceParams struct {
@@ -162,7 +162,7 @@ type SetLoopOnceParams struct {
 }
 
 func (a *Actions) SetLoopOnce(params SetLoopOnceParams) error {
-	return a.app.SetLoopMode(params.Account.Id, models.LoopOnceMode)
+	return a.app.SetLoopMode(params.Account.Id, params.ClientHash, models.LoopOnceMode)
 }
 
 type SetLoopAllParams struct {
@@ -170,7 +170,7 @@ type SetLoopAllParams struct {
 }
 
 func (a *Actions) SetLoopAll(params SetLoopAllParams) error {
-	return a.app.SetLoopMode(params.Account.Id, models.LoopAllMode)
+	return a.app.SetLoopMode(params.Account.Id, params.ClientHash, models.LoopAllMode)
 }
 
 type GetNextSongInQueueParams struct {
