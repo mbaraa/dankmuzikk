@@ -89,8 +89,10 @@ function playSong(song) {
   PlayerUI.setLoadingOff();
   audioPlayerEl.play();
   PlayerUI.highlightSong(song.public_id);
-  PlayerUI.unHighlightSong(lastPlayingSongId);
-  lastPlayingSongId = song.public_id;
+  if (song.public_id !== lastPlayingSongId) {
+    PlayerUI.unHighlightSong(lastPlayingSongId);
+    lastPlayingSongId = song.public_id;
+  }
   setMediaSessionMetadata(song);
   PlayerUI.triggerFetchLyrics();
 }
