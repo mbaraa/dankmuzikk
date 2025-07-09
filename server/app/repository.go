@@ -32,6 +32,7 @@ type Repository interface {
 	AddSongToFavorites(songId, accountId uint) error
 	RemoveSongFromFavorites(songId, accountId uint) error
 	GetFavoriteSongs(accountId, page uint) (models.List[models.Song], error)
+	IsSongFavorite(accountId, songId uint) error
 
 	// --------------------------------
 	// Playlist v1 stuff

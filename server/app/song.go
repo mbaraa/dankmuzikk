@@ -65,3 +65,7 @@ func (a *App) ToggleSongInPlaylist(songId, playlistPubId string, ownerId uint) (
 func (a *App) MarkSongAsDownloaded(songPublicId string) error {
 	return a.repo.MarkSongAsDownloaded(songPublicId)
 }
+
+func (a *App) IsSongFavorite(accountId, songId uint) bool {
+	return a.repo.IsSongFavorite(accountId, songId) == nil
+}

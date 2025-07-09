@@ -582,6 +582,21 @@ func (r *Repository) GetFavoriteSongs(accountId, page uint) (models.List[models.
 	return models.NewList(songs, fmt.Sprint(page+1)), nil
 }
 
+func (r *Repository) IsSongFavorite(accountId, songId uint) error {
+	var fav models.FavoriteSong
+	err := tryWrapDbError(
+		r.client.
+			Model(new(models.FavoriteSong)).
+			First(&fav, "account_id = ? AND song_id = ?", accountId, songId).
+			Error,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *Repository) GetPlaylistSongs(playlistId uint) (models.List[*models.Song], error) {
 	gigaQuery := `SELECT songs.id, public_id, title, artist, thumbnail_url, real_duration, ps.created_at, ps.play_times, ps.votes
 		FROM

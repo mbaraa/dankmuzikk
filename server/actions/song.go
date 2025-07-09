@@ -91,6 +91,8 @@ func (a *Actions) GetSongByPublicId(params GetSongByPublicIdParams) (Song, error
 		return Song{}, err
 	}
 
+	song.Favorite = a.app.IsSongFavorite(params.Account.Id, song.Id)
+
 	return mapModelToActionsSong(song), nil
 }
 
