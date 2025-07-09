@@ -104,6 +104,23 @@ function toggleExpandDesktop() {
   }
 }
 
+function highlightSong(songPublicId) {
+  for (const el of document.getElementsByClassName("song-" + songPublicId)) {
+    if (!!el) {
+      el.style.backgroundColor = "var(--accent-color-30)";
+      el.scrollIntoView();
+    }
+  }
+}
+
+function unHighlightSong(songPublicId) {
+  for (const el of document.getElementsByClassName("song-" + songPublicId)) {
+    if (!!el) {
+      el.style.backgroundColor = "#ffffff00";
+    }
+  }
+}
+
 function enableButtons() {
   if (!!playPauseToggleEl) playPauseToggleEl.disabled = null;
   if (!!playPauseToggleExapndedEl) playPauseToggleExapndedEl.disabled = null;
@@ -247,6 +264,8 @@ window.PlayerUI = {
   expandMobilePlayer,
   collapseMobilePlayer,
   toggleExpandDesktop,
+  highlightSong,
+  unHighlightSong,
   setPlayIcon,
   setPauseIcon,
   setLoadingOn,

@@ -64,6 +64,8 @@ async function removeSongFromPlaylist(songPublicId, playlistPublicId) {
     });
 }
 
+let lastPlayingSongId = "";
+
 /**
  * @param {Song} song
  */
@@ -86,6 +88,9 @@ function playSong(song) {
   PlayerUI.setSongThumbnail(song.thumbnail_url);
   PlayerUI.setLoadingOff();
   audioPlayerEl.play();
+  PlayerUI.highlightSong(song.public_id);
+  PlayerUI.unHighlightSong(lastPlayingSongId);
+  lastPlayingSongId = song.public_id;
   setMediaSessionMetadata(song);
   PlayerUI.triggerFetchLyrics();
 }

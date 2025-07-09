@@ -20,6 +20,7 @@ templ Song(s actions.Song, additionalData []string, additionalOptions []templ.Co
 			id={ "song-" + s.PublicId }
 		}
 		class={
+			templ.KV("song-"+s.PublicId, source != "single"),
 			"!font-Ubuntu", "w-full", "bg-[#ffffff00]", "flex", "justify-between",
 			"rounded-xl", templ.KV("gap-x-2 md:gap-x-5 xl:gap-x-10", source != "queue"), "p-2",
 		}
