@@ -61,7 +61,7 @@ input[type="range"]:focus::-webkit-slider-runnable-track {
   color: var(--secondary-color);
 }
 input[type="range"]::-moz-range-track {
-  width: 100%;
+  width: auto;
   height: 8.4px;
   cursor: pointer;
   background: var(--secondary-color);
@@ -92,4 +92,13 @@ input[type="range"]::-ms-fill-upper {
 }
 input[type="range"]:focus::-ms-fill-upper {
   background: var(--secondary-color);
+}
+input[type="range"]::-moz-range-progress {
+  background-color: var(--accent-color);
+  height: 15px;
+  border-top-left-radius: 11px;
+  border-bottom-left-radius: 11px;
+}
+input[type="range"]::-ms-fill-lower {
+  background-color: var(--accent-color);
 }

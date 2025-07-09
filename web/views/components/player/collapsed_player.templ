@@ -85,23 +85,37 @@ func psThumnailUrl(state actions.PlayerState, fallback string) string {
 }
 
 templ collapsedPlayer() {
-	<div
-		class={ "h-full", "flex", "justify-between", "items-center", "gap-x-2", "md:gap-x-5", }
-	>
-		<!-- details and seeker -->
+	<div class={ "flex", "flex-col", "md:mx-3" }>
+		<!-- seeker, time, and volume -->
 		<div
-			class={
-				"w-full",
-				"flex", "justify-between", "items-center", "flex-col-reverse", "md:flex-row", "gap-x-5",
+			class={ "w-full", "flex", "flex-row-reverse", "md:flex-row", "gap-x-2", "md:my-1" }
+		>
+			<span id="song-current-time">00:00</span>
+			<input
+				id="song-seek-bar"
+				type="range"
+				min="0"
+				max={ psDuration(ps(ctx), "0") }
+				value="0"
+				class={ "w-full", "md:w-fit" }
+			/>
+			@ui.DesktopOnly() {
+				<span id="song-duration">{ psDurationStr(ps(ctx), "00:00") }</span>
 			}
+		</div>
+		<!-- details & controls -->
+		<div
+			class={ "h-full", "flex", "justify-between", "items-center", "gap-x-2", "md:gap-x-5", }
 		>
 			<!-- details -->
-			<div class={ "w-full", "flex", "items-center", "gap-x-4", "w-fit", "md:w-[350px]", "lg:w-[400px]" }>
+			<div
+				class={ "flex", "justify-between", "items-center", "gap-x-5", }
+			>
 				<div
 					id="song-image"
 					class={
 						"w-[35px]", "h-[35px]", "rounded-[3px]",
-						"md:w-[60px]", "md:h-[60px]", "md:rounded-md", "bg-primary",
+						"md:w-[50px]", "md:h-[50px]", "md:rounded-md", "bg-primary",
 						"bg-repeat", "bg-cover", "bg-center",
 						playerSongThumb(psThumnailUrl(ps(ctx), "/static/images/album-cover-icon.svg")),
 					}
@@ -131,55 +145,34 @@ templ collapsedPlayer() {
 					</div>
 				}
 			</div>
-			<!-- seeker, time, and volume -->
-			<div
-				class={
-					"w-full", "lg:w-[400px]", "2xl:w-[600px]",
-					"flex", "flex-row-reverse", "md:flex-col", "gap-x-2",
+			<!-- controls -->
+			<div class={ "flex", "rounded-r", "items-center", "gap-x-0", "lg:mr-[200px]" }>
+				@ui.DesktopOnly() {
+					@ShuffleButton(psShuffled(ps(ctx)))
+					@PreviousButton()
 				}
-			>
-				<div class={ "flex", "justify-between", "w-fit", "md:w-full", "items-center" }>
-					<span id="song-current-time">00:00</span>
-					@ui.DesktopOnly() {
-						<span id="song-duration" class={ "hidden", "md:inline-block" }>{ psDurationStr(ps(ctx), "00:00") }</span>
+				<button
+					id="play"
+					type="button"
+					title="Play/Pause"
+					_="on click call Player.playPauseMuzikk()"
+					if !checkPlayerStateForSong(ps(ctx)) {
+						disabled
 					}
-				</div>
-				<input
-					id="song-seek-bar"
-					type="range"
-					min="0"
-					max={ psDuration(ps(ctx), "0") }
-					value="0"
-					class={ "my-2", "w-full", "md:w-fit" }
-				/>
-			</div>
-			<div></div>
-		</div>
-		<!-- controls -->
-		<div class={ "flex", "items-center", "gap-x-0" }>
-			@ui.DesktopOnly() {
-				@menus.PopoverUp("Playback Speed", playbackSpeedButton(), playbackSpeedMenu(), 440)
-				@menus.PopoverUp("Volume", volumeButton(), volumeSeeker(), 45)
-			}
-			@ui.DesktopOnly() {
-				@ShuffleButton(psShuffled(ps(ctx)))
-				@PreviousButton()
-			}
-			<button
-				id="play"
-				type="button"
-				title="Play/Pause"
-				_="on click call Player.playPauseMuzikk()"
-				if !checkPlayerStateForSong(ps(ctx)) {
-					disabled
+				>
+					@icons.Play()
+				</button>
+				@ui.DesktopOnly() {
+					@NextButton()
+					@LoopButton(psLoopMode(ps(ctx)))
 				}
-			>
-				@icons.Play()
-			</button>
+			</div>
 			@ui.DesktopOnly() {
-				@NextButton()
-				@LoopButton(psLoopMode(ps(ctx)))
-				@ExpandButton()
+				<div class={ "flex", "items-center", "gap-x-0" }>
+					@menus.PopoverUp("Volume", volumeButton(), volumeSeeker(), 45)
+					@menus.PopoverUp("Playback Speed", playbackSpeedButton(), playbackSpeedMenu(), 440)
+					@ExpandButton()
+				</div>
 			}
 		</div>
 	</div>
