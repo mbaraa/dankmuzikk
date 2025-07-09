@@ -49,27 +49,41 @@ func playerShuffledQueueKey(accountId uint) string {
 	return fmt.Sprintf("%splayer-shuffled-queue:%d", keyPrefix, accountId)
 }
 
-// func playerQueueSongKey(songId uint) string {
-// return fmt.Sprintf("%splayer-song:%d", keyPrefix, songId)
-// }
-
 func (c *playerCache) CreateSongsQueue(accountId uint, initialSongIds ...uint) error {
+	ctx := context.Background()
+	rp := c.client.Pipeline()
 	for _, songId := range initialSongIds {
-		err := c.AddSongToQueue(accountId, songId)
-		if err != nil {
-			return err
-		}
+		rp.RPush(ctx,
+			playerQueueKey(accountId),
+			songId,
+		)
+	}
+
+	rp.Expire(context.Background(), playerQueueKey(accountId), playerQueueTtlHours*time.Hour)
+
+	_, err := rp.Exec(ctx)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (c *playerCache) CreateSongsShuffledQueue(accountId uint, initialSongIds ...uint) error {
+	ctx := context.Background()
+	rp := c.client.Pipeline()
 	for _, songId := range initialSongIds {
-		err := c.AddSongToShuffledQueue(accountId, songId)
-		if err != nil {
-			return err
-		}
+		rp.RPush(ctx,
+			playerShuffledQueueKey(accountId),
+			songId,
+		)
+	}
+
+	rp.Expire(context.Background(), playerShuffledQueueKey(accountId), playerQueueTtlHours*time.Hour)
+
+	_, err := rp.Exec(ctx)
+	if err != nil {
+		return err
 	}
 
 	return nil
