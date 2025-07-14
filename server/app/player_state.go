@@ -269,31 +269,26 @@ func (a *App) PlaySongFromPlaylist(accountId uint, clientHash, songPublicId, pla
 		return err
 	}
 
-	player, err := a.GetPlayerState(accountId, clientHash)
+	songIndex := 0
+	playlistSongs, err := a.repo.GetPlaylistSongs(playlist.Id)
 	if err != nil {
 		return err
 	}
 
-	songIndex := 0
-	for i := len(player.Songs) - 1; i >= 0; i-- {
-		if player.Songs[i].Id == song.Id {
+	for i := playlistSongs.Size - 1; i >= 0; i-- {
+		if playlistSongs.Items[i].Id == song.Id {
 			songIndex = i
 			break
 		}
 	}
-
 	err = a.setCurrentPlayingSongIndex(accountId, clientHash, songIndex)
 	if err != nil {
 		return err
 	}
 
-	if player.CurrentPlaylistId == playlist.Id {
+	currentPlaylistId, _ := a.playerCache.GetCurrentPlayingPlaylistInQueue(accountId, clientHash)
+	if currentPlaylistId != 0 && currentPlaylistId == playlist.Id {
 		return nil
-	}
-
-	playlistSongs, err := a.repo.GetPlaylistSongs(playlist.Id)
-	if err != nil {
-		return err
 	}
 
 	songIds := make([]string, 0, playlistSongs.Size)
@@ -359,11 +354,12 @@ func (a *App) PlaySongFromQueue(accountId uint, clientHash, songPublicId string)
 		return err
 	}
 
-	songIndex := slices.IndexFunc(songs, func(song models.Song) bool {
-		return song.PublicId == songPublicId
-	})
-	if songIndex < 0 {
-		return &ErrNotFound{ResourceName: "song"}
+	songIndex := 0
+	for i := len(songs) - 1; i >= 0; i-- {
+		if songs[i].PublicId == songPublicId {
+			songIndex = i
+			break
+		}
 	}
 
 	return a.setCurrentPlayingSongIndex(accountId, clientHash, songIndex)

@@ -109,10 +109,10 @@ func (s *songsHandler) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http
 		return
 	}
 
+	entryPoint := events.FromPlaylistEntryPoint
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		entryPoint = events.PlayPlaylistEntryPoint
 	}
 	playlistId := r.URL.Query().Get("playlist-id")
 	if playlistId == "" {
@@ -124,7 +124,7 @@ func (s *songsHandler) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http
 		ActionContext: ctx,
 		SongPublicId:  id,
 		PlaylistPubId: playlistId,
-		EntryPoint:    events.FromPlaylistEntryPoint,
+		EntryPoint:    entryPoint,
 	})
 	if err != nil {
 		handleErrorResponse(w, err)
