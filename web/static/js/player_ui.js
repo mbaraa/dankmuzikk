@@ -96,11 +96,13 @@ function toggleExpandDesktop() {
     desktopExpandablePlayer.classList.add("exapnded-desktop");
     playerEl.style.borderTopRightRadius = "0";
     expandDesktopButton.style.backgroundColor = "var(--accent-color-30)";
+    expandDesktopButton.innerHTML = PlayerIcons.arrowDown;
   } else {
     desktopExpandablePlayer.classList.add("collapsed-desktop");
     desktopExpandablePlayer.classList.remove("exapnded-desktop");
     playerEl.style.borderTopRightRadius = "15px";
     expandDesktopButton.style.backgroundColor = "";
+    expandDesktopButton.innerHTML = PlayerIcons.arrowUp;
   }
 }
 
