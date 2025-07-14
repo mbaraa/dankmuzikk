@@ -77,7 +77,6 @@ func (a *App) AddSongToQueue(accountId uint, clientHash, songPublicId string) er
 
 	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	if shuffled {
-		// TODO: maybe move to an event?
 		_ = a.playerCache.AddSongToShuffledQueue(accountId, clientHash, song.Id)
 	}
 
@@ -97,7 +96,6 @@ func (a *App) AddSongToQueueAfterCurrentSong(accountId uint, clientHash, songPub
 	}
 
 	if shuffled {
-		// TODO: maybe move to an event?
 		_ = a.playerCache.AddSongToShuffledQueueAfterIndex(accountId, clientHash, song.Id, currentSongIndex)
 	}
 
@@ -115,20 +113,21 @@ func (a *App) AddPlaylistToQueue(accountId uint, clientHash, playlistPublicId st
 		return err
 	}
 
+	songIds := make([]uint, 0, songs.Size)
+	for _, song := range songs.Items {
+		songIds = append(songIds, song.Id)
+	}
+
 	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
 	if shuffled {
-		// TODO: maybe move to an event?
-		for _, song := range songs.Items {
-			_ = a.playerCache.AddSongToShuffledQueue(accountId, clientHash, song.Id)
-		}
+		rand.Shuffle(len(songIds), func(i, j int) {
+			songIds[i], songIds[j] = songIds[j], songIds[i]
+		})
+
+		return a.playerCache.AddSongsToShuffledQueue(accountId, clientHash, songIds...)
 	}
 
-	// TODO: pipeline this...
-	for _, song := range songs.Items {
-		_ = a.playerCache.AddSongToQueue(accountId, clientHash, song.Id)
-	}
-
-	return nil
+	return a.playerCache.AddSongsToQueue(accountId, clientHash, songIds...)
 }
 
 func (a *App) AddPlaylistToQueueAfterCurrentSong(accountId uint, clientHash, playlistPublicId string) error {

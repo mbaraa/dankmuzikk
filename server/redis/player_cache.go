@@ -264,6 +264,46 @@ func (c *playerCache) AddSongToShuffledQueueAfterIndex(accountId uint, clientHas
 	return nil
 }
 
+func (c *playerCache) AddSongsToQueue(accountId uint, clientHash string, songIds ...uint) error {
+	ctx := context.Background()
+	rp := c.client.Pipeline()
+	for _, songId := range songIds {
+		rp.RPush(ctx,
+			playerQueueKey(accountId, clientHash),
+			songId,
+		)
+	}
+
+	rp.Expire(context.Background(), playerQueueKey(accountId, clientHash), playerQueueTtlHours*time.Hour)
+
+	_, err := rp.Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *playerCache) AddSongsToShuffledQueue(accountId uint, clientHash string, songIds ...uint) error {
+	ctx := context.Background()
+	rp := c.client.Pipeline()
+	for _, songId := range songIds {
+		rp.RPush(ctx,
+			playerShuffledQueueKey(accountId, clientHash),
+			songId,
+		)
+	}
+
+	rp.Expire(context.Background(), playerShuffledQueueKey(accountId, clientHash), playerQueueTtlHours*time.Hour)
+
+	_, err := rp.Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *playerCache) RemoveSongFromQueue(accountId uint, clientHash string, songIndex int) error {
 	res := c.client.LLen(context.Background(), playerQueueKey(accountId, clientHash))
 	if res == nil {

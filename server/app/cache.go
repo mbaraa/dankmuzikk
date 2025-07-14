@@ -15,6 +15,8 @@ type PlayerCache interface {
 	AddSongToQueueAfterIndex(accountId uint, clientHash string, songId uint, index int) error
 	AddSongToShuffledQueue(accountId uint, clientHash string, songId uint) error
 	AddSongToShuffledQueueAfterIndex(accountId uint, clientHash string, songId uint, index int) error
+	AddSongsToQueue(accountId uint, clientHash string, songIds ...uint) error
+	AddSongsToShuffledQueue(accountId uint, clientHash string, songIds ...uint) error
 	RemoveSongFromQueue(accountId uint, clientHash string, songIndex int) error
 	RemoveSongFromShuffledQueue(accountId uint, clientHash string, songIndex int) error
 	ClearQueue(accountId uint, clientHash string) error
