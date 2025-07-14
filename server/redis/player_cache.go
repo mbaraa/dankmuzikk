@@ -446,7 +446,7 @@ func (c *playerCache) GetCurrentPlayingSongIndexInQueue(accountId uint, clientHa
 
 func (c *playerCache) SetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string, songIndex int) error {
 	status := c.client.Set(context.Background(),
-		playerCurrentPlayingSongKeyInShuffledQueue(accountId, clientHash),
+		playerCurrentPlayingSongInShuffledQueueKey(accountId, clientHash),
 		songIndex,
 		playerSettingsTtlHours*time.Hour,
 	)
@@ -464,7 +464,7 @@ func (c *playerCache) SetCurrentPlayingSongIndexInShuffledQueue(accountId uint, 
 }
 
 func (c *playerCache) GetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string) (int, error) {
-	res := c.client.Get(context.Background(), playerCurrentPlayingSongKeyInShuffledQueue(accountId, clientHash))
+	res := c.client.Get(context.Background(), playerCurrentPlayingSongInShuffledQueueKey(accountId, clientHash))
 	if res == nil {
 		return 0, redis.Nil
 	}
@@ -655,6 +655,10 @@ func playerCurrentPlayingSongKey(accountId uint, clientHash string) string {
 	return fmt.Sprintf("%splayer-playing-index:%d:%s", keyPrefix, accountId, clientHash)
 }
 
+func playerCurrentPlayingSongInShuffledQueueKey(accountId uint, clientHash string) string {
+	return fmt.Sprintf("%splayer-playing-index-shuffled:%d:%s", keyPrefix, accountId, clientHash)
+}
+
 func playerPlayingPlaylistKey(accountId uint, clientHash string) string {
 	return fmt.Sprintf("%splayer-playlist:%d:%s", keyPrefix, accountId, clientHash)
 }
@@ -668,8 +672,4 @@ const (
 
 func playerSettingKey(accountId uint, clientHash string, settingName playerSetting) string {
 	return fmt.Sprintf("%splayer-setting:%d:%s:%s", keyPrefix, accountId, clientHash, settingName)
-}
-
-func playerCurrentPlayingSongKeyInShuffledQueue(accountId uint, clientHash string) string {
-	return fmt.Sprintf("%splayer-playing-index-shuffled:%d:%s", keyPrefix, clientHash, accountId)
 }

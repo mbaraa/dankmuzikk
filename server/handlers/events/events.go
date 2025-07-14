@@ -66,8 +66,4 @@ func (e *EventHandlers) HandleDownloadSongOnFavorite(event events.SongAddedToFav
 	return e.usecases.DownloadYouTubeSong(event.SongPublicId)
 }
 
-func (e *EventHandlers) HandleAddSongToQueue(event events.SongPlayed) error {
-	return e.usecases.HandleAddSongToQueue(event)
-}
-
 func (e *EventHandlers) IncrementSongPlaysInPlaylist() {}

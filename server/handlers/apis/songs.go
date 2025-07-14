@@ -2,7 +2,6 @@ package apis
 
 import (
 	"dankmuzikk/actions"
-	"dankmuzikk/evy/events"
 	"encoding/json"
 	"net/http"
 )
@@ -92,7 +91,6 @@ func (s *songsHandler) HandlePlaySong(w http.ResponseWriter, r *http.Request) {
 	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
 		ActionContext: ctx,
 		SongPublicId:  id,
-		EntryPoint:    events.SingleSongEntryPoint,
 	})
 	if err != nil {
 		handleErrorResponse(w, err)
@@ -109,23 +107,27 @@ func (s *songsHandler) HandlePlaySongFromPlaylist(w http.ResponseWriter, r *http
 		return
 	}
 
-	entryPoint := events.FromPlaylistEntryPoint
 	id := r.URL.Query().Get("id")
-	if id == "" {
-		entryPoint = events.PlayPlaylistEntryPoint
-	}
 	playlistId := r.URL.Query().Get("playlist-id")
 	if playlistId == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
-		ActionContext: ctx,
-		SongPublicId:  id,
-		PlaylistPubId: playlistId,
-		EntryPoint:    entryPoint,
-	})
+	var payload actions.PlaySongPayload
+
+	if id != "" {
+		payload, err = s.usecases.PlaySongFromPlaylist(actions.PlaySongFromPlaylistParams{
+			ActionContext:    ctx,
+			SongPublicId:     id,
+			PlaylistPublicId: playlistId,
+		})
+	} else {
+		payload, err = s.usecases.PlayPlaylist(actions.PlayPlaylistParams{
+			ActionContext:    ctx,
+			PlaylistPublicId: playlistId,
+		})
+	}
 	if err != nil {
 		handleErrorResponse(w, err)
 		return
@@ -147,10 +149,9 @@ func (s *songsHandler) HandlePlaySongFromFavorites(w http.ResponseWriter, r *htt
 		return
 	}
 
-	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
+	payload, err := s.usecases.PlaySongFromFavorites(actions.PlaySongFromFavoritesParams{
 		ActionContext: ctx,
 		SongPublicId:  id,
-		EntryPoint:    events.FavoriteSongEntryPoint,
 	})
 	if err != nil {
 		handleErrorResponse(w, err)
@@ -173,10 +174,9 @@ func (s *songsHandler) HandlePlaySongFromQueue(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	payload, err := s.usecases.PlaySong(actions.PlaySongParams{
+	payload, err := s.usecases.PlaySongFromQueue(actions.PlaySongFromQueueParams{
 		ActionContext: ctx,
 		SongPublicId:  id,
-		EntryPoint:    events.QueueSongEntryPoint,
 	})
 	if err != nil {
 		handleErrorResponse(w, err)

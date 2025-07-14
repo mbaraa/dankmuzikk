@@ -42,15 +42,6 @@ func (a *Actions) GetPlayerState(params GetPlayerStateParams) (GetPlayerStatePay
 	}, nil
 }
 
-type AddSongToNewQueueParams struct {
-	ActionContext `json:"-"`
-	SongPublicId  string `json:"song_public_id"`
-}
-
-func (a *Actions) AddSongToNewQueue(params AddSongToNewQueueParams) error {
-	return a.app.CreateSongsQueue(params.Account.Id, params.ClientHash, []string{params.SongPublicId})
-}
-
 type AddSongToQueueAtLastParams struct {
 	ActionContext `json:"-"`
 	SongPublicId  string `json:"song_public_id"`
@@ -94,43 +85,6 @@ type RemoveSongFromQueueParams struct {
 
 func (a *Actions) RemoveSongFromQueue(params RemoveSongFromQueueParams) error {
 	return a.app.RemoveSongFromQueue(params.Account.Id, params.ClientHash, params.SongIndex)
-}
-
-type PlayPlaylistParams struct {
-	ActionContext    `json:"-"`
-	PlaylistPublicId string `json:"playlist_public_id"`
-}
-
-func (a *Actions) PlayPlaylist(params PlayPlaylistParams) error {
-	return a.app.PlayPlaylist(params.Account.Id, params.ClientHash, params.PlaylistPublicId)
-}
-
-type PlaySongFromPlaylistParams struct {
-	ActionContext    `json:"-"`
-	SongPublicId     string `json:"song_public_id"`
-	PlaylistPublicId string `json:"playlist_public_id"`
-}
-
-func (a *Actions) PlaySongFromPlaylist(params PlaySongFromPlaylistParams) error {
-	return a.app.PlaySongFromPlaylist(params.Account.Id, params.ClientHash, params.SongPublicId, params.PlaylistPublicId)
-}
-
-type PlaySongFromFavoritesParams struct {
-	ActionContext `json:"-"`
-	SongPublicId  string `json:"song_public_id"`
-}
-
-func (a *Actions) PlaySongFromFavorites(params PlaySongFromFavoritesParams) error {
-	return a.app.PlaySongFromFavorites(params.Account.Id, params.ClientHash, params.SongPublicId)
-}
-
-type PlaySongFromQueueParams struct {
-	ActionContext `json:"-"`
-	SongPublicId  string `json:"song_public_id"`
-}
-
-func (a *Actions) PlaySongFromQueue(params PlaySongFromQueueParams) error {
-	return a.app.PlaySongFromQueue(params.Account.Id, params.ClientHash, params.SongPublicId)
 }
 
 type SetShuffleOnParams struct {
@@ -189,19 +143,16 @@ func (a *Actions) GetNextSongInQueue(params GetNextSongInQueueParams) (GetNextSo
 		return GetNextSongInQueuePayload{}, err
 	}
 
-	event := events.SongPlayed{
+	err = a.eventhub.Publish(events.SongPlayed{
 		AccountId:    params.Account.Id,
 		ClientHash:   params.ClientHash,
 		SongPublicId: result.Song.PublicId,
-		EntryPoint:   events.QueueSongEntryPoint,
-	}
-	err = a.eventhub.Publish(event)
+	})
 	if err != nil {
 		return GetNextSongInQueuePayload{}, err
 	}
 
-	// TODO: move this back to the event handler
-	err = a.HandleAddSongToQueue(event)
+	err = a.app.PlaySongFromQueue(params.Account.Id, params.ClientHash, result.Song.PublicId)
 	if err != nil {
 		return GetNextSongInQueuePayload{}, err
 	}
@@ -229,19 +180,19 @@ func (a *Actions) GetPreviousSongInQueue(params GetPreviousSongInQueueParams) (G
 		return GetPreviousSongInQueuePayload{}, err
 	}
 
-	event := events.SongPlayed{
+	err = a.eventhub.Publish(events.SongPlayed{
 		AccountId:    params.Account.Id,
 		ClientHash:   params.ClientHash,
 		SongPublicId: result.Song.PublicId,
-		EntryPoint:   events.QueueSongEntryPoint,
-	}
-	err = a.eventhub.Publish(event)
+	})
 	if err != nil {
 		return GetPreviousSongInQueuePayload{}, err
 	}
 
-	// TODO: move this back to the event handler
-	err = a.HandleAddSongToQueue(event)
+	err = a.app.PlaySongFromQueue(params.Account.Id, params.ClientHash, result.Song.PublicId)
+	if err != nil {
+		return GetPreviousSongInQueuePayload{}, err
+	}
 	if err != nil {
 		return GetPreviousSongInQueuePayload{}, err
 	}

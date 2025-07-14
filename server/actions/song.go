@@ -215,56 +215,13 @@ func (a *Actions) ToggleSongInPlaylist(params ToggleSongInPlaylistParams) (Toggl
 }
 
 type PlaySongParams struct {
-	ActionContext `json:"-"`
-	SongPublicId  string
-	PlaylistPubId string
-	EntryPoint    events.SongPlayedEntryPoint
+	ActionContext    `json:"-"`
+	SongPublicId     string
+	PlaylistPublicId string
 }
 
 type PlaySongPayload struct {
 	Song
-}
-
-// TODO: move this back to the event handler
-// maybe?
-func (a *Actions) HandleAddSongToQueue(event events.SongPlayed) error {
-	var err error
-	ctx := ActionContext{
-		Account: models.Account{
-			Id: event.AccountId,
-		},
-		ClientHash: event.ClientHash,
-	}
-	switch event.EntryPoint {
-	case events.SingleSongEntryPoint:
-		err = a.AddSongToNewQueue(AddSongToNewQueueParams{
-			ActionContext: ctx,
-			SongPublicId:  event.SongPublicId,
-		})
-	case events.PlayPlaylistEntryPoint:
-		err = a.PlayPlaylist(PlayPlaylistParams{
-			ActionContext:    ctx,
-			PlaylistPublicId: event.PlaylistPublicId,
-		})
-	case events.FromPlaylistEntryPoint:
-		err = a.PlaySongFromPlaylist(PlaySongFromPlaylistParams{
-			ActionContext:    ctx,
-			SongPublicId:     event.SongPublicId,
-			PlaylistPublicId: event.PlaylistPublicId,
-		})
-	case events.FavoriteSongEntryPoint:
-		err = a.PlaySongFromFavorites(PlaySongFromFavoritesParams{
-			ActionContext: ctx,
-			SongPublicId:  event.SongPublicId,
-		})
-	case events.QueueSongEntryPoint:
-		err = a.PlaySongFromQueue(PlaySongFromQueueParams{
-			ActionContext: ctx,
-			SongPublicId:  event.SongPublicId,
-		})
-	}
-
-	return err
 }
 
 func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
@@ -276,26 +233,148 @@ func (a *Actions) PlaySong(params PlaySongParams) (PlaySongPayload, error) {
 		return PlaySongPayload{}, err
 	}
 
-	event := events.SongPlayed{
+	err = a.eventhub.Publish(events.SongPlayed{
 		AccountId:        params.Account.Id,
 		ClientHash:       params.ClientHash,
 		SongPublicId:     params.SongPublicId,
-		PlaylistPublicId: params.PlaylistPubId,
-		EntryPoint:       params.EntryPoint,
-	}
-	err = a.eventhub.Publish(event)
+		PlaylistPublicId: params.PlaylistPublicId,
+	})
 	if err != nil {
 		return PlaySongPayload{}, err
 	}
 
-	// TODO: move this back to the event handler
-	err = a.HandleAddSongToQueue(event)
+	err = a.app.CreateSongsQueue(params.Account.Id, params.ClientHash, []string{params.SongPublicId})
 	if err != nil {
 		return PlaySongPayload{}, err
 	}
 
 	return PlaySongPayload{
 		Song: song,
+	}, nil
+}
+
+type PlayPlaylistParams struct {
+	ActionContext    `json:"-"`
+	PlaylistPublicId string `json:"playlist_public_id"`
+}
+
+func (a *Actions) PlayPlaylist(params PlayPlaylistParams) (PlaySongPayload, error) {
+	err := a.app.PlayPlaylist(params.Account.Id, params.ClientHash, params.PlaylistPublicId)
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	song, err := a.app.GetCurrentPlayingSong(params.Account.Id, params.ClientHash)
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	err = a.eventhub.Publish(events.SongPlayed{
+		AccountId:        params.Account.Id,
+		ClientHash:       params.ClientHash,
+		SongPublicId:     song.PublicId,
+		PlaylistPublicId: params.PlaylistPublicId,
+	})
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	return PlaySongPayload{
+		Song: mapModelToActionsSong(song),
+	}, nil
+}
+
+type PlaySongFromPlaylistParams struct {
+	ActionContext    `json:"-"`
+	SongPublicId     string `json:"song_public_id"`
+	PlaylistPublicId string `json:"playlist_public_id"`
+}
+
+func (a *Actions) PlaySongFromPlaylist(params PlaySongFromPlaylistParams) (PlaySongPayload, error) {
+	log.Warningf("params: %+v\n", params)
+	err := a.app.PlaySongFromPlaylist(params.Account.Id, params.ClientHash, params.SongPublicId, params.PlaylistPublicId)
+	if err != nil {
+		log.Warningln("kurwa", err)
+		return PlaySongPayload{}, err
+	}
+
+	song, err := a.app.GetCurrentPlayingSong(params.Account.Id, params.ClientHash)
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	err = a.eventhub.Publish(events.SongPlayed{
+		AccountId:        params.Account.Id,
+		ClientHash:       params.ClientHash,
+		SongPublicId:     params.SongPublicId,
+		PlaylistPublicId: params.PlaylistPublicId,
+	})
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	return PlaySongPayload{
+		Song: mapModelToActionsSong(song),
+	}, nil
+}
+
+type PlaySongFromFavoritesParams struct {
+	ActionContext `json:"-"`
+	SongPublicId  string `json:"song_public_id"`
+}
+
+func (a *Actions) PlaySongFromFavorites(params PlaySongFromFavoritesParams) (PlaySongPayload, error) {
+	err := a.app.PlaySongFromFavorites(params.Account.Id, params.ClientHash, params.SongPublicId)
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	song, err := a.app.GetCurrentPlayingSong(params.Account.Id, params.ClientHash)
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	err = a.eventhub.Publish(events.SongPlayed{
+		AccountId:    params.Account.Id,
+		ClientHash:   params.ClientHash,
+		SongPublicId: params.SongPublicId,
+	})
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	return PlaySongPayload{
+		Song: mapModelToActionsSong(song),
+	}, nil
+}
+
+type PlaySongFromQueueParams struct {
+	ActionContext `json:"-"`
+	SongPublicId  string `json:"song_public_id"`
+}
+
+func (a *Actions) PlaySongFromQueue(params PlaySongFromQueueParams) (PlaySongPayload, error) {
+	err := a.app.PlaySongFromQueue(params.Account.Id, params.ClientHash, params.SongPublicId)
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	song, err := a.app.GetCurrentPlayingSong(params.Account.Id, params.ClientHash)
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	err = a.eventhub.Publish(events.SongPlayed{
+		AccountId:    params.Account.Id,
+		ClientHash:   params.ClientHash,
+		SongPublicId: params.SongPublicId,
+	})
+	if err != nil {
+		return PlaySongPayload{}, err
+	}
+
+	return PlaySongPayload{
+		Song: mapModelToActionsSong(song),
 	}, nil
 }
 
