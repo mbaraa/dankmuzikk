@@ -291,10 +291,8 @@ type PlaySongFromPlaylistParams struct {
 }
 
 func (a *Actions) PlaySongFromPlaylist(params PlaySongFromPlaylistParams) (PlaySongPayload, error) {
-	log.Warningf("params: %+v\n", params)
 	err := a.app.PlaySongFromPlaylist(params.Account.Id, params.ClientHash, params.SongPublicId, params.PlaylistPublicId)
 	if err != nil {
-		log.Warningln("kurwa", err)
 		return PlaySongPayload{}, err
 	}
 

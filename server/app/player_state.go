@@ -274,7 +274,7 @@ func (a *App) PlaySongFromPlaylist(accountId uint, clientHash, songPublicId, pla
 	}
 
 	currentPlaylistId, _ := a.playerCache.GetCurrentPlayingPlaylistInQueue(accountId, clientHash)
-	if currentPlaylistId != 0 && currentPlaylistId != playlist.Id {
+	if currentPlaylistId != playlist.Id {
 		songIds := make([]string, 0, playlistSongs.Size)
 		for _, song := range playlistSongs.Items {
 			songIds = append(songIds, song.PublicId)
