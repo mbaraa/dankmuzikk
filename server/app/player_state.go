@@ -189,9 +189,16 @@ func (a *App) SetShuffledOn(accountId uint, clientHash string) error {
 		return err
 	}
 
+	currentSongIndex, _ := a.playerCache.GetCurrentPlayingSongIndexInQueue(accountId, clientHash)
+	if currentSongIndex < 0 {
+		currentSongIndex = 0
+	}
+
 	rand.Shuffle(len(songsInQueue), func(i, j int) {
 		songsInQueue[i], songsInQueue[j] = songsInQueue[j], songsInQueue[i]
 	})
+
+	songsInQueue[0], songsInQueue[currentSongIndex] = songsInQueue[currentSongIndex], songsInQueue[0]
 
 	err = a.playerCache.ClearShuffledQueue(accountId, clientHash)
 	if err != nil {
