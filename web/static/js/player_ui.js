@@ -44,7 +44,7 @@ function triggerFetchLyrics() {
       swap: "innerHTML",
     })
     .catch(() => {
-      alert("Lyrics fetching went berzerk...");
+      console.error("Lyrics fetching went berzerk...");
     });
 }
 
