@@ -27,6 +27,8 @@ type PlayerCache interface {
 	GetShuffledQueueLength(accountId uint, clientHash string) (uint, error)
 	GetSongIdAtIndexFromQueue(accountId uint, clientHash string, index int) (uint, error)
 	GetSongIdAtIndexFromShuffledQueue(accountId uint, clientHash string, index int) (uint, error)
+	ExtendSongsQueueTTL(accountId uint, clientHash string) error
+	ExtendSongsShuffledQueueTTL(accountId uint, clientHash string) error
 
 	SetCurrentPlayingSongIndexInQueue(accountId uint, clientHash string, songIndex int) error
 	SetCurrentPlayingSongIndexInShuffledQueue(accountId uint, clientHash string, songIndex int) error

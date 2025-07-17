@@ -516,6 +516,32 @@ func (c *playerCache) GetCurrentPlayingSongIndexInShuffledQueue(accountId uint, 
 	return strconv.Atoi(value)
 }
 
+func (c *playerCache) ExtendSongsQueueTTL(accountId uint, clientHash string) error {
+	res := c.client.Expire(context.Background(), playerQueueKey(accountId, clientHash), playerQueueTtlHours*time.Hour)
+	if res == nil {
+		return nil
+	}
+
+	if res.Err() != nil {
+		return res.Err()
+	}
+
+	return nil
+}
+
+func (c *playerCache) ExtendSongsShuffledQueueTTL(accountId uint, clientHash string) error {
+	res := c.client.Expire(context.Background(), playerShuffledQueueKey(accountId, clientHash), playerQueueTtlHours*time.Hour)
+	if res == nil {
+		return nil
+	}
+
+	if res.Err() != nil {
+		return res.Err()
+	}
+
+	return nil
+}
+
 func (c *playerCache) SetShuffled(accountId uint, clientHash string, shuffled bool) error {
 	status := c.client.Set(context.Background(),
 		playerSettingKey(accountId, clientHash, playerSettingShuffle),

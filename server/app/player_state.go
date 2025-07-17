@@ -359,6 +359,8 @@ func (a *App) PlaySongFromQueue(accountId uint, clientHash, songPublicId string)
 		}
 	}
 
+	_ = a.extendSongsQueueTTL(accountId, clientHash)
+
 	return a.setCurrentPlayingSongIndex(accountId, clientHash, songIndex)
 }
 
@@ -397,6 +399,8 @@ func (a *App) GetNextPlayingSong(accountId uint, clientHash string) (GetNextPlay
 	if err != nil {
 		return GetNextPlayingSongResult{}, err
 	}
+
+	_ = a.extendSongsQueueTTL(accountId, clientHash)
 
 	return GetNextPlayingSongResult{
 		Song:                    song,
@@ -440,6 +444,8 @@ func (a *App) GetPreviousPlayingSong(accountId uint, clientHash string) (GetPrev
 	if err != nil {
 		return GetPreviousPlayingSongResult{}, err
 	}
+
+	_ = a.extendSongsQueueTTL(accountId, clientHash)
 
 	return GetPreviousPlayingSongResult{
 		Song:                    song,
@@ -494,7 +500,18 @@ func (a *App) GetCurrentPlayingSong(accountId uint, clientHash string) (models.S
 		}
 	}
 
+	_ = a.extendSongsQueueTTL(accountId, clientHash)
+
 	return song, nil
+}
+
+func (a *App) extendSongsQueueTTL(accountId uint, clientHash string) error {
+	shuffled, _ := a.playerCache.GetShuffled(accountId, clientHash)
+	if shuffled {
+		return a.playerCache.ExtendSongsShuffledQueueTTL(accountId, clientHash)
+	}
+
+	return a.playerCache.ExtendSongsQueueTTL(accountId, clientHash)
 }
 
 func (a *App) getCurrentPlayingSongIndex(accountId uint, clientHash string) (int, error) {
