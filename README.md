@@ -49,10 +49,10 @@ IDK, it would be really nice of you to contribute, check the poorly written [CON
 - **[Python](https://python.org)**: Used for the YouTube download service.
 - **[templ](https://templ.guide)**: The better [html/template](https://pkg.go.dev/html/template).
 - **[htmx](https://htmx.org)**: The front-end library of peace.
+- **[hyperscript](https://hyperscript.org)**: So htmx won't feel lonely..
 - **[GORM](https://gorm.io)**: The fantastic ORM library for Golang.
 - **[MariaDB](https://mariadb.org)**: Relational database.
 - **[yt-dlp](https://github.com/yt-dlp/yt-dlp)**: YouTube download helper.
-- **[pytube](https://github.com/pytube/pytube)**: YouTube download helper.
 - **[minify](https://github.com/tdewolff/minify)**: Minify static text files.
 
 ## Run locally
