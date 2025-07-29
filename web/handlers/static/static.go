@@ -9,6 +9,12 @@ import (
 	"github.com/tdewolff/minify/v2"
 )
 
+func HandleServiceWorker(w http.ResponseWriter, r *http.Request) {
+	robotsFile, _ := static.FS().ReadFile("service-worker.js")
+	w.Header().Set("Content-Type", "text/javascript")
+	_, _ = w.Write(robotsFile)
+}
+
 func HandleRobots(w http.ResponseWriter, r *http.Request) {
 	robotsFile, _ := static.FS().ReadFile("robots.txt")
 	w.Header().Set("Content-Type", "text/plain")

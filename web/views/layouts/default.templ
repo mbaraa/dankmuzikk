@@ -120,7 +120,7 @@ templ Default(props PageProps, children ...templ.Component) {
 			    	}
 			    	window.addEventListener("load", () => {
 			    		navigator.serviceWorker
-			    			.register("/static/js/service-worker.js")
+			    			.register("/service-worker.js", { scope: "/" })
 			    			.then((reg) => {
 			    				console.log("Service Worker Registered", reg);
 			    			})
