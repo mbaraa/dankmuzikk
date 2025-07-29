@@ -1,14 +1,8 @@
 "use strict";
 
-const CACHE_NAME = "dank-cache-v1";
+const CACHE_NAME = "dank-cache-v0.2.5";
 
 let PRECACHE_ASSETS = [
-  "/",
-  "/about",
-  "/privacy",
-  "/profile",
-  "/playlists",
-  "/library/favorites",
   "/service-worker.js",
   "/static/android-chrome-144x144.png",
   "/static/android-chrome-192x192.png",
