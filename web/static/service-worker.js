@@ -52,7 +52,6 @@ let PRECACHE_ASSETS = [
   "/static/js/htmx/hyperscript.min.js",
   "/static/js/htmx/json-enc.js",
   "/static/js/htmx/loading-states.js",
-  "/static/js/htmx/path-params.js",
   "/static/js/player_icons.js",
   "/static/js/player.js",
   "/static/js/player_shortcuts.js",
@@ -63,7 +62,6 @@ let PRECACHE_ASSETS = [
   "/static/js/theme.js",
   "/static/js/utils.js",
   "/static/mstile-150x150.png",
-  "/static/robots.txt",
   "/static/safari-pinned-tab.svg",
   "/static/site.webmanifest",
 ];
