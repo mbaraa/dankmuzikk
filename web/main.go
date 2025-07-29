@@ -61,7 +61,8 @@ func init() {
 
 func main() {
 	pagesHandler := http.NewServeMux()
-	pagesHandler.HandleFunc("/service-worker.js", static.HandleServiceWorker)
+	pagesHandler.HandleFunc("/service-worker-assets.js", static.HandleAssetsServiceWorker)
+	pagesHandler.HandleFunc("/service-worker-full-offline.js", static.HandleFullOfflineServiceWorker)
 	pagesHandler.HandleFunc("/robots.txt", static.HandleRobots)
 	pagesHandler.HandleFunc("/sitemap.xml", static.HandleSitemap)
 	pagesHandler.HandleFunc("/favicon.ico", static.HandleFavicon)
