@@ -71,9 +71,7 @@ self.addEventListener("install", (event) => {
     /**
      * @type {Cache} cache
      */
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
-    }),
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS)),
   );
 });
 
@@ -84,25 +82,17 @@ self.addEventListener("message", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(cacheNames);
-    }),
-  );
+  event.waitUntil(caches.keys().then((cacheNames) => Promise.all(cacheNames)));
 });
 
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.match(event.request).then((response) => {
-        return (
-          response ||
-          fetch(event.request).then((response) => {
-            cache.put(event.request, response.clone());
-            return response;
-          })
-        );
-      });
-    }),
+    caches
+      .open(CACHE_NAME)
+      .then((cache) =>
+        cache
+          .match(event.request)
+          .then((response) => response || fetch(event.request)),
+      ),
   );
 });
