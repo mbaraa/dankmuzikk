@@ -7,11 +7,12 @@ RUN apk update && \
     apk add --no-cache ffmpeg
 
 COPY requirements.txt /app/requirements.txt
-RUN pip install --upgrade pip && \
-    pip install -r /app/requirements.txt
+
+RUN pip install --upgrade pip
+RUN pip install -r /app/requirements.txt
 
 COPY . /app
 WORKDIR /app
 
 EXPOSE 8000
-CMD [ "gunicorn", "--timeout", "600", "-w", "8", "-b", "0.0.0.0:8000", "main:app" ]
+CMD [ "gunicorn", "--timeout", "600", "-w", "2", "-b", "0.0.0.0:8000", "main:app" ]

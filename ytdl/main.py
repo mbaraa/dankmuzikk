@@ -22,7 +22,7 @@ YT_ERROR = {
 def download_yt_song(id: str) -> int:
     try:
         ytdl = YoutubeDL({
-            "format": "bestaudio/mp3",
+            "format": "251,140,249,250,233,234,139,bestaudio/best",
             "postprocessors": [{
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "mp3",
