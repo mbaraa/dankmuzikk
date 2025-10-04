@@ -18,8 +18,11 @@ const (
 )
 
 var (
-	repo     evy.Repository
-	handlers *events.EventHandlers
+	repo                evy.Repository
+	handlers            *events.EventHandlers
+	executingEventsRepo = &executingEvents{
+		currentEvents: map[string]struct{}{},
+	}
 )
 
 type eventHub struct{}
@@ -168,6 +171,7 @@ func executeEvents(events []evy.EventPayload) error {
 				wg.Done()
 			}()
 		}
+		executingEventsRepo.Delete(e)
 		err := repo.DeleteEvent(e.Id)
 		if err != nil {
 			log.Errorf("Failed deleting event: %+v, error: %v\n", e, err)
@@ -197,18 +201,24 @@ func fetchAndExecuteEventsAsync() {
 }
 
 func handleEventEmitted(w http.ResponseWriter, r *http.Request) {
-	var body evy.EventPayload
-	err := json.NewDecoder(r.Body).Decode(&body)
+	var event evy.EventPayload
+	err := json.NewDecoder(r.Body).Decode(&event)
 	if err != nil {
 		log.Errorln("Failed marshalling event", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = repo.CreateEvent(body)
+	if executingEventsRepo.Exists(event) {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	err = repo.CreateEvent(event)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Errorln(err)
 		return
 	}
+	executingEventsRepo.Add(event)
 }

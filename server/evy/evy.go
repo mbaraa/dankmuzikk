@@ -5,7 +5,7 @@ import (
 	"dankmuzikk/config"
 	"dankmuzikk/evy/events"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -45,8 +45,8 @@ func (e *Evy) Publish(event events.Event) error {
 		return err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return errors.New("event hub request failed")
+	if resp.StatusCode > 299 {
+		return fmt.Errorf("event hub request failed, status code: %d", resp.StatusCode)
 	}
 
 	return nil
