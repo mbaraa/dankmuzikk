@@ -172,7 +172,6 @@ templ collapsedPlayer() {
 					@menus.PopoverUp("Volume", volumeButton(), volumeSeeker(), 45)
 					@menus.PopoverUp("Playback Speed", playbackSpeedButton(), playbackSpeedMenu(), 440)
 					@ExpandButton()
-					@FullScreenButton()
 				</div>
 			}
 		</div>
@@ -188,18 +187,6 @@ templ ExpandButton() {
 		_="on click call PlayerUI.toggleExpandDesktop() end"
 	>
 		@icons.ArrowUp()
-	</button>
-}
-
-templ FullScreenButton() {
-	<button
-		id="full-screen-desktop"
-		type="button"
-		title="Expand!"
-		class={ "p-1", "mx-1" , "rounded-md" }
-		_="on click call PlayerUI.toggleExpandDesktop() end"
-	>
-		@icons.Expand()
 	</button>
 }
 
