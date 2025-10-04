@@ -171,6 +171,11 @@ func executeEvents(events []evy.EventPayload) error {
 				wg.Done()
 			}()
 		}
+	}
+
+	wg.Wait()
+
+	for _, e := range events {
 		executingEventsRepo.Delete(e)
 		err := repo.DeleteEvent(e.Id)
 		if err != nil {
@@ -179,7 +184,6 @@ func executeEvents(events []evy.EventPayload) error {
 		}
 	}
 
-	wg.Wait()
 	return nil
 }
 
