@@ -195,12 +195,10 @@ func fetchAndExecuteEventsAsync() {
 			continue
 		}
 
-		go func() {
-			err := executeEvents(events)
-			if err != nil {
-				log.Errorln("Failed executing events batch", err)
-			}
-		}()
+		err = executeEvents(events)
+		if err != nil {
+			log.Errorln("Failed executing events batch", err)
+		}
 	}
 }
 
