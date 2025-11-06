@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	accountSessionTokenTtlDays = 30
+	accountSessionTokenTtlDays = 60
 	otpTtlMinutes              = 30
 	googleLoginStateTtlMinutes = 30
 )
